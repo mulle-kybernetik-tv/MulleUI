@@ -6,6 +6,7 @@ if( MULLE_TRACE_INCLUDE)
 endif()
 
 set( INCLUDE_DIRS
+nanosvg/src
 nanovg/src
 src
 ) 
@@ -16,6 +17,8 @@ src/include-private.h
 )
 
 set( PUBLIC_HEADERS
+nanosvg/src/nanosvg.h
+nanosvg/src/nanosvgrast.h
 nanovg/src/fontstash.h
 nanovg/src/nanovg_gl.h
 nanovg/src/nanovg_gl_utils.h
@@ -24,6 +27,7 @@ nanovg/src/stb_image.h
 nanovg/src/stb_truetype.h
 src/import.h
 src/include.h
+src/tiger-svg.inc
 src/version.h
 ) 
 

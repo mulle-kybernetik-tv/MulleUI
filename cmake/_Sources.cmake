@@ -8,4 +8,5 @@ endif()
 set( SOURCES
 nanovg/src/nanovg.c
 src/main.m
+src/nanosvg.m
 )
