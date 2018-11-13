@@ -1,5 +1,7 @@
 # MulleGLExample
 
+![screeny.png](screeny.png)
+
 This is a [mulle-sde](https://mulle-sde.github.io/) project.
 
 It has it's own virtual environment, that will be automatically setup for you

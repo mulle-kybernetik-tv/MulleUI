@@ -25,6 +25,11 @@ nanovg/src/nanovg_gl_utils.h
 nanovg/src/nanovg.h
 nanovg/src/stb_image.h
 nanovg/src/stb_truetype.h
+src/CALayer.h
+src/CGBase.h
+src/CGGeometry.h
+src/MulleSVGImage.h
+src/MulleSVGLayer.h
 src/import.h
 src/include.h
 src/tiger-svg.inc

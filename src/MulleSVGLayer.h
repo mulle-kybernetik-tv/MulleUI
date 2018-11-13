@@ -1,19 +1,4 @@
-//******************************************************************************
-//
-// Copyright (c) 2015 Microsoft Corporation. All rights reserved.
-//
-// This code is licensed under the MIT License (MIT).
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-//
-//******************************************************************************
-#import <MulleObjC/MulleObjC.h>
+#import "CALayer.h"
 
 #import "CGBase.h"
 
@@ -22,14 +7,13 @@
 struct NVGcontext;
 
 
-@interface MulleSVGLayer : NSObject
-
+@interface MulleSVGLayer : CALayer
+{
+   CGPoint   _offset;
+}
 @property( retain, nonatomic) MulleSVGImage   *SVGImage;
-@property( assign, nonatomic) CGRect          frame;
 
 - (instancetype) initWithSVGImage:(MulleSVGImage *) image;
-- (void) drawInContext:(struct NVGcontext *) vg;
-
-- (CGRect) bounds;
+- (BOOL) drawInContext:(struct NVGcontext *) vg;
 
 @end

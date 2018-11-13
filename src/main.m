@@ -85,6 +85,7 @@ int main()
    MulleSVGLayer   *layer2;
    MulleSVGImage   *image;
    CGRect          frame;
+   CGRect          bounds;
 
 	struct demo_context   ctxt;
 
@@ -100,14 +101,26 @@ int main()
    layer2 = [[[MulleSVGLayer alloc] initWithSVGImage:image] autorelease];
    fprintf( stderr, "layer: %p\n", layer);
 
-   frame.origin       = CGPointMake( 100, 10);
-   frame.size         = [image size];
-   frame.size.width  /= 3.0;
-   frame.size.height /= 3.0;
-   [layer setFrame:frame];
+   // layer = [[[CALayer alloc] init] autorelease];
 
-   frame.origin = CGPointMake( 600, 10);
+   frame.origin       = CGPointMake( 0.0, 0.0);
+   frame.size.width   = 320;
+   frame.size.height  = 200;
+   [layer setFrame:frame];
+ //  [layer setBounds:CGRectMake( 0.0, 0.0, 200, 30)];
+   [layer setBackgroundColor:getNVGColor( 0xD0D0E0FF)];
+   [layer setBorderColor:getNVGColor( 0x80FF30FF)];
+   [layer setBorderWidth:32.0f];
+
+
+   frame.origin = CGPointMake( 320, 200);
    [layer2 setFrame:frame];
+
+   bounds = [layer2 bounds];
+   bounds.origin.x = -bounds.size.width / 2.0;
+   [layer2 setBounds:bounds];
+
+   [layer2 setBackgroundColor:getNVGColor( 0x402060FF)];
 
 	if( ! glfwInit()) 
 		return -1;

@@ -22,56 +22,37 @@ static NVGcolor getNVGColor(uint32_t color)
    if( ! (self = [super init]))
       return( self);
    
-   _SVGImage = [image retain];  // ownership transfer
+   _SVGImage      = [image retain];  // ownership transfer
+
+   _bounds        = [_SVGImage visibleBounds];
+   _offset.x      = -_bounds.origin.x;
+   _offset.y      = -_bounds.origin.y;
+   _bounds.origin = CGPointMake( 0.0f, 0.0f);
+
    return( self);
 }
 
 
-- (void) drawInContext:(struct NVGcontext *) vg 
+- (BOOL) drawInContext:(struct NVGcontext *) vg 
 {
-   NSVGimage  *image;
-	NSVGshape  *shape;
-	NSVGpath   *path;
-	int        i;
-	float      *p;
-	int        shape_no;
-	int        path_no;
-   CGPoint    scale;
-   CGRect     bounds;
+   NSVGimage     *image;
+	NSVGshape     *shape;
+	NSVGpath      *path;
+   int           i;
+	float         *p;
+   CGPoint       scale;
+
+   if( ! [super drawInContext:vg])
+      return( NO);
 
    image = [_SVGImage NSVGImage];
    if ( ! image)
-      return;
+      return( YES);
 
-   if( _frame.size.width == 0.0 || _frame.size.height == 0.0)
-      return;
+   nvgTranslate( vg, _offset.x, _offset.y);
 
-   static struct NVGcolor  blue = { 0, 0, 0.66, 1.0 };
-
-   bounds  = [self bounds];
-   scale.x = _frame.size.width / bounds.size.width;
-   scale.y = _frame.size.height / bounds.size.height;
-
-   nvgScale( vg, scale.x, scale.y);
-   nvgTranslate( vg, _frame.origin.x, 
-                     _frame.origin.y);
-
-   nvgBeginPath( vg);
-   nvgMoveTo( vg, 0.0f, 0.0f);
-   nvgLineTo( vg, 0.0f + bounds.size.width - 1, 0.0f);
-   nvgLineTo( vg, 0.0f + bounds.size.width - 1, 0.0f + bounds.size.height - 1);
-   nvgLineTo( vg, 0.0f, 0.0f + bounds.size.height - 1);
-   nvgLineTo( vg, 0.0f, 0.0f);
-   
-   nvgFillColor( vg, blue);
-   nvgFill( vg);
-
-   nvgTranslate( vg, -bounds.origin.x, -bounds.origin.y);
-
-	shape_no = 0;
-	for( shape = image->shapes; shape != NULL; shape = shape->next) 
+   for( shape = image->shapes; shape != NULL; shape = shape->next) 
 	{
-		shape_no++;
 	   if( ! (shape->flags & NSVG_FLAGS_VISIBLE))
    	   continue;
 
@@ -79,12 +60,8 @@ static NVGcolor getNVGColor(uint32_t color)
 	   nvgStrokeColor( vg, getNVGColor( shape->stroke.color));
 	   nvgStrokeWidth( vg, shape->strokeWidth);
 
-		path_no = 0;
-
 	   for( path = shape->paths; path != NULL; path = path->next) 
 	   {
-			path_no++;
-
 			nvgBeginPath( vg);
 
 			nvgMoveTo( vg, path->pts[0], path->pts[1]);
@@ -104,9 +81,10 @@ static NVGcolor getNVGColor(uint32_t color)
 			   nvgStroke( vg);
 	   }
 	}
+   return( YES);
 }
 
-- (CGRect) bounds
+- (CGRect) visibleBounds
 {
    CGRect   bounds;
 

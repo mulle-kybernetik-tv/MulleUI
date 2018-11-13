@@ -7,6 +7,10 @@ endif()
 
 set( SOURCES
 nanovg/src/nanovg.c
+src/CALayer.m
+src/CGGeometry.c
+src/MulleSVGImage.m
+src/MulleSVGLayer.m
 src/main.m
 src/nanosvg.m
 )
