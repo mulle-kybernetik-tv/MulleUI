@@ -11,6 +11,7 @@ typedef NVGcolor   CGColorRef;
 
 - (BOOL) drawInContext:(NVGcontext *) ctx;
 
+@property CGFloat cornerRadius;
 @property CGFloat borderWidth;
 @property CGColorRef borderColor;
 @property CGColorRef backgroundColor;

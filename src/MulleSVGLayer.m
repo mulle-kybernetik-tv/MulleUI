@@ -33,6 +33,13 @@ static NVGcolor getNVGColor(uint32_t color)
 }
 
 
+- (void) dealloc
+{
+   [_SVGImage release];
+   [super dealloc];
+}
+
+
 - (BOOL) drawInContext:(struct NVGcontext *) vg 
 {
    NSVGimage     *image;

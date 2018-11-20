@@ -28,10 +28,13 @@ nanovg/src/stb_truetype.h
 src/CALayer.h
 src/CGBase.h
 src/CGGeometry.h
+src/MulleBitmapImage.h
+src/MulleBitmapLayer.h
 src/MulleSVGImage.h
 src/MulleSVGLayer.h
 src/import.h
 src/include.h
+src/sealie-bitmap.inc
 src/tiger-svg.inc
 src/version.h
 ) 

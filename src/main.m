@@ -2,6 +2,8 @@
 
 #import "MulleSVGImage.h"
 #import "MulleSVGLayer.h"
+#import "MulleBitmapImage.h"
+#import "MulleBitmapLayer.h"
 
 
 //	stolen from catgl ©2015,2018 Yuichiro Nakada
@@ -9,6 +11,7 @@
 #define H  100
 
 #include "tiger-svg.inc"
+#include "sealie-bitmap.inc"
 
 #if 0
 static char   svginput[] = \
@@ -81,11 +84,13 @@ static NVGcolor getNVGColor(uint32_t color)
 
 int main()
 {
-   MulleSVGLayer   *layer;
-   MulleSVGLayer   *layer2;
-   MulleSVGImage   *image;
-   CGRect          frame;
-   CGRect          bounds;
+   MulleSVGLayer      *layer;
+   MulleSVGLayer      *layer2;
+   MulleBitmapLayer   *layer3;
+   MulleSVGImage      *image;
+   MulleBitmapImage   *bitmapImage;
+   CGRect             frame;
+   CGRect             bounds;
 
 	struct demo_context   ctxt;
 
@@ -99,7 +104,7 @@ int main()
    fprintf( stderr, "layer: %p\n", layer);
 
    layer2 = [[[MulleSVGLayer alloc] initWithSVGImage:image] autorelease];
-   fprintf( stderr, "layer: %p\n", layer);
+   fprintf( stderr, "layer: %p\n", layer2);
 
    // layer = [[[CALayer alloc] init] autorelease];
 
@@ -111,7 +116,7 @@ int main()
    [layer setBackgroundColor:getNVGColor( 0xD0D0E0FF)];
    [layer setBorderColor:getNVGColor( 0x80FF30FF)];
    [layer setBorderWidth:32.0f];
-
+   [layer setCornerRadius:16.0f];
 
    frame.origin = CGPointMake( 320, 200);
    [layer2 setFrame:frame];
@@ -121,6 +126,18 @@ int main()
    [layer2 setBounds:bounds];
 
    [layer2 setBackgroundColor:getNVGColor( 0x402060FF)];
+
+   bitmapImage = [[[MulleBitmapImage alloc] initWithBytes:(void *) sealie_bitmap
+                                               bitmapSize:sealie_bitmap_size]
+                                                  autorelease];
+   fprintf( stderr, "image: %p\n", bitmapImage);
+
+   layer3 = [[[MulleBitmapLayer alloc] initWithBitmapImage:bitmapImage] autorelease];
+   frame.origin       = CGPointMake( 320.0, 0.0);
+   frame.size.width   = 320;
+   frame.size.height  = 200;
+   [layer3 setFrame:frame];
+   fprintf( stderr, "layer: %p\n", layer3);
 
 	if( ! glfwInit()) 
 		return -1;
@@ -161,6 +178,8 @@ int main()
             [layer drawInContext:ctxt.vg];
             nvgResetTransform( ctxt.vg);
             [layer2 drawInContext:ctxt.vg];
+            nvgResetTransform( ctxt.vg);
+            [layer3 drawInContext:ctxt.vg];
 				ctxt.did_render++;           
 			}
 			nvgEndFrame( ctxt.vg);

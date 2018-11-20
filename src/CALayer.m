@@ -27,13 +27,17 @@
    CGFloat   borderHeight;
    CGPoint   tl;
    CGPoint   br;
+   CGSize    sz;
+   int       radius;
 
    frame  = [self frame];
    if( frame.size.width == 0.0 || frame.size.height == 0.0)
       return( NO);
 
-   nvgScissor( vg, frame.origin.x, frame.origin.y, 
-                   frame.size.width, frame.size.height);
+   nvgScissor( vg, frame.origin.x, 
+                   frame.origin.y, 
+                   frame.size.width, 
+                   frame.size.height);
 
    fprintf( stderr, "frame.origin: %.1f, %.1f\n", frame.origin.x, frame.origin.y);
    fprintf( stderr, "bounds.origin: %.1f, %.1f\n", bounds.origin.x, bounds.origin.y);
@@ -45,52 +49,78 @@
    // contents in bounds
    //
 
-   tl.x = 0.0;
-   tl.y = 0.0;
-   br.x = frame.size.width - 1;
-   br.y = frame.size.height - 1;
+   tl.x = _borderWidth;
+   tl.y = _borderWidth;
+   br.x = frame.size.width - _borderWidth - 1;
+   br.y = frame.size.height - _borderWidth - 1;
 
-   // fill 
-   nvgBeginPath( vg);
+   if( tl.x <= br.x || tl.y <= br.y)
+   {
+      // fill 
+      nvgBeginPath( vg);
 
-   nvgMoveTo( vg, tl.x, tl.y);
-   nvgLineTo( vg, br.x, tl.y);
-   nvgLineTo( vg, br.x, br.y);
-   nvgLineTo( vg, tl.x, br.y);
-   nvgLineTo( vg, tl.x, tl.y);
-   
-   nvgFillColor( vg, _backgroundColor);
-   nvgFill( vg);
+      radius = 0.0;
+      if( _borderWidth == 0.0)
+         radius = (int) _cornerRadius;
 
+      nvgRoundedRect( vg, tl.x, 
+                          tl.y, 
+                          br.x - tl.x + 1, 
+                          br.y - tl.y + 1, 
+                          (int) radius);
+
+   //   nvgMoveTo( vg, tl.x, tl.y);
+   //   nvgLineTo( vg, br.x, tl.y);
+   //   nvgLineTo( vg, br.x, br.y);
+   //   nvgLineTo( vg, tl.x, br.y);
+   //   nvgLineTo( vg, tl.x, tl.y);
+      
+      nvgFillColor( vg, _backgroundColor);
+      nvgFill( vg);
+   }
 
    //
    // the strokeWidth isn't scaled in nvg, so we do this now ourselves
    //
    if( _borderWidth)
    {
+      if( tl.x <= br.x || tl.y <= br.y)
+
       halfBorderWidth = _borderWidth / 2.0;
       nvgStrokeColor( vg, _borderColor);
 
-      tl.x += halfBorderWidth;
-      tl.y += halfBorderWidth;
-      br.x += -halfBorderWidth;
-      br.y += -halfBorderWidth;
+      tl.x = halfBorderWidth;
+      tl.y = halfBorderWidth;
+      br.x = frame.size.width - halfBorderWidth - 1;
+      br.y = frame.size.height - halfBorderWidth - 1;
 
-      nvgStrokeWidth( vg, _borderWidth);
+      if( tl.x <= br.x || tl.y <= br.y)
+      {
+         nvgStrokeWidth( vg, _borderWidth);
 
-      nvgBeginPath( vg);
-      nvgMoveTo( vg, tl.x, tl.y);
-      nvgLineTo( vg, br.x, tl.y);
-      nvgLineTo( vg, br.x, br.y);
-      nvgLineTo( vg, tl.x, br.y);
-      nvgLineTo( vg, tl.x, tl.y);
-      nvgStroke( vg);
+         nvgBeginPath( vg);
+
+         nvgRoundedRect( vg, halfBorderWidth, 
+                             halfBorderWidth, 
+                             br.x - tl.x + 1, 
+                             br.y - tl.y + 1, 
+                             (int) _cornerRadius);
+
+//      nvgMoveTo( vg, tl.x, tl.y);
+//      nvgLineTo( vg, br.x, tl.y);
+//      nvgLineTo( vg, br.x, br.y);
+//      nvgLineTo( vg, tl.x, br.y);
+//      nvgLineTo( vg, tl.x, tl.y);
+        nvgStroke( vg);
+      }
    }
 
    bounds = [self bounds];
    if( bounds.size.width == 0.0 || bounds.size.height == 0.0)
       return( NO);
 
+   //
+   // TODO: move this code to UIView (gut feeling)
    //
    // now translate bounds for context
    //

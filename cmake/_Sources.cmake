@@ -9,6 +9,8 @@ set( SOURCES
 nanovg/src/nanovg.c
 src/CALayer.m
 src/CGGeometry.c
+src/MulleBitmapImage.m
+src/MulleBitmapLayer.m
 src/MulleSVGImage.m
 src/MulleSVGLayer.m
 src/main.m
