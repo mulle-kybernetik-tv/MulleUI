@@ -20,12 +20,15 @@ typedef struct mulle_bitmap_size
 {
    void                      *_image;
    struct mulle_bitmap_size  _bitmapSize;
+   unsigned char             _shouldFree;
 }
 
 - (instancetype) initWithBytes:(void *) bytes 
                         length:(NSUInteger) length;
-- (instancetype) initWithBytes:(void *) bytes 
-                    bitmapSize:(mulle_bitmap_size) bitmapSize;
+                     
+// const meaning readonly memory 
+- (instancetype) initWithConstBytes:(const void *) bytes 
+                         bitmapSize:(mulle_bitmap_size) bitmapSize;
 - (instancetype) initWithContentsOfFileWithFileRepresentationString:(char *) s;
 
 - (CGSize) size;

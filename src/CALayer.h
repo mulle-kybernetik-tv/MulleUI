@@ -5,11 +5,15 @@
 
 typedef NVGcolor   CGColorRef;
 
+@class CGContext;
+
+
 @interface CALayer : NSObject  
 
 - (instancetype) init;
+- (instancetype) initWithFrame:(CGRect) frame;
 
-- (BOOL) drawInContext:(NVGcontext *) ctx;
+- (BOOL) drawInContext:(CGContext *) ctx;
 
 @property CGFloat cornerRadius;
 @property CGFloat borderWidth;

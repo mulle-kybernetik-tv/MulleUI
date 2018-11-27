@@ -1,11 +1,14 @@
+#import "import-private.h"
+
 #import "MulleSVGLayer.h"
 
 #import "MulleSVGImage.h"
+#import "CGContext.h"
 
 #import "nanovg.h"
 #import "nanosvg.h"
 
-static NVGcolor getNVGColor(uint32_t color) 
+static NVGcolor getSVGColor(uint32_t color) 
 {
 	return nvgRGBA(
 		(color >> 0) & 0xff,
@@ -33,14 +36,7 @@ static NVGcolor getNVGColor(uint32_t color)
 }
 
 
-- (void) dealloc
-{
-   [_SVGImage release];
-   [super dealloc];
-}
-
-
-- (BOOL) drawInContext:(struct NVGcontext *) vg 
+- (BOOL) drawInContext:(CGContext *) context 
 {
    NSVGimage     *image;
 	NSVGshape     *shape;
@@ -48,14 +44,16 @@ static NVGcolor getNVGColor(uint32_t color)
    int           i;
 	float         *p;
    CGPoint       scale;
-
-   if( ! [super drawInContext:vg])
+   NVGcontext    *vg;
+      
+   if( ! [super drawInContext:context])
       return( NO);
 
    image = [_SVGImage NSVGImage];
    if ( ! image)
       return( YES);
 
+   vg = [context nvgContext];
    nvgTranslate( vg, _offset.x, _offset.y);
 
    for( shape = image->shapes; shape != NULL; shape = shape->next) 
@@ -63,8 +61,8 @@ static NVGcolor getNVGColor(uint32_t color)
 	   if( ! (shape->flags & NSVG_FLAGS_VISIBLE))
    	   continue;
 
-	   nvgFillColor( vg, getNVGColor( shape->fill.color));
-	   nvgStrokeColor( vg, getNVGColor( shape->stroke.color));
+	   nvgFillColor( vg, getSVGColor( shape->fill.color));
+	   nvgStrokeColor( vg, getSVGColor( shape->stroke.color));
 	   nvgStrokeWidth( vg, shape->strokeWidth);
 
 	   for( path = shape->paths; path != NULL; path = path->next) 

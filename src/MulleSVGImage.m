@@ -1,3 +1,5 @@
+#import "import-private.h"
+
 #import "MulleSVGImage.h"
 
 #import "nanovg.h"

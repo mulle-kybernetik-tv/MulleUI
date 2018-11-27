@@ -1,6 +1,7 @@
 #import "MulleBitmapLayer.h"
 
 #import "MulleBitmapImage.h"
+#import "CGContext.h"
 
 #import "nanovg.h"
 
@@ -8,10 +9,10 @@
 static NVGcolor getNVGColor(uint32_t color) 
 {
 	return nvgRGBA(
-		(color >> 0) & 0xff,
-		(color >> 8) & 0xff,
+		(color >> 24) & 0xff,
 		(color >> 16) & 0xff,
-		(color >> 24) & 0xff);
+		(color >> 8) & 0xff,
+		(color >> 0) & 0xff);
 }
 
 
@@ -44,20 +45,24 @@ static NVGcolor getNVGColor(uint32_t color)
 }
 
 
-- (BOOL) drawInContext:(struct NVGcontext *) vg 
+- (BOOL) drawInContext:(CGContext *) context 
 {
-   mulle_int_size      size;
-   int                 textureId;
-   NVGpaint            imgPaint;
+   mulle_int_size   size;
+   int              textureId;
+   NVGpaint         imgPaint;
+   NVGcontext       *vg;
 
-   if( ! [super drawInContext:vg])
+   if( ! [super drawInContext:context])
       return( NO);
 
    if( ! _image)
       return( YES);
 
+   vg        = [context nvgContext];
    size      = [_image intSize];
    textureId = nvgCreateImageRGBA( vg, size.width, size.height, 0, [_image bytes]);
+//   fprintf( stderr, "textureid: %d\n", textureId);
+
    imgPaint  = nvgImagePattern( vg, 0, 0, size.width, size.height, 0.0f/180.0f*NVG_PI, textureId, 1.0);
 
    nvgBeginPath( vg);
@@ -67,7 +72,11 @@ static NVGcolor getNVGColor(uint32_t color)
                        size.height, 
                        (int) _cornerRadius);
    nvgFillPaint( vg, imgPaint);
+  // nvgFillColor( vg, getNVGColor( 0x402060FF));
    nvgFill( vg);
+
+   // if I delete the image here, the texture is gone from the picture
+   // nvgDeleteImage( vg, textureId);
 
    return( YES);
 }

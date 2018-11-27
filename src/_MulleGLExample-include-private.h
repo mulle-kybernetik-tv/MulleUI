@@ -3,8 +3,8 @@
    Edits will be lost.
 */
 
-#ifndef _mulleg_lexample_include_private_h__
-#define _mulleg_lexample_include_private_h__
+#ifndef _mulle_gl_example_include_private_h__
+#define _mulle_gl_example_include_private_h__
 
 /* no headers */
 

@@ -1,6 +1,20 @@
+#import "import-private.h"
+
 #import "CALayer.h"
 
 #import "CGGeometry.h"
+#import "CGContext.h"
+
+
+static NVGcolor getNVGColor(uint32_t color) 
+{
+	return nvgRGBA(
+		(color >> 24) & 0xff,
+		(color >> 16) & 0xff,
+		(color >> 8) & 0xff,
+		(color >> 0) & 0xff);
+}
+
 
 
 @implementation CALayer
@@ -16,7 +30,16 @@
 }
 
 
-- (BOOL) drawInContext:(NVGcontext *) vg
+- (instancetype) initWithFrame:(CGRect) frame
+{
+   self = [self init];
+   if( self)
+      _frame = frame;
+   return( self);
+}
+
+
+- (BOOL) drawInContext:(CGContext *) context
 {
    CGPoint   scale;
    CGRect    frame;
@@ -29,6 +52,9 @@
    CGPoint   br;
    CGSize    sz;
    int       radius;
+   NVGcontext   *vg;
+      
+   vg = [context nvgContext];
 
    frame  = [self frame];
    if( frame.size.width == 0.0 || frame.size.height == 0.0)
@@ -39,8 +65,9 @@
                    frame.size.width, 
                    frame.size.height);
 
-   fprintf( stderr, "frame.origin: %.1f, %.1f\n", frame.origin.x, frame.origin.y);
-   fprintf( stderr, "bounds.origin: %.1f, %.1f\n", bounds.origin.x, bounds.origin.y);
+//   fprintf( stderr, "frame.origin: %.1f, %.1f\n", frame.origin.x, frame.origin.y);
+//   fprintf( stderr, "frame.size: %.1f, %.1f\n", frame.size.width, frame.size.width);
+//   fprintf( stderr, "bounds.origin: %.1f, %.1f\n", bounds.origin.x, bounds.origin.y);
 
    nvgTranslate( vg, frame.origin.x, frame.origin.y);
 
@@ -128,7 +155,6 @@
    scale.y = frame.size.height / bounds.size.height;
 
    nvgScale( vg, scale.x, scale.y);
-
    nvgTranslate( vg, bounds.origin.x, bounds.origin.y);
 
    return( YES);

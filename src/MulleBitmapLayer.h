@@ -12,6 +12,5 @@ struct NVGcontext;
 @property( retain) MulleBitmapImage   *image;
 
 - (instancetype) initWithBitmapImage:(MulleBitmapImage *) image;
-- (BOOL) drawInContext:(struct NVGcontext *) vg;
 
 @end

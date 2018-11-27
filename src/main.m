@@ -4,6 +4,11 @@
 #import "MulleSVGLayer.h"
 #import "MulleBitmapImage.h"
 #import "MulleBitmapLayer.h"
+#import "CGContext.h"
+#import "UIWindow.h"
+#import "UIApplication.h"
+#import "UIButton.h"
+#import "UIEvent.h"
 
 
 //	stolen from catgl ©2015,2018 Yuichiro Nakada
@@ -23,55 +28,6 @@ static char   svginput[] = \
 #endif
 
 
-
-struct demo_context
-{
-	GLFWwindow         *window;
-	struct NVGcontext  *vg;	
-	double  				 mouse_x, mouse_y;
-	int                did_render;
-};
-
-
-static void   mouseButtonCallback( GLFWwindow* window, 
-											  int button, 
-											  int action, 
-											  int mods)
-{
-	struct demo_context   *ctxt;
-
-	ctxt = glfwGetWindowUserPointer( window);
-	{
-		glfwSetWindowShouldClose( window, GL_TRUE);
-	}
-}
-
-
-static void   mouseMoveCallback( GLFWwindow* window, 
-										   double xpos, 
-										   double ypos)
-{
-	struct demo_context   *ctxt;
-
-	ctxt          = glfwGetWindowUserPointer( window);
-	ctxt->mouse_x = xpos;
-	ctxt->mouse_y = ypos;
-}
-
-
-static void   keyCallback( GLFWwindow* window, 
-									int key, 
-									int scancode, 
-									int action, 
-									int mods)
-{
-	if( key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) 
-	{
-		glfwSetWindowShouldClose( window, GL_TRUE);
-	}
-}
-
-
 static NVGcolor getNVGColor(uint32_t color) 
 {
 	return nvgRGBA(
@@ -81,42 +37,60 @@ static NVGcolor getNVGColor(uint32_t color)
 		(color >> 24) & 0xff);
 }
 
-
-int main()
+static UIEvent   *button_callback( UIButton *button, UIEvent *event)
 {
-   MulleSVGLayer      *layer;
+   fprintf( stderr, "callback\n");
+   return( nil);
+}
+
+
+int   main()
+{
+   MulleSVGLayer      *layer1;
    MulleSVGLayer      *layer2;
    MulleBitmapLayer   *layer3;
+   MulleBitmapLayer   *layer4;
    MulleSVGImage      *image;
    MulleBitmapImage   *bitmapImage;
    CGRect             frame;
    CGRect             bounds;
-
-	struct demo_context   ctxt;
-
-	memset( &ctxt, 0, sizeof( ctxt));
+   CGContext          *context;
+   UIWindow           *window;
+   UIView             *view;
+   UIButton           *button;
+   UIButton           *insideButton;
+   UIApplication      *application;
 
    image = [[[MulleSVGImage alloc] initWithBytes:svginput
                                           length:strlen( svginput) + 1] autorelease];
    fprintf( stderr, "image: %p\n", image);
 
-   layer = [[[MulleSVGLayer alloc] initWithSVGImage:image] autorelease];
-   fprintf( stderr, "layer: %p\n", layer);
+   layer1 = [[[MulleSVGLayer alloc] initWithSVGImage:image] autorelease];
+   fprintf( stderr, "layer: %p\n", layer1);
 
    layer2 = [[[MulleSVGLayer alloc] initWithSVGImage:image] autorelease];
    fprintf( stderr, "layer: %p\n", layer2);
+
+
+   bitmapImage = [[[MulleBitmapImage alloc] initWithConstBytes:sealie_bitmap
+                                                    bitmapSize:sealie_bitmap_size]
+                                                  autorelease];
+   fprintf( stderr, "image: %p\n", bitmapImage);
+
+   layer3 = [[[MulleBitmapLayer alloc] initWithBitmapImage:bitmapImage] autorelease];
+
 
    // layer = [[[CALayer alloc] init] autorelease];
 
    frame.origin       = CGPointMake( 0.0, 0.0);
    frame.size.width   = 320;
    frame.size.height  = 200;
-   [layer setFrame:frame];
+   [layer1 setFrame:frame];
  //  [layer setBounds:CGRectMake( 0.0, 0.0, 200, 30)];
-   [layer setBackgroundColor:getNVGColor( 0xD0D0E0FF)];
-   [layer setBorderColor:getNVGColor( 0x80FF30FF)];
-   [layer setBorderWidth:32.0f];
-   [layer setCornerRadius:16.0f];
+   [layer1 setBackgroundColor:getNVGColor( 0xD0D0E0FF)];
+   [layer1 setBorderColor:getNVGColor( 0x80FF30FF)];
+   [layer1 setBorderWidth:32.0f];
+   [layer1 setCornerRadius:16.0f];
 
    frame.origin = CGPointMake( 320, 200);
    [layer2 setFrame:frame];
@@ -124,80 +98,43 @@ int main()
    bounds = [layer2 bounds];
    bounds.origin.x = -bounds.size.width / 2.0;
    [layer2 setBounds:bounds];
-
    [layer2 setBackgroundColor:getNVGColor( 0x402060FF)];
 
-   bitmapImage = [[[MulleBitmapImage alloc] initWithBytes:(void *) sealie_bitmap
-                                               bitmapSize:sealie_bitmap_size]
-                                                  autorelease];
-   fprintf( stderr, "image: %p\n", bitmapImage);
-
-   layer3 = [[[MulleBitmapLayer alloc] initWithBitmapImage:bitmapImage] autorelease];
    frame.origin       = CGPointMake( 320.0, 0.0);
    frame.size.width   = 320;
    frame.size.height  = 200;
    [layer3 setFrame:frame];
    fprintf( stderr, "layer: %p\n", layer3);
 
-	if( ! glfwInit()) 
-		return -1;
+   layer4 = [[[MulleBitmapLayer alloc] initWithBitmapImage:bitmapImage] autorelease];
+   frame.origin       = CGPointMake( 80.0, 80.0);
+   frame.size.width   = 120;
+   frame.size.height  = 50;
 
-	glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 2);
-	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 0);
-	glfwWindowHint( GLFW_RESIZABLE, GL_FALSE);
+   [layer4 setFrame:frame];
+   fprintf( stderr, "layer: %p\n", layer4);
 
-	ctxt.window = glfwCreateWindow( 640, 400, "Demo", 0, 0);
-	if( ! ctxt.window) 
-	{
-		glfwTerminate();
-		return( -1);
-	}
+   window  = [[[UIWindow alloc] initWithFrame:CGRectMake( 0.0, 0.0, 640.0, 400.0)] autorelease];
+   assert( window);
 
-	glfwMakeContextCurrent( ctxt.window);
-	glfwSetWindowUserPointer( ctxt.window, &ctxt);
+   [[UIApplication sharedInstance] addWindow:window];
 
-	glfwSetMouseButtonCallback(ctxt.window, mouseButtonCallback);
-	glfwSetCursorPosCallback(ctxt.window, mouseMoveCallback);
-	glfwSetKeyCallback(ctxt.window, keyCallback);
+   context = [CGContext new];
 
-	#define PAINT_FRAMES  1 //  60 * 5
+   view = [[[UIView alloc] initWithLayer:layer1] autorelease];
+   [window addSubview:view];
+   view = [[[UIView alloc] initWithLayer:layer2] autorelease];
+   [window addSubview:view];
+   button = [[[UIButton alloc] initWithLayer:layer3] autorelease];
+   [button setClick:button_callback];
+   [window addSubview:button];
 
-	ctxt.vg      = nvgCreateGLES2( NVG_ANTIALIAS | NVG_STENCIL_STROKES);
-	ctxt.mouse_x = -1;
-	ctxt.mouse_y = -1;
+   insideButton = [[[UIButton alloc] initWithLayer:layer4] autorelease];
+   [insideButton setClick:button_callback];
+   [button addSubview:insideButton];
 
-	while( ! glfwWindowShouldClose(ctxt.window)) 
-	{
-		if( ctxt.did_render < PAINT_FRAMES)
-		{
-			// nvgGlobalCompositeOperation( ctxt->vg, NVG_ATOP);
-			glClear( GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
+   [window renderLoopWithContext:context];
 
-			nvgBeginFrame( ctxt.vg, 640, 400, 640.0 / 400.0);
-			{
-            [layer drawInContext:ctxt.vg];
-            nvgResetTransform( ctxt.vg);
-            [layer2 drawInContext:ctxt.vg];
-            nvgResetTransform( ctxt.vg);
-            [layer3 drawInContext:ctxt.vg];
-				ctxt.did_render++;           
-			}
-			nvgEndFrame( ctxt.vg);
-			glfwSwapBuffers(ctxt.window);
-		}
-		else
-			if( ctxt.did_render == PAINT_FRAMES)
-			{
-				printf( "finished\n");
-				ctxt.did_render++;
-			}
-
-		glfwWaitEventsTimeout( 1.0 / 200);
-		// glfwPollEvents();
-	}
-
-	nvgDeleteGLES2(ctxt.vg);
-
-	glfwTerminate();
+   [[UIApplication sharedInstance] terminate];
 }
 

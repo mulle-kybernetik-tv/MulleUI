@@ -104,6 +104,6 @@ const uint8_t   sealie_bitmap[] = {
 
 const struct mulle_bitmap_size  sealie_bitmap_size = 
 {
-   { 102, 102 },
+   { 102, 100 },
    4
 };

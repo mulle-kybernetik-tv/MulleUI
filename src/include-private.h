@@ -27,7 +27,6 @@
 
 /* You can add some more include statements here */
 
-#define NANOVG_GLES2_IMPLEMENTATION	// Use GL2 implementation.
 #include "nanovg.h"
 #include "nanovg_gl.h"
 #include "nanosvg.h"

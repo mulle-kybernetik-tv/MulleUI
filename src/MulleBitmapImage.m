@@ -1,3 +1,5 @@
+#import "import-private.h"
+
 #import "MulleBitmapImage.h"
 
 #import "stb_image.h"
@@ -24,15 +26,15 @@
    _bitmapSize.size.width      = w;
    _bitmapSize.size.height     = h;
    _bitmapSize.colorComponents = n;
-
+   _shouldFree                 = YES;
 	return( self);
 }
 
 
-- (instancetype) initWithBytes:(void *) bytes 
-                    bitmapSize:(mulle_bitmap_size) bitmapSize
+- (instancetype) initWithConstBytes:(const void *) bytes 
+                         bitmapSize:(mulle_bitmap_size) bitmapSize
 {
-   _image = bytes;
+   _image = (void *) bytes;
 	if( ! _image) 
    {
       [self release];
@@ -61,13 +63,15 @@
    _bitmapSize.size.width      = w;
    _bitmapSize.size.height     = h;
    _bitmapSize.colorComponents = n;
+   _shouldFree                 = YES;
 
 	return( self);
 }
 
 - (void) dealloc
 {
-   stbi_image_free( _image);
+   if( _shouldFree)
+      stbi_image_free( _image);
    [super dealloc];
 }
 

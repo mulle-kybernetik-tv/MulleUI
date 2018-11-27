@@ -4,7 +4,6 @@
 
 
 @class MulleSVGImage;
-struct NVGcontext;
 
 
 @interface MulleSVGLayer : CALayer
@@ -14,6 +13,5 @@ struct NVGcontext;
 @property( retain, nonatomic) MulleSVGImage   *SVGImage;
 
 - (instancetype) initWithSVGImage:(MulleSVGImage *) image;
-- (BOOL) drawInContext:(struct NVGcontext *) vg;
 
 @end

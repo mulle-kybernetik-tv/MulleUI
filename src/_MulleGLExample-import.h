@@ -3,8 +3,8 @@
    Edits will be lost.
 */
 
-#ifndef _mulleg_lexample_import_h__
-#define _mulleg_lexample_import_h__
+#ifndef _mulle_gl_example_import_h__
+#define _mulle_gl_example_import_h__
 
 # import <MulleObjC/MulleObjC.h>   // MulleObjC
 
