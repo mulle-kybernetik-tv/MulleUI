@@ -8,4 +8,6 @@
 
 # import <MulleObjC/MulleObjC.h>   // MulleObjC
 
+# import <mulle-objc-compat/mulle-objc-compat.h>   // mulle-objc-compat
+
 #endif

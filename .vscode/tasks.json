@@ -1,0 +1,75 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Debug",
+            "type": "shell",
+            "showReuseMessage": false,
+            "command": "mulle-sde",
+            "args": [
+                "craft", "--debug"
+            ],
+            "problemMatcher": {
+                "base": "$gcc",
+                "fileLocation": [
+                  "relative",
+                  "${workspaceFolder}/build/Debug"
+                ]
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Release",
+            "type": "shell",
+            "command": "mulle-sde",
+            "showReuseMessage": false,
+            "problemMatcher": {
+                "base": "$gcc",
+                "fileLocation": [
+                  "relative",
+                  "${workspaceFolder}/build/Release"
+                ]
+            },
+            "args": [
+                "craft",
+            ],
+            "group": {
+                "kind": "build"
+            }
+        },
+        {
+           "label": "Update",
+           "type": "shell",
+           "command": "mulle-sde",
+           "showReuseMessage": false,
+           "args": [
+              "update"
+           ],
+           "problemMatcher": []
+        },
+        {
+           "label": "Clean",
+           "type": "shell",
+           "command": "mulle-sde",
+           "showReuseMessage": false,
+           "args": [
+              "clean"
+           ],
+           "problemMatcher": []
+        },
+        {
+           "label": "Clean All",
+           "type": "shell",
+           "command": "mulle-sde",
+           "showReuseMessage": false,
+           "args": [
+              "clean",
+              "all"
+           ],
+           "problemMatcher": []
+        }
+    ]
+}

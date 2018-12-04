@@ -21,6 +21,8 @@
    struct mulle_pointerarray   *_layers;
 }
 
+@property BOOL clipsSubviews;
+
 - (id) initWithFrame:(CGRect) frame;
 - (id) initWithLayer:(CALayer *) layer;
 
@@ -41,5 +43,7 @@
 
 - (UIWindow *) window;
 - (UIView *) superview;
+
+- (CGRect) clipRect;
 
 @end

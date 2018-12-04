@@ -10,5 +10,6 @@ Xcursor;none;no-all-load,no-build,no-delete,no-dependency,no-fs,no-header,no-imp
 dl;none;no-all-load,no-build,no-delete,no-dependency,no-fs,no-header,no-import,no-update;e727cc11-4d6e-4cac-8e49-b4af83930cdf;dl;;;;
 pthread;none;no-all-load,no-build,no-delete,no-dependency,no-fs,no-header,no-import,no-update;c2345537-4e93-493b-bf21-9e6621303a04;pthread;;;;
 m;none;no-all-load,no-build,no-delete,no-dependency,no-fs,no-header,no-import,no-update;4f8c9930-b601-4bed-9ef6-59002def0b11;m;;;;
-nanovg;git;no-all-load,no-build,no-header,no-import,no-link,no-share;9a9af895-f932-4cdd-879f-0467543ad260;${NANOVG_URL:-git@github.com:memononen/nanovg.git};${NANOVG_BRANCH};;;
+nanovg;git;no-all-load,no-build,no-header,no-import,no-link,no-share;9a9af895-f932-4cdd-879f-0467543ad260;${NANOVG_URL:-git@github.com:mulle-kybernetik-tv/nanovg.git};${NANOVG_BRANCH};;;
 nanosvg;git;no-all-load,no-build,no-header,no-import,no-link,no-share;b111934f-5fca-40e9-b8ab-36778562c664;${NANOSVG_URL:-git@github.com:memononen/nanosvg.git};${NANOSVG_BRANCH};;;
+mulle-objc-compat;tar;no-all-load;e22eaf74-6cd9-4144-9f32-bb7601ba0da3;${MULLE_OBJC_COMPAT_URL:-https://github.com/mulle-objc/mulle-objc-compat/archive/${MULLE_OBJC_COMPAT_BRANCH:-latest}.tar.gz};;;;

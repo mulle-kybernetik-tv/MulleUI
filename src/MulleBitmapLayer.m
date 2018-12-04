@@ -81,6 +81,7 @@ static NVGcolor getNVGColor(uint32_t color)
    return( YES);
 }
 
+
 - (CGRect) visibleBounds
 {
    CGRect   bounds;

@@ -5,10 +5,18 @@
 
 typedef NVGcolor   CGColorRef;
 
+typedef float   _NVGtransform[ 6];   
+
+
 @class CGContext;
 
 
 @interface CALayer : NSObject  
+{
+   _NVGtransform   _transform;
+   NVGscissor      _scissor;
+}
+
 
 - (instancetype) init;
 - (instancetype) initWithFrame:(CGRect) frame;
@@ -22,5 +30,13 @@ typedef NVGcolor   CGColorRef;
 
 @property CGRect frame;
 @property CGRect bounds;
+
+@property char  *cStringName;
+
+// properties used for rendering only
+@property CGRect   clipRect;
+
+- (void) setTransform:(_NVGtransform) transform
+              scissor:(NVGscissor *) scissor;
 
 @end

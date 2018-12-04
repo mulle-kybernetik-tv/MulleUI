@@ -115,6 +115,7 @@ typedef enum {
 struct NVGcontext;
 
 
+
 @interface CGContext : NSObject
 {
 	struct NVGcontext  *_vg;	

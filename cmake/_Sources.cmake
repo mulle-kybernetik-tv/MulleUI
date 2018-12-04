@@ -8,7 +8,9 @@ endif()
 set( SOURCES
 nanovg/src/nanovg.c
 src/CALayer.m
+src/CGAffineTransform.c
 src/CGContext.m
+src/CGGeometry+CString.m
 src/CGGeometry.c
 src/MulleBitmapImage.m
 src/MulleBitmapLayer.m
@@ -17,9 +19,11 @@ src/MulleSVGLayer.m
 src/UIApplication.m
 src/UIButton.m
 src/UIEvent.m
+src/UIView+CGGeometry.m
 src/UIView+UIEvent.m
 src/UIView.m
 src/UIWindow.m
 src/main.m
 src/nanosvg.m
+src/nanovg+CString.m
 )

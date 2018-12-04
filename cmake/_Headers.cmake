@@ -26,8 +26,10 @@ nanovg/src/nanovg.h
 nanovg/src/stb_image.h
 nanovg/src/stb_truetype.h
 src/CALayer.h
+src/CGAffineTransform.h
 src/CGBase.h
 src/CGContext.h
+src/CGGeometry+CString.h
 src/CGGeometry.h
 src/MulleBitmapImage.h
 src/MulleBitmapLayer.h
@@ -36,13 +38,17 @@ src/MulleSVGLayer.h
 src/UIApplication.h
 src/UIButton.h
 src/UIEvent.h
+src/UIView+CGGeometry.h
 src/UIView+UIEvent.h
 src/UIView.h
 src/UIWindow.h
 src/import.h
 src/include.h
+src/nanovg+CString.h
 src/sealie-bitmap.inc
 src/tiger-svg.inc
+src/turtle-bitmap.inc
 src/version.h
+src/viech-bitmap.inc
 ) 
 

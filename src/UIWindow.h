@@ -5,7 +5,7 @@
 
 @interface UIWindow : UIView 
 {
-   GLFWwindow   *_window;
+   void         *_window;  // GLFWwindow
 	NSUInteger   _didRender;  
    CGRect       _frame;    // has its own frame
 }

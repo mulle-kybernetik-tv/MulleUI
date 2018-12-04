@@ -130,24 +130,6 @@ static void   keyCallback( GLFWwindow* window,
 }
 
 
-- (void) renderWithContext:(CGContext *) context
-{
-   UIView      *subviews[ 32];
-   NSInteger    n;
-   NSInteger    available;
-   NSInteger    i;
-
-   available = sizeof( subviews) / sizeof( UIView *);
-   n         = [self getSubviews:subviews
-                          length:available];
-   if( n > available)
-      abort();
-
-   for( i = 0; i < n; i++)
-      [subviews[ i] renderWithContext:context];
-}
-
-
 - (void) renderLoopWithContext:(CGContext *) context
 {
 	#define PAINT_FRAMES  1 //  60 * 5
@@ -182,6 +164,12 @@ static void   keyCallback( GLFWwindow* window,
 - (CGRect) frame
 {
    return( _frame);
+}
+
+
+- (CGRect) bounds
+{
+   return( CGRectMake( 0.0, 0.0, _frame.size.width, _frame.size.height));
 }
 
 

@@ -38,6 +38,8 @@
    nvgBeginFrame( _vg, frame.size.width, 
                        frame.size.height, 
                        frame.size.width / frame.size.height);
+   nvgResetTransform( _vg);
+   nvgScissor( _vg, 0.0, 0.0, frame.size.width, frame.size.height);
 }
 
 
