@@ -1,4 +1,4 @@
-#import <MulleObjC/MulleObjC.h>
+#import "import.h"
 
 #import <mulle-container/mulle-container.h>
 #import "CGGeometry.h"

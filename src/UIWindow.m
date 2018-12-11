@@ -24,6 +24,9 @@ static void   mouseButtonCallback( GLFWwindow* window,
    if( action == GLFW_PRESS)
       self->_mouseButtonStates |= bit;
    self->_modifiers = mods;
+
+   if( self->_discardEvents)
+      return;
    
    event = [[UIMouseButtonEvent alloc] initWithMousePosition:self->_mousePosition
                                                       button:button
@@ -44,6 +47,8 @@ static void   mouseMoveCallback( GLFWwindow* window,
 
 	self->_mousePosition.x = xpos;
 	self->_mousePosition.y = ypos;
+   if( self->_discardEvents)
+      return;
 
    event = [[UIMouseMotionEvent alloc] initWithMousePosition:self->_mousePosition];
    [self handleEvent:event];
@@ -62,6 +67,8 @@ static void   keyCallback( GLFWwindow* window,
 
 	self = glfwGetWindowUserPointer( window);
    self->_modifiers = mods;
+   if( self->_discardEvents)
+      return;
 
    event = [[UIKeyboardEvent alloc] initWithMousePosition:self->_mousePosition
                                                       key:key
@@ -179,9 +186,29 @@ static void   keyCallback( GLFWwindow* window,
 		// glfwPollEvents();   
 }
 
+
+- (void) discardPendingEvents
+{
+   BOOL   old;
+
+   old = _discardEvents;
+   _discardEvents = YES;
+   {
+      glfwPollEvents();
+   }
+   _discardEvents = old;
+}
+
+
 - (void) requestClose
 {
    glfwSetWindowShouldClose( _window, GL_TRUE);
+}
+
+
++ (void) sendEmptyEvent
+{
+   glfwPostEmptyEvent();
 }
 
 @end

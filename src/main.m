@@ -9,6 +9,7 @@
 #import "UIApplication.h"
 #import "UIButton.h"
 #import "UIEvent.h"
+#import <string.h>
 
 
 //	stolen from catgl ©2015,2018 Yuichiro Nakada
@@ -30,7 +31,7 @@ static char   svginput[] = \
 #endif
 
 
-static NVGcolor getNVGColor(uint32_t color) 
+static NVGcolor getNVGColor(uint32_t color)
 {
 	return nvgRGBA(
 		(color >> 0) & 0xff,
@@ -176,3 +177,4 @@ int   main()
 
    [[UIApplication sharedInstance] terminate];
 }
+

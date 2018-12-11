@@ -8,6 +8,7 @@
    void         *_window;  // GLFWwindow
 	NSUInteger   _didRender;  
    CGRect       _frame;    // has its own frame
+   BOOL         _discardEvents;
 }
 
 @property( retain) CGContext                  *context;
@@ -19,5 +20,6 @@
 - (void) renderLoopWithContext:(CGContext *) context;
 - (void) waitForEvents;
 - (void) requestClose;
++ (void) sendEmptyEvent;
 
 @end
