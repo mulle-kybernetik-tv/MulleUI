@@ -9,7 +9,7 @@ set( INCLUDE_DIRS
 nanosvg/src
 nanovg/src
 src
-) 
+)
 
 set( PRIVATE_HEADERS
 src/import-private.h
@@ -50,5 +50,5 @@ src/tiger-svg.inc
 src/turtle-bitmap.inc
 src/version.h
 src/viech-bitmap.inc
-) 
+)
 

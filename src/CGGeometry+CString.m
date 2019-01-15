@@ -10,14 +10,14 @@ char   *CGPointCStringDescription( CGPoint point)
    auto char  *s;
    size_t      required;
 
-   required = snprintf( buf, sizeof( buf), "%f %f",
+   required = snprintf( buf, sizeof( buf), "%.2f %.2f",
             point.x,
             point.y);
 
    if( required >= sizeof( buf))
    {
       s = mulle_malloc( required + 1);
-      sprintf( s, "%f %f",
+      sprintf( s, "%.2f %.2f",
             point.x,
             point.y);      
    }
@@ -35,7 +35,7 @@ char   *CGRectCStringDescription( CGRect rect)
    char       *s;
    size_t      required;
 
-   required = snprintf( buf, sizeof( buf), "%f %f %f %f",
+   required = snprintf( buf, sizeof( buf), "%.2f %.2f %.2f %.2f",
             rect.origin.x,
             rect.origin.y,
             rect.size.width,
@@ -44,7 +44,7 @@ char   *CGRectCStringDescription( CGRect rect)
    if( required >= sizeof( buf))
    {
       s = mulle_malloc( required + 1);
-      sprintf( s, "%f %f %f %f",
+      sprintf( s, "%.2f %.2f %.2f %.2f",
             rect.origin.x,
             rect.origin.y,
             rect.size.width,

@@ -49,15 +49,15 @@ static UIEvent   *button_callback( UIButton *button, UIEvent *event)
 
 int   main()
 {
-   MulleSVGLayer      *layer1;
-   MulleSVGLayer      *layer2;
-   MulleBitmapLayer   *layer3;
-   MulleBitmapLayer   *layer4;
-   MulleBitmapLayer   *layer5;
-   MulleSVGImage      *image;
-   MulleBitmapImage   *bitmapImage1;
-   MulleBitmapImage   *bitmapImage2;
-   MulleBitmapImage   *bitmapImage3;
+   MulleSVGLayer      *tigerLayer;
+   MulleSVGLayer      *shiftedTigerLayer;
+   MulleBitmapLayer   *viechLayer;
+   MulleBitmapLayer   *sealieLayer;
+   MulleBitmapLayer   *turtleLayer;
+   MulleSVGImage      *tigerSVGImage;
+   MulleBitmapImage   *viechBitmap;
+   MulleBitmapImage   *sealieBitmap;
+   MulleBitmapImage   *turtleBitmap;
    CGRect             frame;
    CGRect             bounds;
    CGContext          *context;
@@ -68,17 +68,17 @@ int   main()
    UIButton           *nestedButton;
    UIApplication      *application;
 
-   image = [[[MulleSVGImage alloc] initWithBytes:svginput
+   tigerSVGImage = [[[MulleSVGImage alloc] initWithBytes:svginput
                                           length:strlen( svginput) + 1] autorelease];
-   fprintf( stderr, "image: %p\n", image);
+   fprintf( stderr, "tigerSVGImage: %p\n", tigerSVGImage);
 
-   layer1 = [[[MulleSVGLayer alloc] initWithSVGImage:image] autorelease];
-   [layer1 setCStringName:"layer1"];
-   fprintf( stderr, "layer: %p\n", layer1);
+   tigerLayer = [[[MulleSVGLayer alloc] initWithSVGImage:tigerSVGImage] autorelease];
+   [tigerLayer setCStringName:"tiger"];
+   fprintf( stderr, "layer: %p\n", tigerLayer);
 
-   layer2 = [[[MulleSVGLayer alloc] initWithSVGImage:image] autorelease];
-   [layer2 setCStringName:"layer2"];
-   fprintf( stderr, "layer: %p\n", layer2);
+   shiftedTigerLayer = [[[MulleSVGLayer alloc] initWithSVGImage:tigerSVGImage] autorelease];
+   [shiftedTigerLayer setCStringName:"shiftedTiger"];
+   fprintf( stderr, "layer: %p\n", shiftedTigerLayer);
 
 
    // layer = [[[CALayer alloc] init] autorelease];
@@ -86,61 +86,61 @@ int   main()
    frame.origin       = CGPointMake( 0.0, 0.0);
    frame.size.width   = 320;
    frame.size.height  = 200;
-   [layer1 setFrame:frame];
+   [tigerLayer setFrame:frame];
  //  [layer setBounds:CGRectMake( 0.0, 0.0, 200, 30)];
-   [layer1 setBackgroundColor:getNVGColor( 0xD0D0E0FF)];
-   [layer1 setBorderColor:getNVGColor( 0x80FF30FF)];
-   [layer1 setBorderWidth:32.0f];
-   [layer1 setCornerRadius:16.0f];
+   [tigerLayer setBackgroundColor:getNVGColor( 0xD0D0E0FF)];
+   [tigerLayer setBorderColor:getNVGColor( 0x80FF30FF)];
+   [tigerLayer setBorderWidth:32.0f];
+   [tigerLayer setCornerRadius:16.0f];
 
    frame.origin = CGPointMake( 320, 200);
-   [layer2 setFrame:frame];
+   [shiftedTigerLayer setFrame:frame];
 
-   bounds = [layer2 bounds];
+   bounds = [shiftedTigerLayer bounds];
    bounds.origin.x = -bounds.size.width / 2.0;
-   [layer2 setBounds:bounds];
-   [layer2 setBackgroundColor:getNVGColor( 0x402060FF)];
+   [shiftedTigerLayer setBounds:bounds];
+   [shiftedTigerLayer setBackgroundColor:getNVGColor( 0x402060FF)];
 
 
-   bitmapImage1 = [[[MulleBitmapImage alloc] initWithConstBytes:viech_bitmap
+   viechBitmap = [[[MulleBitmapImage alloc] initWithConstBytes:viech_bitmap
                                                      bitmapSize:viech_bitmap_size]
                                                   autorelease];
-   fprintf( stderr, "image: %p\n", bitmapImage1);
+   fprintf( stderr, "tigerSVGImage: %p\n", viechBitmap);
 
-   bitmapImage2 = [[[MulleBitmapImage alloc] initWithConstBytes:sealie_bitmap
+   sealieBitmap = [[[MulleBitmapImage alloc] initWithConstBytes:sealie_bitmap
                                                      bitmapSize:sealie_bitmap_size]
                                                   autorelease];
-   fprintf( stderr, "image: %p\n", bitmapImage2);
+   fprintf( stderr, "tigerSVGImage: %p\n", sealieBitmap);
 
-   bitmapImage3 = [[[MulleBitmapImage alloc] initWithConstBytes:turtle_bitmap
+   turtleBitmap = [[[MulleBitmapImage alloc] initWithConstBytes:turtle_bitmap
                                                      bitmapSize:turtle_bitmap_size]
                                                   autorelease];
-   fprintf( stderr, "image: %p\n", bitmapImage3);
+   fprintf( stderr, "tigerSVGImage: %p\n", turtleBitmap);
 
 
-   layer3 = [[[MulleBitmapLayer alloc] initWithBitmapImage:bitmapImage1] autorelease];
-   [layer3 setCStringName:"layer3-viech"];
+   viechLayer = [[[MulleBitmapLayer alloc] initWithBitmapImage:viechBitmap] autorelease];
+   [viechLayer setCStringName:"viech"];
    frame.origin       = CGPointMake( 320.0, 0.0);
    frame.size.width   = 320;
    frame.size.height  = 200;
-   [layer3 setFrame:frame];
-   fprintf( stderr, "layer: %p\n", layer3);
+   [viechLayer setFrame:frame];
+   fprintf( stderr, "layer: %p\n", viechLayer);
 
-   layer4 = [[[MulleBitmapLayer alloc] initWithBitmapImage:bitmapImage2] autorelease];
-   [layer4 setCStringName:"layer4-sealie"];
+   sealieLayer = [[[MulleBitmapLayer alloc] initWithBitmapImage:sealieBitmap] autorelease];
+   [sealieLayer setCStringName:"sealie"];
    frame.origin       = CGPointMake( 30.0, 2.0);
    frame.size.width   = 102;
    frame.size.height  = 100;
-   [layer4 setFrame:frame];
-   fprintf( stderr, "layer: %p\n", layer4);
+   [sealieLayer setFrame:frame];
+   fprintf( stderr, "layer: %p\n", sealieLayer);
 
-   layer5 = [[[MulleBitmapLayer alloc] initWithBitmapImage:bitmapImage3] autorelease];
-   [layer5 setCStringName:"layer5-turtle"];
+   turtleLayer = [[[MulleBitmapLayer alloc] initWithBitmapImage:turtleBitmap] autorelease];
+   [turtleLayer setCStringName:"turtle"];
    frame.origin       = CGPointMake( -50.0, 10.0);
    frame.size.width   = 100;
    frame.size.height  = 117;
-   [layer5 setFrame:frame];
-   fprintf( stderr, "layer: %p\n", layer5);
+   [turtleLayer setFrame:frame];
+   fprintf( stderr, "layer: %p\n", turtleLayer);
 
    window  = [[[UIWindow alloc] initWithFrame:CGRectMake( 0.0, 0.0, 640.0, 400.0)] autorelease];
    assert( window);
@@ -149,30 +149,28 @@ int   main()
 
    context = [CGContext new];
 
-#if 1
-   view = [[[UIView alloc] initWithLayer:layer1] autorelease];
+   view = [[[UIView alloc] initWithLayer:tigerLayer] autorelease];
    [window addSubview:view];
-#endif
 
-   view = [[[UIView alloc] initWithLayer:layer2] autorelease];
+   view = [[[UIView alloc] initWithLayer:shiftedTigerLayer] autorelease];
    [window addSubview:view];
-#if 1
-   button = [[[UIButton alloc] initWithLayer:layer3] autorelease];
+
+   button = [[[UIButton alloc] initWithLayer:viechLayer] autorelease];
    // [button setClipsSubviews:YES];
    [button setClick:button_callback];
 
    [window addSubview:button];
 
-   insideButton = [[[UIButton alloc] initWithLayer:layer4] autorelease];
+   insideButton = [[[UIButton alloc] initWithLayer:sealieLayer] autorelease];
    // [insideButton setClipsSubviews:YES];
    [insideButton setClick:button_callback];
    [button addSubview:insideButton];
 
-   nestedButton = [[[UIButton alloc] initWithLayer:layer5] autorelease];
+   nestedButton = [[[UIButton alloc] initWithLayer:turtleLayer] autorelease];
    // [insideButton setClipsSubviews:YES];
    [nestedButton setClick:button_callback];
    [insideButton addSubview:nestedButton];
-#endif
+   [window dump];
    [window renderLoopWithContext:context];
 
    [[UIApplication sharedInstance] terminate];

@@ -1,6 +1,9 @@
-#include "UIView+CGGeometry.h"
+#import "UIView+CGGeometry.h"
 
-#include "UIWindow.h"
+#import "UIWindow.h"
+
+#import "CGGeometry+CString.h"
+
 
 //
 // this code works without precomputing the affine tranform and its inverse
@@ -52,5 +55,43 @@
    window -> view1 { bounds: } -> view2 { bounds: }
                                            ^----- point( dst)
 */
+
+
+
+- (void) dumpSubviewsWithIndent:(NSUInteger) indent
+{
+   struct mulle_pointerarray_enumerator   rover;
+   UIView                                 *view;
+
+   if( _subviews)
+   {
+      rover = mulle_pointerarray_enumerate( _subviews);
+      while( view = mulle_pointerarray_enumerator_next( &rover))
+         [view dumpWithIndent:indent];
+      mulle_pointerarray_enumerator_done( &rover);
+   }
+}
+
+
+- (void) dumpWithIndent:(NSUInteger) indent
+{
+   int   i;
+
+   for( i = 0; i < indent; i++)
+      fputc( ' ', stderr);
+
+   fprintf( stderr, "%s: frame=%s bounds=%s\n",
+               [self cStringDescription],  
+               CGRectCStringDescription( [self frame]),
+               CGRectCStringDescription( [self bounds]));
+   [self dumpSubviewsWithIndent:indent + 3];
+}
+
+
+- (void) dump
+{
+   [self dumpWithIndent:0];
+}
+
 
 @end

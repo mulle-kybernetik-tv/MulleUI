@@ -58,7 +58,7 @@ if( NOT __ENVIRONMENT__CMAKE__)
       ### FALLBACK_BUILD_TYPE (for lack of a better name)
 
       if( NOT FALLBACK_BUILD_TYPE)
-         set( FALLBACK_BUILD_TYPE "$ENV{MULLEG_LEXAMPLE_FALLBACK_BUILD_TYPE}")
+         set( FALLBACK_BUILD_TYPE "$ENV{MULLE_GL_EXAMPLE_FALLBACK_BUILD_TYPE}")
          if( NOT FALLBACK_BUILD_TYPE)
             set( FALLBACK_BUILD_TYPE "$ENV{MULLE_OBJC_RUNTIME_FALLBACK_BUILD_TYPE}")
             if( NOT FALLBACK_BUILD_TYPE)
@@ -104,17 +104,62 @@ if( NOT __ENVIRONMENT__CMAKE__)
       )
    endif()
 
+   # include files that get installed
    set( CMAKE_INCLUDES
       "cmake/DependenciesAndLibraries.cmake"
       "cmake/_Dependencies.cmake"
       "cmake/_Libraries.cmake"
    )
 
+   # IDE visible cmake files
    set( CMAKE_EDITABLE_FILES
       CMakeLists.txt
-      cmake/HeadersAndSources.cmake
+      cmake/Headers.cmake
+      cmake/Sources.cmake
       cmake/DependenciesAndLibraries.cmake
    )
+
+   #
+   # Parallel build support. run all "participating" projects once for
+   # HEADERS_PHASE in parallel.
+   # Now run all "participating" projects for COMPILE_PHASE in parallel.
+   # Finally run all participating and non-participating projects in buildorder
+   # serially together with the LINK_PHASE. What is tricky is that the
+   # sequential projects may need to run first.
+   #
+   option( HEADERS_PHASE  "Install headers only phase (1)" OFF)
+   option( COMPILE_PHASE  "Compile sources only phase (2)" OFF)
+   option( LINK_PHASE     "Link and install only phase (3)" OFF)
+
+   if( MULLE_MAKE_PHASE STREQUAL "HEADERS")
+      set( HEADERS_PHASE ON)
+   endif()
+   if( MULLE_MAKE_PHASE STREQUAL "COMPILE")
+      set( COMPILE_PHASE ON)
+   endif()
+   if( MULLE_MAKE_PHASE STREQUAL "LINK")
+      set( LINK_PHASE ON)
+   endif()
+
+   if( NOT HEADERS_PHASE AND
+       NOT COMPILE_PHASE AND
+       NOT LINK_PHASE)
+      set( HEADERS_PHASE ON)
+      set( COMPILE_PHASE ON)
+      set( LINK_PHASE ON)
+   endif()
+
+   #
+   # https://stackoverflow.com/questions/32469953/why-is-cmake-designed-so-that-it-removes-runtime-path-when-installing/32470070#32470070
+   # MULLE_NO_CMAKE_INSTALL_RPATH can be used to kill this codepath
+   #
+   if( NOT MULLE_NO_CMAKE_INSTALL_RPATH)
+      if( APPLE)
+         set( CMAKE_INSTALL_RPATH "@rpath/../lib")
+      else()
+         set( CMAKE_INSTALL_RPATH "\$ORIGIN/../lib")
+      endif()
+   endif()
 
    include( EnvironmentAux OPTIONAL)
 

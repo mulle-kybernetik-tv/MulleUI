@@ -10,6 +10,8 @@
 
 // returns event if it hasn't been handled
 - (UIEvent *) handleEvent:(UIEvent *) event;
+- (UIEvent *) handleEvent:(UIEvent *) event
+               atPosition:(CGPoint) position;
 
 @end
 

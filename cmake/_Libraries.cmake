@@ -5,6 +5,7 @@ if( MULLE_TRACE_INCLUDE)
    message( STATUS "# Include \"${CMAKE_CURRENT_LIST_FILE}\"" )
 endif()
 
+# sourcetree: GL;no-all-load,no-header,no-import;
 if( NOT GL_LIBRARY)
    find_library( GL_LIBRARY NAMES GL)
    message( STATUS "GL_LIBRARY is ${GL_LIBRARY}")
@@ -12,16 +13,27 @@ if( NOT GL_LIBRARY)
    # the order looks ascending, but due to the way this file is read
    # it ends up being descending, which is what we need
    if( GL_LIBRARY)
+      #
+      # Add to GL_LIBRARY list.
+      # Disable with: `mark no-cmakeadd`
+      #
       set( OS_SPECIFIC_LIBRARIES
          ${OS_SPECIFIC_LIBRARIES}
          ${GL_LIBRARY}
          CACHE INTERNAL "need to cache this"
       )
-      # temporarily expand CMAKE_MODULE_PATH
+      #
+      # Inherit ObjC loader and link dependency info.
+      # Disable with: `mark no-cmakeinherit`
+      #
+      # // temporarily expand CMAKE_MODULE_PATH
       get_filename_component( _TMP_GL_ROOT "${GL_LIBRARY}" DIRECTORY)
       get_filename_component( _TMP_GL_ROOT "${_TMP_GL_ROOT}" DIRECTORY)
       #
-      # search for DependenciesAndLibraries.cmake to include
+      #
+      # Search for "DependenciesAndLibraries.cmake" to include.
+      # Disable with: `mark no-cmakedependency`
+      #
       foreach( _TMP_GL_NAME "GL")
          set( _TMP_GL_DIR "${_TMP_GL_ROOT}/include/${_TMP_GL_NAME}/cmake")
          # use explicit path to avoid "surprises"
@@ -57,6 +69,7 @@ if( NOT GL_LIBRARY)
 endif()
 
 
+# sourcetree: GLGLU;no-all-load,no-header,no-import;
 if( NOT GLGLU_LIBRARY)
    find_library( GLGLU_LIBRARY NAMES GLU)
    message( STATUS "GLGLU_LIBRARY is ${GLGLU_LIBRARY}")
@@ -64,16 +77,27 @@ if( NOT GLGLU_LIBRARY)
    # the order looks ascending, but due to the way this file is read
    # it ends up being descending, which is what we need
    if( GLGLU_LIBRARY)
+      #
+      # Add to GLGLU_LIBRARY list.
+      # Disable with: `mark no-cmakeadd`
+      #
       set( OS_SPECIFIC_LIBRARIES
          ${OS_SPECIFIC_LIBRARIES}
          ${GLGLU_LIBRARY}
          CACHE INTERNAL "need to cache this"
       )
-      # temporarily expand CMAKE_MODULE_PATH
+      #
+      # Inherit ObjC loader and link dependency info.
+      # Disable with: `mark no-cmakeinherit`
+      #
+      # // temporarily expand CMAKE_MODULE_PATH
       get_filename_component( _TMP_GLGLU_ROOT "${GLGLU_LIBRARY}" DIRECTORY)
       get_filename_component( _TMP_GLGLU_ROOT "${_TMP_GLGLU_ROOT}" DIRECTORY)
       #
-      # search for DependenciesAndLibraries.cmake to include
+      #
+      # Search for "DependenciesAndLibraries.cmake" to include.
+      # Disable with: `mark no-cmakedependency`
+      #
       foreach( _TMP_GLGLU_NAME "GLU")
          set( _TMP_GLGLU_DIR "${_TMP_GLGLU_ROOT}/include/${_TMP_GLGLU_NAME}/cmake")
          # use explicit path to avoid "surprises"
@@ -109,6 +133,7 @@ if( NOT GLGLU_LIBRARY)
 endif()
 
 
+# sourcetree: GLGLUX11;no-all-load,no-header,no-import;
 if( NOT GLGLUX11_LIBRARY)
    find_library( GLGLUX11_LIBRARY NAMES X11)
    message( STATUS "GLGLUX11_LIBRARY is ${GLGLUX11_LIBRARY}")
@@ -116,16 +141,27 @@ if( NOT GLGLUX11_LIBRARY)
    # the order looks ascending, but due to the way this file is read
    # it ends up being descending, which is what we need
    if( GLGLUX11_LIBRARY)
+      #
+      # Add to GLGLUX11_LIBRARY list.
+      # Disable with: `mark no-cmakeadd`
+      #
       set( OS_SPECIFIC_LIBRARIES
          ${OS_SPECIFIC_LIBRARIES}
          ${GLGLUX11_LIBRARY}
          CACHE INTERNAL "need to cache this"
       )
-      # temporarily expand CMAKE_MODULE_PATH
+      #
+      # Inherit ObjC loader and link dependency info.
+      # Disable with: `mark no-cmakeinherit`
+      #
+      # // temporarily expand CMAKE_MODULE_PATH
       get_filename_component( _TMP_GLGLUX11_ROOT "${GLGLUX11_LIBRARY}" DIRECTORY)
       get_filename_component( _TMP_GLGLUX11_ROOT "${_TMP_GLGLUX11_ROOT}" DIRECTORY)
       #
-      # search for DependenciesAndLibraries.cmake to include
+      #
+      # Search for "DependenciesAndLibraries.cmake" to include.
+      # Disable with: `mark no-cmakedependency`
+      #
       foreach( _TMP_GLGLUX11_NAME "X11")
          set( _TMP_GLGLUX11_DIR "${_TMP_GLGLUX11_ROOT}/include/${_TMP_GLGLUX11_NAME}/cmake")
          # use explicit path to avoid "surprises"
@@ -161,6 +197,7 @@ if( NOT GLGLUX11_LIBRARY)
 endif()
 
 
+# sourcetree: XRANDR;no-all-load,no-header,no-import;
 if( NOT XRANDR_LIBRARY)
    find_library( XRANDR_LIBRARY NAMES Xrandr)
    message( STATUS "XRANDR_LIBRARY is ${XRANDR_LIBRARY}")
@@ -168,16 +205,27 @@ if( NOT XRANDR_LIBRARY)
    # the order looks ascending, but due to the way this file is read
    # it ends up being descending, which is what we need
    if( XRANDR_LIBRARY)
+      #
+      # Add to XRANDR_LIBRARY list.
+      # Disable with: `mark no-cmakeadd`
+      #
       set( OS_SPECIFIC_LIBRARIES
          ${OS_SPECIFIC_LIBRARIES}
          ${XRANDR_LIBRARY}
          CACHE INTERNAL "need to cache this"
       )
-      # temporarily expand CMAKE_MODULE_PATH
+      #
+      # Inherit ObjC loader and link dependency info.
+      # Disable with: `mark no-cmakeinherit`
+      #
+      # // temporarily expand CMAKE_MODULE_PATH
       get_filename_component( _TMP_XRANDR_ROOT "${XRANDR_LIBRARY}" DIRECTORY)
       get_filename_component( _TMP_XRANDR_ROOT "${_TMP_XRANDR_ROOT}" DIRECTORY)
       #
-      # search for DependenciesAndLibraries.cmake to include
+      #
+      # Search for "DependenciesAndLibraries.cmake" to include.
+      # Disable with: `mark no-cmakedependency`
+      #
       foreach( _TMP_XRANDR_NAME "Xrandr")
          set( _TMP_XRANDR_DIR "${_TMP_XRANDR_ROOT}/include/${_TMP_XRANDR_NAME}/cmake")
          # use explicit path to avoid "surprises"
@@ -213,6 +261,7 @@ if( NOT XRANDR_LIBRARY)
 endif()
 
 
+# sourcetree: XXF86VM;no-all-load,no-header,no-import;
 if( NOT XXF86VM_LIBRARY)
    find_library( XXF86VM_LIBRARY NAMES Xxf86vm)
    message( STATUS "XXF86VM_LIBRARY is ${XXF86VM_LIBRARY}")
@@ -220,16 +269,27 @@ if( NOT XXF86VM_LIBRARY)
    # the order looks ascending, but due to the way this file is read
    # it ends up being descending, which is what we need
    if( XXF86VM_LIBRARY)
+      #
+      # Add to XXF86VM_LIBRARY list.
+      # Disable with: `mark no-cmakeadd`
+      #
       set( OS_SPECIFIC_LIBRARIES
          ${OS_SPECIFIC_LIBRARIES}
          ${XXF86VM_LIBRARY}
          CACHE INTERNAL "need to cache this"
       )
-      # temporarily expand CMAKE_MODULE_PATH
+      #
+      # Inherit ObjC loader and link dependency info.
+      # Disable with: `mark no-cmakeinherit`
+      #
+      # // temporarily expand CMAKE_MODULE_PATH
       get_filename_component( _TMP_XXF86VM_ROOT "${XXF86VM_LIBRARY}" DIRECTORY)
       get_filename_component( _TMP_XXF86VM_ROOT "${_TMP_XXF86VM_ROOT}" DIRECTORY)
       #
-      # search for DependenciesAndLibraries.cmake to include
+      #
+      # Search for "DependenciesAndLibraries.cmake" to include.
+      # Disable with: `mark no-cmakedependency`
+      #
       foreach( _TMP_XXF86VM_NAME "Xxf86vm")
          set( _TMP_XXF86VM_DIR "${_TMP_XXF86VM_ROOT}/include/${_TMP_XXF86VM_NAME}/cmake")
          # use explicit path to avoid "surprises"
@@ -265,6 +325,7 @@ if( NOT XXF86VM_LIBRARY)
 endif()
 
 
+# sourcetree: XINERAMA;no-all-load,no-header,no-import;
 if( NOT XINERAMA_LIBRARY)
    find_library( XINERAMA_LIBRARY NAMES Xinerama)
    message( STATUS "XINERAMA_LIBRARY is ${XINERAMA_LIBRARY}")
@@ -272,16 +333,27 @@ if( NOT XINERAMA_LIBRARY)
    # the order looks ascending, but due to the way this file is read
    # it ends up being descending, which is what we need
    if( XINERAMA_LIBRARY)
+      #
+      # Add to XINERAMA_LIBRARY list.
+      # Disable with: `mark no-cmakeadd`
+      #
       set( OS_SPECIFIC_LIBRARIES
          ${OS_SPECIFIC_LIBRARIES}
          ${XINERAMA_LIBRARY}
          CACHE INTERNAL "need to cache this"
       )
-      # temporarily expand CMAKE_MODULE_PATH
+      #
+      # Inherit ObjC loader and link dependency info.
+      # Disable with: `mark no-cmakeinherit`
+      #
+      # // temporarily expand CMAKE_MODULE_PATH
       get_filename_component( _TMP_XINERAMA_ROOT "${XINERAMA_LIBRARY}" DIRECTORY)
       get_filename_component( _TMP_XINERAMA_ROOT "${_TMP_XINERAMA_ROOT}" DIRECTORY)
       #
-      # search for DependenciesAndLibraries.cmake to include
+      #
+      # Search for "DependenciesAndLibraries.cmake" to include.
+      # Disable with: `mark no-cmakedependency`
+      #
       foreach( _TMP_XINERAMA_NAME "Xinerama")
          set( _TMP_XINERAMA_DIR "${_TMP_XINERAMA_ROOT}/include/${_TMP_XINERAMA_NAME}/cmake")
          # use explicit path to avoid "surprises"
@@ -317,6 +389,7 @@ if( NOT XINERAMA_LIBRARY)
 endif()
 
 
+# sourcetree: XCURSOR;no-all-load,no-header,no-import;
 if( NOT XCURSOR_LIBRARY)
    find_library( XCURSOR_LIBRARY NAMES Xcursor)
    message( STATUS "XCURSOR_LIBRARY is ${XCURSOR_LIBRARY}")
@@ -324,16 +397,27 @@ if( NOT XCURSOR_LIBRARY)
    # the order looks ascending, but due to the way this file is read
    # it ends up being descending, which is what we need
    if( XCURSOR_LIBRARY)
+      #
+      # Add to XCURSOR_LIBRARY list.
+      # Disable with: `mark no-cmakeadd`
+      #
       set( OS_SPECIFIC_LIBRARIES
          ${OS_SPECIFIC_LIBRARIES}
          ${XCURSOR_LIBRARY}
          CACHE INTERNAL "need to cache this"
       )
-      # temporarily expand CMAKE_MODULE_PATH
+      #
+      # Inherit ObjC loader and link dependency info.
+      # Disable with: `mark no-cmakeinherit`
+      #
+      # // temporarily expand CMAKE_MODULE_PATH
       get_filename_component( _TMP_XCURSOR_ROOT "${XCURSOR_LIBRARY}" DIRECTORY)
       get_filename_component( _TMP_XCURSOR_ROOT "${_TMP_XCURSOR_ROOT}" DIRECTORY)
       #
-      # search for DependenciesAndLibraries.cmake to include
+      #
+      # Search for "DependenciesAndLibraries.cmake" to include.
+      # Disable with: `mark no-cmakedependency`
+      #
       foreach( _TMP_XCURSOR_NAME "Xcursor")
          set( _TMP_XCURSOR_DIR "${_TMP_XCURSOR_ROOT}/include/${_TMP_XCURSOR_NAME}/cmake")
          # use explicit path to avoid "surprises"
@@ -369,6 +453,7 @@ if( NOT XCURSOR_LIBRARY)
 endif()
 
 
+# sourcetree: DL;no-all-load,no-header,no-import;
 if( NOT DL_LIBRARY)
    find_library( DL_LIBRARY NAMES dl)
    message( STATUS "DL_LIBRARY is ${DL_LIBRARY}")
@@ -376,16 +461,27 @@ if( NOT DL_LIBRARY)
    # the order looks ascending, but due to the way this file is read
    # it ends up being descending, which is what we need
    if( DL_LIBRARY)
+      #
+      # Add to DL_LIBRARY list.
+      # Disable with: `mark no-cmakeadd`
+      #
       set( OS_SPECIFIC_LIBRARIES
          ${OS_SPECIFIC_LIBRARIES}
          ${DL_LIBRARY}
          CACHE INTERNAL "need to cache this"
       )
-      # temporarily expand CMAKE_MODULE_PATH
+      #
+      # Inherit ObjC loader and link dependency info.
+      # Disable with: `mark no-cmakeinherit`
+      #
+      # // temporarily expand CMAKE_MODULE_PATH
       get_filename_component( _TMP_DL_ROOT "${DL_LIBRARY}" DIRECTORY)
       get_filename_component( _TMP_DL_ROOT "${_TMP_DL_ROOT}" DIRECTORY)
       #
-      # search for DependenciesAndLibraries.cmake to include
+      #
+      # Search for "DependenciesAndLibraries.cmake" to include.
+      # Disable with: `mark no-cmakedependency`
+      #
       foreach( _TMP_DL_NAME "dl")
          set( _TMP_DL_DIR "${_TMP_DL_ROOT}/include/${_TMP_DL_NAME}/cmake")
          # use explicit path to avoid "surprises"
@@ -421,6 +517,7 @@ if( NOT DL_LIBRARY)
 endif()
 
 
+# sourcetree: PTHREAD;no-all-load,no-header,no-import;
 if( NOT PTHREAD_LIBRARY)
    find_library( PTHREAD_LIBRARY NAMES pthread)
    message( STATUS "PTHREAD_LIBRARY is ${PTHREAD_LIBRARY}")
@@ -428,16 +525,27 @@ if( NOT PTHREAD_LIBRARY)
    # the order looks ascending, but due to the way this file is read
    # it ends up being descending, which is what we need
    if( PTHREAD_LIBRARY)
+      #
+      # Add to PTHREAD_LIBRARY list.
+      # Disable with: `mark no-cmakeadd`
+      #
       set( OS_SPECIFIC_LIBRARIES
          ${OS_SPECIFIC_LIBRARIES}
          ${PTHREAD_LIBRARY}
          CACHE INTERNAL "need to cache this"
       )
-      # temporarily expand CMAKE_MODULE_PATH
+      #
+      # Inherit ObjC loader and link dependency info.
+      # Disable with: `mark no-cmakeinherit`
+      #
+      # // temporarily expand CMAKE_MODULE_PATH
       get_filename_component( _TMP_PTHREAD_ROOT "${PTHREAD_LIBRARY}" DIRECTORY)
       get_filename_component( _TMP_PTHREAD_ROOT "${_TMP_PTHREAD_ROOT}" DIRECTORY)
       #
-      # search for DependenciesAndLibraries.cmake to include
+      #
+      # Search for "DependenciesAndLibraries.cmake" to include.
+      # Disable with: `mark no-cmakedependency`
+      #
       foreach( _TMP_PTHREAD_NAME "pthread")
          set( _TMP_PTHREAD_DIR "${_TMP_PTHREAD_ROOT}/include/${_TMP_PTHREAD_NAME}/cmake")
          # use explicit path to avoid "surprises"
@@ -473,6 +581,7 @@ if( NOT PTHREAD_LIBRARY)
 endif()
 
 
+# sourcetree: M;no-all-load,no-header,no-import;
 if( NOT M_LIBRARY)
    find_library( M_LIBRARY NAMES m)
    message( STATUS "M_LIBRARY is ${M_LIBRARY}")
@@ -480,16 +589,27 @@ if( NOT M_LIBRARY)
    # the order looks ascending, but due to the way this file is read
    # it ends up being descending, which is what we need
    if( M_LIBRARY)
+      #
+      # Add to M_LIBRARY list.
+      # Disable with: `mark no-cmakeadd`
+      #
       set( OS_SPECIFIC_LIBRARIES
          ${OS_SPECIFIC_LIBRARIES}
          ${M_LIBRARY}
          CACHE INTERNAL "need to cache this"
       )
-      # temporarily expand CMAKE_MODULE_PATH
+      #
+      # Inherit ObjC loader and link dependency info.
+      # Disable with: `mark no-cmakeinherit`
+      #
+      # // temporarily expand CMAKE_MODULE_PATH
       get_filename_component( _TMP_M_ROOT "${M_LIBRARY}" DIRECTORY)
       get_filename_component( _TMP_M_ROOT "${_TMP_M_ROOT}" DIRECTORY)
       #
-      # search for DependenciesAndLibraries.cmake to include
+      #
+      # Search for "DependenciesAndLibraries.cmake" to include.
+      # Disable with: `mark no-cmakedependency`
+      #
       foreach( _TMP_M_NAME "m")
          set( _TMP_M_DIR "${_TMP_M_ROOT}/include/${_TMP_M_NAME}/cmake")
          # use explicit path to avoid "surprises"

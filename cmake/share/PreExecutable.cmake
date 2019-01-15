@@ -8,4 +8,4 @@ include( UnwantedWarningsC)
 include( CompilerDetectionC)
 include( CompilerFlagsC)
 
-include( PreExecutableCAux OPTIONAL)
+include( PreExecutableAuxC OPTIONAL)
