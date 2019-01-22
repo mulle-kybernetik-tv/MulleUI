@@ -143,12 +143,23 @@ static void   keyCallback( GLFWwindow* window,
 {
 	#define PAINT_FRAMES  2 //  60 * 5
 
+   // glfwMakeContextCurrent( _window );
+   // glfwSwapInterval( 1);  // makes no difference
+
 	while( ! glfwWindowShouldClose( _window)) 
 	{
 		if( 1 || _didRender < PAINT_FRAMES)
 		{
 			// nvgGlobalCompositeOperation( ctxt->vg, NVG_ATOP);
-			glClear( GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
+         glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
+
+         //
+         // GL_COLOR_BUFFER_BIT brauchen wir, wenn wir nicht selber per
+         // Hand abschnittsweise löschen
+         // GL_STENCIL_BUFFER_BIT braucht nanovg 
+         // GL_DEPTH_BUFFER_BIT ?
+         //
+			glClear( GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
 
          [context startRenderToFrame:_frame];
 

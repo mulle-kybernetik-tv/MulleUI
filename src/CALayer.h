@@ -6,6 +6,17 @@
 
 typedef NVGcolor   CGColorRef;
 
+
+static inline NVGcolor getNVGColor( uint32_t color) 
+{
+	return nvgRGBA(
+		(color >> 24) & 0xff,
+		(color >> 16) & 0xff,
+		(color >> 8) & 0xff,
+		(color >> 0) & 0xff);
+}
+
+
 typedef float   _NVGtransform[ 6];   
 
 
