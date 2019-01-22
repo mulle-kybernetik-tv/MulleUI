@@ -227,6 +227,7 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
    return( result);
 }
 
+
 - (void) renderLayersWithContext:(CGContext *) context
 {
    struct mulle_pointerarray_enumerator   rover;
@@ -236,14 +237,17 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
    NVGcontext                             *vg;
    CGRect                                 bounds;
 
+#ifdef RENDER_DEBUG
    fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
-
+#endif
    vg     = [context nvgContext];
    bounds = [self bounds];
 
+#ifdef RENDER_DEBUG
    fprintf( stderr, "%s: bounds: %s\n", 
                   [self cStringDescription],
                   CGRectCStringDescription( bounds));
+#endif
 
    nvgCurrentTransform( vg, transform);
    nvgGetScissor( vg, &scissor);
@@ -277,7 +281,9 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
    NSInteger    available;
    NSInteger    i;
 
+#ifdef RENDER_DEBUG
    fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
+#endif
 
    available = sizeof( subviews) / sizeof( UIView *);
    n         = [self getSubviews:subviews
@@ -301,8 +307,10 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
    CGRect          contextClipRect;
    CGRect          clipRect;
 
+#ifdef RENDER_DEBUG
    fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
-
+#endif
+   
    frame = [self frame];
    if( frame.size.width <= 0.0 || frame.size.height <= 0.0)
    {
@@ -323,12 +331,14 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
    nvgCurrentTransform( vg, transform);
    nvgGetScissor( vg, &scissor);
 
+#ifdef RENDER_DEBUG
    fprintf( stderr, "%s: inherited transform %s\n",
                         [self cStringDescription],
                         _NVGtransformCStringDescription( transform));
    fprintf( stderr, "%s: inherited scissorTransform %s\n",
                         [self cStringDescription],
                         NVGscissorCStringDescription( &scissor));
+#endif
 
    //
    // layers do not "suffer" from translation and scaling as these 
@@ -345,26 +355,32 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
    nvgResetTransform( vg);
    nvgTransform( vg, transform[ 0], transform[ 1], transform[ 2],
                      transform[ 3], transform[ 4], transform[ 5]);
+#ifdef RENDER_DEBUG
    fprintf( stderr, "%s: reset1 to inherited transform %s\n", 
                      [self cStringDescription],
                      _NVGtransformCStringDescription( transform));                     
+#endif   
    nvgSetScissor( vg, &scissor);
+#ifdef RENDER_DEBUG
    fprintf( stderr, "%s: reset1 to inherited scissorTransform %s\n", 
                      [self cStringDescription],
                      NVGscissorCStringDescription( &scissor));                     
-
+#endif
 
    if( [self subviewCount] == 0)
       return;
 
    if( [self superview])
    {
+#ifdef RENDER_DEBUG
       fprintf( stderr, "Set transform for subviews of %s (not a window)\n", [self cStringDescription]);
-
+#endif
       nvgTranslate( vg, frame.origin.x, frame.origin.y);
+#ifdef RENDER_DEBUG
       fprintf( stderr, "%s translate %.1f %.1f\n", 
                         [self cStringDescription], 
                         frame.origin.x, frame.origin.y);
+#endif      
       //
       // TODO: move this code to UIView (gut feeling)
       //
@@ -374,15 +390,17 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
       scale.y = frame.size.height / bounds.size.height;
 
       nvgScale( vg, scale.x, scale.y);
+#ifdef RENDER_DEBUG
       fprintf( stderr, "%s scale %.1f %.1f\n", 
                         [self cStringDescription], 
                         scale.x, scale.y);
-
+#endif
       nvgTranslate( vg, bounds.origin.x, bounds.origin.y);
+#ifdef RENDER_DEBUG
       fprintf( stderr, "%s translate %.1f %.1f\n", 
                         [self cStringDescription], 
                          bounds.origin.x, bounds.origin.y);
-
+#endif
       nvgIntersectScissor( vg, 0.0, 0.0, bounds.size.width, bounds.size.height);
    }
 
@@ -391,13 +409,17 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
    nvgResetTransform( vg);
    nvgTransform( vg, transform[ 0], transform[ 1], transform[ 2],
                      transform[ 3], transform[ 4], transform[ 5]);
+#ifdef RENDER_DEBUG
    fprintf( stderr, "%s: reset2 to inherited transform %s\n", 
                      [self cStringDescription],
                      _NVGtransformCStringDescription( transform));     
+#endif   
    nvgSetScissor( vg, &scissor);
+#ifdef RENDER_DEBUG
    fprintf( stderr, "%s: reset2 to inherited scissorTransform %s\n", 
                      [self cStringDescription],
                      NVGscissorCStringDescription( &scissor));                     
+#endif  
 }
 
 

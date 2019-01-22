@@ -158,7 +158,7 @@ int   main()
    button = [[[UIButton alloc] initWithLayer:viechLayer] autorelease];
    // [button setClipsSubviews:YES];
    [button setClick:button_callback];
-
+   [button setDisabled:YES];
    [window addSubview:button];
 
    insideButton = [[[UIButton alloc] initWithLayer:sealieLayer] autorelease];
@@ -167,6 +167,11 @@ int   main()
    [button addSubview:insideButton];
 
    nestedButton = [[[UIButton alloc] initWithLayer:turtleLayer] autorelease];
+   [nestedButton setBackgroundImage:turtleBitmap
+                           forState:UIControlStateNormal];
+   [nestedButton setBackgroundImage:viechBitmap
+                           forState:UIControlStateSelected];
+
    // [insideButton setClipsSubviews:YES];
    [nestedButton setClick:button_callback];
    [insideButton addSubview:nestedButton];

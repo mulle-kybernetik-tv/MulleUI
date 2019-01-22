@@ -40,4 +40,16 @@ typedef float   _NVGtransform[ 6];
 - (void) setTransform:(_NVGtransform) transform
               scissor:(NVGscissor *) scissor;
 
+
 @end
+
+
+@class UIImage;
+
+
+@protocol CAImageLayer 
+
+@property( retain) UIImage   *image;
+
+@end
+  

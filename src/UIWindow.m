@@ -36,6 +36,7 @@ static void   mouseButtonCallback( GLFWwindow* window,
    [event release];   
 }
 
+
 static void   mouseMoveCallback( GLFWwindow* window, 
 										   double xpos, 
 										   double ypos)
@@ -124,6 +125,7 @@ static void   keyCallback( GLFWwindow* window,
    return( self);
 }
 
+
 - (void) dealloc
 {
    // delete window
@@ -139,11 +141,11 @@ static void   keyCallback( GLFWwindow* window,
 
 - (void) renderLoopWithContext:(CGContext *) context
 {
-	#define PAINT_FRAMES  1 //  60 * 5
+	#define PAINT_FRAMES  2 //  60 * 5
 
 	while( ! glfwWindowShouldClose( _window)) 
 	{
-		if( _didRender < PAINT_FRAMES)
+		if( 1 || _didRender < PAINT_FRAMES)
 		{
 			// nvgGlobalCompositeOperation( ctxt->vg, NVG_ATOP);
 			glClear( GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
@@ -167,6 +169,7 @@ static void   keyCallback( GLFWwindow* window,
       [self waitForEvents];
 	}
 }
+
 
 - (CGRect) frame
 {
@@ -209,6 +212,14 @@ static void   keyCallback( GLFWwindow* window,
 + (void) sendEmptyEvent
 {
    glfwPostEmptyEvent();
+}
+
+
+- (UIEvent *) handleEvent:(UIEvent *) event
+{
+	if( [event isKindOfClass:[UIMouseButtonEvent class]])
+   	[self dump];
+   return( [super handleEvent:event]);
 }
 
 @end

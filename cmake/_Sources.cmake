@@ -20,6 +20,7 @@ src/UIApplication.m
 src/UIButton.m
 src/UIControl.m
 src/UIEvent.m
+src/UIImage.m
 src/UIView+CGGeometry.m
 src/UIView+UIEvent.m
 src/UIView.m

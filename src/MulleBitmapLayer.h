@@ -7,9 +7,10 @@
 struct NVGcontext;
 
 
-@interface MulleBitmapLayer : CALayer
-
-@property( retain) MulleBitmapImage   *image;
+@interface MulleBitmapLayer : CALayer <CAImageLayer>
+{
+	UIImage   *_image;
+}
 
 - (instancetype) initWithBitmapImage:(MulleBitmapImage *) image;
 

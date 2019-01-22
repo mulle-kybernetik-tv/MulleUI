@@ -16,7 +16,18 @@ static NVGcolor getNVGColor(uint32_t color)
 }
 
 
+@implementation MulleBitmapImage( MulleBitmapLayer)
+
+- (Class) preferredLayerClass
+{
+	return( [MulleBitmapLayer class]);
+}
+
+@end
+
+
 @implementation MulleBitmapLayer
+
 
 - (instancetype) initWithBitmapImage:(MulleBitmapImage *) image
 {
@@ -59,8 +70,8 @@ static NVGcolor getNVGColor(uint32_t color)
       return( YES);
 
    vg        = [context nvgContext];
-   size      = [_image intSize];
-   textureId = nvgCreateImageRGBA( vg, size.width, size.height, 0, [_image bytes]);
+   size      = [(MulleBitmapImage *) _image intSize];
+   textureId = nvgCreateImageRGBA( vg, size.width, size.height, 0, [(MulleBitmapImage *) _image bytes]);
 //   fprintf( stderr, "textureid: %d\n", textureId);
 
    imgPaint  = nvgImagePattern( vg, 0, 0, size.width, size.height, 0.0f/180.0f*NVG_PI, textureId, 1.0);

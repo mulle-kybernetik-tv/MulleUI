@@ -74,8 +74,10 @@ static NVGcolor getNVGColor(uint32_t color)
    int          radius;
    NVGcontext   *vg;
 
+#ifdef CALAYER_DEBUG   
    fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
-
+#endif
+   
    frame  = [self frame];
    if( frame.size.width == 0.0 || frame.size.height == 0.0)
       return( NO);
@@ -88,10 +90,14 @@ static NVGcolor getNVGColor(uint32_t color)
    nvgResetTransform( vg);
    nvgTransform( vg, _transform[ 0], _transform[ 1], _transform[ 2],
                      _transform[ 3], _transform[ 4], _transform[ 5]);
+#ifdef CALAYER_DEBUG   
    fprintf( stderr, "%s: set to local transform %s\n", 
                      [self cStringDescription],
                      _NVGtransformCStringDescription( _transform));                     
+#endif   
    nvgSetScissor( vg, &_scissor);
+
+#ifdef CALAYER_DEBUG   
    fprintf( stderr, "%s: set to local scissor %s\n", 
                      [self cStringDescription],
                      NVGscissorCStringDescription( &_scissor));                     
@@ -102,7 +108,7 @@ static NVGcolor getNVGColor(uint32_t color)
    fprintf( stderr, "%s: scissor %s\n", 
                      [self cStringDescription],
                      NVGscissorCStringDescription( &_scissor));
-
+#endif
    //
    // fill and border are drawn as frame
    // contents in bounds of superview
@@ -178,13 +184,14 @@ static NVGcolor getNVGColor(uint32_t color)
    if( bounds.size.width <= 0.0 || bounds.size.height <= 0.0)
       return( NO);
 
+#ifdef CALAYER_DEBUG   
    fprintf( stderr, "%s: frame %s\n", 
             [self cStringDescription],
             CGRectCStringDescription( frame));
    fprintf( stderr, "%s: bounds %s\n", 
             [self cStringDescription],
             CGRectCStringDescription( bounds));
-
+#endif
 
    nvgTranslate( vg, frame.origin.x, frame.origin.y);
 #if 1
@@ -209,24 +216,29 @@ static NVGcolor getNVGColor(uint32_t color)
       NVGscissor      scissor;
 
       nvgCurrentTransform( vg, transform);
+#ifdef CALAYER_DEBUG   
       fprintf( stderr, "%s: modified transform %s\n", 
                         [self cStringDescription],
                         _NVGtransformCStringDescription( transform));
+#endif
       nvgTransformPoint( &point.x, &point.y, transform, 0.0, 0.0);
+#ifdef CALAYER_DEBUG   
       fprintf( stderr, "%s: transform 0.0/0.0 -> %s\n",
                [self cStringDescription],
                CGPointCStringDescription( point));
-
+#endif
       nvgGetScissor( vg, &scissor);
+#ifdef CALAYER_DEBUG   
       fprintf( stderr, "%s: modified scissor %s\n", 
                         [self cStringDescription],
                         NVGscissorCStringDescription( &scissor));
+#endif
       nvgTransformPoint( &point.x, &point.y, transform, 0.0, 0.0);
+#ifdef CALAYER_DEBUG   
       fprintf( stderr, "%s: scissor transform 0.0/0.0 -> %s\n",
                [self cStringDescription],
                CGPointCStringDescription( point));
-
-
+#endif
    }
 
    return( YES);

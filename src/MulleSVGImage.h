@@ -1,4 +1,4 @@
-#import "import.h"
+#import "UIImage.h"
 
 #import "CGGeometry.h"
 
@@ -6,7 +6,7 @@
 struct NSVGimage;
 
 
-@interface MulleSVGImage : NSObject
+@interface MulleSVGImage : UIImage
 {
 	struct NSVGimage   *_NSVGImage;
 }
@@ -16,9 +16,7 @@ struct NSVGimage;
 
 - (instancetype) initWithNSVGImage:(struct NSVGimage *) image;
 - (instancetype) initWithContentsOfFileWithFileRepresentationString:(char *) s;
-- (struct NSVGimage *) NSVGImage;
 
-- (CGSize) size;
-- (CGRect) visibleBounds;
+- (struct NSVGimage *) NSVGImage;
 
 @end

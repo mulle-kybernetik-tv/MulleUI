@@ -8,6 +8,7 @@
 #import "nanovg.h"
 #import "nanosvg.h"
 
+
 static NVGcolor getSVGColor(uint32_t color) 
 {
 	return nvgRGBA(
@@ -18,6 +19,16 @@ static NVGcolor getSVGColor(uint32_t color)
 }
 
 
+@implementation MulleSVGImage( MulleSVGLayer)
+
+- (Class) preferredLayerClass
+{
+	return( [MulleSVGLayer class]);
+}
+
+@end
+
+
 @implementation MulleSVGLayer
 
 - (instancetype) initWithSVGImage:(MulleSVGImage *) image
@@ -25,9 +36,9 @@ static NVGcolor getSVGColor(uint32_t color)
    if( ! (self = [super init]))
       return( self);
    
-   _SVGImage      = [image retain];  // ownership transfer
+   _image         = [image retain];  // ownership transfer
 
-   _bounds        = [_SVGImage visibleBounds];
+   _bounds        = [_image visibleBounds];
    _offset.x      = -_bounds.origin.x;
    _offset.y      = -_bounds.origin.y;
    _bounds.origin = CGPointMake( 0.0f, 0.0f);
@@ -49,7 +60,7 @@ static NVGcolor getSVGColor(uint32_t color)
    if( ! [super drawInContext:context])
       return( NO);
 
-   image = [_SVGImage NSVGImage];
+   image = [(MulleSVGImage *) _image NSVGImage];
    if ( ! image)
       return( YES);
 
@@ -93,7 +104,7 @@ static NVGcolor getSVGColor(uint32_t color)
 {
    CGRect   bounds;
 
-   bounds = [_SVGImage visibleBounds];
+   bounds = [_image visibleBounds];
    return( bounds);
 }
 

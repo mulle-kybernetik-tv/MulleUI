@@ -46,4 +46,6 @@
 
 - (CGRect) clipRect;
 
+- (CALayer *) mainLayer;
+
 @end

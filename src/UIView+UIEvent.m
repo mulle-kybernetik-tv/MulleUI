@@ -23,12 +23,14 @@
    bounds.origin.y = -bounds.origin.y;
    flag            = CGRectContainsPoint( bounds, point);
 
- //  fprintf( stderr, "%s: %s [%s] @%s -> %s\n",
- //                       __PRETTY_FUNCTION__,
- //                       [self cStringDescription], 
- //                       CGRectCStringDescription( bounds),
- //                       CGPointCStringDescription( point),
- //                       flag ? "YES" : "NO");
+#ifdef HITTEST_DEBUG
+   fprintf( stderr, "%s: %s [%s] @%s -> %s\n",
+                        __PRETTY_FUNCTION__,
+                        [self cStringDescription], 
+                        CGRectCStringDescription( bounds),
+                        CGPointCStringDescription( point),
+                        flag ? "YES" : "NO");
+#endif   
    return( flag);
 }
 
@@ -118,6 +120,7 @@
 
    return( event);
 }
+
 
 - (UIEvent *) handleKeyboardEvent:(UIKeyboardEvent *) event
 {

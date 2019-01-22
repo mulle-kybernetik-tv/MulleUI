@@ -1,9 +1,9 @@
-#import <MulleObjC/MulleObjC.h>
+#import "import.h"
 
 
 @class UIEvent;
 
-enum UIControlStateBits 
+enum UIControlStateBit
 {
 	UIControlStateNormal      = 0x0,
 	UIControlStateHighlighted = 0x1,
@@ -12,6 +12,33 @@ enum UIControlStateBits
 	UIControlStateFocused	  = 0x8
 };
 
+/* 
+Possible state combinations.
+Disable and highlight can't coexist.
+Disable and focus can't coexist.
+Assume focus is painted.
+Highlight, will show normal image when selected and 
+selected image when deselected.
+
+ Highlight |  Disable  |   Select  |   Focus   | Image Choice
+-----------|-----------|-----------|-----------|--------
+     0     |     0     |     0     |     0     | Normal
+     1     |     0     |     0     |     0     | Select
+     0     |     1     |     0     |     0     | DisableNormal
+     1     |     1     |     0     |     0     | *impossible*
+     0     |     0     |     1     |     0     | Select
+     1     |     0     |     1     |     0     | Normal
+     0     |     1     |     1     |     0     | DisableSelect
+     1     |     1     |     1     |     0     | *impossible*
+     0     |     0     |     0     |     1     | Normal
+     1     |     0     |     0     |     1     | Select
+     0     |     1     |     0     |     1     | *impossible*
+     1     |     1     |     0     |     1     | *impossible*
+     0     |     0     |     1     |     1     | Select
+     1     |     0     |     1     |     1     | Normal
+     0     |     1     |     1     |     1     | *impossible*
+     1     |     1     |     1     |     1     | *impossible*
+*/
 
 typedef NSUInteger    UIControlState;
 
@@ -38,6 +65,16 @@ typedef UIEvent       *UIControlClickHandler( id <UIControl> control,
 @interface UIControl( UIControl)
 
 - (UIEvent *) mouseUp:(UIEvent *) event;
+
+// these are convenience for state, don't override these
+// overide state if needed
+
+- (BOOL) isHighlighted;
+- (void) setHighlighted:(BOOL) flag;
+- (BOOL) isDisabled;
+- (void) setDisabled:(BOOL) flag;
+- (BOOL) isSelected;
+- (void) setSelected:(BOOL) flag;
 
 @end
 

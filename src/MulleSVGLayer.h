@@ -6,11 +6,11 @@
 @class MulleSVGImage;
 
 
-@interface MulleSVGLayer : CALayer
+@interface MulleSVGLayer : CALayer <CAImageLayer>
 {
+	UIImage   *_image;
    CGPoint   _offset;
 }
-@property( retain, nonatomic) MulleSVGImage   *SVGImage;
 
 - (instancetype) initWithSVGImage:(MulleSVGImage *) image;
 
