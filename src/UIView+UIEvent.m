@@ -139,7 +139,7 @@
    if( sel && [self respondsToSelector:sel])
    {
       event = [self performSelector:sel
-                          withObject:event];
+                         withObject:event];
    }   
 
    fprintf( stderr, "event %p\n", event);

@@ -18,6 +18,7 @@ src/MulleSVGImage.m
 src/MulleSVGLayer.m
 src/UIApplication.m
 src/UIButton.m
+src/UIControl.m
 src/UIEvent.m
 src/UIView+CGGeometry.m
 src/UIView+UIEvent.m

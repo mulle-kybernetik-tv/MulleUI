@@ -2,13 +2,29 @@
 	"folders":
 	[
 		{
+         "file_exclude_patterns":
+         [
+                 "*~",
+                 "*~.*",
+                 "*.chk",
+                 ".DS_Store",
+                 "._.DS_Store",
+                 "*.sublime-workspace",
+                 "tmp.*"
+         ],
+         "folder_exclude_patterns":
+         [
+                 ".git",
+                 ".mulle/share",
+                 ".mulle/var",
+                 ".unison*",
+                 "addiction",
+                 "build",
+                 "dependency",
+                 "stash"
+         ],
+
 			"path": "."
 		},
-		{
-			"path": "/home/src/src/unix/catgl/sample/nanovg_eyes"
-		},
-		{
-			"path": "/home/src/src/unix/catgl"
-		}
 	]
 }

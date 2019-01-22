@@ -20,6 +20,7 @@ static void  pointerarray_release_all( struct mulle_pointerarray *array)
       [obj release];
 }
 
+
 static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
 {
    struct mulle_pointerarray_enumerator   rover;
@@ -29,6 +30,7 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
    while( obj = mulle_pointerarray_enumerator_next( &rover))
       *dst++ = obj;;
 }
+
 
 - (id) initWithFrame:(CGRect) frame
 {

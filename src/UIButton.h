@@ -1,12 +1,13 @@
 #import "UIView.h"
+#import "UIControl.h"
 
-@class UIEvent;
+
+// TODO: move to a protocolclass UIControl
 
 
-@interface UIButton : UIView
 
-@property( assign) UIEvent *(*click)( UIButton *button, UIEvent *event);
-@property( assign) id  target;
-@property( assign) SEL action;
-
+@interface UIButton : UIView <UIControl>
+{
+   UIControlIvars;
+}
 @end

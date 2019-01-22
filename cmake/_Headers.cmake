@@ -37,6 +37,7 @@ src/MulleSVGImage.h
 src/MulleSVGLayer.h
 src/UIApplication.h
 src/UIButton.h
+src/UIControl.h
 src/UIEvent.h
 src/UIView+CGGeometry.h
 src/UIView+UIEvent.h
