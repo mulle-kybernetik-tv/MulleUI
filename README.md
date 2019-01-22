@@ -5,7 +5,7 @@
 
 ## Progress
 
-* 22.1.2019: UIButton now reacts to clicks and shows state
+* 22.1.2019: UIButton now reacts to clicks and shows state, fixed colors and window drag
 * 15.1.2019: can now distribute mouse events to proper subviews
 
 

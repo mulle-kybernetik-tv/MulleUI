@@ -31,15 +31,6 @@ static char   svginput[] = \
 #endif
 
 
-static NVGcolor getNVGColor(uint32_t color)
-{
-	return nvgRGBA(
-		(color >> 0) & 0xff,
-		(color >> 8) & 0xff,
-		(color >> 16) & 0xff,
-		(color >> 24) & 0xff);
-}
-
 static UIEvent   *button_callback( UIButton *button, UIEvent *event)
 {
    fprintf( stderr, "callback: %s\n", [button cStringDescription]);
@@ -88,8 +79,8 @@ int   main()
    frame.size.height  = 200;
    [tigerLayer setFrame:frame];
  //  [layer setBounds:CGRectMake( 0.0, 0.0, 200, 30)];
-   [tigerLayer setBackgroundColor:getNVGColor( 0xD0D0E0FF)];
-   [tigerLayer setBorderColor:getNVGColor( 0x80FF30FF)];
+   [tigerLayer setBackgroundColor:getNVGColor( 0xFFE0D0D0)];
+   [tigerLayer setBorderColor:getNVGColor( 0xFF30FF80)];
    [tigerLayer setBorderWidth:32.0f];
    [tigerLayer setCornerRadius:16.0f];
 
@@ -99,7 +90,7 @@ int   main()
    bounds = [shiftedTigerLayer bounds];
    bounds.origin.x = -bounds.size.width / 2.0;
    [shiftedTigerLayer setBounds:bounds];
-   [shiftedTigerLayer setBackgroundColor:getNVGColor( 0x402060FF)];
+   [shiftedTigerLayer setBackgroundColor:getNVGColor( 0x407040FF)];
 
 
    viechBitmap = [[[MulleBitmapImage alloc] initWithConstBytes:viech_bitmap
