@@ -33,6 +33,7 @@
    return( self);
 }
 
+
 - (instancetype) initWithContentsOfFileWithFileRepresentationString:(char *) s
 {
    NSVGimage   *image;

@@ -37,7 +37,7 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
    CALayer   *layer;
 
    layer = [[CALayer alloc] initWithFrame:frame];
-   self = [self initWithLayer:layer];
+   self  = [self initWithLayer:layer];
    [layer release];
    return( self);
 }
@@ -45,12 +45,15 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
 
 - (id) initWithLayer:(CALayer *) layer
 {
+	assert( ! layer || [layer isKindOfClass:[CALayer class]]);
+
    if( ! layer)
    {
       [self release];
       return( nil);
    }
-   _mainLayer = [layer retain];
+   _mainLayer     = [layer retain];
+   _clipsSubviews = YES;  // default
 
    return( self);
 }
@@ -79,6 +82,7 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
 - (void) addLayer:(CALayer *) layer
 {
    assert( layer);
+	assert( [layer isKindOfClass:[CALayer class]]);
 
    if( ! _mainLayer)
    {
@@ -101,6 +105,7 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
    assert( view);
    assert( view != self);
    assert( ! [view superview]);
+	assert( [view isKindOfClass:[UIView class]]);
 
    if( ! _subviews)
       _subviews = mulle_pointerarray_alloc( NULL, NULL);
@@ -111,6 +116,7 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
 
    view->_superview = self;
 }
+
 
 - (NSUInteger) subviewCount
 {
@@ -178,7 +184,7 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
 
 - (void) setBounds:(CGRect) rect;
 {
-   [_mainLayer setFrame:rect];
+   [_mainLayer setBounds:rect];
 }
 
 
@@ -192,6 +198,7 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
 {
    [_mainLayer setFrame:rect];
 }
+
 
 - (CGRect) clipRect
 {
@@ -372,6 +379,10 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
 
    if( [self superview])
    {
+   	// clip to our frame
+      if( self->_clipsSubviews)
+	      nvgIntersectScissor( vg, frame.origin.x, frame.origin.y, frame.size.width, frame.size.height);
+
 #ifdef RENDER_DEBUG
       fprintf( stderr, "Set transform for subviews of %s (not a window)\n", [self cStringDescription]);
 #endif
@@ -401,7 +412,6 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
                         [self cStringDescription], 
                          bounds.origin.x, bounds.origin.y);
 #endif
-      nvgIntersectScissor( vg, 0.0, 0.0, bounds.size.width, bounds.size.height);
    }
 
    [self renderSubviewsWithContext:context];

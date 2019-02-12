@@ -8,6 +8,7 @@
 #import "UIWindow.h"
 #import "UIApplication.h"
 #import "UIButton.h"
+#import "UIScrollView.h"
 #import "UIEvent.h"
 #import <string.h>
 
@@ -33,7 +34,25 @@ static char   svginput[] = \
 
 static UIEvent   *button_callback( UIButton *button, UIEvent *event)
 {
-   fprintf( stderr, "callback: %s\n", [button cStringDescription]);
+   fprintf( stderr, "button_callback: %s\n", [button cStringDescription]);
+   return( nil);
+}
+
+
+static UIEvent   *scroll_callback( UIButton *button, UIEvent *event)
+{
+   UIScrollView   *scroller;
+   CGPoint        offset;
+
+   fprintf( stderr, "scroll_callback: %s\n", [button cStringDescription]);
+
+   scroller = [button superview];
+   assert( [scroller isKindOfClass:[UIScrollView class]]);
+
+   offset    = [scroller contentOffset];
+   offset.y += 10;
+   [scroller setContentOffset:offset];
+
    return( nil);
 }
 
@@ -45,6 +64,7 @@ int   main()
    MulleBitmapLayer   *viechLayer;
    MulleBitmapLayer   *sealieLayer;
    MulleBitmapLayer   *turtleLayer;
+   MulleBitmapLayer   *turtleLayer2;
    MulleSVGImage      *tigerSVGImage;
    MulleBitmapImage   *viechBitmap;
    MulleBitmapImage   *sealieBitmap;
@@ -57,6 +77,8 @@ int   main()
    UIButton           *button;
    UIButton           *insideButton;
    UIButton           *nestedButton;
+   UIButton           *inScrollerButton;
+   UIScrollView       *scroller;
    UIApplication      *application;
 
    tigerSVGImage = [[[MulleSVGImage alloc] initWithBytes:svginput
@@ -96,17 +118,17 @@ int   main()
    viechBitmap = [[[MulleBitmapImage alloc] initWithConstBytes:viech_bitmap
                                                      bitmapSize:viech_bitmap_size]
                                                   autorelease];
-   fprintf( stderr, "tigerSVGImage: %p\n", viechBitmap);
+   fprintf( stderr, "viechBitmapImage: %p\n", viechBitmap);
 
    sealieBitmap = [[[MulleBitmapImage alloc] initWithConstBytes:sealie_bitmap
                                                      bitmapSize:sealie_bitmap_size]
                                                   autorelease];
-   fprintf( stderr, "tigerSVGImage: %p\n", sealieBitmap);
+   fprintf( stderr, "sealieBitmapImage: %p\n", sealieBitmap);
 
    turtleBitmap = [[[MulleBitmapImage alloc] initWithConstBytes:turtle_bitmap
                                                      bitmapSize:turtle_bitmap_size]
                                                   autorelease];
-   fprintf( stderr, "tigerSVGImage: %p\n", turtleBitmap);
+   fprintf( stderr, "turtleBitmapImage: %p\n", turtleBitmap);
 
 
    viechLayer = [[[MulleBitmapLayer alloc] initWithBitmapImage:viechBitmap] autorelease];
@@ -133,6 +155,9 @@ int   main()
    [turtleLayer setFrame:frame];
    fprintf( stderr, "layer: %p\n", turtleLayer);
 
+   /*
+    * window and app 
+    */
    window  = [[[UIWindow alloc] initWithFrame:CGRectMake( 0.0, 0.0, 640.0, 400.0)] autorelease];
    assert( window);
 
@@ -140,6 +165,9 @@ int   main()
 
    context = [CGContext new];
 
+   /*
+    * view placement in window 
+    */
    view = [[[UIView alloc] initWithLayer:tigerLayer] autorelease];
    [window addSubview:view];
 
@@ -166,6 +194,31 @@ int   main()
    // [insideButton setClipsSubviews:YES];
    [nestedButton setClick:button_callback];
    [insideButton addSubview:nestedButton];
+
+
+   frame    = CGRectMake( 0.0, 200.0, 320.0, 200.0);
+   scroller = [[[UIScrollView alloc] initWithFrame:frame] autorelease];
+   [window addSubview:scroller];
+
+   // another turtleLayer
+   turtleLayer2 = [[[MulleBitmapLayer alloc] initWithBitmapImage:turtleBitmap] autorelease];
+   [turtleLayer2 setCStringName:"turtle2"];
+   frame.origin       = CGPointMake( 0.0, 0.0);
+   frame.size.width   = 320;
+   frame.size.height  = 400;
+   [turtleLayer2 setFrame:frame];
+   fprintf( stderr, "layer: %p\n", turtleLayer2);
+
+   inScrollerButton = [[[UIButton alloc] initWithLayer:turtleLayer2] autorelease];
+   [inScrollerButton setBackgroundImage:turtleBitmap
+                               forState:UIControlStateNormal];
+   [inScrollerButton setBackgroundImage:sealieBitmap
+                               forState:UIControlStateSelected];
+
+   // [insideButton setClipsSubviews:YES];
+   [inScrollerButton setClick:scroll_callback];
+   [scroller addSubview:inScrollerButton];
+
    [window dump];
    [window renderLoopWithContext:context];
 

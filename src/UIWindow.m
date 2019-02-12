@@ -8,6 +8,30 @@
 
 @implementation UIWindow
 
+static void   keyCallback( GLFWwindow* window, 
+									int key, 
+									int scancode, 
+									int action, 
+									int mods)
+{
+	UIWindow   *self;
+   UIEvent    *event;
+
+	self = glfwGetWindowUserPointer( window);
+   self->_modifiers = mods;
+   if( self->_discardEvents)
+      return;
+
+   event = [[UIKeyboardEvent alloc] initWithMousePosition:self->_mousePosition
+                                                      key:key
+                                                 scanCode:scancode
+                                                   action:action
+                                                modifiers:mods];
+   [self handleEvent:event];
+   [event release];   
+}
+
+
 static void   mouseButtonCallback( GLFWwindow* window, 
 											  int button, 
 											  int action, 
@@ -51,34 +75,35 @@ static void   mouseMoveCallback( GLFWwindow* window,
    if( self->_discardEvents)
       return;
 
-   event = [[UIMouseMotionEvent alloc] initWithMousePosition:self->_mousePosition];
+   event = [[UIMouseMotionEvent alloc] initWithMousePosition:self->_mousePosition
+															   	modifiers:self->_modifiers];
    [self handleEvent:event];
    [event release];
 }
 
 
-static void   keyCallback( GLFWwindow* window, 
-									int key, 
-									int scancode, 
-									int action, 
-									int mods)
+
+static void   mouseScrollCallback( GLFWwindow *window, 
+											  double xoffset, 
+											  double yoffset)
 {
 	UIWindow   *self;
    UIEvent    *event;
+   uint64_t   bit;   
+   CGPoint    scrollOffset;
 
-	self = glfwGetWindowUserPointer( window);
-   self->_modifiers = mods;
+	self  = glfwGetWindowUserPointer( window);
    if( self->_discardEvents)
       return;
-
-   event = [[UIKeyboardEvent alloc] initWithMousePosition:self->_mousePosition
-                                                      key:key
-                                                 scanCode:scancode
-                                                   action:action
-                                                modifiers:mods];
+   
+   scrollOffset = CGPointMake( xoffset, yoffset);
+   event        = [[UIMouseScrollEvent alloc] initWithMousePosition:self->_mousePosition
+                                                       scrollOffset:scrollOffset
+                                                          modifiers:self->_modifiers];
    [self handleEvent:event];
    [event release];   
 }
+
 
 
 + (void) initialize
@@ -121,6 +146,7 @@ static void   keyCallback( GLFWwindow* window,
 	glfwSetMouseButtonCallback( _window, mouseButtonCallback);
 	glfwSetCursorPosCallback( _window, mouseMoveCallback);
 	glfwSetKeyCallback( _window, keyCallback);
+	glfwSetScrollCallback( _window, mouseScrollCallback);
 
    return( self);
 }
@@ -228,7 +254,7 @@ static void   keyCallback( GLFWwindow* window,
 
 - (UIEvent *) handleEvent:(UIEvent *) event
 {
-	if( [event isKindOfClass:[UIMouseButtonEvent class]])
+	if( [event isKindOfClass:[UIMouseScrollEvent class]])
    	[self dump];
    return( [super handleEvent:event]);
 }

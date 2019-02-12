@@ -88,6 +88,8 @@ static NSUInteger   imageIndexForControlState( UIControlState state)
 	Class     preferredLayerClass;
 	Class     layerClass;
 
+	assert( ! image || [image isKindOfClass:[UIImage class]]);
+	
 	if( ! image)
 		return;
 	

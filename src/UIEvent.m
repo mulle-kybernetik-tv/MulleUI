@@ -5,9 +5,11 @@
 @implementation UIEvent 
 
 - (id) initWithMousePosition:(CGPoint) pos
+                   modifiers:(int) mods
 {
    _mousePosition = pos;
    _timestamp     = clock();
+   _modifiers     = mods;
    return( self);
 }
 
@@ -22,12 +24,12 @@
                       action:(int) action
                    modifiers:(int) mods
 {
-   self = [self initWithMousePosition:pos];
+   self = [self initWithMousePosition:pos
+                         	 modifiers:mods];
 
    _key       = key;
    _scanCode  = scanCode;
    _action    = action;
-   _modifiers = mods;
 
    return( self);
 }
@@ -48,14 +50,15 @@
    return( UIEventTypeMotion);
 }
 
+
 - (id) initWithMousePosition:(CGPoint) pos
 				    buttonStates:(uint64_t) buttonStates
                    modifiers:(int) mods
 {
-   self = [self initWithMousePosition:pos];
+   self = [self initWithMousePosition:pos
+                         	 modifiers:mods];
 
    _buttonStates = buttonStates;
-   _modifiers = mods;
 
    return( self);
 }
@@ -70,11 +73,10 @@
 							 action:(int) action 
                    modifiers:(int) mods
 {
-   self = [self initWithMousePosition:pos];
-
-   _button    = button;
-   _action    = action;
-   _modifiers = mods;
+   self = [self initWithMousePosition:pos
+                         	 modifiers:mods];
+   _button = button;
+   _action = action;
 
    return( self);
 }
@@ -82,6 +84,27 @@
 - (UIEventType) eventType
 {
    return( UIEventTypeTouches);
+}
+
+@end
+
+
+@implementation UIMouseScrollEvent
+
+- (id) initWithMousePosition:(CGPoint) pos
+					 scrollOffset:(CGPoint) scrollOffset 
+                   modifiers:(int) mods
+{
+   self = [self initWithMousePosition:pos
+                         	 modifiers:mods];
+   _scrollOffset = scrollOffset;
+
+   return( self);
+}
+
+- (UIEventType) eventType
+{
+   return( UIEventTypeScroll);
 }
 
 @end

@@ -5,6 +5,8 @@
 #import "CGGeometry+CString.h"
 
 
+//#define HITTEST_DEBUG
+
 @implementation UIView ( UIEvent)
 
 //
@@ -35,7 +37,7 @@
 }
 
 
-- (UIEvent *)  handleMouseButtonEvent:(UIMouseButtonEvent *) event
+- (UIEvent *) handleMouseButtonEvent:(UIMouseButtonEvent *) event
 {
    SEL   sel;
 
@@ -122,6 +124,19 @@
 }
 
 
+- (UIEvent *) handleMouseScrollEvent:(UIMouseScrollEvent *) event
+{
+	// scrollWheel: taken from AppKit
+	// https://developer.apple.com/documentation/appkit/nsscrollview/1403494-scrollwheel?language=objc
+	//
+   if( event && [self respondsToSelector:@selector( scrollWheel:)])
+      event = [self scrollWheel:event];
+
+   return( event);
+}
+
+
+
 - (UIEvent *) handleKeyboardEvent:(UIKeyboardEvent *) event
 {
    uint64_t   state;
@@ -206,6 +221,10 @@
 
       case UIEventTypeMotion :
          event = [self handleMouseMotionEvent:(UIMouseMotionEvent *) event];
+         break;
+
+      case UIEventTypeScroll :
+         event = [self handleMouseScrollEvent:(UIMouseScrollEvent *) event];
          break;
       }
    }

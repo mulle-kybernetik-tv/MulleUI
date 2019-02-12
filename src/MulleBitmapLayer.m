@@ -23,6 +23,8 @@
 {
    CGRect   bounds;
 
+	assert( ! image || [image isKindOfClass:[MulleBitmapImage class]]);
+
    if( ! (self = [super init]))
       return( self);
    

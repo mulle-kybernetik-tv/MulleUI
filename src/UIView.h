@@ -10,7 +10,7 @@
 
 
 //
-// the main layer which is bottom most defines the geometry
+// the main layer which is bottom-most defines the geometry
 //
 @interface UIView : NSObject 
 {
@@ -24,6 +24,8 @@
 @property BOOL clipsSubviews;
 
 - (id) initWithFrame:(CGRect) frame;
+
+// designated initializer
 - (id) initWithLayer:(CALayer *) layer;
 
 - (void) addLayer:(CALayer *) layer;

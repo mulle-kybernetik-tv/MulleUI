@@ -33,6 +33,8 @@ static NVGcolor getSVGColor(uint32_t color)
 
 - (instancetype) initWithSVGImage:(MulleSVGImage *) image
 {
+	assert( ! image || [image isKindOfClass:[MulleSVGImage class]]);
+	
    if( ! (self = [super init]))
       return( self);
    
