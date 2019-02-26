@@ -11,6 +11,3 @@ ld
 nm
 otool
 ranlib
-xcodebuild
-xcrun
-sw_vers

@@ -1,9 +1,32 @@
+#define _GNU_SOURCE
+
 #import "import-private.h"
 
 #import "UIWindow.h"
 #import "CGContext.h"
 #import "UIEvent.h"
 #import "UIView+UIEvent.h"
+#include <time.h>
+
+
+#define PRINTF_PROFILE_RENDER
+
+
+struct timespec   timespec_diff( struct timespec start, struct timespec end)
+{
+   struct timespec temp;
+
+   if ((end.tv_nsec-start.tv_nsec) < 0) 
+   {
+      temp.tv_sec  = end.tv_sec-start.tv_sec - 1;
+      temp.tv_nsec = 1000000000 + end.tv_nsec - start.tv_nsec;
+   } else 
+   {
+      temp.tv_sec = end.tv_sec-start.tv_sec;
+      temp.tv_nsec = end.tv_nsec-start.tv_nsec;
+   }
+   return( temp);
+}
 
 
 @implementation UIWindow
@@ -80,7 +103,6 @@ static void   mouseMoveCallback( GLFWwindow* window,
    [self handleEvent:event];
    [event release];
 }
-
 
 
 static void   mouseScrollCallback( GLFWwindow *window, 
@@ -165,27 +187,53 @@ static void   mouseScrollCallback( GLFWwindow *window,
 }
 
 
+// glitch hunt:
+//
+// a) we sometimes overflow the current frame
+// b) we are doublebuffering
+// c) the glitch occurs when there is already drawing on the screen
+// d) the glitch looks like the buffer is cleared and then not swapped
+// 
 - (void) renderLoopWithContext:(CGContext *) context
 {
+   struct timespec   start;
+   struct timespec   end;
+   struct timespec   diff;
+   struct timespec   sleep;
+   GLFWmonitor       *monitor;
+   GLFWvidmode       *mode;
+   int               refresh;
+   long              nsperframe;
+
+   monitor = glfwGetPrimaryMonitor();
+   mode    = glfwGetVideoMode( monitor);
+   refresh = mode->refreshRate;
+
+   nsperframe = (1000000000L + (mode->refreshRate - 1)) / mode->refreshRate;
+#ifdef PRINTF_PROFILE_RENDER   
+   fprintf( stderr, "Refresh: %d (%09ld ns/frame)\n", mode->refreshRate, nsperframe);
+#endif
 	#define PAINT_FRAMES  2 //  60 * 5
 
    // glfwMakeContextCurrent( _window );
-   // glfwSwapInterval( 1);  // makes no difference
+   glfwSwapInterval( 1);  // makes no difference
+
+   //
+   // gut feeling: when we do onw swap buffers first, once, we know we have enough 
+   // time on the first refresh (didn't work)
+   //
+   glfwSwapBuffers( _window);
+   glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
+   glClear( GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
 
 	while( ! glfwWindowShouldClose( _window)) 
 	{
 		if( 1 || _didRender < PAINT_FRAMES)
 		{
 			// nvgGlobalCompositeOperation( ctxt->vg, NVG_ATOP);
-         glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
-
-         //
-         // GL_COLOR_BUFFER_BIT brauchen wir, wenn wir nicht selber per
-         // Hand abschnittsweise löschen
-         // GL_STENCIL_BUFFER_BIT braucht nanovg 
-         // GL_DEPTH_BUFFER_BIT ?
-         //
-			glClear( GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
+#ifdef PRINTF_PROFILE_RENDER   
+         clock_gettime( CLOCK_REALTIME, &start);
+#endif
 
          [context startRenderToFrame:_frame];
 
@@ -193,8 +241,33 @@ static void   mouseScrollCallback( GLFWwindow *window,
 
          [context endRender];
 
-			glfwSwapBuffers( _window);
-         _didRender++;           
+#ifdef PRINTF_PROFILE_RENDER   
+         clock_gettime( CLOCK_REALTIME, &end);
+         diff = timespec_diff( start, end);
+         if( diff.tv_sec > 0 || diff.tv_nsec >= nsperframe)
+            fprintf( stderr, "frame #%ld: @%ld:%09ld render end, OVERFLW %.4f frames\n", 
+                                 _didRender, 
+                                 end.tv_sec, 
+                                 end.tv_nsec,
+                                 diff.tv_sec ? 9999.9999 : (diff.tv_nsec / (double) nsperframe) - 1);
+#endif         
+      	glfwSwapBuffers( _window);
+         _didRender++;
+
+
+         sleep.tv_sec  = 0.0;
+         sleep.tv_nsec = nsperframe / 10 * (rand() % 100);
+         nanosleep( &sleep, NULL);
+
+         //
+         // GL_COLOR_BUFFER_BIT brauchen wir, wenn wir nicht selber per
+         // Hand abschnittsweise löschen
+         // GL_STENCIL_BUFFER_BIT braucht nanovg 
+         // GL_DEPTH_BUFFER_BIT ?
+         //
+         // glClearColor( 1.0 - _didRender / 120.0, 1.0 - _didRender / 120.0, 1.0 - _didRender / 240.0, 0.0f );
+         glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
+         glClear( GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
 		}
 		else
 			if( _didRender == PAINT_FRAMES)
@@ -203,7 +276,18 @@ static void   mouseScrollCallback( GLFWwindow *window,
 				_didRender++;
 			}
 
+#ifdef PRINTF_PROFILE_EVENTS   
+      clock_gettime( CLOCK_REALTIME, &start);
+      printf( "@%ld:%09ld events start\n", start.tv_sec, start.tv_nsec);
+#endif
       [self waitForEvents];
+
+#ifdef PRINTF_PROFILE_EVENTS   
+      clock_gettime( CLOCK_REALTIME, &end);
+      diff = timespec_diff( start, end);
+      printf( "@%ld:%09ld events end, elapsed : %09ld\n", end.tv_sec, end.tv_nsec,
+                                                  diff.tv_sec ? 999999999 : diff.tv_nsec);
+#endif
 	}
 }
 

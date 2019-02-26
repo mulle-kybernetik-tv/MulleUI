@@ -17,7 +17,7 @@
 #define W  200
 #define H  100
 
-#include "tiger-svg.inc"
+#include "Ghostscript_Tiger-svg.inc"
 #include "sealie-bitmap.inc"
 #include "turtle-bitmap.inc"
 #include "viech-bitmap.inc"

@@ -68,6 +68,7 @@ static NVGcolor getSVGColor(uint32_t color)
 
    vg = [context nvgContext];
    nvgTranslate( vg, _offset.x, _offset.y);
+   nvgBezierTessellation( vg, NVG_TESS_AFD); // patched nanovg function
 
    for( shape = image->shapes; shape != NULL; shape = shape->next) 
 	{
