@@ -24,14 +24,22 @@ typedef enum  {
 // current known state of modifier keys
 @property( assign, readonly) int       modifiers;
 
+//
+// translated mousePosition to current view bounds (ephemeral)
+// set by _handleEvent:position for
+//
+@property( assign) CGPoint   point;
+
 - (id) initWithMousePosition:(CGPoint) pos
                    modifiers:(int) mods;
 
 @end
 
+
 @interface UIEvent( Subclasses)
 
 - (UIEventType) eventType;
+
 @end
 
 /*

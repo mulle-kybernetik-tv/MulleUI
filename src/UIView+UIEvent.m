@@ -28,11 +28,11 @@
 #ifdef HITTEST_DEBUG
    fprintf( stderr, "%s: %s [%s] @%s -> %s\n",
                         __PRETTY_FUNCTION__,
-                        [self cStringDescription], 
+                        [self cStringDescription],
                         CGRectCStringDescription( bounds),
                         CGPointCStringDescription( point),
                         flag ? "YES" : "NO");
-#endif   
+#endif
    return( flag);
 }
 
@@ -126,9 +126,9 @@
 
 - (UIEvent *) handleMouseScrollEvent:(UIMouseScrollEvent *) event
 {
-	// scrollWheel: taken from AppKit
-	// https://developer.apple.com/documentation/appkit/nsscrollview/1403494-scrollwheel?language=objc
-	//
+   // scrollWheel: taken from AppKit
+   // https://developer.apple.com/documentation/appkit/nsscrollview/1403494-scrollwheel?language=objc
+   //
    if( event && [self respondsToSelector:@selector( scrollWheel:)])
       event = [self scrollWheel:event];
 
@@ -142,13 +142,13 @@
    uint64_t   state;
    SEL        sel;
 
-   sel   = 0;   
+   sel   = 0;
    switch( [event action])
    {
    case GLFW_PRESS   :
       sel = @selector( keyDown:);
       break;
-   
+
    case GLFW_RELEASE :
       sel = @selector( keyUp:);
       break;
@@ -158,20 +158,35 @@
    {
       event = [self performSelector:sel
                          withObject:event];
-   }   
+   }
 
    fprintf( stderr, "event %p\n", event);
 
-   if( [event key] == GLFW_KEY_ESCAPE && 
-       [event action] == GLFW_PRESS) 
+   if( [event key] == GLFW_KEY_ESCAPE &&
+       [event action] == GLFW_PRESS)
    {
       fprintf( stderr, "request close\n");
       [[self window] requestClose];
-      
+
       return( nil);
    }
 
    return( event);
+}
+
+
+// flat, doesn't recurse
+- (UIView *) subviewAtPoint:(CGPoint) point
+{
+   struct mulle_pointerarrayenumerator   rover;
+   UIView                                 *view;
+
+   rover = mulle_pointerarray_reverseenumerate( _subviews);
+   while( view = mulle_pointerarrayenumerator_next( &rover))
+      if( CGRectContainsPoint( [view frame], point))
+         break;
+   mulle_pointerarrayenumerator_done( &rover);
+   return( view);
 }
 
 
@@ -183,7 +198,7 @@
 - (UIEvent *) _handleEvent:(UIEvent *) event
                 atPosition:(CGPoint) point
 {
-   struct mulle_pointerarray_enumerator   rover;
+   struct mulle_pointerarrayenumerator   rover;
    CGRect    bounds;
    CGRect    frame;
    CGPoint   scale;
@@ -194,21 +209,22 @@
              withEvent:event])
       return( event);
 
-   if( _subviews)
+   rover = mulle_pointerarray_reverseenumerate( _subviews);
+   while( view = mulle_pointerarrayenumerator_next( &rover))
    {
-      rover = mulle_pointerarray_enumerate( _subviews);
-      while( view = mulle_pointerarray_enumerator_next( &rover))
-      {
-         event = [view handleEvent:event
-                        atPosition:point];
-         if( ! event)
-            break;
-      }
-      mulle_pointerarray_enumerator_done( &rover);
+      event = [view handleEvent:event
+                     atPosition:point];
+      if( ! event)
+         break;
    }
+   mulle_pointerarrayenumerator_done( &rover);
 
    if( event)
    {
+      //
+      // current position relative to visible bounds
+      //
+      [event setPoint:point];
       switch( [event eventType])
       {
       case UIEventTypePresses :
@@ -233,7 +249,7 @@
 
 
 //
-// Transform for incoming values of the superview to translate into 
+// Transform for incoming values of the superview to translate into
 // bounds space of the view. For hit tests.
 //
 - (void) updateTransformWithFrameAndBounds:(float *) transform
@@ -254,23 +270,32 @@
 
    nvgTransformScale( tmp, scale.x, scale.y);
    nvgTransformPremultiply( transform, tmp);
- 
+
    nvgTransformTranslate( tmp, -frame.origin.x, -frame.origin.y);
    nvgTransformPremultiply( transform, tmp);
 }
 
 
-- (UIEvent *) handleEvent:(UIEvent *) event
-               atPosition:(CGPoint) position
+- (CGPoint) translatedPoint:(CGPoint) point
 {
    CGPoint         translated;
    _NVGtransform   transform;
 
    nvgTransformIdentity( transform);
    [self updateTransformWithFrameAndBounds:transform];
-   nvgTransformPoint( &translated.x, &translated.y, transform, position.x, position.y);   
+   nvgTransformPoint( &translated.x, &translated.y, transform, point.x, point.y);
+   return( translated);
+}
 
-  // fprintf( stderr, "translated: %s %s -> %s\n", 
+
+- (UIEvent *) handleEvent:(UIEvent *) event
+               atPosition:(CGPoint) position
+{
+   CGPoint   translated;
+
+   translated = [self translatedPoint:position];
+
+  // fprintf( stderr, "translated: %s %s -> %s\n",
   //             [self cStringDescription],
   //             CGPointCStringDescription( position),
   //             CGPointCStringDescription( translated));
@@ -285,11 +310,11 @@
 //
 - (UIEvent *) handleEvent:(UIEvent *) event
 {
-   CGPoint         position;
+   CGPoint   position;
 
    position = [event mousePosition];
-//   fprintf( stderr, "Event start: %s %s\n", 
-//                        [self cStringDescription], 
+//   fprintf( stderr, "Event start: %s %s\n",
+//                        [self cStringDescription],
 //                        CGPointCStringDescription( position));
    return( [self handleEvent:event
                   atPosition:position]);

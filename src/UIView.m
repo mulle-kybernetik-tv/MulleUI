@@ -8,35 +8,45 @@
 #import "nanovg+CString.h"
 
 
+//#define RENDER_DEBUG
+
 @implementation UIView
 
 static void  pointerarray_release_all( struct mulle_pointerarray *array)
 {
-   struct mulle_pointerarray_enumerator   rover;
+   struct mulle_pointerarrayenumerator   rover;
    id     obj;
 
    rover = mulle_pointerarray_enumerate( array);
-   while( obj = mulle_pointerarray_enumerator_next( &rover))
+   while( obj = mulle_pointerarrayenumerator_next( &rover))
       [obj release];
 }
 
 
 static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
 {
-   struct mulle_pointerarray_enumerator   rover;
+   struct mulle_pointerarrayenumerator   rover;
    id     obj;
 
    rover = mulle_pointerarray_enumerate( array);
-   while( obj = mulle_pointerarray_enumerator_next( &rover))
+   while( obj = mulle_pointerarrayenumerator_next( &rover))
       *dst++ = obj;;
+}
+
+
++ (Class) layerClass
+{
+   return( [CALayer class]);
 }
 
 
 - (id) initWithFrame:(CGRect) frame
 {
    CALayer   *layer;
+   Class     cls;
 
-   layer = [[CALayer alloc] initWithFrame:frame];
+   cls   = [[self class] layerClass];
+   layer = [[cls alloc] initWithFrame:frame];
    self  = [self initWithLayer:layer];
    [layer release];
    return( self);
@@ -45,7 +55,7 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
 
 - (id) initWithLayer:(CALayer *) layer
 {
-	assert( ! layer || [layer isKindOfClass:[CALayer class]]);
+   assert( ! layer || [layer isKindOfClass:[CALayer class]]);
 
    if( ! layer)
    {
@@ -82,7 +92,7 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
 - (void) addLayer:(CALayer *) layer
 {
    assert( layer);
-	assert( [layer isKindOfClass:[CALayer class]]);
+   assert( [layer isKindOfClass:[CALayer class]]);
 
    if( ! _mainLayer)
    {
@@ -92,7 +102,7 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
    assert(_mainLayer != layer);
 
    if( ! _layers)
-      _layers = mulle_pointerarray_alloc( NULL, NULL);
+      _layers = mulle_pointerarray_create( NULL);
 
    assert( mulle_pointerarray_find( _layers, layer) == -1);
    [layer retain];
@@ -105,10 +115,10 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
    assert( view);
    assert( view != self);
    assert( ! [view superview]);
-	assert( [view isKindOfClass:[UIView class]]);
+   assert( [view isKindOfClass:[UIView class]]);
 
    if( ! _subviews)
-      _subviews = mulle_pointerarray_alloc( NULL, NULL);
+      _subviews = mulle_pointerarray_create( NULL);
 
    assert( mulle_pointerarray_find( _subviews, view) == -1);
    [view retain];
@@ -135,7 +145,7 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
    n = 1;
    if( _layers)
       n += mulle_pointerarray_get_count( _layers);
-   
+
    if( n > length)
       return( n);
    if( ! buf)
@@ -158,7 +168,7 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
    n = 0;
    if( _subviews)
       n += mulle_pointerarray_get_count( _subviews);
-   
+
    if( n > length)
       return( n);
    if( ! buf)
@@ -206,6 +216,12 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
 }
 
 
+- (void) setNeedsLayout
+{
+	_needsLayout = YES;
+}
+
+
 - (char *) cStringDescription
 {
    char        *result;
@@ -215,7 +231,7 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
    char        *format;
    char        *name;
 
-   s = class_getName( object_getClass( self));  
+   s = class_getName( object_getClass( self));
    sprintf( buf, "%p",  self);
 
    format = "<%s %s>";
@@ -237,25 +253,23 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
 
 - (void) renderLayersWithContext:(CGContext *) context
 {
-   struct mulle_pointerarray_enumerator   rover;
+   struct mulle_pointerarrayenumerator   rover;
    CALayer                                *layer;
    _NVGtransform                          transform;
    NVGscissor                             scissor;
    NVGcontext                             *vg;
-   CGRect                                 bounds;
 
 #ifdef RENDER_DEBUG
    fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
 #endif
-   vg     = [context nvgContext];
-   bounds = [self bounds];
 
 #ifdef RENDER_DEBUG
-   fprintf( stderr, "%s: bounds: %s\n", 
+   fprintf( stderr, "%s: bounds: %s\n",
                   [self cStringDescription],
-                  CGRectCStringDescription( bounds));
+                  CGRectCStringDescription( [self bounds]));
 #endif
 
+   vg = [context nvgContext];
    nvgCurrentTransform( vg, transform);
    nvgGetScissor( vg, &scissor);
 
@@ -265,41 +279,31 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
 
    if( _layers)
    {
-#if 0      
-      nvgIntersectScissor( vg, bounds.origin.x, bounds.origin.y, 
-                               bounds.size.width, bounds.size.height);
-      nvgGetScissor( vg, &scissor);
-#endif                   
       rover = mulle_pointerarray_enumerate( _layers);
-      while( layer = mulle_pointerarray_enumerator_next( &rover))
+      while( layer = mulle_pointerarrayenumerator_next( &rover))
       {
          [layer setTransform:transform
                      scissor:&scissor];
-         [layer drawInContext:context]; 
+         [layer drawInContext:context];
       }
+      mulle_pointerarrayenumerator_done( &rover);
    }
 }
 
 
 - (void) renderSubviewsWithContext:(CGContext *) context
 {
-   UIView      *subviews[ 32];
-   NSInteger    n;
-   NSInteger    available;
-   NSInteger    i;
+   struct mulle_pointerarrayenumerator   rover;
+   UIView                                 *view;
 
 #ifdef RENDER_DEBUG
    fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
 #endif
 
-   available = sizeof( subviews) / sizeof( UIView *);
-   n         = [self getSubviews:subviews
-                          length:available];
-   if( n > available)
-      abort();
-
-   for( i = 0; i < n; i++)
-      [subviews[ i] renderWithContext:context];
+   rover = mulle_pointerarray_enumerate( _subviews);
+   while( view = mulle_pointerarrayenumerator_next( &rover))
+      [view renderWithContext:context];
+   mulle_pointerarrayenumerator_done( &rover);
 }
 
 
@@ -317,7 +321,7 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
 #ifdef RENDER_DEBUG
    fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
 #endif
-   
+
    frame = [self frame];
    if( frame.size.width <= 0.0 || frame.size.height <= 0.0)
    {
@@ -330,6 +334,14 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
    {
       fprintf( stderr, "%s has no 2D bounds\n", [self cStringDescription]);
       return;
+   }
+
+   // run layout if necessary (right place here ?)
+   if( [self needsLayout])
+   {
+   	[self setNeedsLayout:NO];
+   	[self layoutSubviews];
+   	assert( ! [self needsLayout]);
    }
 
    vg = [context nvgContext];
@@ -348,14 +360,14 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
 #endif
 
    //
-   // layers do not "suffer" from translation and scaling as these 
+   // layers do not "suffer" from translation and scaling as these
    // values are derived from the "masterLayer"
    //
    // The masterLayer also sets up the scissors for the following renders
    //
    [self renderLayersWithContext:context];
 
-   //  
+   //
    // transform for subview though, which are inside our bounds
    // don't do this if we are the window top level
    //
@@ -363,37 +375,32 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
    nvgTransform( vg, transform[ 0], transform[ 1], transform[ 2],
                      transform[ 3], transform[ 4], transform[ 5]);
 #ifdef RENDER_DEBUG
-   fprintf( stderr, "%s: reset1 to inherited transform %s\n", 
+   fprintf( stderr, "%s: reset1 to inherited transform %s\n",
                      [self cStringDescription],
-                     _NVGtransformCStringDescription( transform));                     
-#endif   
+                     _NVGtransformCStringDescription( transform));
+#endif
    nvgSetScissor( vg, &scissor);
 #ifdef RENDER_DEBUG
-   fprintf( stderr, "%s: reset1 to inherited scissorTransform %s\n", 
+   fprintf( stderr, "%s: reset1 to inherited scissorTransform %s\n",
                      [self cStringDescription],
-                     NVGscissorCStringDescription( &scissor));                     
+                     NVGscissorCStringDescription( &scissor));
 #endif
-
-   if( [self subviewCount] == 0)
-      return;
 
    if( [self superview])
    {
-   	// clip to our frame
+      // clip to our frame
       if( self->_clipsSubviews)
-	      nvgIntersectScissor( vg, frame.origin.x, frame.origin.y, frame.size.width, frame.size.height);
+         nvgIntersectScissor( vg, frame.origin.x, frame.origin.y, frame.size.width, frame.size.height);
 
 #ifdef RENDER_DEBUG
       fprintf( stderr, "Set transform for subviews of %s (not a window)\n", [self cStringDescription]);
 #endif
       nvgTranslate( vg, frame.origin.x, frame.origin.y);
 #ifdef RENDER_DEBUG
-      fprintf( stderr, "%s translate %.1f %.1f\n", 
-                        [self cStringDescription], 
+      fprintf( stderr, "%s translate %.1f %.1f\n",
+                        [self cStringDescription],
                         frame.origin.x, frame.origin.y);
-#endif      
-      //
-      // TODO: move this code to UIView (gut feeling)
+#endif
       //
       // now translate bounds for context
       //
@@ -402,14 +409,14 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
 
       nvgScale( vg, scale.x, scale.y);
 #ifdef RENDER_DEBUG
-      fprintf( stderr, "%s scale %.1f %.1f\n", 
-                        [self cStringDescription], 
+      fprintf( stderr, "%s scale %.1f %.1f\n",
+                        [self cStringDescription],
                         scale.x, scale.y);
 #endif
       nvgTranslate( vg, bounds.origin.x, bounds.origin.y);
 #ifdef RENDER_DEBUG
-      fprintf( stderr, "%s translate %.1f %.1f\n", 
-                        [self cStringDescription], 
+      fprintf( stderr, "%s translate %.1f %.1f\n",
+                        [self cStringDescription],
                          bounds.origin.x, bounds.origin.y);
 #endif
    }
@@ -420,16 +427,22 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
    nvgTransform( vg, transform[ 0], transform[ 1], transform[ 2],
                      transform[ 3], transform[ 4], transform[ 5]);
 #ifdef RENDER_DEBUG
-   fprintf( stderr, "%s: reset2 to inherited transform %s\n", 
+   fprintf( stderr, "%s: reset2 to inherited transform %s\n",
                      [self cStringDescription],
-                     _NVGtransformCStringDescription( transform));     
-#endif   
+                     _NVGtransformCStringDescription( transform));
+#endif
    nvgSetScissor( vg, &scissor);
 #ifdef RENDER_DEBUG
-   fprintf( stderr, "%s: reset2 to inherited scissorTransform %s\n", 
-                     [self cStringDescription],
-                     NVGscissorCStringDescription( &scissor));                     
-#endif  
+   fprintf( stderr, "%s: reset2 to inherited scissorTransform %s\n",
+                    [self cStringDescription],
+                    NVGscissorCStringDescription( &scissor));
+#endif
+}
+
+
+- (void) layoutSubviews
+{
+	// does nothing or will it ?
 }
 
 

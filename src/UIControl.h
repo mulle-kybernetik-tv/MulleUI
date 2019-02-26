@@ -44,8 +44,14 @@ typedef NSUInteger    UIControlState;
 
 
 // protocolclass! @protocolclass 
+
 @class UIControl;
+
 // formal protocol part
+
+//
+// A UIControl translates event into target/Action or click Events
+// 
 @protocol UIControl
 
 typedef UIEvent       *UIControlClickHandler( id <UIControl> control, 

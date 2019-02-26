@@ -49,6 +49,11 @@
 }
 
 
+- (BOOL) drawContentsInContext:(CGContext *) context
+{
+}
+
+
 - (BOOL) drawInContext:(CGContext *) context
 {
    CGPoint      scale;
@@ -56,13 +61,14 @@
    CGRect       bounds;
    CGFloat      halfBorderWidth;
    CGFloat      halfBorderHeight;
-   CGFloat      borderWidth;
+   CGFloat      obscured;
    CGFloat      borderHeight;
    CGPoint      tl;
    CGPoint      br;
    CGSize       sz;
    int          radius;
    NVGcontext   *vg;
+   struct NVGpaint   paint; // todo convert to CG ??
 
 #ifdef CALAYER_DEBUG   
    fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
@@ -99,40 +105,43 @@
                      [self cStringDescription],
                      NVGscissorCStringDescription( &_scissor));
 #endif
+
    //
    // fill and border are drawn as frame
    // contents in bounds of superview
    //
 
-   tl.x = _borderWidth + frame.origin.x;
-   tl.y = _borderWidth + frame.origin.y;
-   br.x = tl.x + frame.size.width - _borderWidth * 2 - 1;
-   br.y = tl.y + frame.size.height - _borderWidth * 2 - 1;
+   //
+   // if the stroke is alpha, it will have to render over pixels
+   // otherwise reduce the size of the shape we draw
+   //
+   tl.x = frame.origin.x;
+   tl.y = frame.origin.y;
+   br.x = tl.x + frame.size.width - 1;
+   br.y = tl.y + frame.size.height - 1;
 
    if( tl.x <= br.x || tl.y <= br.y)
    {
       // fill 
+#if 1      
       nvgBeginPath( vg);
-
-      radius = 0.0;
-      if( _borderWidth == 0.0)
-         radius = (int) _cornerRadius;
-
       nvgRoundedRect( vg, tl.x, 
                           tl.y, 
                           br.x - tl.x + 1, 
                           br.y - tl.y + 1, 
-                          (int) radius);
+                          _cornerRadius);
 
    //   nvgMoveTo( vg, tl.x, tl.y);
    //   nvgLineTo( vg, br.x, tl.y);
    //   nvgLineTo( vg, br.x, br.y);
    //   nvgLineTo( vg, tl.x, br.y);
    //   nvgLineTo( vg, tl.x, tl.y);
-      
-      nvgFillColor( vg, _backgroundColor);
+      nvgFillColor(vg, _backgroundColor);
       nvgFill( vg);
+#endif     
    }
+
+   [self drawContentsInContext:vg];
 
    //
    // the strokeWidth isn't scaled in nvg, so we do this now ourselves
@@ -142,7 +151,6 @@
       if( tl.x <= br.x || tl.y <= br.y)
 
       halfBorderWidth = _borderWidth / 2.0;
-      nvgStrokeColor( vg, _borderColor);
 
       tl.x = halfBorderWidth + frame.origin.x ;
       tl.y = halfBorderWidth + frame.origin.y;
@@ -151,22 +159,26 @@
 
       if( tl.x <= br.x || tl.y <= br.y)
       {
-         nvgStrokeWidth( vg, _borderWidth);
-
+         //
+         // the _cornerRadius is computed for a stroke of width 1 (or 0 ?)
+         // the strokeWidth is just scaling it out
+         //
          nvgBeginPath( vg);
-
+         nvgStrokeWidth( vg, (int) _borderWidth);
          nvgRoundedRect( vg, tl.x, 
                              tl.y, 
                              br.x - tl.x + 1, 
                              br.y - tl.y + 1, 
-                             (int) _cornerRadius);
+                             _cornerRadius / _borderWidth);
+
+         nvgStrokeColor( vg, _borderColor);
+         nvgStroke( vg);
 
 //      nvgMoveTo( vg, tl.x, tl.y);
 //      nvgLineTo( vg, br.x, tl.y);
 //      nvgLineTo( vg, br.x, br.y);
 //      nvgLineTo( vg, tl.x, br.y);
 //      nvgLineTo( vg, tl.x, tl.y);
-        nvgStroke( vg);
       }
    }
 

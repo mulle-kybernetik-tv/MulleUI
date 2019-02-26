@@ -46,7 +46,7 @@ static UIEvent   *scroll_callback( UIButton *button, UIEvent *event)
 
    fprintf( stderr, "scroll_callback: %s\n", [button cStringDescription]);
 
-   scroller = [button superview];
+   scroller = [[button superview] superview];
    assert( [scroller isKindOfClass:[UIScrollView class]]);
 
    offset    = [scroller contentOffset];
@@ -56,6 +56,9 @@ static UIEvent   *scroll_callback( UIButton *button, UIEvent *event)
    return( nil);
 }
 
+
+// scale stuff for stream
+#define SCALE     2.0
 
 int   main()
 {
@@ -96,9 +99,9 @@ int   main()
 
    // layer = [[[CALayer alloc] init] autorelease];
 
-   frame.origin       = CGPointMake( 0.0, 0.0);
-   frame.size.width   = 320;
-   frame.size.height  = 200;
+   frame.origin       = CGPointMake( 0.0 * SCALE, 0.0 * SCALE);
+   frame.size.width   = 320 * SCALE;
+   frame.size.height  = 200 * SCALE;
    [tigerLayer setFrame:frame];
  //  [layer setBounds:CGRectMake( 0.0, 0.0, 200, 30)];
    [tigerLayer setBackgroundColor:getNVGColor( 0xFFE0D0D0)];
@@ -106,7 +109,7 @@ int   main()
    [tigerLayer setBorderWidth:32.0f];
    [tigerLayer setCornerRadius:16.0f];
 
-   frame.origin = CGPointMake( 320, 200);
+   frame.origin = CGPointMake( 320 * SCALE, 200 * SCALE);
    [shiftedTigerLayer setFrame:frame];
 
    bounds = [shiftedTigerLayer bounds];
@@ -133,9 +136,9 @@ int   main()
 
    viechLayer = [[[MulleBitmapLayer alloc] initWithBitmapImage:viechBitmap] autorelease];
    [viechLayer setCStringName:"viech"];
-   frame.origin       = CGPointMake( 320.0, 0.0);
-   frame.size.width   = 320;
-   frame.size.height  = 200;
+   frame.origin       = CGPointMake( 320.0 * SCALE, 0.0 * SCALE);
+   frame.size.width   = 320 * SCALE;
+   frame.size.height  = 200 * SCALE;
    [viechLayer setFrame:frame];
    fprintf( stderr, "layer: %p\n", viechLayer);
 
@@ -158,7 +161,7 @@ int   main()
    /*
     * window and app 
     */
-   window  = [[[UIWindow alloc] initWithFrame:CGRectMake( 0.0, 0.0, 640.0, 400.0)] autorelease];
+   window  = [[[UIWindow alloc] initWithFrame:CGRectMake( 0.0, 0.0, 640.0 * SCALE, 400.0 * SCALE)] autorelease];
    assert( window);
 
    [[UIApplication sharedInstance] addWindow:window];
@@ -196,16 +199,16 @@ int   main()
    [insideButton addSubview:nestedButton];
 
 
-   frame    = CGRectMake( 0.0, 200.0, 320.0, 200.0);
+   frame    = CGRectMake( 0.0 * SCALE, 200.0 * SCALE, 320.0 * SCALE, 200.0 * SCALE);
    scroller = [[[UIScrollView alloc] initWithFrame:frame] autorelease];
    [window addSubview:scroller];
 
    // another turtleLayer
    turtleLayer2 = [[[MulleBitmapLayer alloc] initWithBitmapImage:turtleBitmap] autorelease];
    [turtleLayer2 setCStringName:"turtle2"];
-   frame.origin       = CGPointMake( 0.0, 0.0);
-   frame.size.width   = 320;
-   frame.size.height  = 400;
+   frame.origin       = CGPointMake( 0.0 * SCALE, 0.0 * SCALE);
+   frame.size.width   = 640 * SCALE;
+   frame.size.height  = 400 * SCALE;
    [turtleLayer2 setFrame:frame];
    fprintf( stderr, "layer: %p\n", turtleLayer2);
 
@@ -217,7 +220,8 @@ int   main()
 
    // [insideButton setClipsSubviews:YES];
    [inScrollerButton setClick:scroll_callback];
-   [scroller addSubview:inScrollerButton];
+   [[scroller contentView] addSubview:inScrollerButton];
+   [scroller setContentSize:[inScrollerButton frame].size];
 
    [window dump];
    [window renderLoopWithContext:context];

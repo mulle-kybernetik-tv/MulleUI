@@ -4,7 +4,9 @@
 
 #import "nanovg.h"
 
+
 typedef NVGcolor   CGColorRef;
+typedef void       *CGColorSpaceRef;
 
 
 static inline NVGcolor getNVGColor( uint32_t color) 
@@ -15,6 +17,38 @@ static inline NVGcolor getNVGColor( uint32_t color)
 		(color >> 8) & 0xff,
 		(color >> 0) & 0xff);
 }
+
+
+static inline CGColorRef CGColorCreateGenericRGB( CGFloat red, CGFloat green, CGFloat blue, CGFloat alpha)
+{
+      return( nvgRGBA( (uint32_t) round( 0xff * red),
+                       (uint32_t) round( 0xff * green),
+                       (uint32_t) round( 0xff * blue),
+                       (uint32_t) round( 0xff * alpha)));
+}
+
+
+static inline CGColorRef CGColorCreate( CGColorSpaceRef space, const CGFloat *components)
+{
+   return( CGColorCreateGenericRGB( components[ 0], 
+                                    components[ 1], 
+                                    components[ 2],
+                                    components[ 3]));
+}
+
+
+static inline size_t CGColorGetNumberOfComponents(CGColorRef color)
+{
+   return( 4);
+}
+
+
+
+static inline CGFloat   CGColorGetAlpha( CGColorRef color)
+{
+   return( color.a / (CGFloat) 0xFF);
+}
+
 
 
 typedef float   _NVGtransform[ 6];   

@@ -11,17 +11,27 @@
 
 //
 // the main layer which is bottom-most defines the geometry
+// the UIView must have a mainLayer which is responsible for the "background"
+// other layers are composited on top of it
+// Then the subviews are drawn/composited on those (these are scaled and 
+// transformed)
 //
 @interface UIView : NSObject 
 {
    UIView                      *_superview;
    CALayer                     *_mainLayer;
 
-   struct mulle_pointerarray   *_subviews;
    struct mulle_pointerarray   *_layers;
+   struct mulle_pointerarray   *_subviews;
 }
 
 @property BOOL clipsSubviews;
+@property BOOL needsLayout;
+
+- (void) setNeedsLayout;
+
+
++ (Class) layerClass;
 
 - (id) initWithFrame:(CGRect) frame;
 
@@ -49,5 +59,11 @@
 - (CGRect) clipRect;
 
 - (CALayer *) mainLayer;
+
+//
+// You do not need not to call super in UIView subclasses, if you manually
+// layout everything
+// 
+- (void) layoutSubviews;
 
 @end

@@ -13,5 +13,8 @@
 - (UIEvent *) handleEvent:(UIEvent *) event
                atPosition:(CGPoint) position;
 
+// translate from paren bounds to self bounds
+- (CGPoint) translatedPoint:(CGPoint) point;
+
 @end
 

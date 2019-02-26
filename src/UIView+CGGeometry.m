@@ -10,7 +10,7 @@
 //
 @implementation UIView( CGGeometry)
 
-- (CGRect) convertRect:(CGRect) rect 
+- (CGRect) convertRect:(CGRect) rect
                 factor:(CGFloat) oneOrMinusOne
 {
    CGRect   bounds;
@@ -33,7 +33,7 @@
 }
 
 
-- (CGRect) convertRect:(CGRect) rect 
+- (CGRect) convertRect:(CGRect) rect
                 toView:(UIView *) toView
 {
    CGRect  rect;
@@ -41,7 +41,7 @@
    if( self == toView)
       return( rect);
 
-   rect = [self convertRect:rect 
+   rect = [self convertRect:rect
                      factor:-1];
    if( toView)
       rect = [toView convertRect:rect
@@ -60,15 +60,15 @@
 
 - (void) dumpSubviewsWithIndent:(NSUInteger) indent
 {
-   struct mulle_pointerarray_enumerator   rover;
+   struct mulle_pointerarrayenumerator   rover;
    UIView                                 *view;
 
    if( _subviews)
    {
       rover = mulle_pointerarray_enumerate( _subviews);
-      while( view = mulle_pointerarray_enumerator_next( &rover))
+      while( view = mulle_pointerarrayenumerator_next( &rover))
          [view dumpWithIndent:indent];
-      mulle_pointerarray_enumerator_done( &rover);
+      mulle_pointerarrayenumerator_done( &rover);
    }
 }
 
@@ -81,7 +81,7 @@
       fputc( ' ', stderr);
 
    fprintf( stderr, "%s: frame=%s bounds=%s\n",
-               [self cStringDescription],  
+               [self cStringDescription],
                CGRectCStringDescription( [self frame]),
                CGRectCStringDescription( [self bounds]));
    [self dumpSubviewsWithIndent:indent + 3];

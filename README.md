@@ -5,6 +5,7 @@
 
 ## Progress
 
+* 26.2.2019: Redid CALayer borderWidth and cornerRadius code
 * 12.2.2019: UIScrollView reacts to mouse scroll events, fixed clipping
 * 22.1.2019: UIButton now reacts to clicks and shows state, fixed colors and window drag
 * 15.1.2019: can now distribute mouse events to proper subviews

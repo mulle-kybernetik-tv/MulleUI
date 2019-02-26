@@ -16,9 +16,12 @@ src/MulleBitmapImage.m
 src/MulleBitmapLayer.m
 src/MulleSVGImage.m
 src/MulleSVGLayer.m
+src/MulleScrollIndicatorView.m
 src/UIApplication.m
 src/UIButton.m
 src/UIControl.m
+src/UIEdgeInsets+CString.m
+src/UIEdgeInsets.c
 src/UIEvent.m
 src/UIImage.m
 src/UIScrollView.m

@@ -3,6 +3,7 @@
 
 @implementation UIImage 
 
+// "abstract"
 - (Class) preferredLayerClass
 {
 	return( Nil);
