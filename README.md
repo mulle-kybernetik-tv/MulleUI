@@ -12,6 +12,15 @@
 * 15.1.2019: can now distribute mouse events to proper subviews
 
 
+## TODO
+
+* write layout engine
+* tesselate SVG beziers on load ?
+* handle events properly 
+* animate
+* write more widgets
+
+
 ## Build
 
 This is a [mulle-sde](https://mulle-sde.github.io/) project.
