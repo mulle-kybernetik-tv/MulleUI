@@ -13,4 +13,22 @@
 }
 
 
+- (void) setNeedsLayout
+{
+   [_yoga markDirty];
+   [self setNeedsLayout:YES];
+}
+
+
+- (void) layoutSubviews
+{
+   if( ! _yoga)
+   {
+      [super layoutSubviews];
+      return;
+   }
+
+   [_yoga applyLayoutPreservingOrigin:NO];
+}
+
 @end

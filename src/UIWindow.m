@@ -6,11 +6,14 @@
 #import "CGContext.h"
 #import "UIEvent.h"
 #import "UIView+UIEvent.h"
+#import "UIView+Yoga.h"
+#import "UIView+NSArray.h"
 #include <time.h>
 
+#import "CALayer.h"  // debugging tmp
 
 #define PRINTF_PROFILE_RENDER
-
+// #define PRINTF_PROFILE_EVENTS
 
 struct timespec   timespec_diff( struct timespec start, struct timespec end)
 {
@@ -127,6 +130,36 @@ static void   mouseScrollCallback( GLFWwindow *window,
 }
 
 
+static void   windowMoveCallback( GLFWwindow* window, int xpos, int ypos)
+{
+   UIWindow   *self;
+   CGRect     frame;
+
+   self = glfwGetWindowUserPointer( window);
+
+   fprintf( stderr, "%p moved: x=%d y=%d\n", self, xpos, ypos);
+
+   frame        = [self frame];
+   frame.origin = CGPointMake( xpos, ypos);
+   [self setFrame:frame];
+}
+
+
+static void   windowResizeCallback( GLFWwindow* window, int width, int height)
+{
+   UIWindow   *self;
+   CGRect     frame;
+
+   self = glfwGetWindowUserPointer( window);
+
+   fprintf( stderr, "%p resized: w=%d h=%d\n", self, width, height);
+
+   frame       = [self frame];
+   frame.size  = CGSizeMake( width, height);;
+   [self setFrame:frame];
+}
+
+
 
 + (void) initialize
 {
@@ -140,9 +173,14 @@ static void   mouseScrollCallback( GLFWwindow *window,
 
 - (id) initWithFrame:(CGRect) frame
 {
+   int   xpos;
+   int   ypos;
+   int   width;
+   int   height;
+
    glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 2);
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 0);
-	glfwWindowHint( GLFW_RESIZABLE, GL_FALSE);
+	glfwWindowHint( GLFW_RESIZABLE, GL_TRUE);
 
 	_window = glfwCreateWindow( frame.size.width, 
                                frame.size.height, 
@@ -158,8 +196,12 @@ static void   mouseScrollCallback( GLFWwindow *window,
 //		return( -1);
 	}
 
-   // TODO: query glfw for actual frame
-   _frame         = frame;
+   glfwGetWindowPos( _window, &xpos, &ypos);
+   glfwGetWindowSize( _window, &width, &height);  // just to be sure...
+
+   _frame.origin = CGPointMake( xpos, ypos);
+   _frame.size   = CGSizeMake( width, height);
+
    _mousePosition = CGPointMake( -1.0, -1.0);
 
 	glfwMakeContextCurrent( _window);
@@ -169,6 +211,8 @@ static void   mouseScrollCallback( GLFWwindow *window,
 	glfwSetCursorPosCallback( _window, mouseMoveCallback);
 	glfwSetKeyCallback( _window, keyCallback);
 	glfwSetScrollCallback( _window, mouseScrollCallback);
+   glfwSetWindowSizeCallback( _window, windowResizeCallback);
+   glfwSetWindowPosCallback( _window, windowMoveCallback);
 
    return( self);
 }
@@ -223,7 +267,7 @@ static void   mouseScrollCallback( GLFWwindow *window,
    // time on the first refresh (didn't work)
    //
    glfwSwapBuffers( _window);
-   glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
+   glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
    glClear( GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
 
 	while( ! glfwWindowShouldClose( _window)) 
@@ -235,6 +279,7 @@ static void   mouseScrollCallback( GLFWwindow *window,
          clock_gettime( CLOCK_REALTIME, &start);
 #endif
 
+         // 
          [context startRenderToFrame:_frame];
 
          [self renderWithContext:context];
@@ -266,7 +311,7 @@ static void   mouseScrollCallback( GLFWwindow *window,
          // GL_DEPTH_BUFFER_BIT ?
          //
          // glClearColor( 1.0 - _didRender / 120.0, 1.0 - _didRender / 120.0, 1.0 - _didRender / 240.0, 0.0f );
-         glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
+         // glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
          glClear( GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
 		}
 		else
@@ -289,6 +334,42 @@ static void   mouseScrollCallback( GLFWwindow *window,
                                                   diff.tv_sec ? 999999999 : diff.tv_nsec);
 #endif
 	}
+}
+
+
+- (void) frameDidChange:(CGRect) frame
+{
+   UIView     *contentView;
+   YGLayout   *yoga;
+
+   contentView = [[self subviews] objectAtIndex:0];
+   assert( contentView);
+
+   frame.origin = CGPointZero;
+   [contentView setFrame:frame];
+   assert( [contentView mainLayer]);
+   [[contentView mainLayer] setBackgroundColor:getNVGColor( ((uint32_t) frame.size.width * 0xFFFF +
+                                                (uint32_t) frame.size.height * 0xFF) |
+                                                0xFF)];
+   yoga = [contentView yoga];
+   [yoga setWidth:YGPointValue( frame.size.width)];
+   [yoga setHeight:YGPointValue( frame.size.height)];   
+
+   [contentView setNeedsLayout];
+
+   glViewport( 0, 0, frame.size.width, frame.size.height);
+
+   [self dump];
+}
+
+
+- (void) setFrame:(CGRect) frame
+{
+   if( CGRectEqualToRect( _frame, frame))
+      return;
+
+   _frame = frame;
+   [self frameDidChange:frame];
 }
 
 

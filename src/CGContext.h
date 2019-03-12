@@ -119,6 +119,7 @@ struct NVGcontext;
 @interface CGContext : NSObject
 {
 	struct NVGcontext  *_vg;	
+//   BOOL               _renderWithNewContext;
 }
 
 - (struct NVGcontext *) nvgContext;

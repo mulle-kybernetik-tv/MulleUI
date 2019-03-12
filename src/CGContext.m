@@ -5,6 +5,8 @@
 #import "CGContext.h"
 
 
+#define RENDER_DEBUG
+
 @implementation CGContext 
 
 - (id) init
@@ -35,6 +37,18 @@
 
 - (void) startRenderToFrame:(CGRect) frame
 {
+#ifdef RENDER_DEBUG
+   fprintf( stderr, "%s %s (f:%s)\n", 
+                        __PRETTY_FUNCTION__, 
+                        [self cStringDescription],
+                        CGRectCStringDescription( frame));
+#endif
+//   if( _renderWithNewContext)
+//   {
+//      nvgDeleteGLES2( _vg);
+//      _vg  = nvgCreateGLES2( NVG_ANTIALIAS | NVG_STENCIL_STROKES);
+//      _renderWithNewContext = NO;  
+//   }
    nvgBeginFrame( _vg, frame.size.width, 
                        frame.size.height, 
                        frame.size.width / frame.size.height);
@@ -53,4 +67,5 @@
 {
    nvgEndFrame( _vg);
 }
+
 @end

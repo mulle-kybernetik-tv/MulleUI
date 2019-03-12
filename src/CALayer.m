@@ -8,6 +8,9 @@
 #import "nanovg+CString.h"
 
 
+#define RENDER_DEBUG
+// #define CALAYER_DEBUG
+
 @implementation CALayer
 
 - (id) init
@@ -70,10 +73,14 @@
    NVGcontext   *vg;
    struct NVGpaint   paint; // todo convert to CG ??
 
-#ifdef CALAYER_DEBUG   
-   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
+#ifdef RENDER_DEBUG
+   fprintf( stderr, "%s %s (f:%s b:%s)\n", 
+                        __PRETTY_FUNCTION__, 
+                        [self cStringDescription],
+                        CGRectCStringDescription( [self frame]),
+                        CGRectCStringDescription( [self bounds]));
 #endif
-   
+
    frame  = [self frame];
    if( frame.size.width == 0.0 || frame.size.height == 0.0)
       return( NO);
