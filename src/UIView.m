@@ -82,6 +82,10 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
       pointerarray_release_all( _layers);
       mulle_pointerarray_destroy( _layers);
    }
+
+   [_subviewsArrayProxy release];
+   [_yoga release];
+
    [super dealloc];
 }
 
@@ -177,6 +181,13 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
       pointerarray_copy_all( _subviews, buf);
 
    return( n);
+}
+
+
+- (CALayer *) mainLayer
+{
+   assert( _mainLayer);
+   return( _mainLayer);
 }
 
 
@@ -294,7 +305,7 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
 - (void) renderSubviewsWithContext:(CGContext *) context
 {
    struct mulle_pointerarrayenumerator   rover;
-   UIView                                 *view;
+   UIView                                *view;
 
 #ifdef RENDER_DEBUG
    fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
@@ -325,14 +336,18 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
    frame = [self frame];
    if( frame.size.width <= 0.0 || frame.size.height <= 0.0)
    {
+#ifdef RENDER_DEBUG
       fprintf( stderr, "%s has no 2D frame\n", [self cStringDescription]);
+#endif
       return;
    }
 
    bounds = [self bounds];
    if( bounds.size.width <= 0.0 || bounds.size.height <= 0.0)
    {
+#ifdef RENDER_DEBUG
       fprintf( stderr, "%s has no 2D bounds\n", [self cStringDescription]);
+#endif
       return;
    }
 
@@ -467,6 +482,13 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
       return( (UIWindow *) view);
    }
    return( nil);
+}
+
+
+// https://developer.apple.com/documentation/uikit/uiview/1622625-sizethatfits?language=objc
+- (CGSize) sizeThatFits:(CGSize) size
+{
+   return( [_mainLayer frame].size);
 }
 
 @end

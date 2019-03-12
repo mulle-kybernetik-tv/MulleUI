@@ -5,6 +5,7 @@
 
 ## Progress
 
+* 12.3.2019: Yoga layout branch, experimenting with it
 * 26.2.2019: Improved SVG drawing with patched nanovg
 * 26.2.2019: Redid CALayer borderWidth and cornerRadius code
 * 12.2.2019: UIScrollView reacts to mouse scroll events, fixed clipping

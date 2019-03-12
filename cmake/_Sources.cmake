@@ -14,6 +14,7 @@ src/CGGeometry+CString.m
 src/CGGeometry.c
 src/MulleBitmapImage.m
 src/MulleBitmapLayer.m
+src/MulleObjectArray.m
 src/MulleSVGImage.m
 src/MulleSVGLayer.m
 src/MulleScrollIndicatorView.m
@@ -26,10 +27,16 @@ src/UIEvent.m
 src/UIImage.m
 src/UIScrollView.m
 src/UIView+CGGeometry.m
+src/UIView+NSArray.m
 src/UIView+UIEvent.m
 src/UIView.m
 src/UIWindow.m
+src/YogaKit/UIView+Yoga.m
+src/YogaKit/YGLayout.m
 src/main.m
 src/nanosvg.m
 src/nanovg+CString.m
+src/yoga/YGEnums.c
+src/yoga/YGNodeList.c
+src/yoga/Yoga.c
 )

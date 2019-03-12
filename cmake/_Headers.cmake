@@ -9,9 +9,12 @@ set( INCLUDE_DIRS
 nanosvg/src
 nanovg/src
 src
+src/YogaKit
+src/yoga
 )
 
 set( PRIVATE_HEADERS
+src/YogaKit/YGLayout+Private.h
 src/import-private.h
 src/include-private.h
 )
@@ -31,8 +34,10 @@ src/CGBase.h
 src/CGContext.h
 src/CGGeometry+CString.h
 src/CGGeometry.h
+src/Ghostscript_Tiger-svg.inc
 src/MulleBitmapImage.h
 src/MulleBitmapLayer.h
+src/MulleObjectArray.h
 src/MulleSVGImage.h
 src/MulleSVGLayer.h
 src/MulleScrollIndicatorView.h
@@ -45,9 +50,13 @@ src/UIEvent.h
 src/UIImage.h
 src/UIScrollView.h
 src/UIView+CGGeometry.h
+src/UIView+NSArray.h
 src/UIView+UIEvent.h
 src/UIView.h
 src/UIWindow.h
+src/YogaKit/UIView+Yoga.h
+src/YogaKit/YGLayout.h
+src/YogaKit/YogaProtocol.h
 src/import.h
 src/include.h
 src/nanovg+CString.h
@@ -56,5 +65,10 @@ src/tiger-svg.inc
 src/turtle-bitmap.inc
 src/version.h
 src/viech-bitmap.inc
+src/yoga/YGEnums.h
+src/yoga/YGMacros.h
+src/yoga/YGNodeList.h
+src/yoga/Yoga.h
+src/yoga/Yoga-internal.h
 )
 

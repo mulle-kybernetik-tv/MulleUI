@@ -335,6 +335,12 @@ static void   mouseScrollCallback( GLFWwindow *window,
    glfwPostEmptyEvent();
 }
 
+- (CALayer *) mainLayer
+{
+   assert( 0 && "dont ask the window for its mainLayer, it has none");
+   return( nil);
+}
+
 
 - (UIEvent *) handleEvent:(UIEvent *) event
 {

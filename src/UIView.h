@@ -2,6 +2,7 @@
 
 #import <mulle-container/mulle-container.h>
 #import "CGGeometry.h"
+#import "YogaProtocol.h"
 
 
 @class CALayer;
@@ -16,13 +17,18 @@
 // Then the subviews are drawn/composited on those (these are scaled and 
 // transformed)
 //
-@interface UIView : NSObject 
+@interface UIView : NSObject < Yoga >
 {
    UIView                      *_superview;
    CALayer                     *_mainLayer;
 
    struct mulle_pointerarray   *_layers;
    struct mulle_pointerarray   *_subviews;
+
+   // ivars for Yoga
+   id <NSArray,NSFastEnumeration>   *_subviewsArrayProxy;
+   YGLayout                         *_yoga;
+   BOOL                             _isYogaEnabled;
 }
 
 @property BOOL clipsSubviews;
@@ -59,6 +65,8 @@
 - (CGRect) clipRect;
 
 - (CALayer *) mainLayer;
+
+- (CGSize) sizeThatFits:(CGSize) size;
 
 //
 // You do not need not to call super in UIView subclasses, if you manually

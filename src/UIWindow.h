@@ -3,6 +3,11 @@
 #import <mulle-container/mulle-container.h>
 
 
+//
+// though a UIWindow is a UIView, it doesn't have a mainLayer
+// or any sublayers
+// It will erase it contents with black.
+//
 @interface UIWindow : UIView 
 {
    void         *_window;  // GLFWwindow

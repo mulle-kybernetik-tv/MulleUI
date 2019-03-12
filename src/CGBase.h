@@ -16,6 +16,8 @@
 #ifndef __cg_base_h__
 #define __cg_base_h__
 
+#include <float.h>
+
 typedef float CGFloat;
 #define CGFLOAT_MIN FLT_MIN
 #define CGFLOAT_MAX FLT_MAX
