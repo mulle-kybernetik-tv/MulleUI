@@ -89,16 +89,18 @@ static void   setupSceneInWindow( UIWindow *window)
 //    [yoga setAlignItems:YGAlignCenter];
 //    [yoga setJustifyContent:YGJustifyCenter];
 
+#define N_TILES 19
+
     NSUInteger   i;
     uint8_t      c;
-    char         name[ 32];
+    char         name[ N_TILES];
 
     /* CHILD 1 */
-    for( i = 0; i < 28; i++)
+    for( i = 0; i < N_TILES; i++)
     {
-       frame = CGRectMake( 0.0, 0.0, 190.0, 1.0);
+       frame = CGRectMake( 0.0, 0.0, 220.0, 1.0);
        child1 = [[[UIView alloc] initWithFrame:frame] autorelease];
-       c = i ? (230 / 28 * i) + 20 : 0;
+       c = i ? (230 / N_TILES * i) + 20 : 0;
        [[child1 mainLayer] setBackgroundColor:nvgRGBA( c, c, c, 0xFF)];  // blue
        sprintf( name, "child%d", i + 1);
        [[child1 mainLayer] setCStringName:name];
@@ -126,19 +128,23 @@ static void   setupSceneInWindow( UIWindow *window)
 //
 //    [yoga setHeight:YGPointValue(100)];
 //
-//   /* CHILD 2 */
-//   frame = CGRectMake( 0.0, 0.0, 200.0, 100.0);
-//   child2 = [[[UIView alloc] initWithFrame:frame] autorelease];
-//   [[child2 mainLayer] setBackgroundColor:getNVGColor( 0x00FF00FF)]; // green
-//   [[child2 mainLayer] setCStringName:"child2"];
-//   [root addSubview:child2];
+   /* CHILD 2 */
+   frame = CGRectMake( 200.0, 200.0, 220.0, 100.0);
+   child2 = [[[UIView alloc] initWithFrame:frame] autorelease];
+   [[child2 mainLayer] setBackgroundColor:getNVGColor( 0x00FF00FF)]; // green
+   [[child2 mainLayer] setCStringName:"*child2"];
+   yoga = [child2 yoga];
+   [yoga setEnabled:YES];
+   [yoga setPosition:YGPositionTypeRelative];
+   [yoga setFlexShrink:1.0];  // must be set. Not default 1.0
+   [root addSubview:child2];
 
-//   /* CHILD 3 */
-//   frame = CGRectMake( 0.0, 0.0, 100.0, 100.0);
-//   child3 = [[[UIView alloc] initWithFrame:frame] autorelease];
-//   [[child3 mainLayer] setBackgroundColor:getNVGColor( 0xFFFF00FF)]; // yellow
-//   [[child3 mainLayer] setCStringName:"child3"];
-//   [child2 addSubview:child3];
+   /* CHILD 3 */
+   frame = CGRectMake( 50.0, 0.0, 100.0, 100.0);
+   child3 = [[[UIView alloc] initWithFrame:frame] autorelease];
+   [[child3 mainLayer] setBackgroundColor:getNVGColor( 0xFFFF00FF)]; // yellow
+   [[child3 mainLayer] setCStringName:"*child3"];
+   [child2 addSubview:child3];
 
     [window dump];
     [[root yoga] applyLayoutPreservingOrigin:NO];

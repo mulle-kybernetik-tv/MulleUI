@@ -8,6 +8,7 @@
  */
 
 #import "YGLayout.h"
+#import "UIView+Yoga.h"
 #import "UIView+NSArray.h"
 
 
@@ -198,6 +199,7 @@ YG_PROPERTY(YGWrap, flexWrap, FlexWrap)
 YG_PROPERTY(YGOverflow, overflow, Overflow)
 YG_PROPERTY(YGDisplay, display, Display)
 
+YG_PROPERTY(CGFloat, flex, Flex)
 YG_PROPERTY(CGFloat, flexGrow, FlexGrow)
 YG_PROPERTY(CGFloat, flexShrink, FlexShrink)
 YG_VALUE_PROPERTY(flexBasis, FlexBasis)
@@ -264,7 +266,7 @@ YG_PROPERTY(CGFloat, aspectRatio, AspectRatio)
   if (dimensionFlexibility & YGDimensionFlexibilityFlexibleWidth) {
     size.width = YGUndefined;
   }
-  if (dimensionFlexibility & YGDimensionFlexibilityFlexibleHeigth) {
+  if (dimensionFlexibility & YGDimensionFlexibilityFlexibleHeight) {
     size.height = YGUndefined;
   }
   [self calculateLayoutWithSize:size];
@@ -378,7 +380,7 @@ static void YGAttachNodesFromViewHierachy(UIView *const view)
 
     id <NSMutableArray> subviewsToInclude = [[MulleMutableObjectArray new] autorelease];
     for (UIView *subview in [view subviews]) {
-      if ([[subview yoga] isEnabled] && [[subview yoga] isIncludedInLayout]) {
+      if( [[subview yoga] isIncludedInLayout]) {
         [subviewsToInclude addObject:subview];
       }
     }
@@ -404,9 +406,7 @@ static void YGRemoveAllChildren(const YGNodeRef node)
     return;
   }
 
-  while (YGNodeGetChildCount(node) > 0) {
-    YGNodeRemoveChild(node, YGNodeGetChild(node, YGNodeGetChildCount(node) - 1));
-  }
+  YGNodeRemoveAllChildren(node);
 }
 
 static CGFloat YGRoundPixelValue(CGFloat value)
@@ -422,6 +422,7 @@ static void YGApplyLayoutToViewHierarchy(UIView *view, BOOL preserveOrigin)
   // NSCAssert([NSThread isMainThread], @"Framesetting should only be done on the main thread.");
 
   const YGLayout *yoga = [view yoga];
+  UIView    *subview;
 
   if (![yoga isIncludedInLayout]) {
      return;
@@ -451,8 +452,8 @@ static void YGApplyLayoutToViewHierarchy(UIView *view, BOOL preserveOrigin)
   }];
 
   if (![yoga isLeaf]) {
-    for (NSUInteger i=0; i<[[view subviews] count]; i++) {
-      YGApplyLayoutToViewHierarchy([[view subviews] objectAtIndex:i], NO);
+    for ( subview in [view subviews]) {
+      YGApplyLayoutToViewHierarchy( subview, NO);
     }
   }
 }

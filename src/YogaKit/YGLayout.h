@@ -24,7 +24,7 @@ YG_EXTERN_C_END
 
 typedef NS_OPTIONS(NSInteger, YGDimensionFlexibility) {
   YGDimensionFlexibilityFlexibleWidth = 1 << 0,
-  YGDimensionFlexibilityFlexibleHeigth = 1 << 1,
+  YGDimensionFlexibilityFlexibleHeight = 1 << 1,
 };
 
 
@@ -55,6 +55,7 @@ typedef NS_OPTIONS(NSInteger, YGDimensionFlexibility) {
 @property (nonatomic, assign) YGOverflow overflow;
 @property (nonatomic, assign) YGDisplay display;
 
+@property (nonatomic, assign) CGFloat flex;
 @property (nonatomic, assign) CGFloat flexGrow;
 @property (nonatomic, assign) CGFloat flexShrink;
 @property (nonatomic, assign) YGValue flexBasis;
@@ -159,6 +160,5 @@ typedef NS_OPTIONS(NSInteger, YGDimensionFlexibility) {
 - (void)markDirty;
 
 @property (nonatomic, assign, readonly) UIView *view;
-
 
 @end
