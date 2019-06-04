@@ -135,7 +135,7 @@ static void   setupSceneInWindow( UIWindow *window)
 }
 
 
-int   main()
+int  main()
 {
    CGContext       *context;
    UIWindow        *window;

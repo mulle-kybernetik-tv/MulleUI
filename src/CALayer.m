@@ -8,7 +8,7 @@
 #import "nanovg+CString.h"
 
 
-#define RENDER_DEBUG
+// #define RENDER_DEBUG
 // #define CALAYER_DEBUG
 
 @implementation CALayer

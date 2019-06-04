@@ -8,8 +8,8 @@
 #import "nanovg+CString.h"
 
 
-#define RENDER_DEBUG
-#define RENDER_VERBOSE_DEBUG
+//#define RENDER_DEBUG
+//#define RENDER_VERBOSE_DEBUG
 
 
 @implementation UIView

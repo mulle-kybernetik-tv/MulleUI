@@ -14,6 +14,7 @@
 	NSUInteger   _didRender;  
    CGRect       _frame;    // has its own frame
    BOOL         _discardEvents;
+   BOOL         _resizing;
 }
 
 @property( retain) CGContext                  *context;

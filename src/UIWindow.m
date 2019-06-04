@@ -12,8 +12,9 @@
 
 #import "CALayer.h"  // debugging tmp
 
-#define PRINTF_PROFILE_RENDER
-// #define PRINTF_PROFILE_EVENTS
+#define CALLBACK_DEBUG
+//#define PRINTF_PROFILE_RENDER
+#define PRINTF_PROFILE_EVENTS
 
 struct timespec   timespec_diff( struct timespec start, struct timespec end)
 {
@@ -43,7 +44,12 @@ static void   keyCallback( GLFWwindow* window,
 	UIWindow   *self;
    UIEvent    *event;
 
-	self = glfwGetWindowUserPointer( window);
+   self = glfwGetWindowUserPointer( window);
+
+#ifdef CALLBACK_DEBUG
+   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
+#endif
+
    self->_modifiers = mods;
    if( self->_discardEvents)
       return;
@@ -67,7 +73,11 @@ static void   mouseButtonCallback( GLFWwindow* window,
    UIEvent    *event;
    uint64_t   bit;   
 
-	self  = glfwGetWindowUserPointer( window);
+   self  = glfwGetWindowUserPointer( window);
+
+#ifdef CALLBACK_DEBUG
+   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
+#endif
 
    bit = 1 << button;
    self->_mouseButtonStates &= ~bit;
@@ -94,7 +104,11 @@ static void   mouseMoveCallback( GLFWwindow* window,
 	UIWindow   *self;
    UIEvent    *event;
 
-	self = glfwGetWindowUserPointer( window);
+   self = glfwGetWindowUserPointer( window);
+
+#ifdef CALLBACK_DEBUG
+   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
+#endif
 
 	self->_mousePosition.x = xpos;
 	self->_mousePosition.y = ypos;
@@ -117,7 +131,12 @@ static void   mouseScrollCallback( GLFWwindow *window,
    uint64_t   bit;   
    CGPoint    scrollOffset;
 
-	self  = glfwGetWindowUserPointer( window);
+   self  = glfwGetWindowUserPointer( window);
+
+#ifdef CALLBACK_DEBUG
+   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
+#endif   
+
    if( self->_discardEvents)
       return;
    
@@ -137,6 +156,10 @@ static void   windowMoveCallback( GLFWwindow* window, int xpos, int ypos)
 
    self = glfwGetWindowUserPointer( window);
 
+#ifdef CALLBACK_DEBUG
+   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
+#endif
+
    fprintf( stderr, "%p moved: x=%d y=%d\n", self, xpos, ypos);
 
    frame        = [self frame];
@@ -145,19 +168,55 @@ static void   windowMoveCallback( GLFWwindow* window, int xpos, int ypos)
 }
 
 
+static void   windowRefreshCallback( GLFWwindow* window)
+{
+   UIWindow   *self;
+
+   self = glfwGetWindowUserPointer( window);
+
+#ifdef CALLBACK_DEBUG
+   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
+#endif
+
+//   glfwPostEmptyEvent();
+//   [self syncFrame];
+//   [self frameDidChange];
+}
+
+
+// framebufferResize is more interesting though
 static void   windowResizeCallback( GLFWwindow* window, int width, int height)
+{
+   UIWindow   *self;
+
+   self = glfwGetWindowUserPointer( window);
+
+#ifdef CALLBACK_DEBUG
+   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
+#endif
+}
+
+
+
+static void   framebufferResizeCallback( GLFWwindow* window, int width, int height)
 {
    UIWindow   *self;
    CGRect     frame;
 
    self = glfwGetWindowUserPointer( window);
 
+#ifdef CALLBACK_DEBUG
+   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
+#endif
+
    fprintf( stderr, "%p resized: w=%d h=%d\n", self, width, height);
 
    frame       = [self frame];
    frame.size  = CGSizeMake( width, height);;
    [self setFrame:frame];
+   self->_resizing   = YES;
 }
+
 
 
 
@@ -171,13 +230,23 @@ static void   windowResizeCallback( GLFWwindow* window, int width, int height)
 }
 
 
-- (id) initWithFrame:(CGRect) frame
+- (void) syncFrameWithWindow
 {
    int   xpos;
    int   ypos;
    int   width;
    int   height;
 
+   glfwGetWindowPos( _window, &xpos, &ypos);
+   glfwGetWindowSize( _window, &width, &height);  // just to be sure...
+
+   _frame.origin = CGPointMake( xpos, ypos);
+   _frame.size   = CGSizeMake( width, height);
+}
+
+
+- (id) initWithFrame:(CGRect) frame
+{
    glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 2);
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 0);
 	glfwWindowHint( GLFW_RESIZABLE, GL_TRUE);
@@ -196,11 +265,7 @@ static void   windowResizeCallback( GLFWwindow* window, int width, int height)
 //		return( -1);
 	}
 
-   glfwGetWindowPos( _window, &xpos, &ypos);
-   glfwGetWindowSize( _window, &width, &height);  // just to be sure...
-
-   _frame.origin = CGPointMake( xpos, ypos);
-   _frame.size   = CGSizeMake( width, height);
+   [self syncFrameWithWindow];
 
    _mousePosition = CGPointMake( -1.0, -1.0);
 
@@ -213,6 +278,8 @@ static void   windowResizeCallback( GLFWwindow* window, int width, int height)
 	glfwSetScrollCallback( _window, mouseScrollCallback);
    glfwSetWindowSizeCallback( _window, windowResizeCallback);
    glfwSetWindowPosCallback( _window, windowMoveCallback);
+   glfwSetFramebufferSizeCallback( _window, framebufferResizeCallback);
+   glfwSetWindowRefreshCallback( _window, windowRefreshCallback);
 
    return( self);
 }
@@ -260,7 +327,7 @@ static void   windowResizeCallback( GLFWwindow* window, int width, int height)
 	#define PAINT_FRAMES  2 //  60 * 5
 
    // glfwMakeContextCurrent( _window );
-   glfwSwapInterval( 1);  // makes no difference
+   glfwSwapInterval( 0);  // makes no difference
 
    //
    // gut feeling: when we do onw swap buffers first, once, we know we have enough 
@@ -272,54 +339,36 @@ static void   windowResizeCallback( GLFWwindow* window, int width, int height)
 
 	while( ! glfwWindowShouldClose( _window)) 
 	{
-		if( 1 || _didRender < PAINT_FRAMES)
-		{
 			// nvgGlobalCompositeOperation( ctxt->vg, NVG_ATOP);
 #ifdef PRINTF_PROFILE_RENDER   
-         clock_gettime( CLOCK_REALTIME, &start);
+      clock_gettime( CLOCK_REALTIME, &start);
 #endif
 
-         // 
-         [context startRenderToFrame:_frame];
+      // 
+      [context startRenderToFrame:_frame];
 
-         [self renderWithContext:context];
+      [self renderWithContext:context];
 
-         [context endRender];
+      [context endRender];
 
 #ifdef PRINTF_PROFILE_RENDER   
-         clock_gettime( CLOCK_REALTIME, &end);
-         diff = timespec_diff( start, end);
-         if( diff.tv_sec > 0 || diff.tv_nsec >= nsperframe)
-            fprintf( stderr, "frame #%ld: @%ld:%09ld render end, OVERFLW %.4f frames\n", 
-                                 _didRender, 
-                                 end.tv_sec, 
-                                 end.tv_nsec,
-                                 diff.tv_sec ? 9999.9999 : (diff.tv_nsec / (double) nsperframe) - 1);
+      clock_gettime( CLOCK_REALTIME, &end);
+      diff = timespec_diff( start, end);
+      if( diff.tv_sec > 0 || diff.tv_nsec >= nsperframe)
+         fprintf( stderr, "frame #%ld: @%ld:%09ld render end, OVERFLW %.4f frames\n", 
+                              _didRender, 
+                              end.tv_sec, 
+                              end.tv_nsec,
+                              diff.tv_sec ? 9999.9999 : (diff.tv_nsec / (double) nsperframe) - 1);
 #endif         
-      	glfwSwapBuffers( _window);
-         _didRender++;
+   	glfwSwapBuffers( _window);
+      _didRender++;
 
 
-         sleep.tv_sec  = 0.0;
-         sleep.tv_nsec = nsperframe / 10 * (rand() % 100);
-         nanosleep( &sleep, NULL);
-
-         //
-         // GL_COLOR_BUFFER_BIT brauchen wir, wenn wir nicht selber per
-         // Hand abschnittsweise löschen
-         // GL_STENCIL_BUFFER_BIT braucht nanovg 
-         // GL_DEPTH_BUFFER_BIT ?
-         //
-         // glClearColor( 1.0 - _didRender / 120.0, 1.0 - _didRender / 120.0, 1.0 - _didRender / 240.0, 0.0f );
-         // glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
-         glClear( GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
-		}
-		else
-			if( _didRender == PAINT_FRAMES)
-			{
-				printf( "finished\n");
-				_didRender++;
-			}
+//            sleep.tv_sec  = 0.0;
+//            sleep.tv_nsec = nsperframe / 10 * (rand() % 100);
+//            nanosleep( &sleep, NULL);
+      glClear( GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
 
 #ifdef PRINTF_PROFILE_EVENTS   
       clock_gettime( CLOCK_REALTIME, &start);
@@ -337,14 +386,17 @@ static void   windowResizeCallback( GLFWwindow* window, int width, int height)
 }
 
 
-- (void) frameDidChange:(CGRect) frame
+- (void) frameDidChange
 {
    UIView     *contentView;
    YGLayout   *yoga;
+   CGRect     frame;
+
 
    contentView = [[self subviews] objectAtIndex:0];
    assert( contentView);
 
+   frame        = _frame;
    frame.origin = CGPointZero;
    [contentView setFrame:frame];
    assert( [contentView mainLayer]);
@@ -356,10 +408,6 @@ static void   windowResizeCallback( GLFWwindow* window, int width, int height)
    [yoga setHeight:YGPointValue( frame.size.height)];   
 
    [contentView setNeedsLayout];
-
-   glViewport( 0, 0, frame.size.width, frame.size.height);
-
-   [self dump];
 }
 
 
@@ -369,7 +417,7 @@ static void   windowResizeCallback( GLFWwindow* window, int width, int height)
       return;
 
    _frame = frame;
-   [self frameDidChange:frame];
+   [self frameDidChange];
 }
 
 
@@ -385,11 +433,35 @@ static void   windowResizeCallback( GLFWwindow* window, int width, int height)
 }
 
 
+- (void) waitForEndOfResize
+{
+   double   waitEnd;
+
+   //
+   // keep viewport as is, so that resize scales the window
+   // hopefully
+   //
+   for(;;)
+   {
+      waitEnd = glfwGetTime() + 1.0 / 5.0;
+      glfwWaitEventsTimeout( 1.0 / 5.0);
+      if( waitEnd >= glfwGetTime())
+      {
+         glViewport( 0.0, 0.0, _frame.size.width, _frame.size.height);
+         _resizing = NO;
+         break;
+      }
+   }
+}
+
+
 - (void) waitForEvents
 {
-   glfwWaitEventsTimeout( 1.0 / 200);
-		// glfwPollEvents();   
+   glfwWaitEvents();
+   if( _resizing)
+      [self waitForEndOfResize];
 }
+
 
 
 - (void) discardPendingEvents
@@ -415,6 +487,7 @@ static void   windowResizeCallback( GLFWwindow* window, int width, int height)
 {
    glfwPostEmptyEvent();
 }
+
 
 - (CALayer *) mainLayer
 {
