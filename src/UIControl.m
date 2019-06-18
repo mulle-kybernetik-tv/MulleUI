@@ -8,22 +8,65 @@
 @dynamic state;
 @dynamic target;
 
+- (BOOL) canBecomeFirstResponder
+{
+   UIControlState   state;
+
+ 	state = [self state];
+   return( (state & UIControlStateDisabled) ? NO : YES);
+}
+
+
+MULLE_C_NEVER_INLINE
+static UIEvent  *consumeEventIfDisabled( UIControl *self, UIEvent *event)
+{
+	UIControlState   state;
+
+   // a disable control swallows events
+ 	state = [self state];
+	if( state & UIControlStateDisabled)
+		return( nil);
+
+   return( event);   
+}
+
+
+// @method_alias( mouseUp:, mouseDown:);
+
+- (UIEvent *) mouseDown:(UIEvent *) event
+{
+	event = consumeEventIfDisabled( self, event);
+	// event was handled if nil
+	if( ! event)
+	   return( event);   
+
+   fprintf( stderr, "%s: %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
+   [self becomeFirstResponder];
+   // we alway snarf up the mouseDown: event (why pass to parent ?)
+   return( nil);
+}
+
 
 - (UIEvent *) mouseUp:(UIEvent *) event
 {
-	UIControlClickHandler   *click;
-	UIControlState          state;
+   UIControlClickHandler  *click;
+   SEL                    sel;
 
-	state = [self state];
-	if( state & UIControlStateDisabled)
-		return( event);
+	event = consumeEventIfDisabled( self, event);
+	// event was handled if nil
+	if( ! event)
+   {
+      assert( ! [self isFirstResponder] && "mouseUp: overridden, but mouseDown: made us first responder");
+	   return( event);
+   }
 
-	click = [self click];   
-   if( click)
+   fprintf( stderr, "%s: %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
+   [self resignFirstResponder];
+   if( click = [self click])
       event = (*click)( self, event);
-   else
-      event = [[self target] performSelector:[self action]
-                                  withObject:self];
+   if( event && (sel = [self action]))
+      [[self target] performSelector:sel
+                          withObject:self];
    return( event);
 }
 

@@ -7,7 +7,7 @@ endif()
 
 # sourcetree: DILL;no-all-load,no-import;dill
 if( NOT DILL_LIBRARY)
-   find_library( DILL_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}dill${CMAKE_STATIC_LIBRARY_SUFFIX} dill)
+   find_library( DILL_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}dill${CMAKE_STATIC_LIBRARY_SUFFIX} dill NO_CMAKE_SYSTEM_PATH)
    message( STATUS "DILL_LIBRARY is ${DILL_LIBRARY}")
    #
    # the order looks ascending, but due to the way this file is read
@@ -71,7 +71,7 @@ endif()
 
 # sourcetree: GLFW3;no-all-load,no-import;glfw3
 if( NOT GLFW3_LIBRARY)
-   find_library( GLFW3_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}glfw3${CMAKE_STATIC_LIBRARY_SUFFIX} glfw3)
+   find_library( GLFW3_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}glfw3${CMAKE_STATIC_LIBRARY_SUFFIX} glfw3 NO_CMAKE_SYSTEM_PATH)
    message( STATUS "GLFW3_LIBRARY is ${GLFW3_LIBRARY}")
    #
    # the order looks ascending, but due to the way this file is read
@@ -135,7 +135,7 @@ endif()
 
 # sourcetree: MULLE_OBJC;;
 if( NOT MULLE_OBJC_LIBRARY)
-   find_library( MULLE_OBJC_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}MulleObjC${CMAKE_STATIC_LIBRARY_SUFFIX} MulleObjC)
+   find_library( MULLE_OBJC_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}MulleObjC${CMAKE_STATIC_LIBRARY_SUFFIX} MulleObjC NO_CMAKE_SYSTEM_PATH)
    message( STATUS "MULLE_OBJC_LIBRARY is ${MULLE_OBJC_LIBRARY}")
    #
    # the order looks ascending, but due to the way this file is read
@@ -216,7 +216,7 @@ endif()
 
 # sourcetree: MULLE_OBJC_COMPAT;no-all-load;
 if( NOT MULLE_OBJC_COMPAT_LIBRARY)
-   find_library( MULLE_OBJC_COMPAT_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-objc-compat${CMAKE_STATIC_LIBRARY_SUFFIX} mulle-objc-compat)
+   find_library( MULLE_OBJC_COMPAT_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-objc-compat${CMAKE_STATIC_LIBRARY_SUFFIX} mulle-objc-compat NO_CMAKE_SYSTEM_PATH)
    message( STATUS "MULLE_OBJC_COMPAT_LIBRARY is ${MULLE_OBJC_COMPAT_LIBRARY}")
    #
    # the order looks ascending, but due to the way this file is read

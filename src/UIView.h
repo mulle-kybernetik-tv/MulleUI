@@ -58,7 +58,7 @@
 
 - (CGRect) clipRect;
 
-- (CALayer *) mainLayer;
+// - (CALayer *) mainLayer;  // mainlayer is an internal thing
 
 //
 // You do not need not to call super in UIView subclasses, if you manually

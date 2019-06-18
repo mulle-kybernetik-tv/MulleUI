@@ -8,6 +8,7 @@
 #import "UIWindow.h"
 #import "UIApplication.h"
 #import "UIButton.h"
+#import "UILabel.h"
 #import "UIScrollView.h"
 #import "UIEvent.h"
 #import <string.h>
@@ -46,7 +47,7 @@ static UIEvent   *scroll_callback( UIButton *button, UIEvent *event)
 
    fprintf( stderr, "scroll_callback: %s\n", [button cStringDescription]);
 
-   scroller = [[button superview] superview];
+   scroller = (UIScrollView *) [[button superview] superview];
    assert( [scroller isKindOfClass:[UIScrollView class]]);
 
    offset    = [scroller contentOffset];
@@ -78,6 +79,7 @@ int   main()
    UIWindow           *window;
    UIView             *view;
    UIButton           *button;
+   UILabel            *label;
    UIButton           *insideButton;
    UIButton           *nestedButton;
    UIButton           *inScrollerButton;
@@ -179,7 +181,7 @@ int   main()
 
    button = [[[UIButton alloc] initWithLayer:viechLayer] autorelease];
    // [button setClipsSubviews:YES];
-   [button setClick:button_callback];
+   // [button setClick:button_callback];
    [button setDisabled:YES];
    [window addSubview:button];
 
@@ -222,6 +224,21 @@ int   main()
    [inScrollerButton setClick:scroll_callback];
    [[scroller contentView] addSubview:inScrollerButton];
    [scroller setContentSize:[inScrollerButton frame].size];
+
+   frame.origin      = CGPointMake( 10.0, 10.0);
+   frame.size.width  = 100;
+   frame.size.height = 20;
+
+   label = [[[UILabel alloc] initWithFrame:frame] autorelease];
+
+   // [insideButton setClipsSubviews:YES];
+   [label setCString:"VfL Bochum 1848"];
+   [label setFontName:"sans"];
+   [label setFontSize:8.0];
+   [label setBackgroundColor:getNVGColor( 0xA08040FF)];
+   [label setTextColor:getNVGColor( 0x000000FF)];
+
+   [insideButton addSubview:label];
 
    [window dump];
    [window renderLoopWithContext:context];

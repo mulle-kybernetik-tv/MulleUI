@@ -69,21 +69,21 @@ if( NOT GL_LIBRARY)
 endif()
 
 
-# sourcetree: GLGLU;no-all-load,no-header,no-import;
-if( NOT GLGLU_LIBRARY)
-   find_library( GLGLU_LIBRARY NAMES GLU)
-   message( STATUS "GLGLU_LIBRARY is ${GLGLU_LIBRARY}")
+# sourcetree: GLU;no-all-load,no-header,no-import;
+if( NOT GLU_LIBRARY)
+   find_library( GLU_LIBRARY NAMES GLU)
+   message( STATUS "GLU_LIBRARY is ${GLU_LIBRARY}")
    #
    # the order looks ascending, but due to the way this file is read
    # it ends up being descending, which is what we need
-   if( GLGLU_LIBRARY)
+   if( GLU_LIBRARY)
       #
-      # Add to GLGLU_LIBRARY list.
+      # Add to GLU_LIBRARY list.
       # Disable with: `mark no-cmakeadd`
       #
       set( OS_SPECIFIC_LIBRARIES
          ${OS_SPECIFIC_LIBRARIES}
-         ${GLGLU_LIBRARY}
+         ${GLU_LIBRARY}
          CACHE INTERNAL "need to cache this"
       )
       #
@@ -91,19 +91,19 @@ if( NOT GLGLU_LIBRARY)
       # Disable with: `mark no-cmakeinherit`
       #
       # // temporarily expand CMAKE_MODULE_PATH
-      get_filename_component( _TMP_GLGLU_ROOT "${GLGLU_LIBRARY}" DIRECTORY)
-      get_filename_component( _TMP_GLGLU_ROOT "${_TMP_GLGLU_ROOT}" DIRECTORY)
+      get_filename_component( _TMP_GLU_ROOT "${GLU_LIBRARY}" DIRECTORY)
+      get_filename_component( _TMP_GLU_ROOT "${_TMP_GLU_ROOT}" DIRECTORY)
       #
       #
       # Search for "DependenciesAndLibraries.cmake" to include.
       # Disable with: `mark no-cmakedependency`
       #
-      foreach( _TMP_GLGLU_NAME "GLU")
-         set( _TMP_GLGLU_DIR "${_TMP_GLGLU_ROOT}/include/${_TMP_GLGLU_NAME}/cmake")
+      foreach( _TMP_GLU_NAME "GLU")
+         set( _TMP_GLU_DIR "${_TMP_GLU_ROOT}/include/${_TMP_GLU_NAME}/cmake")
          # use explicit path to avoid "surprises"
-         if( EXISTS "${_TMP_GLGLU_DIR}/DependenciesAndLibraries.cmake")
-            unset( GLGLU_DEFINITIONS)
-            list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_GLGLU_DIR}")
+         if( EXISTS "${_TMP_GLU_DIR}/DependenciesAndLibraries.cmake")
+            unset( GLU_DEFINITIONS)
+            list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_GLU_DIR}")
             # we only want top level INHERIT_OBJC_LOADERS, so disable them
             if( NOT NO_INHERIT_OBJC_LOADERS)
                set( NO_INHERIT_OBJC_LOADERS OFF)
@@ -111,43 +111,43 @@ if( NOT GLGLU_LIBRARY)
             list( APPEND _TMP_INHERIT_OBJC_LOADERS ${NO_INHERIT_OBJC_LOADERS})
             set( NO_INHERIT_OBJC_LOADERS ON)
             #
-            include( "${_TMP_GLGLU_DIR}/DependenciesAndLibraries.cmake")
+            include( "${_TMP_GLU_DIR}/DependenciesAndLibraries.cmake")
             #
             list( GET _TMP_INHERIT_OBJC_LOADERS -1 NO_INHERIT_OBJC_LOADERS)
             list( REMOVE_AT _TMP_INHERIT_OBJC_LOADERS -1)
             #
-            list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_GLGLU_DIR}")
+            list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_GLU_DIR}")
             set( INHERITED_DEFINITIONS
                ${INHERITED_DEFINITIONS}
-               ${GLGLU_DEFINITIONS}
+               ${GLU_DEFINITIONS}
                CACHE INTERNAL "need to cache this"
             )
             break()
          else()
-            message( STATUS "${_TMP_GLGLU_DIR}/DependenciesAndLibraries.cmake not found")
+            message( STATUS "${_TMP_GLU_DIR}/DependenciesAndLibraries.cmake not found")
          endif()
       endforeach()
    else()
-      message( FATAL_ERROR "GLGLU_LIBRARY was not found")
+      message( FATAL_ERROR "GLU_LIBRARY was not found")
    endif()
 endif()
 
 
-# sourcetree: GLGLUX11;no-all-load,no-header,no-import;
-if( NOT GLGLUX11_LIBRARY)
-   find_library( GLGLUX11_LIBRARY NAMES X11)
-   message( STATUS "GLGLUX11_LIBRARY is ${GLGLUX11_LIBRARY}")
+# sourcetree: X11;no-all-load,no-header,no-import;
+if( NOT X11_LIBRARY)
+   find_library( X11_LIBRARY NAMES X11)
+   message( STATUS "X11_LIBRARY is ${X11_LIBRARY}")
    #
    # the order looks ascending, but due to the way this file is read
    # it ends up being descending, which is what we need
-   if( GLGLUX11_LIBRARY)
+   if( X11_LIBRARY)
       #
-      # Add to GLGLUX11_LIBRARY list.
+      # Add to X11_LIBRARY list.
       # Disable with: `mark no-cmakeadd`
       #
       set( OS_SPECIFIC_LIBRARIES
          ${OS_SPECIFIC_LIBRARIES}
-         ${GLGLUX11_LIBRARY}
+         ${X11_LIBRARY}
          CACHE INTERNAL "need to cache this"
       )
       #
@@ -155,19 +155,19 @@ if( NOT GLGLUX11_LIBRARY)
       # Disable with: `mark no-cmakeinherit`
       #
       # // temporarily expand CMAKE_MODULE_PATH
-      get_filename_component( _TMP_GLGLUX11_ROOT "${GLGLUX11_LIBRARY}" DIRECTORY)
-      get_filename_component( _TMP_GLGLUX11_ROOT "${_TMP_GLGLUX11_ROOT}" DIRECTORY)
+      get_filename_component( _TMP_X11_ROOT "${X11_LIBRARY}" DIRECTORY)
+      get_filename_component( _TMP_X11_ROOT "${_TMP_X11_ROOT}" DIRECTORY)
       #
       #
       # Search for "DependenciesAndLibraries.cmake" to include.
       # Disable with: `mark no-cmakedependency`
       #
-      foreach( _TMP_GLGLUX11_NAME "X11")
-         set( _TMP_GLGLUX11_DIR "${_TMP_GLGLUX11_ROOT}/include/${_TMP_GLGLUX11_NAME}/cmake")
+      foreach( _TMP_X11_NAME "X11")
+         set( _TMP_X11_DIR "${_TMP_X11_ROOT}/include/${_TMP_X11_NAME}/cmake")
          # use explicit path to avoid "surprises"
-         if( EXISTS "${_TMP_GLGLUX11_DIR}/DependenciesAndLibraries.cmake")
-            unset( GLGLUX11_DEFINITIONS)
-            list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_GLGLUX11_DIR}")
+         if( EXISTS "${_TMP_X11_DIR}/DependenciesAndLibraries.cmake")
+            unset( X11_DEFINITIONS)
+            list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_X11_DIR}")
             # we only want top level INHERIT_OBJC_LOADERS, so disable them
             if( NOT NO_INHERIT_OBJC_LOADERS)
                set( NO_INHERIT_OBJC_LOADERS OFF)
@@ -175,24 +175,24 @@ if( NOT GLGLUX11_LIBRARY)
             list( APPEND _TMP_INHERIT_OBJC_LOADERS ${NO_INHERIT_OBJC_LOADERS})
             set( NO_INHERIT_OBJC_LOADERS ON)
             #
-            include( "${_TMP_GLGLUX11_DIR}/DependenciesAndLibraries.cmake")
+            include( "${_TMP_X11_DIR}/DependenciesAndLibraries.cmake")
             #
             list( GET _TMP_INHERIT_OBJC_LOADERS -1 NO_INHERIT_OBJC_LOADERS)
             list( REMOVE_AT _TMP_INHERIT_OBJC_LOADERS -1)
             #
-            list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_GLGLUX11_DIR}")
+            list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_X11_DIR}")
             set( INHERITED_DEFINITIONS
                ${INHERITED_DEFINITIONS}
-               ${GLGLUX11_DEFINITIONS}
+               ${X11_DEFINITIONS}
                CACHE INTERNAL "need to cache this"
             )
             break()
          else()
-            message( STATUS "${_TMP_GLGLUX11_DIR}/DependenciesAndLibraries.cmake not found")
+            message( STATUS "${_TMP_X11_DIR}/DependenciesAndLibraries.cmake not found")
          endif()
       endforeach()
    else()
-      message( FATAL_ERROR "GLGLUX11_LIBRARY was not found")
+      message( FATAL_ERROR "X11_LIBRARY was not found")
    endif()
 endif()
 

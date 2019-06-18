@@ -3,12 +3,13 @@
 #import <mulle-container/mulle-container.h>
 
 
-@interface UIWindow : UIView 
+@interface UIWindow : UIView
 {
-   void         *_window;  // GLFWwindow
-	NSUInteger   _didRender;  
-   CGRect       _frame;    // has its own frame
-   BOOL         _discardEvents;
+   void            *_window;  // GLFWwindow
+	NSUInteger      _didRender;  
+   CGRect          _frame;    // has its own frame
+   NSUInteger      _discardEvents; // bitfield of UIEventtypes ?
+   id              _firstResponder;
 }
 
 @property( retain) CGContext                  *context;

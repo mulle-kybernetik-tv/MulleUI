@@ -49,7 +49,7 @@
 }
 
 
-- (BOOL) drawContentsInContext:(CGContext *) context
+- (void) drawContentsInContext:(CGContext *) context
 {
 }
 
@@ -141,7 +141,7 @@
 #endif     
    }
 
-   [self drawContentsInContext:vg];
+   [self drawContentsInContext:context];
 
    //
    // the strokeWidth isn't scaled in nvg, so we do this now ourselves

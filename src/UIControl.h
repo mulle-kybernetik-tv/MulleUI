@@ -86,8 +86,8 @@ typedef UIEvent       *UIControlClickHandler( id <UIControl> control,
 
 
 
-#define UIControlIvars \
+#define UIControlIvars              \
    UIControlState           _state;	\
-   id                      _target;	\
    UIControlClickHandler   *_click;	\
+   id                      _target;	\
    SEL                     _action

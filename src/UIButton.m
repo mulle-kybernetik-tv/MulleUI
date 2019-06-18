@@ -2,22 +2,20 @@
 
 #import "UIImage.h"
 #import "CALayer.h"
+#import "UIView+UIResponder.h"
 
 
 @implementation UIButton
 
-- (UIEvent *) mouseUp:(UIEvent *) event
+
+
+// use compatible code
+- (void) toggleState
 {
 	UIControlState   state;
 	CGRect           frame;
 	UIImage          *image;
-
-	event = [super mouseUp:event];
-	// event was not handled if not nil
-	if( event)
-	   return( event);
-
-	//
+   	//
 	// target/action has been called already by UIControl
 	//
 	state = [self state];
@@ -38,9 +36,30 @@
 		state &=~UIControlStateSelected;
 		image = [self backgroundImageForState:state];
 	}
-	[self setBackgroundImage:image];
+	[self setBackgroundImage:image];   
+}
 
-	return( event);
+- (BOOL) becomeFirstResponder
+{
+   if( [super becomeFirstResponder])
+   {
+      fprintf( stderr, "become\n");
+      [self toggleState];
+      return( YES);
+   }
+   return( NO);
+}
+
+
+- (BOOL) resignFirstResponder
+{
+   if( [super resignFirstResponder])
+   {
+      fprintf( stderr, "resign\n");
+      [self toggleState];
+      return( YES);
+   }
+   return( NO);
 }
 
 

@@ -2,6 +2,7 @@
 
 #import "CGBase.h"
 
+#import <math.h>
 #import "nanovg.h"
 
 

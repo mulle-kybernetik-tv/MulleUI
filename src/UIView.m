@@ -17,9 +17,12 @@ static void  pointerarray_release_all( struct mulle_pointerarray *array)
    struct mulle_pointerarrayenumerator   rover;
    id     obj;
 
-   rover = mulle_pointerarray_enumerate( array);
-   while( obj = mulle_pointerarrayenumerator_next( &rover))
-      [obj release];
+   if( array)
+   {
+      rover = mulle_pointerarray_enumerate( array);
+      while( obj = mulle_pointerarrayenumerator_next( &rover))
+         [obj release];
+   }
 }
 
 
@@ -28,9 +31,12 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
    struct mulle_pointerarrayenumerator   rover;
    id     obj;
 
-   rover = mulle_pointerarray_enumerate( array);
-   while( obj = mulle_pointerarrayenumerator_next( &rover))
-      *dst++ = obj;;
+   if( array)
+   {
+      rover = mulle_pointerarray_enumerate( array);
+      while( obj = mulle_pointerarrayenumerator_next( &rover))
+         *dst++ = obj;;
+   }
 }
 
 
@@ -300,10 +306,13 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
    fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
 #endif
 
-   rover = mulle_pointerarray_enumerate( _subviews);
-   while( view = mulle_pointerarrayenumerator_next( &rover))
-      [view renderWithContext:context];
-   mulle_pointerarrayenumerator_done( &rover);
+   if( _subviews)
+   {
+      rover = mulle_pointerarray_enumerate( _subviews);
+      while( view = mulle_pointerarrayenumerator_next( &rover))
+         [view renderWithContext:context];
+      mulle_pointerarrayenumerator_done( &rover);
+   }
 }
 
 
@@ -463,7 +472,7 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
 
    if( [view isKindOfClass:[UIWindow class]])
    {
-      fprintf( stderr, "window found\n");
+      //fprintf( stderr, "window found\n");
       return( (UIWindow *) view);
    }
    return( nil);

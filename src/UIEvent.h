@@ -5,13 +5,14 @@
 
 #include <time.h>
 
-typedef enum  {
-    UIEventTypeTouches,  // Mouse click
-    UIEventTypeMotion,   // Mouse movemeent
-    UIEventTypePresses,  // Keyboard 
-    UIEventTypeScroll    // Keyboard 
+// bits suitable or bitmasking
+typedef enum
+{
+   UIEventTypePresses = 0x1, // Keyboard
+   UIEventTypeTouches = 0x2, // Mouse click
+   UIEventTypeMotion  = 0x4,  // Mouse movemeent
+   UIEventTypeScroll  = 0x8   // Mouse Scrollwheel
 } UIEventType;
-
 
 @interface UIEvent : NSObject
 

@@ -8,20 +8,20 @@
             "MIMode": "lldb",
             "request": "launch",
             "stopAtEntry": true,
-            "program": "${workspaceFolder}/build/Debug/MulleGLExample",
+            "program": "${workspaceFolder}/kitchen/Debug/MulleGLExample",
             "args": [],
             "environment": [],
             "cwd": "${workspaceFolder}",
             "additionalSOLibSearchPath": "${workspaceFolder}/dependency/Debug/lib:${workspaceFolder}/dependency/lib",
             "windows": {
                 "miDebuggerPath": "C:\\mingw64\\bin\\mulle-lldb-mi.exe",
-                "program": "${workspaceFolder}/build/Debug/MulleGLExample.exe"
+                "program": "${workspaceFolder}/kitchen/Debug/MulleGLExample.exe"
             },
             "osx": {
                 "miDebuggerPath": "/usr/local/bin/mulle-lldb-mi"
             },
             "linux": {
-                "miDebuggerPath": "/home/src/srcL/mulle-lldb-70/bin/lldb-mi"
+                "miDebuggerPath": "/home/src/srcL/mulle-lldb-80/bin/lldb-mi"
              },
             "preLaunchTask": "Debug"
         }

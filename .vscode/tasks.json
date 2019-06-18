@@ -13,13 +13,16 @@
                 "base": "$gcc",
                 "fileLocation": [
                   "relative",
-                  "${workspaceFolder}/build/Debug"
+                  "${workspaceFolder}/kitchen/Debug"
                 ]
             },
             "group": {
                 "kind": "build",
                 "isDefault": true
-            }
+            },
+            "presentation": {
+               "showReuseMessage": false
+            }            
         },
         {
             "label": "Release",
@@ -30,7 +33,7 @@
                 "base": "$gcc",
                 "fileLocation": [
                   "relative",
-                  "${workspaceFolder}/build/Release"
+                  "${workspaceFolder}/kitchen/Release"
                 ]
             },
             "args": [
@@ -38,6 +41,9 @@
             ],
             "group": {
                 "kind": "build"
+            },
+            "presentation": {
+               "showReuseMessage": false
             }
         },
         {
@@ -54,22 +60,27 @@
            "label": "Clean",
            "type": "shell",
            "command": "mulle-sde",
-           "showReuseMessage": false,
            "args": [
               "clean"
            ],
-           "problemMatcher": []
-        },
+           "problemMatcher": [],
+            "presentation": {
+               "showReuseMessage": false
+            }
+         },
         {
            "label": "Clean All",
            "type": "shell",
            "command": "mulle-sde",
-           "showReuseMessage": false,
+
            "args": [
               "clean",
               "all"
            ],
-           "problemMatcher": []
+           "problemMatcher": [],
+            "presentation": {
+               "showReuseMessage": false
+            }
         }
     ]
 }

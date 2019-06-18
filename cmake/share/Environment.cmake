@@ -28,16 +28,19 @@ if( NOT __ENVIRONMENT__CMAKE__)
    endif()
 
    set( TMP_INCLUDE_DIRS)
+   set( TMP_CMAKE_INCLUDE_PATH)
+   set( TMP_CMAKE_LIBRARY_PATH)
+   set( TMP_CMAKE_FRAMEWORK_PATH)
 
    ###
-   ### If you build DEBUG buildorder, but want RELEASE interspersed, so that
+   ### If you build DEBUG craftorder, but want RELEASE interspersed, so that
    ### the debugger doesn't trace through too much fluff then set the
    ### FALLBACK_BUILD_TYPE (for lack of a better name)
    ###
    ### TODO: reenable later
    ###
    # if( NOT FALLBACK_BUILD_TYPE)
-   #    set( FALLBACK_BUILD_TYPE "$ENV{MULLE_GL_EXAMPLE_FALLBACK_BUILD_TYPE}")
+   #    set( FALLBACK_BUILD_TYPE "$ENV{ORACLE_EO_ADAPTOR_FALLBACK_BUILD_TYPE}")
    #    if( NOT FALLBACK_BUILD_TYPE)
    #       set( FALLBACK_BUILD_TYPE "$ENV{FALLBACK_BUILD_TYPE}")
    #    endif()
@@ -49,8 +52,10 @@ if( NOT __ENVIRONMENT__CMAKE__)
    # if( FALLBACK_BUILD_TYPE STREQUAL "Release")
    #    unset( FALLBACK_BUILD_TYPE)
    # endif()
+   message( STATUS "MULLE_SDK_PATH=${MULLE_SDK_PATH}")
 
-   foreach( TMP_SDK_PATH in ${MULLE_SDK_PATH})
+   foreach( TMP_SDK_PATH ${MULLE_SDK_PATH})
+      message( STATUS "TMP_SDK_PATH=${TMP_SDK_PATH}")
       #
       # Add build-type includes/libs first
       # Add Release as a fallback afterwards
@@ -63,62 +68,88 @@ if( NOT __ENVIRONMENT__CMAKE__)
       # the order seems reversed
       #
       if( EXISTS "${TMP_SDK_PATH}")
+
+         #
+         # add build type unconditionally if not Release
+         #
+         if( NOT CMAKE_BUILD_TYPE STREQUAL "Release")
+            set( TMP_CMAKE_INCLUDE_PATH
+               ${TMP_CMAKE_INCLUDE_PATH}
+               "${TMP_SDK_PATH}/${CMAKE_BUILD_TYPE}/include"
+            )
+            set( TMP_INCLUDE_DIRS
+               ${TMP_INCLUDE_DIRS}
+               "${TMP_SDK_PATH}/${CMAKE_BUILD_TYPE}/include"
+            )
+
+            set( TMP_CMAKE_LIBRARY_PATH
+               ${TMP_CMAKE_LIBRARY_PATH}
+               "${TMP_SDK_PATH}/${CMAKE_BUILD_TYPE}/lib"
+            )
+            set( TMP_CMAKE_FRAMEWORK_PATH
+               ${TMP_CMAKE_FRAMEWORK_PATH}
+               "${TMP_SDK_PATH}/${CMAKE_BUILD_TYPE}/Frameworks"
+            )
+         endif()
+
+         #
+         # add release as fallback always
+         #
          set( TMP_SDK_RELEASE_PATH "${TMP_SDK_PATH}/Release")
          if( NOT EXISTS "${TMP_SDK_RELEASE_PATH}")
             set( TMP_SDK_RELEASE_PATH "${TMP_SDK_PATH}")
          endif()
 
-         if( CMAKE_BUILD_TYPE STREQUAL "Release" OR EXISTS "${TMP_SDK_RELEASE_PATH}/include")
-            set( CMAKE_INCLUDE_PATH
+         message( STATUS "TMP_SDK_RELEASE_PATH=${TMP_SDK_RELEASE_PATH}")
+         if( EXISTS "${TMP_SDK_RELEASE_PATH}/include")
+            message( STATUS "TMP_SDK_RELEASE_PATH=${TMP_SDK_RELEASE_PATH}/include exists")
+         else()
+            message( STATUS "TMP_SDK_RELEASE_PATH=${TMP_SDK_RELEASE_PATH}/include does not exist")
+         endif()
+
+         if( EXISTS "${TMP_SDK_RELEASE_PATH}/include")
+            set( TMP_CMAKE_INCLUDE_PATH
+               ${TMP_CMAKE_INCLUDE_PATH}
                "${TMP_SDK_RELEASE_PATH}/include"
-               ${CMAKE_INCLUDE_PATH}
             )
             set( TMP_INCLUDE_DIRS
-               "${TMP_SDK_RELEASE_PATH}/include"
                ${TMP_INCLUDE_DIRS}
+               "${TMP_SDK_RELEASE_PATH}/include"
             )
          endif()
 
-         if( CMAKE_BUILD_TYPE STREQUAL "Release" OR EXISTS "${TMP_SDK_RELEASE_PATH}/lib")
-            set( CMAKE_LIBRARY_PATH
+         if( EXISTS "${TMP_SDK_RELEASE_PATH}/lib")
+            set( TMP_CMAKE_LIBRARY_PATH
+               ${TMP_CMAKE_LIBRARY_PATH}
                "${TMP_SDK_RELEASE_PATH}/lib"
-               ${CMAKE_LIBRARY_PATH}
             )
          endif()
-         if( CMAKE_BUILD_TYPE STREQUAL "Release" OR EXISTS "${TMP_SDK_RELEASE_PATH}/Frameworks")
-            set( CMAKE_FRAMEWORK_PATH
+         if( EXISTS "${TMP_SDK_RELEASE_PATH}/Frameworks")
+            set( TMP_CMAKE_FRAMEWORK_PATH
                "${TMP_SDK_RELEASE_PATH}/Frameworks"
-               ${CMAKE_FRAMEWORK_PATH}
+               ${TMP_CMAKE_FRAMEWORK_PATH}
             )
          endif()
 
          unset( TMP_SDK_RELEASE_PATH)
-
-         #
-         # now add build type unconditionally
-         #
-         if( NOT CMAKE_BUILD_TYPE STREQUAL "Release")
-            set( CMAKE_INCLUDE_PATH
-               "${TMP_SDK_PATH}/${CMAKE_BUILD_TYPE}/include"
-               ${CMAKE_INCLUDE_PATH}
-            )
-            set( TMP_INCLUDE_DIRS
-               "${TMP_SDK_PATH}/${CMAKE_BUILD_TYPE}/include"
-               ${TMP_INCLUDE_DIRS}
-            )
-
-            set( CMAKE_LIBRARY_PATH
-               "${TMP_SDK_PATH}/${CMAKE_BUILD_TYPE}/lib"
-               ${CMAKE_LIBRARY_PATH}
-            )
-            set( CMAKE_FRAMEWORK_PATH
-               "${TMP_SDK_PATH}/${CMAKE_BUILD_TYPE}/Frameworks"
-               ${CMAKE_FRAMEWORK_PATH}
-            )
-         endif()
       endif()
    endforeach()
 
+   set( CMAKE_INCLUDE_PATH
+      ${TMP_CMAKE_INCLUDE_PATH}
+      ${CMAKE_INCLUDE_PATH}
+   )
+   set( CMAKE_LIBRARY_PATH
+      ${TMP_CMAKE_LIBRARY_PATH}
+      ${CMAKE_LIBRARY_PATH}
+   )
+   set( CMAKE_FRAMEWORK_PATH
+      ${TMP_CMAKE_FRAMEWORK_PATH}
+      ${CMAKE_FRAMEWORK_PATH}
+   )
+
+
+   message( STATUS "CMAKE_PREFIX_PATH=\"${CMAKE_PREFIX_PATH}\"" )
    message( STATUS "CMAKE_INCLUDE_PATH=\"${CMAKE_INCLUDE_PATH}\"" )
    message( STATUS "CMAKE_LIBRARY_PATH=\"${CMAKE_LIBRARY_PATH}\"" )
    message( STATUS "CMAKE_FRAMEWORK_PATH=\"${CMAKE_FRAMEWORK_PATH}\"" )
@@ -130,6 +161,9 @@ if( NOT __ENVIRONMENT__CMAKE__)
    )
 
    unset( TMP_INCLUDE_DIRS)
+   unset( TMP_CMAKE_INCLUDE_PATH)
+   unset( TMP_CMAKE_LIBRARY_PATH)
+   unset( TMP_CMAKE_FRAMEWORK_PATH)
 
    #
    #
@@ -152,7 +186,7 @@ if( NOT __ENVIRONMENT__CMAKE__)
    # Parallel build support. run all "participating" projects once for
    # HEADERS_PHASE in parallel.
    # Now run all "participating" projects for COMPILE_PHASE in parallel.
-   # Finally run all participating and non-participating projects in buildorder
+   # Finally run all participating and non-participating projects in craftorder
    # serially together with the LINK_PHASE. What is tricky is that the
    # sequential projects may need to run first.
    #
@@ -184,7 +218,7 @@ if( NOT __ENVIRONMENT__CMAKE__)
    #
    if( NOT MULLE_NO_CMAKE_INSTALL_RPATH)
       if( APPLE)
-         set( CMAKE_INSTALL_RPATH "@rpath/../lib")
+         set( CMAKE_INSTALL_RPATH "@loader_path/../lib/")
       else()
          set( CMAKE_INSTALL_RPATH "\$ORIGIN/../lib")
       endif()

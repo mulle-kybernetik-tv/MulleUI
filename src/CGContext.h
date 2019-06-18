@@ -114,9 +114,10 @@ typedef enum {
 
 struct NVGcontext;
 
+@class CGFont;
 
 
-@interface CGContext : NSObject
+    @interface CGContext : NSObject
 {
 	struct NVGcontext  *_vg;	
 }
@@ -126,6 +127,8 @@ struct NVGcontext;
 - (void) startRenderToFrame:(CGRect) frame;
 - (void) resetTransform;
 - (void) endRender;
+
+- (CGFont *) fontWithName:(char *) s;
 
 @end
 

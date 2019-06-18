@@ -5,6 +5,11 @@
 @class UIImage;
 
 
+//
+// here the compiler can't figure out that the informal protocol on
+// UIControl is part of the Protocolclass. 
+// a) why isn't it an optional part of the protocol then ?
+//
 @interface UIButton : UIView <UIControl>
 {
    UIControlIvars;

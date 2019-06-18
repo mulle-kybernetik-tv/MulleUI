@@ -1,6 +1,7 @@
 #import "UIView+UIEvent.h"
 
 #import "UIWindow.h"
+#import "UIWindow+UIResponder.h"
 #import "CALayer.h"  // for _NVGtransform
 #import "CGGeometry+CString.h"
 
@@ -136,7 +137,6 @@
 }
 
 
-
 - (UIEvent *) handleKeyboardEvent:(UIKeyboardEvent *) event
 {
    uint64_t   state;
@@ -179,70 +179,40 @@
 - (UIView *) subviewAtPoint:(CGPoint) point
 {
    struct mulle_pointerarrayenumerator   rover;
-   UIView                                 *view;
+   UIView                                *view;
 
-   rover = mulle_pointerarray_reverseenumerate( _subviews);
-   while( view = mulle_pointerarrayenumerator_next( &rover))
-      if( CGRectContainsPoint( [view frame], point))
-         break;
-   mulle_pointerarrayenumerator_done( &rover);
+   view = nil;
+   if( _subviews)
+   {
+      rover = mulle_pointerarray_reverseenumerate( _subviews);
+      while( view = mulle_pointerarrayenumerator_next( &rover))
+         if( CGRectContainsPoint( [view frame], point))
+            break;
+      mulle_pointerarrayenumerator_done( &rover);
+   }
    return( view);
 }
 
 
-//
-// position is a point in the bounds of the view
-// transform is the current transform used to convert screen coordinates to
-// our bounds
-//
 - (UIEvent *) _handleEvent:(UIEvent *) event
-                atPosition:(CGPoint) point
 {
-   struct mulle_pointerarrayenumerator   rover;
-   CGRect    bounds;
-   CGRect    frame;
-   CGPoint   scale;
-   CGPoint   converted;
-   UIView    *view;
-
-   if( ! [self hitTest:point
-             withEvent:event])
-      return( event);
-
-   rover = mulle_pointerarray_reverseenumerate( _subviews);
-   while( view = mulle_pointerarrayenumerator_next( &rover))
+   switch( [event eventType])
    {
-      event = [view handleEvent:event
-                     atPosition:point];
-      if( ! event)
-         break;
-   }
-   mulle_pointerarrayenumerator_done( &rover);
+   case UIEventTypePresses :
+      event = [self handleKeyboardEvent:(UIKeyboardEvent *) event];
+      break;
 
-   if( event)
-   {
-      //
-      // current position relative to visible bounds
-      //
-      [event setPoint:point];
-      switch( [event eventType])
-      {
-      case UIEventTypePresses :
-         event = [self handleKeyboardEvent:(UIKeyboardEvent *) event];
-         break;
+   case UIEventTypeTouches :
+      event = [self handleMouseButtonEvent:(UIMouseButtonEvent *) event];
+      break;
 
-      case UIEventTypeTouches :
-         event = [self handleMouseButtonEvent:(UIMouseButtonEvent *) event];
-         break;
+   case UIEventTypeMotion :
+      event = [self handleMouseMotionEvent:(UIMouseMotionEvent *) event];
+      break;
 
-      case UIEventTypeMotion :
-         event = [self handleMouseMotionEvent:(UIMouseMotionEvent *) event];
-         break;
-
-      case UIEventTypeScroll :
-         event = [self handleMouseScrollEvent:(UIMouseScrollEvent *) event];
-         break;
-      }
+   case UIEventTypeScroll :
+      event = [self handleMouseScrollEvent:(UIMouseScrollEvent *) event];
+      break;
    }
    return( event);
 }
@@ -287,11 +257,13 @@
    return( translated);
 }
 
-
+// this does the hitTest
 - (UIEvent *) handleEvent:(UIEvent *) event
                atPosition:(CGPoint) position
 {
-   CGPoint   translated;
+   CGPoint                               translated;
+   struct mulle_pointerarrayenumerator   rover;
+   UIView                                *view;
 
    translated = [self translatedPoint:position];
 
@@ -300,8 +272,48 @@
   //             CGPointCStringDescription( position),
   //             CGPointCStringDescription( translated));
 
-   return( [self _handleEvent:event
-                   atPosition:translated]);
+   if( ! [self hitTest:translated
+             withEvent:event])
+      return( event);
+
+   if( _subviews)
+   {
+      rover = mulle_pointerarray_reverseenumerate( _subviews);
+      while( view = mulle_pointerarrayenumerator_next( &rover))
+      {
+         event = [view handleEvent:event
+                        atPosition:translated];
+         if( ! event)
+            break;
+      }
+      mulle_pointerarrayenumerator_done( &rover);
+   }
+   if( ! event)
+      return( event);
+
+   //
+   // current position relative to visible bounds
+   //
+   [event setPoint:translated];
+   return( [self _handleEvent:event]);
+}
+
+- (UIEvent *) responder:(id<UIResponder>) responder
+            handleEvent:(UIEvent *) event
+{
+   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [responder cStringDescription]);
+
+   do
+   {
+      // TODO: translate positions
+      event = [responder _handleEvent:event];
+      if( ! event)
+         break;
+      responder = [responder nextResponder];
+   }
+   while( responder);
+
+   return( event);
 }
 
 
@@ -310,12 +322,24 @@
 //
 - (UIEvent *) handleEvent:(UIEvent *) event
 {
-   CGPoint   position;
+   CGPoint           position;
+   id<UIResponder>   responder;
 
-   position = [event mousePosition];
 //   fprintf( stderr, "Event start: %s %s\n",
 //                        [self cStringDescription],
 //                        CGPointCStringDescription( position));
+
+   assert( self == [self window]);
+   responder = [(UIWindow *) self firstResponder];
+   if( responder)
+   {
+      event = [self responder:responder
+                  handleEvent:event];
+      if( ! event)
+         return( event);
+   }
+
+   position = [event mousePosition];
    return( [self handleEvent:event
                   atPosition:position]);
 }

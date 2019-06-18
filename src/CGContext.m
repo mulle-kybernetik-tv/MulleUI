@@ -4,6 +4,10 @@
 
 #import "CGContext.h"
 
+#import "CGFont.h"
+
+#include "Roboto-Regular.inc"
+
 
 @implementation CGContext 
 
@@ -53,4 +57,18 @@
 {
    nvgEndFrame( _vg);
 }
+
+
+//
+// TODO: use hash table to keep track of names and avoid duplicate loads of
+//       fonts
+//
+- (CGFont *) fontWithName:(char *) s
+{
+   return( [CGFont fontWithName:s
+                          bytes:Roboto_Regular_ttf
+                         length:sizeof( Roboto_Regular_ttf)
+                        context:self]);
+}
+
 @end
