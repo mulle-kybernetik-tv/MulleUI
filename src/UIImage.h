@@ -16,5 +16,4 @@
 - (CGSize) size;
 - (CGRect) visibleBounds;
 
-
 @end

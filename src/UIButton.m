@@ -8,37 +8,6 @@
 @implementation UIButton
 
 
-
-// use compatible code
-- (void) toggleState
-{
-	UIControlState   state;
-	CGRect           frame;
-	UIImage          *image;
-   	//
-	// target/action has been called already by UIControl
-	//
-	state = [self state];
-	if( state & UIControlStateSelected)
-		state &= ~UIControlStateSelected;
-	else
-		state |= UIControlStateSelected;
-	[self setState:state];
-
-	image = [self backgroundImageForState:state];
-	if( ! image)
-	{
-		state &=~UIControlStateDisabled;
-		image = [self backgroundImageForState:state];
-	}
-	if( ! image)
-	{
-		state &=~UIControlStateSelected;
-		image = [self backgroundImageForState:state];
-	}
-	[self setBackgroundImage:image];   
-}
-
 - (BOOL) becomeFirstResponder
 {
    if( [super becomeFirstResponder])
@@ -60,6 +29,34 @@
       return( YES);
    }
    return( NO);
+}
+
+
+// use compatible code
+- (void) toggleState
+{
+	UIControlState   state;
+	CGRect           frame;
+	UIImage          *image;
+
+   //
+	// target/action has been called already by UIControl
+	//
+   [super toggleState];
+   
+   state = [self state];
+	image = [self backgroundImageForState:state];
+	if( ! image)
+	{
+		state &=~UIControlStateDisabled;
+		image = [self backgroundImageForState:state];
+	}
+	if( ! image)
+	{
+		state &=~UIControlStateSelected;
+		image = [self backgroundImageForState:state];
+	}
+	[self setBackgroundImage:image];   
 }
 
 

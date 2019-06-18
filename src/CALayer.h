@@ -70,6 +70,11 @@ typedef float   _NVGtransform[ 6];
 
 - (BOOL) drawInContext:(CGContext *) ctx;
 
+//
+// subclasses do their drawing in this method. The code simply draws the
+// frame coordinates.
+//
+- (void) drawContentsInContext:(CGContext *) ctx;
 @property CGFloat cornerRadius;
 @property CGFloat borderWidth;
 @property CGColorRef borderColor;

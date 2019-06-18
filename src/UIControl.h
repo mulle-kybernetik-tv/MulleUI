@@ -82,6 +82,7 @@ typedef UIEvent       *UIControlClickHandler( id <UIControl> control,
 - (BOOL) isSelected;
 - (void) setSelected:(BOOL) flag;
 
+- (char *) cStringDescription;
 @end
 
 

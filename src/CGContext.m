@@ -7,6 +7,7 @@
 #import "CGFont.h"
 
 #include "Roboto-Regular.inc"
+#include "entypo.inc"
 
 
 @implementation CGContext 
@@ -65,10 +66,17 @@
 //
 - (CGFont *) fontWithName:(char *) s
 {
-   return( [CGFont fontWithName:s
-                          bytes:Roboto_Regular_ttf
-                         length:sizeof( Roboto_Regular_ttf)
-                        context:self]);
+   if( ! strcmp( s, "sans"))
+      return( [CGFont fontWithName:s
+                             bytes:Roboto_Regular_ttf
+                            length:sizeof( Roboto_Regular_ttf)
+                           context:self]);
+   if( ! strcmp( s, "icons"))
+      return( [CGFont fontWithName:s
+                             bytes:entypo_ttf
+                            length:sizeof( entypo_ttf)
+                           context:self]);
+   abort();
 }
 
 @end

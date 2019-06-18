@@ -1,5 +1,7 @@
 #import "UIControl.h"
 
+#import "UIView.h"
+
 
 @implementation UIControl
 
@@ -35,12 +37,13 @@ static UIEvent  *consumeEventIfDisabled( UIControl *self, UIEvent *event)
 
 - (UIEvent *) mouseDown:(UIEvent *) event
 {
+   fprintf( stderr, "%s: %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
+
 	event = consumeEventIfDisabled( self, event);
 	// event was handled if nil
 	if( ! event)
 	   return( event);   
 
-   fprintf( stderr, "%s: %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
    [self becomeFirstResponder];
    // we alway snarf up the mouseDown: event (why pass to parent ?)
    return( nil);
@@ -52,6 +55,8 @@ static UIEvent  *consumeEventIfDisabled( UIControl *self, UIEvent *event)
    UIControlClickHandler  *click;
    SEL                    sel;
 
+   fprintf( stderr, "%s: %s\n", __PRETTY_FUNCTION__, [(UIView *) self cStringDescription]);
+
 	event = consumeEventIfDisabled( self, event);
 	// event was handled if nil
 	if( ! event)
@@ -60,7 +65,6 @@ static UIEvent  *consumeEventIfDisabled( UIControl *self, UIEvent *event)
 	   return( event);
    }
 
-   fprintf( stderr, "%s: %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
    [self resignFirstResponder];
    if( click = [self click])
       event = (*click)( self, event);
@@ -77,6 +81,18 @@ static inline BOOL   getStateBit( UIControl *self, enum UIControlStateBit bit)
 
 	state = [self state];
 	return( state & bit ? YES : NO);
+}
+
+- (void) toggleState
+{
+   UIControlState   state;
+
+	state = [self state];
+	if( state & UIControlStateSelected)
+		state &= ~UIControlStateSelected;
+	else
+		state |= UIControlStateSelected;
+	[self setState:state];
 }
 
 
@@ -112,12 +128,12 @@ static void   setStateBit( UIControl *self, enum UIControlStateBit bit, BOOL fla
 		 0 | 1 | 1 | 1 | *impossible*
 		 1 | 1 | 1 | 1 | *impossible*		
 		*/
-		assert( state != UIControlStateHighlighted|UIControlStateDisabled);
-		assert( state != UIControlStateHighlighted|UIControlStateDisabled|UIControlStateSelected);
-		assert( state != UIControlStateDisabled|UIControlStateFocused);
-		assert( state != UIControlStateHighlighted|UIControlStateDisabled|UIControlStateFocused);
-		assert( state != UIControlStateDisabled|UIControlStateSelected|UIControlStateFocused);
-		assert( state != UIControlStateHighlighted|UIControlStateDisabled|UIControlStateSelected|UIControlStateFocused);
+		assert( state != (UIControlStateHighlighted|UIControlStateDisabled));
+		assert( state != (UIControlStateHighlighted|UIControlStateDisabled|UIControlStateSelected));
+		assert( state != (UIControlStateDisabled|UIControlStateFocused));
+		assert( state != (UIControlStateHighlighted|UIControlStateDisabled|UIControlStateFocused));
+		assert( state != (UIControlStateDisabled|UIControlStateSelected|UIControlStateFocused));
+		assert( state != (UIControlStateHighlighted|UIControlStateDisabled|UIControlStateSelected|UIControlStateFocused));
 
 		[self setState:newState];
 	}
@@ -148,6 +164,8 @@ static void   setStateBit( UIControl *self, enum UIControlStateBit bit, BOOL fla
 {
 	return( getStateBit( self, UIControlStateSelected));
 }
+
+
 - (void) setSelected:(BOOL) flag;
 {
 	setStateBit( self, UIControlStateSelected, flag);

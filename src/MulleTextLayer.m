@@ -6,7 +6,7 @@
 
 @implementation MulleTextLayer : CALayer
 
-- (void) b:(CGContext *) context
+- (void) drawContentsInContext:(CGContext *) context
 {
    struct NVGcontext   *vg;
    CGRect              frame;
@@ -24,7 +24,7 @@
    vg = [context nvgContext];
 	nvgFontSize( vg, fontSize);
 	nvgFontFace( vg, name);
-	nvgFillColor( vg, nvgRGBA(255,255,255,255));
+	nvgFillColor( vg, nvgRGBA(255,255,255,255)); // TODO: use textColor
 
    frame = [self frame];
 	nvgTextAlign( vg,NVG_ALIGN_LEFT|NVG_ALIGN_MIDDLE);

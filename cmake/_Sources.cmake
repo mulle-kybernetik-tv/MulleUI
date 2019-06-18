@@ -10,10 +10,12 @@ nanovg/src/nanovg.c
 src/CALayer.m
 src/CGAffineTransform.c
 src/CGContext.m
+src/CGFont.m
 src/CGGeometry+CString.m
 src/CGGeometry.c
 src/MulleBitmapImage.m
 src/MulleBitmapLayer.m
+src/MulleCheckboxLayer.m
 src/MulleSVGImage.m
 src/MulleSVGLayer.m
 src/MulleScrollIndicatorView.m
@@ -24,11 +26,11 @@ src/UIControl.m
 src/UIEdgeInsets+CString.m
 src/UIEdgeInsets.c
 src/UIEvent.m
-src/UIFont.m
 src/UIImage.m
 src/UILabel.m
 src/UIResponder.m
 src/UIScrollView.m
+src/UISwitch.m
 src/UIView+CGGeometry.m
 src/UIView+UIEvent.m
 src/UIView+UIResponder.m

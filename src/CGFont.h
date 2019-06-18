@@ -6,7 +6,7 @@
 
 @interface CGFont : NSObject
 
-@property(assign) char  *name;  // NVG index
+@property(assign) char  *name;      // NVG fontName
 @property(assign) int   fontIndex;  // NVG index
 
 + (instancetype) fontWithName:(char *) name
