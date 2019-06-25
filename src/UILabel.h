@@ -4,8 +4,13 @@
 
 @interface UILabel : UIView
 
-- (char *) cString;
 - (void) setCString:(char *) s;
+
+@end
+
+@interface UILabel( Forwarding)
+
+- (char *) cString;
 - (char *) fontName;
 - (void) setFontName:(char *) s;
 - (CGFloat) fontSize;

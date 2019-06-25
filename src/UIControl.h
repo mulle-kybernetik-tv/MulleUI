@@ -72,6 +72,11 @@ typedef UIEvent       *UIControlClickHandler( id <UIControl> control,
 
 - (UIEvent *) mouseUp:(UIEvent *) event;
 
+- (UIEvent *) consumeMouseUp:(UIEvent *) event;
+- (UIEvent *) consumeMouseDown:(UIEvent *) event;
+- (UIEvent *) performClickAndTargetActionCallbacks:(UIEvent *) event;
+
+
 // these are convenience for state, don't override these
 // overide state if needed
 

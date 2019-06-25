@@ -18,7 +18,7 @@
 //
 // works as long as the return value is no struct or double
 //
-- (id) forward:(void *) param
+- (void *) forward:(void *) param
 {
    MulleTextLayer  *layer;
 

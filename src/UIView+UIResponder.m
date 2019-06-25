@@ -12,8 +12,8 @@
 
 - (BOOL) becomeFirstResponder
 {
-   UIWindow      *window;
-   UIResponder   *firstResponder;
+   UIWindow           *window;
+   id <UIResponder>   firstResponder;
 
    window         = [self window];
    firstResponder = [window firstResponder];

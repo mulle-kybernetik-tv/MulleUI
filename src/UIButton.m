@@ -7,7 +7,6 @@
 
 @implementation UIButton
 
-
 - (BOOL) becomeFirstResponder
 {
    if( [super becomeFirstResponder])
@@ -43,7 +42,7 @@
 	// target/action has been called already by UIControl
 	//
    [super toggleState];
-   
+
    state = [self state];
 	image = [self backgroundImageForState:state];
 	if( ! image)

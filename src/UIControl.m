@@ -19,8 +19,7 @@
 }
 
 
-MULLE_C_NEVER_INLINE
-static UIEvent  *consumeEventIfDisabled( UIControl *self, UIEvent *event)
+- (UIEvent *) consumeEventIfDisabled:(UIEvent *) event
 {
 	UIControlState   state;
 
@@ -35,29 +34,56 @@ static UIEvent  *consumeEventIfDisabled( UIControl *self, UIEvent *event)
 
 // @method_alias( mouseUp:, mouseDown:);
 
+- (UIEvent *) consumeMouseDown:(UIEvent *) event
+{
+   return( nil);
+}
+
+
 - (UIEvent *) mouseDown:(UIEvent *) event
 {
    fprintf( stderr, "%s: %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
 
-	event = consumeEventIfDisabled( self, event);
+	event = [self consumeEventIfDisabled:event];
 	// event was handled if nil
 	if( ! event)
 	   return( event);   
 
    [self becomeFirstResponder];
+
    // we alway snarf up the mouseDown: event (why pass to parent ?)
-   return( nil);
+   event = [self consumeMouseDown:event];
+   return( event);
+}
+
+- (UIEvent *) performClickAndTargetActionCallbacks:(UIEvent *) event
+{
+   UIControlClickHandler  *click;
+   SEL                    sel;
+
+   if( click = [self click])
+      event = (*click)( self, event);
+   if( event && (sel = [self action]))
+   {
+      [[self target] performSelector:sel
+                          withObject:self];
+      event = nil;
+   }
+   return( event);
+}
+
+- (UIEvent *) consumeMouseUp:(UIEvent *) event
+{
+   event = [self performClickAndTargetActionCallbacks:event];
+   return( event);
 }
 
 
 - (UIEvent *) mouseUp:(UIEvent *) event
 {
-   UIControlClickHandler  *click;
-   SEL                    sel;
-
    fprintf( stderr, "%s: %s\n", __PRETTY_FUNCTION__, [(UIView *) self cStringDescription]);
 
-	event = consumeEventIfDisabled( self, event);
+	event = [self consumeEventIfDisabled:event];
 	// event was handled if nil
 	if( ! event)
    {
@@ -66,11 +92,7 @@ static UIEvent  *consumeEventIfDisabled( UIControl *self, UIEvent *event)
    }
 
    [self resignFirstResponder];
-   if( click = [self click])
-      event = (*click)( self, event);
-   if( event && (sel = [self action]))
-      [[self target] performSelector:sel
-                          withObject:self];
+   event = [self consumeMouseUp:event];
    return( event);
 }
 

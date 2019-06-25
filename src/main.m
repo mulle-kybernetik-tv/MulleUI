@@ -10,6 +10,7 @@
 #import "UIButton.h"
 #import "UILabel.h"
 #import "UISwitch.h"
+#import "UISlider.h"
 #import "UIScrollView.h"
 #import "UIEvent.h"
 #import <string.h>
@@ -87,6 +88,7 @@ int   main()
    UIScrollView       *scroller;
    UIApplication      *application;
    UISwitch           *checkbox;
+   UISlider           *slider;
 
    tigerSVGImage = [[[MulleSVGImage alloc] initWithBytes:svginput
                                           length:strlen( svginput) + 1] autorelease];
@@ -184,6 +186,17 @@ int   main()
    [checkbox setTextColor:getNVGColor( 0xFE00FEFF)];
 
    [window addSubview:checkbox];
+
+   frame.origin      = CGPointMake( 160.0 * SCALE , 100.0 * SCALE);
+   frame.size.width  = 200;
+   frame.size.height = 100;
+
+   slider = [[[UISlider alloc] initWithFrame:frame] autorelease];
+
+   // [insideButton setClipsSubviews:YES];
+   [slider setBackgroundColor:getNVGColor( 0x114111FF)];
+
+   [window addSubview:slider];
 
    [window dump];
    [window renderLoopWithContext:context];

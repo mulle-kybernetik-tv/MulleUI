@@ -218,7 +218,7 @@ static void   mouseScrollCallback( GLFWwindow *window,
    _discardEvents = UIEventTypeMotion;
 
    monitor = glfwGetPrimaryMonitor();
-   mode    = glfwGetVideoMode( monitor);
+   mode    = (GLFWvidmode *) glfwGetVideoMode( monitor);
    refresh = mode->refreshRate;
 
    nsperframe = (1000000000L + (mode->refreshRate - 1)) / mode->refreshRate;
