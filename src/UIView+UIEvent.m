@@ -97,6 +97,7 @@
 
    sel   = 0;
    state = [event buttonStates];
+   fprintf( stderr, "%s state: 0x%llx\n", __PRETTY_FUNCTION__, state);
    if( state)
    {
       sel = @selector( mouseDragged:);
@@ -218,45 +219,6 @@
 }
 
 
-//
-// Transform for incoming values of the superview to translate into
-// bounds space of the view. For hit tests.
-//
-- (void) updateTransformWithFrameAndBounds:(float *) transform
-{
-   CGRect          frame;
-   CGRect          bounds;
-   CGPoint         scale;
-   _NVGtransform   tmp;
-
-   frame  = [self frame];
-   bounds = [self bounds];
-
-   nvgTransformTranslate( tmp, -bounds.origin.x, -bounds.origin.y);
-   nvgTransformPremultiply( transform, tmp);
-
-   scale.x = bounds.size.width / frame.size.width;
-   scale.y = bounds.size.height / frame.size.height;
-
-   nvgTransformScale( tmp, scale.x, scale.y);
-   nvgTransformPremultiply( transform, tmp);
-
-   nvgTransformTranslate( tmp, -frame.origin.x, -frame.origin.y);
-   nvgTransformPremultiply( transform, tmp);
-}
-
-
-- (CGPoint) translatedPoint:(CGPoint) point
-{
-   CGPoint         translated;
-   _NVGtransform   transform;
-
-   nvgTransformIdentity( transform);
-   [self updateTransformWithFrameAndBounds:transform];
-   nvgTransformPoint( &translated.x, &translated.y, transform, point.x, point.y);
-   return( translated);
-}
-
 // this does the hitTest
 - (UIEvent *) handleEvent:(UIEvent *) event
                atPosition:(CGPoint) position
@@ -265,6 +227,7 @@
    struct mulle_pointerarrayenumerator   rover;
    UIView                                *view;
 
+   // from UIView+CGGeometry
    translated = [self translatedPoint:position];
 
   // fprintf( stderr, "translated: %s %s -> %s\n",
@@ -294,9 +257,10 @@
    //
    // current position relative to visible bounds
    //
-   [event setPoint:translated];
+   [event _setFirstResponderPoint:translated];
    return( [self _handleEvent:event]);
 }
+
 
 - (UIEvent *) responder:(id<UIResponder>) responder
             handleEvent:(UIEvent *) event

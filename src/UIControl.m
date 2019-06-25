@@ -56,6 +56,28 @@
    return( event);
 }
 
+
+- (UIEvent *) consumeMouseDragged:(UIEvent *) event
+{
+   return( nil);
+}
+
+
+- (UIEvent *) mouseDragged:(UIEvent *) event
+{
+   fprintf( stderr, "%s: %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
+
+	event = [self consumeEventIfDisabled:event];
+	// event was handled if nil
+	if( ! event)
+	   return( event);   
+
+   // we alway snarf up the mouseDown: event (why pass to parent ?)
+   event = [self consumeMouseDragged:event];
+   return( event);
+}
+
+
 - (UIEvent *) performClickAndTargetActionCallbacks:(UIEvent *) event
 {
    UIControlClickHandler  *click;

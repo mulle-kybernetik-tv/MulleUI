@@ -23,4 +23,6 @@
 - (void) requestClose;
 + (void) sendEmptyEvent;
 
+- (id) _firstResponder;
+
 @end

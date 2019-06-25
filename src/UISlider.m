@@ -31,14 +31,17 @@
    CGPoint  point;
    float    value;
 
-   point = [event point];
+	point = [event mousePositionInView:self];
+   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, CGPointCStringDescription( point));
+
    value = point.x / [self bounds].size.width;
    [(MulleSliderLayer *) self setValue:value];
 }
 
 
-- (UIEvent *) consumeMouseDown:(UIEvent *) event
+- (UIEvent *) consumeMouseEvent:(UIEvent *) event
 {
+   
    [self setValueFromEvent:event];
    if( [self isContinuous])
    {
@@ -46,6 +49,18 @@
       return( event);
    }
    return( nil);
+}
+
+
+- (UIEvent *) consumeMouseDown:(UIEvent *) event
+{
+   return( [self consumeMouseEvent:event]);
+}
+
+
+- (UIEvent *) consumeMouseDragged:(UIEvent *) event
+{
+   return( [self consumeMouseEvent:event]);
 }
 
 

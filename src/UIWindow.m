@@ -45,11 +45,12 @@ static void   keyCallback( GLFWwindow* window,
    if( self->_discardEvents & UIEventTypePresses)
       return;
 
-   event = [[UIKeyboardEvent alloc] initWithMousePosition:self->_mousePosition
-                                                      key:key
-                                                 scanCode:scancode
-                                                   action:action
-                                                modifiers:mods];
+   event = [[UIKeyboardEvent alloc] initWithWindow:self
+                                     mousePosition:self->_mousePosition
+                                               key:key
+                                          scanCode:scancode
+                                            action:action
+                                         modifiers:mods];
    [self handleEvent:event];
    [event release];   
 }
@@ -64,6 +65,8 @@ static void   mouseButtonCallback( GLFWwindow* window,
    UIEvent    *event;
    uint64_t   bit;   
 
+   assert( button >= 0 && button <= 63);
+
    self  = glfwGetWindowUserPointer( window);
 
    bit = 1 << button;
@@ -75,10 +78,11 @@ static void   mouseButtonCallback( GLFWwindow* window,
    if( self->_discardEvents & UIEventTypeTouches)
       return;
    
-   event = [[UIMouseButtonEvent alloc] initWithMousePosition:self->_mousePosition
-                                                      button:button
-                                                      action:action
-                                                   modifiers:mods];
+   event = [[UIMouseButtonEvent alloc] initWithWindow:self
+                                        mousePosition:self->_mousePosition
+                                               button:button
+                                               action:action
+                                            modifiers:mods];
    [self handleEvent:event];
    [event release];   
 }
@@ -101,8 +105,10 @@ static void   mouseMoveCallback( GLFWwindow* window,
    // TODO: wrap in autorelease pool ?
    //       + event don't leak if someone throws
    //       - latency
-   event = [[UIMouseMotionEvent alloc] initWithMousePosition:self->_mousePosition
-                                                   modifiers:self->_modifiers];
+   event = [[UIMouseMotionEvent alloc] initWithWindow:self
+                                        mousePosition:self->_mousePosition
+                                         buttonStates:self->_mouseButtonStates
+                                            modifiers:self->_modifiers];
    [self handleEvent:event];
    [event release];
 }
@@ -122,9 +128,10 @@ static void   mouseScrollCallback( GLFWwindow *window,
       return;
    
    scrollOffset = CGPointMake( xoffset, yoffset);
-   event        = [[UIMouseScrollEvent alloc] initWithMousePosition:self->_mousePosition
-                                                       scrollOffset:scrollOffset
-                                                          modifiers:self->_modifiers];
+   event        = [[UIMouseScrollEvent alloc] initWithWindow:self
+                                               mousePosition:self->_mousePosition
+                                                scrollOffset:scrollOffset
+                                                   modifiers:self->_modifiers];
    [self handleEvent:event];
    [event release];   
 }
@@ -191,6 +198,12 @@ static void   mouseScrollCallback( GLFWwindow *window,
 }
 
 
+- (id) _firstResponder
+{
+   return( _firstResponder);
+}
+
+
 - (void) addLayer:(CALayer *) layer
 {
    abort();
@@ -215,7 +228,7 @@ static void   mouseScrollCallback( GLFWwindow *window,
    int               refresh;
    long              nsperframe;
 
-   _discardEvents = UIEventTypeMotion;
+//   _discardEvents = UIEventTypeMotion;
 
    monitor = glfwGetPrimaryMonitor();
    mode    = (GLFWvidmode *) glfwGetVideoMode( monitor);

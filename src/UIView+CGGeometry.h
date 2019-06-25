@@ -20,6 +20,9 @@
 
 @interface UIView( CGGeometry)
 
+- (CGPoint) translatedPoint:(CGPoint) point;
+
+
 - (CGRect) convertRect:(CGRect) pos toView:(UIView*)toView;
 - (CGRect) convertRect:(CGRect) pos fromView:(UIView*)fromView;
 - (CGPoint) convertPoint:(CGPoint) pos toView:(UIView*)toView;

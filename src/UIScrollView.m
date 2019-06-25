@@ -133,7 +133,7 @@
    CGPoint   offset;
    UIView    *view;
 
-	point = [event point];
+	point = [event mousePositionInView:self];
 	view  = [self subviewAtPoint:point];
 
 	if( view == _horIndicatorView)
