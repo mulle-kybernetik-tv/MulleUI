@@ -24,6 +24,7 @@
    _value = value; // use property setter to get future goodness ??
 }
 
+
 - (void) setMinimumValue:(float) value
 {
    _minimumValue = value; // use property setter to get future goodness ??
@@ -33,6 +34,7 @@
    if( value > _value)
       _value = value;
 }
+
 
 - (void) setMaximumValue:(float) value
 {

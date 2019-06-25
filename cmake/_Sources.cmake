@@ -19,6 +19,9 @@ src/MulleCheckboxLayer.m
 src/MulleSVGImage.m
 src/MulleSVGLayer.m
 src/MulleScrollIndicatorView.m
+src/MulleSegmentedControlLayer.m
+src/MulleSliderLayer.m
+src/MulleStepperLayer.m
 src/MulleTextLayer.m
 src/UIApplication.m
 src/UIButton.m
@@ -30,6 +33,9 @@ src/UIImage.m
 src/UILabel.m
 src/UIResponder.m
 src/UIScrollView.m
+src/UISegmentedControl.m
+src/UISlider.m
+src/UIStepper.m
 src/UISwitch.m
 src/UIView+CGGeometry.m
 src/UIView+UIEvent.m

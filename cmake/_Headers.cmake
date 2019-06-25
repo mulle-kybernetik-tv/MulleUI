@@ -39,6 +39,9 @@ src/MulleCheckboxLayer.h
 src/MulleSVGImage.h
 src/MulleSVGLayer.h
 src/MulleScrollIndicatorView.h
+src/MulleSegmentedControlLayer.h
+src/MulleSliderLayer.h
+src/MulleStepperLayer.h
 src/MulleTextLayer.h
 src/Roboto-Regular.inc
 src/UIApplication.h
@@ -51,6 +54,9 @@ src/UIImage.h
 src/UILabel.h
 src/UIResponder.h
 src/UIScrollView.h
+src/UISegmentedControl.h
+src/UISlider.h
+src/UIStepper.h
 src/UISwitch.h
 src/UIView+CGGeometry.h
 src/UIView+UIEvent.h

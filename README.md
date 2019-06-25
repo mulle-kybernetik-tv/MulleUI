@@ -3,6 +3,11 @@
 ![screeny.png](screeny.png)
 
 
+## Controls Branch Progress
+
+* 25.6.2019: Added drawing code for lots of UIViews and UIControls
+
+
 ## Progress
 
 * 26.2.2019: Improved SVG drawing with patched nanovg

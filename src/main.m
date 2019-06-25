@@ -1,18 +1,20 @@
 #import "import-private.h"
 
-#import "MulleSVGImage.h"
-#import "MulleSVGLayer.h"
+#import "CGContext.h"
 #import "MulleBitmapImage.h"
 #import "MulleBitmapLayer.h"
-#import "CGContext.h"
-#import "UIWindow.h"
+#import "MulleSVGImage.h"
+#import "MulleSVGLayer.h"
 #import "UIApplication.h"
 #import "UIButton.h"
-#import "UILabel.h"
-#import "UISwitch.h"
-#import "UISlider.h"
-#import "UIScrollView.h"
 #import "UIEvent.h"
+#import "UILabel.h"
+#import "UIScrollView.h"
+#import "UISegmentedControl.h"
+#import "UISlider.h"
+#import "UIStepper.h"
+#import "UISwitch.h"
+#import "UIWindow.h"
 #import <string.h>
 
 
@@ -65,30 +67,32 @@ static UIEvent   *scroll_callback( UIButton *button, UIEvent *event)
 
 int   main()
 {
-   MulleSVGLayer      *tigerLayer;
-   MulleSVGLayer      *shiftedTigerLayer;
-   MulleBitmapLayer   *viechLayer;
-   MulleBitmapLayer   *sealieLayer;
-   MulleBitmapLayer   *turtleLayer;
-   MulleBitmapLayer   *turtleLayer2;
-   MulleSVGImage      *tigerSVGImage;
-   MulleBitmapImage   *viechBitmap;
-   MulleBitmapImage   *sealieBitmap;
-   MulleBitmapImage   *turtleBitmap;
-   CGRect             frame;
-   CGRect             bounds;
-   CGContext          *context;
-   UIWindow           *window;
-   UIView             *view;
-   UIButton           *button;
-   UILabel            *label;
-   UIButton           *insideButton;
-   UIButton           *nestedButton;
-   UIButton           *inScrollerButton;
-   UIScrollView       *scroller;
-   UIApplication      *application;
-   UISwitch           *checkbox;
-   UISlider           *slider;
+   MulleSVGLayer        *tigerLayer;
+   MulleSVGLayer        *shiftedTigerLayer;
+   MulleBitmapLayer     *viechLayer;
+   MulleBitmapLayer     *sealieLayer;
+   MulleBitmapLayer     *turtleLayer;
+   MulleBitmapLayer     *turtleLayer2;
+   MulleSVGImage        *tigerSVGImage;
+   MulleBitmapImage     *viechBitmap;
+   MulleBitmapImage     *sealieBitmap;
+   MulleBitmapImage     *turtleBitmap;
+   CGRect               frame;
+   CGRect               bounds;
+   CGContext            *context;
+   UIWindow             *window;
+   UIView               *view;
+   UIButton             *button;
+   UILabel              *label;
+   UIStepper            *stepper;
+   UIButton             *insideButton;
+   UIButton             *nestedButton;
+   UIButton             *inScrollerButton;
+   UISegmentedControl   *segmentedControl;
+   UIScrollView         *scroller;
+   UIApplication        *application;
+   UISwitch             *checkbox;
+   UISlider             *slider;
 
    tigerSVGImage = [[[MulleSVGImage alloc] initWithBytes:svginput
                                           length:strlen( svginput) + 1] autorelease];
@@ -125,15 +129,15 @@ int   main()
    turtleLayer = [[[MulleBitmapLayer alloc] initWithBitmapImage:turtleBitmap] autorelease];
    [turtleLayer setCStringName:"turtle"];
    frame.origin = CGPointMake( 0.0 * SCALE, 100.0  * SCALE);
-   frame.size.width  = turtle_bitmap_size.size.width  * SCALE;
-   frame.size.height = turtle_bitmap_size.size.height  * SCALE;
+   frame.size.width  = turtle_bitmap_size.size.width;
+   frame.size.height = turtle_bitmap_size.size.height;
    [turtleLayer setFrame:frame];
    fprintf( stderr, "layer: %p\n", turtleLayer);
 
    /*
     * window and app 
     */
-   window  = [[[UIWindow alloc] initWithFrame:CGRectMake( 0.0, 0.0, 640.0 * SCALE, 400.0 * SCALE)] autorelease];
+   window  = [[[UIWindow alloc] initWithFrame:CGRectMake( 0.0, 0.0, 400.0 * SCALE, 300.0 * SCALE)] autorelease];
    assert( window);
 
    [[UIApplication sharedInstance] addWindow:window];
@@ -158,16 +162,16 @@ int   main()
    [window addSubview:nestedButton];
 
    frame.origin      = CGPointMake( turtle_bitmap_size.size.width * SCALE, 100.0 * SCALE);
-   frame.size.width  = 500;
+   frame.size.width  = 140;
    frame.size.height = 100;
 
    label = [[[UILabel alloc] initWithFrame:frame] autorelease];
 
    // [insideButton setClipsSubviews:YES];
-   [label setCString:"VfL Bochum 1848"];
+   [label setCString:"UILabel"];
    [label setFontName:"sans"];
    [label setFontSize:14.0 * SCALE];
-   [label setBackgroundColor:getNVGColor( 0x010101FF)];
+   [label setBackgroundColor:getNVGColor( 0x1F1F1FFF)];
    [label setTextColor:getNVGColor( 0xFEFEFEFF)];
 
    [window addSubview:label];
@@ -179,7 +183,7 @@ int   main()
    checkbox = [[[UISwitch alloc] initWithFrame:frame] autorelease];
 
    // [insideButton setClipsSubviews:YES];
-   [checkbox setCString:"Is it OK ?"];
+   [checkbox setCString:"UISwitch"];
    [checkbox setFontName:"sans"];
    [checkbox setFontSize:14.0 * SCALE];
    [checkbox setBackgroundColor:getNVGColor( 0x112141FF)];
@@ -197,6 +201,30 @@ int   main()
    [slider setBackgroundColor:getNVGColor( 0x114111FF)];
 
    [window addSubview:slider];
+
+   frame           = [label frame];
+   frame.origin.y += frame.size.height;
+
+   stepper = [[[UIStepper alloc] initWithFrame:frame] autorelease];
+
+   // [insideButton setClipsSubviews:YES];
+   [window addSubview:stepper];
+
+
+   frame.origin.y += frame.size.height;
+
+   segmentedControl = [[[UISegmentedControl alloc] initWithFrame:frame] autorelease];
+   [segmentedControl insertSegmentWithCString:"1" 
+                                     atIndex:0 
+                                    animated:NO];  
+   [segmentedControl insertSegmentWithCString:"0" 
+                                     atIndex:0 
+                                    animated:NO];  
+   [segmentedControl insertSegmentWithCString:"2" 
+                                     atIndex:2
+                                    animated:NO];   
+   [window addSubview:segmentedControl];
+
 
    [window dump];
    [window renderLoopWithContext:context];
