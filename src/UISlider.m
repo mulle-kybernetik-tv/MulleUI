@@ -32,7 +32,7 @@
    float    value;
 
 	point = [event mousePositionInView:self];
-   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, CGPointCStringDescription( point));
+   // fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, CGPointCStringDescription( point));
 
    value = point.x / [self bounds].size.width;
    [(MulleSliderLayer *) self setValue:value];

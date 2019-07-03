@@ -8,10 +8,12 @@
 #ifndef _mulle_gl_example_include_h__
 #define _mulle_gl_example_include_h__
 
-// library: remove with `mark no-header`, rename with `set include`
+// remove with `mulle-sourcetree mark libdill no-header`
+// rename with `mulle-sourcetree mark libdill set include whatever.h`
 # include <libdill.h>   // libdill
 
-// library: remove with `mark no-header`, rename with `set include`
+// remove with `mulle-sourcetree mark glfw no-header`
+// rename with `mulle-sourcetree mark glfw set include whatever.h`
 # include <GLFW/glfw3.h>   // glfw
 
 #endif

@@ -1,7 +1,6 @@
 #define _GNU_SOURCE
 
 #import "import-private.h"
-
 #import "UIWindow.h"
 #import "CGContext.h"
 #import "UIEvent.h"
@@ -9,7 +8,13 @@
 #include <time.h>
 
 
+// #define DRAW_MOUSE_BOX   /* figure out how laggy mouse/draw is */
 // #define PRINTF_PROFILE_RENDER
+// #define ADD_RANDOM_LAG  /* make drawing sluggish */
+
+#ifdef DRAW_MOUSE_BOX
+# include <GL/gl.h>
+#endif
 
 
 struct timespec   timespec_diff( struct timespec start, struct timespec end)
@@ -137,7 +142,7 @@ static void   mouseScrollCallback( GLFWwindow *window,
 }
 
 
-
+// TODO: move this to UIAppplication or ??
 + (void) initialize
 {
    if( ! glfwInit())
@@ -145,6 +150,7 @@ static void   mouseScrollCallback( GLFWwindow *window,
       fprintf( stderr, "Couldn't get GLFW initialized\n");
       abort(); 
    }
+   // calling glSwapInterval here is too early
 }
 
 
@@ -209,6 +215,38 @@ static void   mouseScrollCallback( GLFWwindow *window,
    abort();
 }
 
+#ifdef DRAW_MOUSE_BOX
+
+- (void) renderWithContext:(CGContext *) context
+{
+      double   x,y;
+      double   pixelsX,pixelsY;
+
+      // poll to get most up to date value 
+      // this makes a difference on Linux X.org at least
+      glfwGetCursorPos( _window, &x, &y);
+
+//      assert( x == ctxt.mouse_x);
+//      assert( y == ctxt.mouse_y);
+
+      glColor3f(1.0, 1.0, 1.0);
+
+      glBegin(GL_QUADS);
+   
+      // assume 0.0,0.0 is in the middle of the screen
+      x = (x - (_frame.size.width / 2.0)) / (_frame.size.width / 2.0);
+      y = ((_frame.size.height / 2.0) - y) / (_frame.size.height / 2.0);
+
+      pixelsX = 32 / _frame.size.width;
+      pixelsY = 32 / _frame.size.height;
+      glVertex3f ( x - pixelsX, y - pixelsY, 0.0);
+      glVertex3f ( x + pixelsX, y - pixelsY, 0.0);
+      glVertex3f ( x + pixelsX, y + pixelsY, 0.0);
+      glVertex3f ( x - pixelsX, y + pixelsY, 0.0);
+
+      glEnd();
+}
+#endif
 
 // glitch hunt:
 //
@@ -230,6 +268,8 @@ static void   mouseScrollCallback( GLFWwindow *window,
 
 //   _discardEvents = UIEventTypeMotion;
 
+   glfwSwapInterval( 0);  // need for smooth pointer/control sync
+
    monitor = glfwGetPrimaryMonitor();
    mode    = (GLFWvidmode *) glfwGetVideoMode( monitor);
    refresh = mode->refreshRate;
@@ -241,8 +281,6 @@ static void   mouseScrollCallback( GLFWwindow *window,
    #define PAINT_FRAMES  2 //  60 * 5
 
    // glfwMakeContextCurrent( _window );
-   glfwSwapInterval( 1);  // makes no difference
-
    //
    // gut feeling: when we do onw swap buffers first, once, we know we have enough 
    // time on the first refresh (didn't work)
@@ -279,10 +317,11 @@ static void   mouseScrollCallback( GLFWwindow *window,
          glfwSwapBuffers( _window);
          _didRender++;
 
-
+#ifdef ADD_RANDOM_LAG
          sleep.tv_sec  = 0.0;
          sleep.tv_nsec = nsperframe / 10 * (rand() % 100);
          nanosleep( &sleep, NULL);
+#endif
 
          //
          // GL_COLOR_BUFFER_BIT brauchen wir, wenn wir nicht selber per

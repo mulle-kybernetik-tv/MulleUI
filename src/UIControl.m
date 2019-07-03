@@ -42,7 +42,7 @@
 
 - (UIEvent *) mouseDown:(UIEvent *) event
 {
-   fprintf( stderr, "%s: %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
+   // fprintf( stderr, "%s: %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
 
 	event = [self consumeEventIfDisabled:event];
 	// event was handled if nil
@@ -65,7 +65,7 @@
 
 - (UIEvent *) mouseDragged:(UIEvent *) event
 {
-   fprintf( stderr, "%s: %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
+   // fprintf( stderr, "%s: %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
 
 	event = [self consumeEventIfDisabled:event];
 	// event was handled if nil
@@ -103,7 +103,7 @@
 
 - (UIEvent *) mouseUp:(UIEvent *) event
 {
-   fprintf( stderr, "%s: %s\n", __PRETTY_FUNCTION__, [(UIView *) self cStringDescription]);
+   // fprintf( stderr, "%s: %s\n", __PRETTY_FUNCTION__, [(UIView *) self cStringDescription]);
 
 	event = [self consumeEventIfDisabled:event];
 	// event was handled if nil

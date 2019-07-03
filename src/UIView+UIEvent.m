@@ -97,7 +97,6 @@
 
    sel   = 0;
    state = [event buttonStates];
-   fprintf( stderr, "%s state: 0x%llx\n", __PRETTY_FUNCTION__, state);
    if( state)
    {
       sel = @selector( mouseDragged:);
@@ -265,7 +264,7 @@
 - (UIEvent *) responder:(id<UIResponder>) responder
             handleEvent:(UIEvent *) event
 {
-   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [responder cStringDescription]);
+   // fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [responder cStringDescription]);
 
    do
    {
