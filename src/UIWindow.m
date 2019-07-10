@@ -218,8 +218,6 @@ static void   framebufferResizeCallback( GLFWwindow* window, int width, int heig
 }
 
 
-
-
 + (void) initialize
 {
    if( ! glfwInit())
@@ -315,6 +313,12 @@ static void   framebufferResizeCallback( GLFWwindow* window, int width, int heig
    GLFWvidmode       *mode;
    int               refresh;
    long              nsperframe;
+   double            x, y;
+   int               w, h;
+   CGSize            framebufferSize;
+   CGSize            windowSize;
+   CGVector          scale;
+   float             xscale, yscale;
 
    monitor = glfwGetPrimaryMonitor();
    mode    = glfwGetVideoMode( monitor);
@@ -343,9 +347,29 @@ static void   framebufferResizeCallback( GLFWwindow* window, int width, int heig
 #ifdef PRINTF_PROFILE_RENDER   
       clock_gettime( CLOCK_REALTIME, &start);
 #endif
+      // get those values now here, instead of callbacks because they are
+      // more uptodate
+      glfwGetCursorPos( _window, &x, &y);
+      _mousePosition.x = x;
+      _mousePosition.y = y;
 
       // 
-      [context startRenderToFrame:_frame];
+      glfwGetWindowSize( _window, &w, &h);
+      windowSize = CGSizeMake( w, h);
+
+      // framebuffer is size in pixels of what we draw to
+      glfwGetFramebufferSize( _window, &w, &h);
+      framebufferSize = CGSizeMake( w, h);
+
+      // not sure how to use this though (upscale stuff ?)
+      glfwGetWindowContentScale( _window, &xscale, &yscale);
+      scale = CGVectorMake( xscale, yscale);
+
+       // _frame is the frame buffer size, where stuff gets drawn to
+      // the ratio is frameBufferWidth / windowWidth to cope with HiDPI
+      [context startRenderToFramebufferSize:framebufferSize
+                                 windowSize:windowSize
+                                      scale:scale];
 
       [self renderWithContext:context];
 

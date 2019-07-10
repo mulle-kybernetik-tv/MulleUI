@@ -311,11 +311,15 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
    fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
 #endif
 
-   rover = mulle_pointerarray_enumerate( _subviews);
-   while( view = mulle_pointerarrayenumerator_next( &rover))
-      [view renderWithContext:context];
-   mulle_pointerarrayenumerator_done( &rover);
+   if( _subviews)
+   {
+      rover = mulle_pointerarray_enumerate( _subviews);
+      while( view = mulle_pointerarrayenumerator_next( &rover))
+         [view renderWithContext:context];
+      mulle_pointerarrayenumerator_done( &rover);
+   }
 }
+
 
 
 #if 0

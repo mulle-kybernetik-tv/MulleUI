@@ -10,7 +10,7 @@ static inline char   *CGVectorCStringDescription( CGVector point)
 }
 
 
-static inline char   *CGSizeCStringDescription( CGRect size)
+static inline char   *CGSizeCStringDescription( CGSize size)
 {
    return( CGPointCStringDescription( * (CGPoint *) &size));
 }

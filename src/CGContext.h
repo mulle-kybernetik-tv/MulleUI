@@ -124,7 +124,9 @@ struct NVGcontext;
 
 - (struct NVGcontext *) nvgContext;
 
-- (void) startRenderToFrame:(CGRect) frame;
+- (void) startRenderToFramebufferSize:(CGSize) framebufferSize
+                           windowSize:(CGSize) windowSize
+                                scale:(CGVector) scale;
 - (void) resetTransform;
 - (void) endRender;
 

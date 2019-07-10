@@ -3,6 +3,7 @@
 #import "import-private.h"
 
 #import "CGContext.h"
+#include "CGGeometry+CString.h"
 
 
 #define RENDER_DEBUG
@@ -35,13 +36,18 @@
 }
 
 
-- (void) startRenderToFrame:(CGRect) frame
+- (void) startRenderToFramebufferSize:(CGSize) framebufferSize
+                           windowSize:(CGSize) windowSize
+                                scale:(CGVector) scale
+
 {
 #ifdef RENDER_DEBUG
-   fprintf( stderr, "%s %s (f:%s)\n", 
+   fprintf( stderr, "%s %s (f:%s w:%s s:%s)\n", 
                         __PRETTY_FUNCTION__, 
                         [self cStringDescription],
-                        CGRectCStringDescription( frame));
+                        CGSizeCStringDescription( framebufferSize),
+                        CGSizeCStringDescription( windowSize),
+                        CGVectorCStringDescription( scale));
 #endif
 //   if( _renderWithNewContext)
 //   {
@@ -49,11 +55,14 @@
 //      _vg  = nvgCreateGLES2( NVG_ANTIALIAS | NVG_STENCIL_STROKES);
 //      _renderWithNewContext = NO;  
 //   }
-   nvgBeginFrame( _vg, frame.size.width, 
-                       frame.size.height, 
-                       frame.size.width / frame.size.height);
+
+   glViewport( 0, 0, framebufferSize.width, framebufferSize.height); // important, otherwise the resize is wonky
+
+   nvgBeginFrame( _vg, framebufferSize.width, 
+                       framebufferSize.height, 
+                       framebufferSize.width / windowSize.width * scale.dx);  
    nvgResetTransform( _vg);
-   nvgScissor( _vg, 0.0, 0.0, frame.size.width, frame.size.height);
+   nvgScissor( _vg, 0.0, 0.0, framebufferSize.width, framebufferSize.height);
 }
 
 

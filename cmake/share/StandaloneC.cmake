@@ -34,7 +34,7 @@ if( STANDALONE)
    # A standalone library has all symbols and nothing is optimized away
    # sorta like a big static library, just shared, The OS specific stuff
    # should be shared libraries, otherwise they are only normally
-   # linked against (only required symbols.
+   # linked against (only required symbols).
    #
    if( NOT STANDALONE_ALL_LOAD_LIBRARIES)
       set( STANDALONE_ALL_LOAD_LIBRARIES
@@ -45,17 +45,12 @@ if( STANDALONE)
       )
    endif()
 
-   # STARTUP_LIBRARY is supposed to be a find_library definition
-   if( NOT STANDALONE_STARTUP_LIBRARY)
-      set( STANDALONE_STARTUP_LIBRARY ${STARTUP_LIBRARY})
-      set( STANDALONE_STARTUP_LIBRARY_NAME ${STARTUP_LIBRARY_NAME})
-   endif()
-
-   if( STANDALONE_STARTUP_LIBRARY)
-      set( STANDALONE_ALL_LOAD_LIBRARIES
-         ${STANDALONE_ALL_LOAD_LIBRARIES}
-         ${STANDALONE_STARTUP_LIBRARY}
-      )
+   #
+   # for example take out the mulle-allocator library from the standalone
+   # so that the test library can add mulle-testallocator
+   #
+   if( STANDALONE_EXCLUDE_LIBRARIES)
+      list( REMOVE_ITEM STANDALONE_ALL_LOAD_LIBRARIES ${STANDALONE_EXCLUDE_LIBRARIES})
    endif()
 
 
@@ -140,11 +135,7 @@ and everybody will be happy")
       set_property( TARGET ${STANDALONE_LIBRARY_NAME} PROPERTY CXX_STANDARD 11)
 
       add_dependencies( ${STANDALONE_LIBRARY_NAME} ${LIBRARY_NAME})
-      if( STANDALONE_STARTUP_LIBRARY_NAME)
-         if( TARGET ${STANDALONE_STARTUP_LIBRARY_NAME})
-            add_dependencies( ${STANDALONE_LIBRARY_NAME} ${STANDALONE_STARTUP_LIBRARY_NAME})
-         endif()
-      endif()
+
 
       # If STANDALONE_SOURCES were to be empty, this would be needed
       # set_target_properties( ${STANDALONE_LIBRARY_NAME} PROPERTIES LINKER_LANGUAGE "C")
@@ -157,14 +148,11 @@ and everybody will be happy")
       # MulleObjCStandardFoundationStandalone confuses cmake it seems. But they
       # are implicitly added.
       #
-      # creates FORCE_STANDALONE_ALL_LOAD_LIBRARIES
-
       CreateForceAllLoadList( STANDALONE_ALL_LOAD_LIBRARIES FORCE_STANDALONE_ALL_LOAD_LIBRARIES)
 
       target_link_libraries( ${STANDALONE_LIBRARY_NAME}
          ${FORCE_STANDALONE_ALL_LOAD_LIBRARIES}
          ${OS_SPECIFIC_LIBRARIES}
-         ${STANDALONE_STARTUP_LIBRARY}
       )
 
       set( INSTALL_LIBRARY_TARGETS
@@ -173,5 +161,8 @@ and everybody will be happy")
       )
 
       message( STATUS "STANDALONE_LIBRARY_NAME is ${STANDALONE_LIBRARY_NAME}")
+      message( STATUS "STANDALONE_ALL_LOAD_LIBRARIES is ${STANDALONE_ALL_LOAD_LIBRARIES}")
+      message( STATUS "FORCE_STANDALONE_ALL_LOAD_LIBRARIES is ${FORCE_STANDALONE_ALL_LOAD_LIBRARIES}")
+      message( STATUS "OS_SPECIFIC_LIBRARIES is ${OS_SPECIFIC_LIBRARIES}")
    endif()
 endif()

@@ -1,4 +1,5 @@
-#include "CGGeometry+CString.h"
+#import "CGGeometry+CString.h"
+
 #include <stdio.h>
 #include <mulle-allocator/mulle-allocator.h>
 #include <MulleObjC/mulle-objc.h>

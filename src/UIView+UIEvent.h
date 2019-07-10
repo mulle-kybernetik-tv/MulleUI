@@ -2,6 +2,8 @@
 
 #import "UIEvent.h"
 
+@class UIMouseScrollEvent;
+
 
 @interface UIView ( UIEvent)
 
@@ -18,3 +20,9 @@
 
 @end
 
+
+@interface UIView ( UIEventFuture)
+
+- (UIEvent *) scrollWheel:(UIMouseScrollEvent *) event;
+
+@end

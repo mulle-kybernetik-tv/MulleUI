@@ -87,9 +87,22 @@ if( LINK_PHASE)
    message( STATUS "PRIVATE_HEADERS=${PRIVATE_HEADERS}")
    message( STATUS "PROJECT_INSTALLABLE_HEADERS=${PROJECT_INSTALLABLE_HEADERS}")
 
+   #
+   # allow forward definitions in shared library
+   #
+   option( SHARED_UNRESOLVED_SYMBOLS "Shared libraries may have unresolved symbols" ON)
+
    include( LibraryAux OPTIONAL)
 
    if( BUILD_SHARED_LIBS)
+      if( SHARED_UNRESOLVED_SYMBOLS)
+         if( APPLE)
+            target_link_libraries( "${LIBRARY_NAME}"
+               "-undefined dynamic_lookup"
+            )
+         endif()
+      endif()
+
       if( NOT SHARED_LIBRARY_LIST)
          set( SHARED_LIBRARY_LIST
             ${DEPENDENCY_LIBRARIES}
@@ -103,13 +116,14 @@ if( LINK_PHASE)
       target_link_libraries( "${LIBRARY_NAME}"
          ${SHARED_LIBRARY_LIST}
       )
-   endif()
 
-   #
-   # Something to set for shared libraries
-   #
-   # set_target_properties( "${LIBRARY_NAME}" PROPERTIES VERSION $ENV{PROJECT_VERSION})
-   # set_target_properties( "${LIBRARY_NAME}" PROPERTIES SOVERSION 1)
+      #
+      # Something to set for shared libraries
+      #
+      # set_target_properties( "${LIBRARY_NAME}" PROPERTIES VERSION $ENV{PROJECT_VERSION})
+      # set_target_properties( "${LIBRARY_NAME}" PROPERTIES SOVERSION 1)
+      #
+   endif()
 
    set( INSTALL_LIBRARY_TARGETS
       "${LIBRARY_NAME}"

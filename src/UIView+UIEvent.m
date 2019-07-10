@@ -209,16 +209,19 @@
              withEvent:event])
       return( event);
 
-   rover = mulle_pointerarray_reverseenumerate( _subviews);
-   while( view = mulle_pointerarrayenumerator_next( &rover))
+   if( _subviews)
    {
-      event = [view handleEvent:event
-                     atPosition:point];
-      if( ! event)
-         break;
+      rover = mulle_pointerarray_reverseenumerate( _subviews);
+      while( view = mulle_pointerarrayenumerator_next( &rover))
+      {
+         event = [view handleEvent:event
+                        atPosition:point];
+         if( ! event)
+            break;
+      }
+      mulle_pointerarrayenumerator_done( &rover);
    }
-   mulle_pointerarrayenumerator_done( &rover);
-
+   
    if( event)
    {
       //
