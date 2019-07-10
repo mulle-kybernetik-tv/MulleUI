@@ -149,7 +149,8 @@ static void   setStateBit( UIControl *self, enum UIControlStateBit bit, BOOL fla
 	if( flag)
 		newState = state | bit;
 	else
-		newState &= state | ~bit;
+		newState = state | ~bit;
+      
 	if( newState != state)
 	{
 		/*

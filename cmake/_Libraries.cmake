@@ -685,3 +685,115 @@ if( NOT M_LIBRARY)
       message( FATAL_ERROR "M_LIBRARY was not found")
    endif()
 endif()
+
+
+#
+# Generated from sourcetree: z;no-all-load,no-cmakeinherit,no-header,no-import,no-share;
+# Disable with: `mulle-sourcetree mark z no-link`
+#
+if( NOT Z_LIBRARY)
+   find_library( Z_LIBRARY NAMES z)
+   message( STATUS "Z_LIBRARY is ${Z_LIBRARY}")
+   #
+   # The order looks ascending, but due to the way this file is read
+   # it ends up being descending, which is what we need.
+   #
+   if( Z_LIBRARY)
+      #
+      # Add to Z_LIBRARY list.
+      # Disable with: `mulle-sourcetree mark z no-cmakeadd`
+      #
+      set( OS_SPECIFIC_LIBRARIES
+         ${OS_SPECIFIC_LIBRARIES}
+         ${Z_LIBRARY}
+         CACHE INTERNAL "need to cache this"
+      )
+      # intentionally left blank
+   else()
+      message( FATAL_ERROR "Z_LIBRARY was not found")
+   endif()
+endif()
+
+
+#
+# Generated from sourcetree: bz2;no-all-load,no-cmakeinherit,no-header,no-import,no-share;
+# Disable with: `mulle-sourcetree mark bz2 no-link`
+#
+if( NOT BZ2_LIBRARY)
+   find_library( BZ2_LIBRARY NAMES bz2)
+   message( STATUS "BZ2_LIBRARY is ${BZ2_LIBRARY}")
+   #
+   # The order looks ascending, but due to the way this file is read
+   # it ends up being descending, which is what we need.
+   #
+   if( BZ2_LIBRARY)
+      #
+      # Add to BZ2_LIBRARY list.
+      # Disable with: `mulle-sourcetree mark bz2 no-cmakeadd`
+      #
+      set( OS_SPECIFIC_LIBRARIES
+         ${OS_SPECIFIC_LIBRARIES}
+         ${BZ2_LIBRARY}
+         CACHE INTERNAL "need to cache this"
+      )
+      # intentionally left blank
+   else()
+      message( FATAL_ERROR "BZ2_LIBRARY was not found")
+   endif()
+endif()
+
+
+#
+# Generated from sourcetree: png;no-all-load,no-cmakeinherit,no-header,no-import,no-share;
+# Disable with: `mulle-sourcetree mark png no-link`
+#
+if( NOT PNG_LIBRARY)
+   find_library( PNG_LIBRARY NAMES png)
+   message( STATUS "PNG_LIBRARY is ${PNG_LIBRARY}")
+   #
+   # The order looks ascending, but due to the way this file is read
+   # it ends up being descending, which is what we need.
+   #
+   if( PNG_LIBRARY)
+      #
+      # Add to PNG_LIBRARY list.
+      # Disable with: `mulle-sourcetree mark png no-cmakeadd`
+      #
+      set( OS_SPECIFIC_LIBRARIES
+         ${OS_SPECIFIC_LIBRARIES}
+         ${PNG_LIBRARY}
+         CACHE INTERNAL "need to cache this"
+      )
+      # intentionally left blank
+   else()
+      message( FATAL_ERROR "PNG_LIBRARY was not found")
+   endif()
+endif()
+
+
+#
+# Generated from sourcetree: harfbuzz;no-all-load,no-cmakeinherit,no-header,no-import,no-share;
+# Disable with: `mulle-sourcetree mark harfbuzz no-link`
+#
+if( NOT HARFBUZZ_LIBRARY)
+   find_library( HARFBUZZ_LIBRARY NAMES harfbuzz)
+   message( STATUS "HARFBUZZ_LIBRARY is ${HARFBUZZ_LIBRARY}")
+   #
+   # The order looks ascending, but due to the way this file is read
+   # it ends up being descending, which is what we need.
+   #
+   if( HARFBUZZ_LIBRARY)
+      #
+      # Add to HARFBUZZ_LIBRARY list.
+      # Disable with: `mulle-sourcetree mark harfbuzz no-cmakeadd`
+      #
+      set( OS_SPECIFIC_LIBRARIES
+         ${OS_SPECIFIC_LIBRARIES}
+         ${HARFBUZZ_LIBRARY}
+         CACHE INTERNAL "need to cache this"
+      )
+      # intentionally left blank
+   else()
+      message( FATAL_ERROR "HARFBUZZ_LIBRARY was not found")
+   endif()
+endif()
