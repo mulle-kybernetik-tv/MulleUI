@@ -20,11 +20,14 @@
    fontSize = [self fontSize];
    if( fontSize == 0.0)
       fontSize = 10.0;
+ 
+   fontSize *= [context fontScale];
+  
 
    vg = [context nvgContext];
 	nvgFontSize( vg, fontSize);
 	nvgFontFace( vg, name);
-	nvgFillColor( vg, nvgRGBA(255,255,255,255)); // TODO: use textColor
+	nvgFillColor( vg, [self textColor]); // TODO: use textColor
 
    frame = [self frame];
 	nvgTextAlign( vg,NVG_ALIGN_LEFT|NVG_ALIGN_MIDDLE);

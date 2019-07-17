@@ -117,18 +117,22 @@ struct NVGcontext;
 @class CGFont;
 
 
-    @interface CGContext : NSObject
+// could make those variable public ?
+@interface CGContext : NSObject
 {
 	struct NVGcontext  *_vg;	
+   CGFloat            _fontScale;
 }
 
 - (struct NVGcontext *) nvgContext;
 
-- (void) startRenderToFrame:(CGRect) frame;
+- (void) startRenderToFrame:(CGRect) frame
+                  fontScale:(CGFloat) fontScale;
 - (void) resetTransform;
 - (void) endRender;
 
 - (CGFont *) fontWithName:(char *) s;
+- (CGFloat) fontScale;
 
 @end
 

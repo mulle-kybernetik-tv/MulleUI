@@ -265,6 +265,7 @@ static void   mouseScrollCallback( GLFWwindow *window,
    GLFWvidmode       *mode;
    int               refresh;
    long              nsperframe;
+   float             scale_x, scale_y;
 
 //   _discardEvents = UIEventTypeMotion;
 
@@ -297,8 +298,10 @@ static void   mouseScrollCallback( GLFWwindow *window,
 #ifdef PRINTF_PROFILE_RENDER   
          clock_gettime( CLOCK_REALTIME, &start);
 #endif
+         glfwGetWindowContentScale( _window, &scale_x, &scale_y);
 
-         [context startRenderToFrame:_frame];
+         [context startRenderToFrame:_frame
+                            fontScale:scale_y];
 
          [self renderWithContext:context];
 

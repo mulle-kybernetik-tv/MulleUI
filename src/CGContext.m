@@ -6,7 +6,8 @@
 
 #import "CGFont.h"
 
-#include "Roboto-Regular.inc"
+#include "anonymous-pro.inc"
+//#include "Roboto-Regular.inc"
 #include "entypo.inc"
 
 
@@ -39,12 +40,20 @@
 
 
 - (void) startRenderToFrame:(CGRect) frame
+                  fontScale:(CGFloat) fontScale
 {
+   _fontScale = fontScale * 1.35;  // for Linux 1.35 is required
+
    nvgBeginFrame( _vg, frame.size.width, 
                        frame.size.height, 
-                       frame.size.width / frame.size.height);
+                       1.0);
    nvgResetTransform( _vg);
    nvgScissor( _vg, 0.0, 0.0, frame.size.width, frame.size.height);
+}
+
+- (CGFloat) fontScale
+{
+   return( _fontScale);
 }
 
 
@@ -68,8 +77,8 @@
 {
    if( ! strcmp( s, "sans"))
       return( [CGFont fontWithName:s
-                             bytes:Roboto_Regular_ttf
-                            length:sizeof( Roboto_Regular_ttf)
+                             bytes:Anonymous_Pro_ttf
+                            length:sizeof( Anonymous_Pro_ttf)
                            context:self]);
    if( ! strcmp( s, "icons"))
       return( [CGFont fontWithName:s
