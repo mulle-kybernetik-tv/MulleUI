@@ -21,11 +21,11 @@ struct timespec   timespec_diff( struct timespec start, struct timespec end)
 {
    struct timespec temp;
 
-   if ((end.tv_nsec-start.tv_nsec) < 0) 
+   if ((end.tv_nsec-start.tv_nsec) < 0)
    {
       temp.tv_sec  = end.tv_sec-start.tv_sec - 1;
       temp.tv_nsec = 1000000000 + end.tv_nsec - start.tv_nsec;
-   } else 
+   } else
    {
       temp.tv_sec = end.tv_sec-start.tv_sec;
       temp.tv_nsec = end.tv_nsec-start.tv_nsec;
@@ -36,10 +36,10 @@ struct timespec   timespec_diff( struct timespec start, struct timespec end)
 
 @implementation UIWindow
 
-static void   keyCallback( GLFWwindow* window, 
-                           int key, 
-                           int scancode, 
-                           int action, 
+static void   keyCallback( GLFWwindow* window,
+                           int key,
+                           int scancode,
+                           int action,
                            int mods)
 {
    UIWindow   *self;
@@ -57,18 +57,18 @@ static void   keyCallback( GLFWwindow* window,
                                             action:action
                                          modifiers:mods];
    [self handleEvent:event];
-   [event release];   
+   [event release];
 }
 
 
-static void   mouseButtonCallback( GLFWwindow* window, 
-                                   int button, 
-                                   int action, 
+static void   mouseButtonCallback( GLFWwindow* window,
+                                   int button,
+                                   int action,
                                    int mods)
 {
    UIWindow   *self;
    UIEvent    *event;
-   uint64_t   bit;   
+   uint64_t   bit;
 
    assert( button >= 0 && button <= 63);
 
@@ -82,19 +82,19 @@ static void   mouseButtonCallback( GLFWwindow* window,
 
    if( self->_discardEvents & UIEventTypeTouches)
       return;
-   
+
    event = [[UIMouseButtonEvent alloc] initWithWindow:self
                                         mousePosition:self->_mousePosition
                                                button:button
                                                action:action
                                             modifiers:mods];
    [self handleEvent:event];
-   [event release];   
+   [event release];
 }
 
 
-static void   mouseMoveCallback( GLFWwindow* window, 
-                                 double xpos, 
+static void   mouseMoveCallback( GLFWwindow* window,
+                                 double xpos,
                                  double ypos)
 {
    UIWindow   *self;
@@ -119,26 +119,26 @@ static void   mouseMoveCallback( GLFWwindow* window,
 }
 
 
-static void   mouseScrollCallback( GLFWwindow *window, 
-                                   double xoffset, 
+static void   mouseScrollCallback( GLFWwindow *window,
+                                   double xoffset,
                                    double yoffset)
 {
    UIWindow   *self;
    UIEvent    *event;
-   uint64_t   bit;   
+   uint64_t   bit;
    CGPoint    scrollOffset;
 
    self  = glfwGetWindowUserPointer( window);
    if( self->_discardEvents & UIEventTypeScroll)
       return;
-   
+
    scrollOffset = CGPointMake( xoffset, yoffset);
    event        = [[UIMouseScrollEvent alloc] initWithWindow:self
                                                mousePosition:self->_mousePosition
                                                 scrollOffset:scrollOffset
                                                    modifiers:self->_modifiers];
    [self handleEvent:event];
-   [event release];   
+   [event release];
 }
 
 
@@ -148,24 +148,45 @@ static void   mouseScrollCallback( GLFWwindow *window,
    if( ! glfwInit())
    {
       fprintf( stderr, "Couldn't get GLFW initialized\n");
-      abort(); 
+      abort();
    }
    // calling glSwapInterval here is too early
+}
+
++ (CGFloat) primaryMonitorPPI
+{
+   GLFWmonitor      *monitor;
+   GLFWvidmode      *mode;
+   int              w, h;
+   CGFloat          ppi;
+
+   //
+   monitor = glfwGetPrimaryMonitor();
+   glfwGetMonitorPhysicalSize( monitor, &w, &h);
+
+   mode = (GLFWvidmode *) glfwGetVideoMode( monitor);
+
+   // need to convert h in mm to inches
+   ppi = mode->height / (h * 0.03937007874);
+   return( ppi);
 }
 
 
 - (id) initWithFrame:(CGRect) frame
 {
+   GLFWmonitor      *monitor;
+   CGFloat          ppi;
+
    glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 2);
    glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 0);
    glfwWindowHint( GLFW_RESIZABLE, GL_FALSE);
 
-   _window = glfwCreateWindow( frame.size.width, 
-                               frame.size.height, 
-                               "Demo", 
-                               0, 
+   _window = glfwCreateWindow( frame.size.width,
+                               frame.size.height,
+                               "Demo",
+                               0,
                                0);
-   if( ! _window) 
+   if( ! _window)
    {
       fprintf( stderr, "glfwCreateWindow failed us\n");
       [self release];
@@ -185,6 +206,8 @@ static void   mouseScrollCallback( GLFWwindow *window,
    glfwSetCursorPosCallback( _window, mouseMoveCallback);
    glfwSetKeyCallback( _window, keyCallback);
    glfwSetScrollCallback( _window, mouseScrollCallback);
+
+   _primaryMonitorPPI = [UIWindow primaryMonitorPPI];
 
    return( self);
 }
@@ -222,7 +245,7 @@ static void   mouseScrollCallback( GLFWwindow *window,
       double   x,y;
       double   pixelsX,pixelsY;
 
-      // poll to get most up to date value 
+      // poll to get most up to date value
       // this makes a difference on Linux X.org at least
       glfwGetCursorPos( _window, &x, &y);
 
@@ -232,7 +255,7 @@ static void   mouseScrollCallback( GLFWwindow *window,
       glColor3f(1.0, 1.0, 1.0);
 
       glBegin(GL_QUADS);
-   
+
       // assume 0.0,0.0 is in the middle of the screen
       x = (x - (_frame.size.width / 2.0)) / (_frame.size.width / 2.0);
       y = ((_frame.size.height / 2.0) - y) / (_frame.size.height / 2.0);
@@ -254,7 +277,7 @@ static void   mouseScrollCallback( GLFWwindow *window,
 // b) we are doublebuffering
 // c) the glitch occurs when there is already drawing on the screen
 // d) the glitch looks like the buffer is cleared and then not swapped
-// 
+//
 - (void) renderLoopWithContext:(CGContext *) context
 {
    struct timespec   start;
@@ -276,26 +299,26 @@ static void   mouseScrollCallback( GLFWwindow *window,
    refresh = mode->refreshRate;
 
    nsperframe = (1000000000L + (mode->refreshRate - 1)) / mode->refreshRate;
-#ifdef PRINTF_PROFILE_RENDER   
+#ifdef PRINTF_PROFILE_RENDER
    fprintf( stderr, "Refresh: %d (%09ld ns/frame)\n", mode->refreshRate, nsperframe);
 #endif
    #define PAINT_FRAMES  2 //  60 * 5
 
    // glfwMakeContextCurrent( _window );
    //
-   // gut feeling: when we do onw swap buffers first, once, we know we have enough 
+   // gut feeling: when we do onw swap buffers first, once, we know we have enough
    // time on the first refresh (didn't work)
    //
    glfwSwapBuffers( _window);
    glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
    glClear( GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
 
-   while( ! glfwWindowShouldClose( _window)) 
+   while( ! glfwWindowShouldClose( _window))
    {
       if( 1 || _didRender < PAINT_FRAMES)
       {
          // nvgGlobalCompositeOperation( ctxt->vg, NVG_ATOP);
-#ifdef PRINTF_PROFILE_RENDER   
+#ifdef PRINTF_PROFILE_RENDER
          clock_gettime( CLOCK_REALTIME, &start);
 #endif
          glfwGetWindowContentScale( _window, &scale_x, &scale_y);
@@ -307,16 +330,16 @@ static void   mouseScrollCallback( GLFWwindow *window,
 
          [context endRender];
 
-#ifdef PRINTF_PROFILE_RENDER   
+#ifdef PRINTF_PROFILE_RENDER
          clock_gettime( CLOCK_REALTIME, &end);
          diff = timespec_diff( start, end);
          if( diff.tv_sec > 0 || diff.tv_nsec >= nsperframe)
-            fprintf( stderr, "frame #%ld: @%ld:%09ld render end, OVERFLW %.4f frames\n", 
-                                 _didRender, 
-                                 end.tv_sec, 
+            fprintf( stderr, "frame #%ld: @%ld:%09ld render end, OVERFLW %.4f frames\n",
+                                 _didRender,
+                                 end.tv_sec,
                                  end.tv_nsec,
                                  diff.tv_sec ? 9999.9999 : (diff.tv_nsec / (double) nsperframe) - 1);
-#endif         
+#endif
          glfwSwapBuffers( _window);
          _didRender++;
 
@@ -329,7 +352,7 @@ static void   mouseScrollCallback( GLFWwindow *window,
          //
          // GL_COLOR_BUFFER_BIT brauchen wir, wenn wir nicht selber per
          // Hand abschnittsweise löschen
-         // GL_STENCIL_BUFFER_BIT braucht nanovg 
+         // GL_STENCIL_BUFFER_BIT braucht nanovg
          // GL_DEPTH_BUFFER_BIT ?
          //
          // glClearColor( 1.0 - _didRender / 120.0, 1.0 - _didRender / 120.0, 1.0 - _didRender / 240.0, 0.0f );
@@ -343,13 +366,13 @@ static void   mouseScrollCallback( GLFWwindow *window,
             _didRender++;
          }
 
-#ifdef PRINTF_PROFILE_EVENTS   
+#ifdef PRINTF_PROFILE_EVENTS
       clock_gettime( CLOCK_REALTIME, &start);
       printf( "@%ld:%09ld events start\n", start.tv_sec, start.tv_nsec);
 #endif
       [self waitForEvents];
 
-#ifdef PRINTF_PROFILE_EVENTS   
+#ifdef PRINTF_PROFILE_EVENTS
       clock_gettime( CLOCK_REALTIME, &end);
       diff = timespec_diff( start, end);
       printf( "@%ld:%09ld events end, elapsed : %09ld\n", end.tv_sec, end.tv_nsec,
@@ -374,7 +397,7 @@ static void   mouseScrollCallback( GLFWwindow *window,
 - (void) waitForEvents
 {
    glfwWaitEventsTimeout( 1.0 / 200);
-      // glfwPollEvents();   
+      // glfwPollEvents();
 }
 
 

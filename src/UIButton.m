@@ -55,13 +55,13 @@
 		state &=~UIControlStateSelected;
 		image = [self backgroundImageForState:state];
 	}
-	[self setBackgroundImage:image];   
+	[self setBackgroundImage:image];
 }
 
 
 static NSUInteger   imageIndexForControlState( UIControlState state)
 {
-	switch( state) 
+	switch( state)
 	{
 	case UIControlStateNormal                          : return( 0);
 	case UIControlStateSelected                        : return( 1);
@@ -85,7 +85,7 @@ static NSUInteger   imageIndexForControlState( UIControlState state)
 }
 
 
-- (void) setBackgroundImage:(UIImage *) image 
+- (void) setBackgroundImage:(UIImage *) image
                    forState:(UIControlState) state
 {
 	NSUInteger    index;
@@ -104,10 +104,10 @@ static NSUInteger   imageIndexForControlState( UIControlState state)
 	Class     layerClass;
 
 	assert( ! image || [image isKindOfClass:[UIImage class]]);
-	
+
 	if( ! image)
 		return;
-	
+
 	layer               = _mainLayer;
 	layerClass          = [layer class];
 	preferredLayerClass = [image preferredLayerClass];

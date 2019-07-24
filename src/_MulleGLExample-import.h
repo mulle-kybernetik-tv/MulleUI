@@ -10,6 +10,8 @@
 #ifndef _mulle_gl_example_import_h__
 #define _mulle_gl_example_import_h__
 
+#include "_MulleGLExample-include.h"
+
 // remove with `mulle-sourcetree mark MulleObjC no-header`
 // rename with `mulle-sourcetree mark MulleObjC set include whatever.h`
 # import <MulleObjC/MulleObjC.h>   // MulleObjC

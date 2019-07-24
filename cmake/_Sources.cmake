@@ -43,6 +43,7 @@ src/UIView+UIResponder.m
 src/UIView.m
 src/UIWindow+UIResponder.m
 src/UIWindow.m
+src/bmp-writer.c
 src/main.m
 src/nanosvg.m
 src/nanovg+CString.m

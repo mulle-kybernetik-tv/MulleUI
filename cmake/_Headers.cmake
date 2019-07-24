@@ -64,6 +64,8 @@ src/UIView+UIResponder.h
 src/UIView.h
 src/UIWindow+UIResponder.h
 src/UIWindow.h
+src/anonymous-pro.inc
+src/bmp-writer.h
 src/entypo.inc
 src/import.h
 src/include.h

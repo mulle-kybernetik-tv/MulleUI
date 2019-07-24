@@ -4,6 +4,7 @@
 #import "CGContext.h"
 
 #import "nanovg.h"
+#include "bmp-writer.h"
 
 
 @implementation MulleBitmapImage( MulleBitmapLayer)
@@ -27,7 +28,7 @@
 
    if( ! (self = [super init]))
       return( self);
-   
+
    _image = [image retain];  // ownership transfer
    if( image)
    {
@@ -41,6 +42,18 @@
 }
 
 
+- (BOOL) writeToBMPFileWithSystemRepresentation:(char *) filename
+{
+   mulle_int_size   size;
+
+   if( ! filename || ! *filename)
+      return( NO);
+
+   size = [(MulleBitmapImage *) _image intSize];
+   return( ! bmp_rgb32_write_file( filename, [_image bytes], size.width, size.height, 0) ? YES : NO);
+}
+
+
 - (void) dealloc
 {
    [_image release];
@@ -48,7 +61,7 @@
 }
 
 
-- (BOOL) drawInContext:(CGContext *) context 
+- (BOOL) drawInContext:(CGContext *) context
 {
    mulle_int_size   size;
    int              textureId;
@@ -69,10 +82,10 @@
    imgPaint  = nvgImagePattern( vg, 0, 0, size.width, size.height, 0.0f/180.0f*NVG_PI, textureId, 1.0);
 
    nvgBeginPath( vg);
-   nvgRoundedRect( vg, 0, 
-                       0, 
-                       size.width, 
-                       size.height, 
+   nvgRoundedRect( vg, 0,
+                       0,
+                       size.width,
+                       size.height,
                        (int) _cornerRadius);
    nvgFillPaint( vg, imgPaint);
   // nvgFillColor( vg, getNVGColor( 0x402060FF));

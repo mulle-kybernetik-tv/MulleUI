@@ -63,8 +63,17 @@ static UIEvent   *scroll_callback( UIButton *button, UIEvent *event)
 
 
 // scale stuff for stream
-#define SCALE      1.0
-#define FONT_SIZE  10
+#define SCALE            1.0
+
+//
+// Anonymous Pro:
+// get mono font at <= 13 from freetype
+// get LCD font (cleartype) at >=14 from freetype
+//
+// Roboto:
+// get LCD font (cleartype) at any size from freetype
+//
+#define FONT_PIXEL_SIZE  8.0
 
 int   main()
 {
@@ -96,7 +105,7 @@ int   main()
    UISlider             *slider;
 
    /*
-    * window and app 
+    * window and app
     */
    window  = [[[UIWindow alloc] initWithFrame:CGRectMake( 0.0, 0.0, 400.0 * SCALE, 300.0 * SCALE)] autorelease];
    assert( window);
@@ -105,43 +114,43 @@ int   main()
 
    context = [CGContext new];
 
-   frame.origin      = CGPointMake( 0 * SCALE, 100.0 * SCALE);
-   frame.size.width  = 300;
-   frame.size.height = FONT_SIZE * 1.1;
+   frame.origin      = CGPointMake( 100.0 * SCALE, 100.0 * SCALE);
+   frame.size.width  = 200;
+   frame.size.height = FONT_PIXEL_SIZE + 2.0;
 
    label = [[[UILabel alloc] initWithFrame:frame] autorelease];
 
    // [insideButton setClipsSubviews:YES];
-   [label setCString:"   XXX"];
+   [label setCString:"|XYZ|"];
    [label setFontName:"sans"];
-   [label setFontSize:FONT_SIZE];
+   [label setFontPixelSize:FONT_PIXEL_SIZE];
+   [label setBackgroundColor:getNVGColor( 0x8FFF8FFF)];
+   [label setTextColor:getNVGColor( 0x000000FF)];
+
+   [window addSubview:label];
+
+   frame.origin.y    += frame.size.height + 1;
+
+   label = [[[UILabel alloc] initWithFrame:frame] autorelease];
+
+   // [insideButton setClipsSubviews:YES];
+   [label setCString:"°xyz\""];
+   [label setFontName:"sans"];
+   [label setFontPixelSize:FONT_PIXEL_SIZE];
    [label setBackgroundColor:getNVGColor( 0xFFFFFFFF)];
    [label setTextColor:getNVGColor( 0x000000FF)];
 
    [window addSubview:label];
 
-   frame.origin.y    += frame.size.height;
+   frame.origin.y    += frame.size.height + 1;
 
    label = [[[UILabel alloc] initWithFrame:frame] autorelease];
 
    // [insideButton setClipsSubviews:YES];
-   [label setCString:"   abc"];
+   [label setCString:"°1_~'"];
    [label setFontName:"sans"];
-   [label setFontSize:FONT_SIZE];
-   [label setBackgroundColor:getNVGColor( 0xFFFFFFFF)];
-   [label setTextColor:getNVGColor( 0x000000FF)];
-
-   [window addSubview:label];
-
-   frame.origin.y    += frame.size.height;
-
-   label = [[[UILabel alloc] initWithFrame:frame] autorelease];
-
-   // [insideButton setClipsSubviews:YES];
-   [label setCString:"   123"];
-   [label setFontName:"sans"];
-   [label setFontSize:FONT_SIZE];
-   [label setBackgroundColor:getNVGColor( 0xFFFFFFFF)];
+   [label setFontPixelSize:FONT_PIXEL_SIZE];
+   [label setBackgroundColor:getNVGColor( 0x8F8FFFFF)];
    [label setTextColor:getNVGColor( 0x000000FF)];
 
    [window addSubview:label];

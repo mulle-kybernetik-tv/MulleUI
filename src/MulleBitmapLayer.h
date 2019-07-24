@@ -14,4 +14,6 @@ struct NVGcontext;
 
 - (instancetype) initWithBitmapImage:(MulleBitmapImage *) image;
 
+- (BOOL) writeToBMPFileWithSystemRepresentation:(char *) filename;
+
 @end

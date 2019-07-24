@@ -6,8 +6,17 @@
 
 #import "CGFont.h"
 
-#include "anonymous-pro.inc"
-//#include "Roboto-Regular.inc"
+
+#define USE_ANONYMOUS_PRO
+
+
+#ifdef USE_ANONYMOUS_PRO
+# include "anonymous-pro.inc"
+# define FONT_DATA   Anonymous_Pro_ttf
+#else
+# include "Roboto-Regular.inc"
+# define FONT_DATA   Roboto_Regular_ttf
+#endif
 #include "entypo.inc"
 
 
@@ -77,8 +86,8 @@
 {
    if( ! strcmp( s, "sans"))
       return( [CGFont fontWithName:s
-                             bytes:Anonymous_Pro_ttf
-                            length:sizeof( Anonymous_Pro_ttf)
+                             bytes:FONT_DATA
+                            length:sizeof( FONT_DATA)
                            context:self]);
    if( ! strcmp( s, "icons"))
       return( [CGFont fontWithName:s

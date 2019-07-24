@@ -6,6 +6,10 @@
 
 - (void) setCString:(char *) s;
 
+// points
+- (CGFloat) fontSize;
+- (void) setFontSize:(CGFloat) s;
+
 @end
 
 @interface UILabel( Forwarding)
@@ -13,8 +17,8 @@
 - (char *) cString;
 - (char *) fontName;
 - (void) setFontName:(char *) s;
-- (CGFloat) fontSize;
-- (void) setFontSize:(CGFloat) s;
+- (CGFloat) fontPixelSize;
+- (void) setFontPixelSize:(CGFloat) value;
 
 - (void) setBackgroundColor:(CGColorRef) color;
 - (CGColorRef) backgroundColor;
