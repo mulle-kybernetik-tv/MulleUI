@@ -37,7 +37,7 @@ static char  *cpToUTF8(int cp, char* str)
 
 - (void) drawContentsInContext:(CGContext *) context
 {
-   CGFloat             fontSize;
+   CGFloat             fontPixelSize;
    CGFont              *font;
    CGRect              frame;
    char                *name;
@@ -48,16 +48,16 @@ static char  *cpToUTF8(int cp, char* str)
    font = [context fontWithName:_fontName ? _fontName : "sans"];
    name = [font name];  // get actual name, which could have different address
 
-   fontSize = [self fontSize];
-   if( fontSize == 0.0)
-      fontSize = 10.0;
+   frame    = [self frame];
+
+   fontPixelSize = [self fontPixelSize];
+   if( fontPixelSize == 0.0)
+      fontPixelSize = frame.size.height;
 
    vg     = [context nvgContext];
-	nvgFontSize( vg, fontSize);
+	nvgFontSize( vg, fontPixelSize);
 	nvgFontFace( vg, name);
-   nvgFillColor(vg, nvgRGBA(255, 255, 255, 160));
-
-   frame = [self frame];
+   nvgTextColor( vg, nvgRGBA(255,255,255,255), [self backgroundColor]); // TODO: use textColor
    nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
    nvgText(vg, frame.origin.x + 28, frame.origin.y + frame.size.height * 0.5f, _cString, NULL);
 
@@ -74,7 +74,7 @@ static char  *cpToUTF8(int cp, char* str)
 
       nvgFontSize(vg, 40);
       nvgFontFace(vg, name);
-      nvgFillColor(vg, nvgRGBA(255, 255, 255, 128));
+      nvgTextColor( vg, nvgRGBA(255,255,255,255), [self backgroundColor]); // TODO: use textColor
       nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
       nvgText(vg, frame.origin.x + 9 + 2, frame.origin.y + frame.size.height * 0.5f, cpToUTF8(ICON_CHECK, icon), NULL);
    }

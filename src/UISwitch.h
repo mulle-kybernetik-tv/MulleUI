@@ -14,8 +14,8 @@
 - (void)setCString:(char *)s;
 - (char *) fontName;
 - (void) setFontName:(char *)s;
-- (CGFloat) fontSize;
-- (void) setFontSize:(CGFloat)s;
+- (CGFloat) fontPixelSize;
+- (void) setFontPixelSize:(CGFloat)s;
 
 - (void) setBackgroundColor:(CGColorRef)color;
 - (CGColorRef) backgroundColor;

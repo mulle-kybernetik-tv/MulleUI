@@ -37,6 +37,9 @@
  * By experiment, if running cleartype it makes no use to turn of cleartype
  * for monochrome or grayscale only fonts.
  *
+ * Since emojis could be used from a fallback font, it maybe necessary to 
+ * split the string for multiple nvgText calls, setting the correct font
+ * everytime.
  */
 
 - (void) drawContentsInContext:(CGContext *) context

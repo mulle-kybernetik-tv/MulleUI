@@ -7,7 +7,7 @@
 #import "CGFont.h"
 
 
-#define USE_ANONYMOUS_PRO
+// #define USE_ANONYMOUS_PRO
 
 
 #ifdef USE_ANONYMOUS_PRO

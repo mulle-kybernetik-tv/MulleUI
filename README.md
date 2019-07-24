@@ -2,6 +2,10 @@
 
 ![screeny.png](screeny.png)
 
+## Controls-Cleartype Branch Progress
+
+* 17.7.2019: Use cleartype code for drawing text. Noticably sharper now.
+
 
 ## Controls Branch Progress
 

@@ -15,7 +15,7 @@
 }
 
 @property( assign) char     *fontName;
-@property( assign) CGFloat  fontSize;
+@property( assign) CGFloat  fontPixelSize;
 @property CGColorRef        textColor;
 
 - (NSUInteger) numberOfSegments;

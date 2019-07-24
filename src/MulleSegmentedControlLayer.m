@@ -60,7 +60,7 @@
 
 - (void) drawContentsInContext:(CGContext *) context
 {
-   CGFloat             fontSize;
+   CGFloat             fontPixelSize;
    CGFloat             midX;
    CGFloat             strokeWidth;
    CGFont              *font;
@@ -111,13 +111,13 @@
    font = [context fontWithName:_fontName ? _fontName : "sans"];
    name = [font name];  // get actual name, which could have different address
 
-   fontSize = [self fontSize];
-   if( fontSize == 0.0)
-      fontSize = 20.0;
+   fontPixelSize = [self fontPixelSize];
+   if( fontPixelSize == 0.0)
+      fontPixelSize = innerFrame.size.height;
 
-	nvgFontSize( vg, fontSize);
+	nvgFontSize( vg, fontPixelSize);
 	nvgFontFace( vg, name);
-	nvgFillColor( vg, nvgRGBA(255,255,255,255)); // TODO: use textColor
+   nvgTextColor( vg, nvgRGBA(255,255,255,255), [self backgroundColor]); // TODO: use textColor
    nvgTextAlign( vg,NVG_ALIGN_CENTER|NVG_ALIGN_MIDDLE);
 
    segmentFrame = innerFrame;
