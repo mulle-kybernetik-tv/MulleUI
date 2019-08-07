@@ -310,8 +310,7 @@ static void   mouseScrollCallback( GLFWwindow *window,
    // time on the first refresh (didn't work)
    //
    glfwSwapBuffers( _window);
-   glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
-   glClear( GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
+   [context clearFramebuffer];
 
    while( ! glfwWindowShouldClose( _window))
    {
@@ -356,9 +355,8 @@ static void   mouseScrollCallback( GLFWwindow *window,
          // GL_DEPTH_BUFFER_BIT ?
          //
          // glClearColor( 1.0 - _didRender / 120.0, 1.0 - _didRender / 120.0, 1.0 - _didRender / 240.0, 0.0f );
-         glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
-         glClear( GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
-      }
+         [context clearFramebuffer];
+   }
       else
          if( _didRender == PAINT_FRAMES)
          {

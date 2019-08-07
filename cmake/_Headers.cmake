@@ -69,6 +69,7 @@ src/bmp-writer.h
 src/entypo.inc
 src/import.h
 src/include.h
+src/nanoperf.h
 src/nanovg+CString.h
 src/sealie-bitmap.inc
 src/tiger-svg.inc

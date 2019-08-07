@@ -22,6 +22,22 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 #include <math.h>
 
 
+// TODO: move elsewhere
+typedef struct mulle_int_size
+{
+   int   width;
+   int   height;
+} mulle_int_size;
+
+
+// TODO: move elsewhere
+typedef struct mulle_bitmap_size
+{
+   struct mulle_int_size   size;
+   unsigned char           colorComponents;
+} mulle_bitmap_size;
+
+
 
 typedef struct {
     CGFloat dx;

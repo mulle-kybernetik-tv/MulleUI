@@ -3,20 +3,6 @@
 #import "CGGeometry.h"
 
 
-typedef struct mulle_int_size
-{
-   int   width;
-   int   height;
-} mulle_int_size;
-
-
-typedef struct mulle_bitmap_size
-{
-   struct mulle_int_size   size;
-   unsigned char           colorComponents;
-} mulle_bitmap_size;
-
-
 @interface MulleBitmapImage : UIImage
 {
    void                      *_image;

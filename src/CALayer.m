@@ -148,8 +148,6 @@
    //
    if( _borderWidth)
    {
-      if( tl.x <= br.x || tl.y <= br.y)
-
       halfBorderWidth = _borderWidth / 2.0;
 
       tl.x = halfBorderWidth + frame.origin.x ;

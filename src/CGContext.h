@@ -17,6 +17,7 @@
 
 #include "CGGeometry.h"
 
+#include "nanoperf.h"
 
 
 typedef enum 
@@ -115,24 +116,58 @@ typedef enum {
 struct NVGcontext;
 
 @class CGFont;
+@class MulleTextureImage;
+@class UIImage;
 
+
+struct MulleNVGPerformance
+{
+   // perf measurements
+   double             dt;
+	double             prevt;
+   double             cpuTime;
+   long               totalMem;
+   long               usedMem;
+   struct PerfGraph   fps;
+   struct PerfGraph   cpuGraph;
+   struct PerfGraph   gpuGraph;
+   struct PerfGraph   memGraph;
+   struct GPUtimer    gpuTimer;
+};
+
+
+struct MulleFrameInfo 
+{
+   CGSize     windowSize;
+   CGSize     framebufferSize;
+   CGVector   UIScale;
+   CGFloat    pixelRatio;
+};
 
 // could make those variable public ?
 @interface CGContext : NSObject
 {
-	struct NVGcontext  *_vg;	
-   CGFloat            _fontScale;
+	struct NVGcontext            *_vg;	
+   struct MulleNVGPerformance   _perf;
+   struct MulleFrameInfo        _currentFrameInfo;
+   struct mulle_pointerarray    *_framebufferImages;
+
 }
 
 - (struct NVGcontext *) nvgContext;
 
 - (void) startRenderToFrame:(CGRect) frame
-                  fontScale:(CGFloat) fontScale;
+                  frameInfo:(struct MulleFrameInfo *) info;
 - (void) resetTransform;
 - (void) endRender;
 
 - (CGFont *) fontWithName:(char *) s;
 - (CGFloat) fontScale;
+- (int) textureIDForImage:(UIImage *) image;
+- (MulleTextureImage *) framebufferImageWithSize:(CGSize) size 
+                                         options:(NSUInteger) options;
+- (void) clearFramebuffer;
+- (void) getCurrentFrameInfo:(struct MulleFrameInfo *) info; 
 
 @end
 
