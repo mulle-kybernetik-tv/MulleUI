@@ -7,7 +7,6 @@
 #import "UIView+UIEvent.h"
 #include <time.h>
 
-
 // #define DRAW_MOUSE_BOX   /* figure out how laggy mouse/draw is */
 // #define PRINTF_PROFILE_RENDER
 // #define ADD_RANDOM_LAG  /* make drawing sluggish */
@@ -271,6 +270,25 @@ static void   mouseScrollCallback( GLFWwindow *window,
 }
 #endif
 
+
+- (void) getFrameInfo:(struct MulleFrameInfo *) info
+{
+   float   scale_x, scale_y;
+   int     winWidth, winHeight;
+   int     fbWidth, fbHeight;
+
+   assert( info);
+
+   glfwGetWindowContentScale( _window, &scale_x, &scale_y);
+   glfwGetWindowSize( _window, &winWidth, &winHeight);
+   glfwGetFramebufferSize( _window, &fbWidth, &fbHeight);  
+
+   info->windowSize      = CGSizeMake( winWidth, winHeight);
+   info->framebufferSize = CGSizeMake( fbWidth, fbHeight);
+   info->UIScale         = CGVectorMake( scale_x, scale_y);
+	info->pixelRatio      = info->framebufferSize.width / info->windowSize.width;
+}
+
 // glitch hunt:
 //
 // a) we sometimes overflow the current frame
@@ -280,15 +298,15 @@ static void   mouseScrollCallback( GLFWwindow *window,
 //
 - (void) renderLoopWithContext:(CGContext *) context
 {
-   struct timespec   start;
-   struct timespec   end;
-   struct timespec   diff;
-   struct timespec   sleep;
-   GLFWmonitor       *monitor;
-   GLFWvidmode       *mode;
-   int               refresh;
-   long              nsperframe;
-   float             scale_x, scale_y;
+   struct timespec         start;
+   struct timespec         end;
+   struct timespec         diff;
+   struct timespec         sleep;
+   GLFWmonitor             *monitor;
+   GLFWvidmode             *mode;
+   int                     refresh;
+   long                    nsperframe;
+   struct MulleFrameInfo   info;
 
 //   _discardEvents = UIEventTypeMotion;
 
@@ -320,13 +338,10 @@ static void   mouseScrollCallback( GLFWwindow *window,
 #ifdef PRINTF_PROFILE_RENDER
          clock_gettime( CLOCK_REALTIME, &start);
 #endif
-         glfwGetWindowContentScale( _window, &scale_x, &scale_y);
-
+         [self getFrameInfo:&info];
          [context startRenderToFrame:_frame
-                            fontScale:scale_y];
-
+                           frameInfo:&info];
          [self renderWithContext:context];
-
          [context endRender];
 
 #ifdef PRINTF_PROFILE_RENDER

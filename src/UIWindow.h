@@ -5,11 +5,11 @@
 
 @interface UIWindow : UIView
 {
-   void            *_window;  // GLFWwindow
-	NSUInteger      _didRender;
-   CGRect          _frame;    // has its own frame
-   NSUInteger      _discardEvents; // bitfield of UIEventtypes ?
-   id              _firstResponder;
+   void               *_window;  // GLFWwindow
+	NSUInteger         _didRender;
+   CGRect             _frame;    // has its own frame
+   NSUInteger         _discardEvents; // bitfield of UIEventtypes ?
+   id                 _firstResponder;
 }
 
 @property( retain) CGContext                  *context;

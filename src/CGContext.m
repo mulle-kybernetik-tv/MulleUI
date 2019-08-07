@@ -5,7 +5,7 @@
 #import "CGContext.h"
 
 #import "CGFont.h"
-
+#import "CGGeometry+CString.h"
 
 // #define USE_ANONYMOUS_PRO
 
@@ -66,14 +66,13 @@
 
 
 - (void) startRenderToFrame:(CGRect) frame
-                  fontScale:(CGFloat) scale_y
-//                  frameInfo:(struct MulleFrameInfo *) info
+                  frameInfo:(struct MulleFrameInfo *) info
 {
    double   t;
    GLint    value;
 
 //   assert( info);
-//   _currentFrameInfo = *info;
+   _currentFrameInfo = *info;
 
    // > performance measurement
    if( _perf.cpuTime == -1.0)
@@ -90,11 +89,19 @@
 
    // < performance measurement  
 
-//	glViewport(0, 0, info->framebufferSize.width, info->framebufferSize.width);
+   if( ! CGSizeEqualToSize( frame.size, info->framebufferSize) ||
+       ! CGSizeEqualToSize( frame.size, info->windowSize) ||
+       ! CGSizeEqualToSize( info->framebufferSize, info->windowSize))
+      fprintf( stderr, "Frame: %s, FB: %s, Window: %s\n",
+               CGSizeCStringDescription( frame.size),
+               CGSizeCStringDescription( info->framebufferSize),
+               CGSizeCStringDescription( info->windowSize));
+            
+   glViewport(0, 0, frame.size.width, frame.size.height);
 
    nvgBeginFrame( _vg, frame.size.width, 
                        frame.size.height, 
-                       1.0);
+                       info->pixelRatio);
    nvgResetTransform( _vg);
    nvgScissor( _vg, 0.0, 0.0, frame.size.width, frame.size.height);
 }

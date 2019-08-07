@@ -126,8 +126,6 @@ struct MulleNVGPerformance
    double             dt;
 	double             prevt;
    double             cpuTime;
-   long               totalMem;
-   long               usedMem;
    struct PerfGraph   fps;
    struct PerfGraph   cpuGraph;
    struct PerfGraph   gpuGraph;
@@ -151,7 +149,6 @@ struct MulleFrameInfo
    struct MulleNVGPerformance   _perf;
    struct MulleFrameInfo        _currentFrameInfo;
    struct mulle_pointerarray    *_framebufferImages;
-
 }
 
 - (struct NVGcontext *) nvgContext;
