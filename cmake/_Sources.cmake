@@ -14,8 +14,8 @@ src/CGFont.m
 src/CGGeometry+CString.m
 src/CGGeometry.c
 src/MulleBitmapImage.m
-src/MulleBitmapLayer.m
 src/MulleCheckboxLayer.m
+src/MulleImageLayer.m
 src/MulleSVGImage.m
 src/MulleSVGLayer.m
 src/MulleScrollIndicatorView.m

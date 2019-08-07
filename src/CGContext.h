@@ -116,7 +116,6 @@ typedef enum {
 struct NVGcontext;
 
 @class CGFont;
-@class MulleTextureImage;
 @class UIImage;
 
 
@@ -161,8 +160,6 @@ struct MulleFrameInfo
 - (CGFont *) fontWithName:(char *) s;
 - (CGFloat) fontScale;
 - (int) textureIDForImage:(UIImage *) image;
-- (MulleTextureImage *) framebufferImageWithSize:(CGSize) size 
-                                         options:(NSUInteger) options;
 - (void) clearFramebuffer;
 - (void) getCurrentFrameInfo:(struct MulleFrameInfo *) info; 
 

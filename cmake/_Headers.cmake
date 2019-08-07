@@ -34,8 +34,8 @@ src/CGGeometry+CString.h
 src/CGGeometry.h
 src/Ghostscript_Tiger-svg.inc
 src/MulleBitmapImage.h
-src/MulleBitmapLayer.h
 src/MulleCheckboxLayer.h
+src/MulleImageLayer.h
 src/MulleSVGImage.h
 src/MulleSVGLayer.h
 src/MulleScrollIndicatorView.h

@@ -6,6 +6,8 @@
 
 #import "CGFont.h"
 #import "CGGeometry+CString.h"
+#import "MulleBitmapImage.h"
+
 
 // #define USE_ANONYMOUS_PRO
 
@@ -193,5 +195,24 @@
                            context:self]);
    abort();
 }
+
+
+// future, rasterize vector images to bitmaps here
+- (int) textureIDForImage:(UIImage *) image
+{
+   int   textureId;
+
+   mulle_int_size   size;
+
+   if( [image isKindOfClass:[MulleBitmapImage class]])
+   {
+      size      = [(MulleBitmapImage *) image intSize];
+      textureId = nvgCreateImageRGBA( _vg, size.width, size.height, 0, [(MulleBitmapImage *) image bytes]);
+      // fprintf( stderr, "textureid: %d\n", textureId);
+      return( textureId);
+   }
+   return( -1);
+}
+
 
 @end

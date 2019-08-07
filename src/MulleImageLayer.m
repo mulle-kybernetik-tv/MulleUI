@@ -1,30 +1,26 @@
-#import "MulleBitmapLayer.h"
+#import "MulleImageLayer.h"
 
-#import "MulleBitmapImage.h"
+#import "UIImage.h"
 #import "CGContext.h"
 
-#import "nanovg.h"
-#include "bmp-writer.h"
 
-
-@implementation MulleBitmapImage( MulleBitmapLayer)
+@implementation UIImage( MulleImageLayer)
 
 - (Class) preferredLayerClass
 {
-	return( [MulleBitmapLayer class]);
+	return( [MulleImageLayer class]);
 }
 
 @end
 
 
-@implementation MulleBitmapLayer
+@implementation MulleImageLayer
 
-
-- (instancetype) initWithBitmapImage:(MulleBitmapImage *) image
+- (instancetype) initWithImage:(UIImage *) image
 {
    CGRect   bounds;
 
-	assert( ! image || [image isKindOfClass:[MulleBitmapImage class]]);
+	assert( ! image || [image isKindOfClass:[UIImage class]]);
 
    if( ! (self = [super init]))
       return( self);
@@ -42,18 +38,6 @@
 }
 
 
-- (BOOL) writeToBMPFileWithSystemRepresentation:(char *) filename
-{
-   mulle_int_size   size;
-
-   if( ! filename || ! *filename)
-      return( NO);
-
-   size = [(MulleBitmapImage *) _image intSize];
-   return( ! bmp_rgb32_write_file( filename, [_image bytes], size.width, size.height, 0) ? YES : NO);
-}
-
-
 - (void) dealloc
 {
    [_image release];
@@ -63,10 +47,11 @@
 
 - (BOOL) drawInContext:(CGContext *) context
 {
-   mulle_int_size   size;
    int              textureId;
    NVGpaint         imgPaint;
    NVGcontext       *vg;
+   CGSize           imageSize;
+   CGRect           frame;
 
    if( ! [super drawInContext:context])
       return( NO);
@@ -74,18 +59,24 @@
    if( ! _image)
       return( YES);
 
-   vg        = [context nvgContext];
-   size      = [(MulleBitmapImage *) _image intSize];
-   textureId = nvgCreateImageRGBA( vg, size.width, size.height, 0, [(MulleBitmapImage *) _image bytes]);
-//   fprintf( stderr, "textureid: %d\n", textureId);
+   textureId = [context textureIDForImage:_image];
+   if( textureId == -1)
+   {
+      // or draw black ?
+      assert( 0);
+      return( YES);
+   }
 
-   imgPaint  = nvgImagePattern( vg, 0, 0, size.width, size.height, 0.0f/180.0f*NVG_PI, textureId, 1.0);
+   imageSize = [_image size];
+   frame     = [self frame];
+   vg        = [context nvgContext];
+   imgPaint  = nvgImagePattern( vg, 0, 0, imageSize.width, imageSize.height, 0.0f/180.0f*NVG_PI, textureId, 1.0);
 
    nvgBeginPath( vg);
    nvgRoundedRect( vg, 0,
                        0,
-                       size.width,
-                       size.height,
+                       imageSize.width,
+                       imageSize.height,
                        (int) _cornerRadius);
    nvgFillPaint( vg, imgPaint);
   // nvgFillColor( vg, getNVGColor( 0x402060FF));

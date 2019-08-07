@@ -2,7 +2,7 @@
 
 #import "CGContext.h"
 #import "MulleBitmapImage.h"
-#import "MulleBitmapLayer.h"
+#import "MulleImageLayer.h"
 #import "MulleSVGImage.h"
 #import "MulleSVGLayer.h"
 #import "UIApplication.h"
@@ -69,10 +69,10 @@ int   main()
 {
    MulleSVGLayer        *tigerLayer;
    MulleSVGLayer        *shiftedTigerLayer;
-   MulleBitmapLayer     *viechLayer;
-   MulleBitmapLayer     *sealieLayer;
-   MulleBitmapLayer     *turtleLayer;
-   MulleBitmapLayer     *turtleLayer2;
+   MulleImageLayer      *viechLayer;
+   MulleImageLayer      *sealieLayer;
+   MulleImageLayer      *turtleLayer;
+   MulleImageLayer      *turtleLayer2;
    MulleSVGImage        *tigerSVGImage;
    MulleBitmapImage     *viechBitmap;
    MulleBitmapImage     *sealieBitmap;
@@ -126,7 +126,7 @@ int   main()
                                                   autorelease];
    fprintf( stderr, "turtleBitmapImage: %p\n", turtleBitmap);
 
-   turtleLayer = [[[MulleBitmapLayer alloc] initWithBitmapImage:turtleBitmap] autorelease];
+   turtleLayer = [[[MulleImageLayer alloc] initWithImage:turtleBitmap] autorelease];
    [turtleLayer setCStringName:"turtle"];
    frame.origin = CGPointMake( 0.0 * SCALE, 100.0  * SCALE);
    frame.size.width  = turtle_bitmap_size.size.width;

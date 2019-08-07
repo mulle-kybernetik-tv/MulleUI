@@ -17,6 +17,7 @@
 - (instancetype) initWithConstBytes:(const void *) bytes 
                          bitmapSize:(mulle_bitmap_size) bitmapSize;
 - (instancetype) initWithContentsOfFileWithFileRepresentationString:(char *) s;
+- (BOOL) writeToBMPFileWithSystemRepresentation:(char *) filename;
 
 - (mulle_int_size) intSize;
 - (mulle_bitmap_size) bitmapSize;
