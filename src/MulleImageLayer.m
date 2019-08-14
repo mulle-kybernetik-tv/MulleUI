@@ -47,19 +47,18 @@
 
 - (BOOL) drawInContext:(CGContext *) context
 {
-   int              textureId;
-   NVGpaint         imgPaint;
-   NVGcontext       *vg;
-   CGSize           imageSize;
-   CGRect           frame;
+   int          textureId;
+   NVGpaint     imgPaint;
+   NVGcontext   *vg;
+   CGSize       imageSize;
 
    if( ! [super drawInContext:context])
       return( NO);
 
    if( ! _image)
       return( YES);
-
-   textureId = [context textureIDForImage:_image];
+     
+   textureId = [_image textureIDWithContext:context];
    if( textureId == -1)
    {
       // or draw black ?
@@ -68,11 +67,11 @@
    }
 
    imageSize = [_image size];
-   frame     = [self frame];
    vg        = [context nvgContext];
    imgPaint  = nvgImagePattern( vg, 0, 0, imageSize.width, imageSize.height, 0.0f/180.0f*NVG_PI, textureId, 1.0);
 
    nvgBeginPath( vg);
+   // shouldn't this be the frame ?
    nvgRoundedRect( vg, 0,
                        0,
                        imageSize.width,

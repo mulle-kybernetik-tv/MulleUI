@@ -7,7 +7,7 @@
 @class CALayer;
 @class CGContext;
 @class UIWindow;
-
+@class MulleImageLayer;
 
 //
 // the main layer which is bottom-most defines the geometry
@@ -23,13 +23,16 @@
 
    struct mulle_pointerarray   *_layers;
    struct mulle_pointerarray   *_subviews;
+
+   MulleImageLayer             *_cacheLayer;  // same size as _mainLayer (contains all layers and subviews ?)
 }
 
 @property BOOL clipsSubviews;
 @property BOOL needsLayout;
+@property BOOL needsCaching;
 
 - (void) setNeedsLayout;
-
+- (void) setNeedsCaching;  // wipes the _cacheLayer and asks for a new one to be drawn
 
 + (Class) layerClass;
 

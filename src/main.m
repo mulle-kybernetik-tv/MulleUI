@@ -67,32 +67,32 @@ static UIEvent   *scroll_callback( UIButton *button, UIEvent *event)
 
 int   main()
 {
-   MulleSVGLayer        *tigerLayer;
-   MulleSVGLayer        *shiftedTigerLayer;
-   MulleImageLayer      *viechLayer;
+   CGContext            *context;
+   CGRect               bounds;
+   CGRect               frame;
+   MulleBitmapImage     *sealieBitmap;
+   MulleBitmapImage     *turtleBitmap;
+   MulleBitmapImage     *viechBitmap;
    MulleImageLayer      *sealieLayer;
    MulleImageLayer      *turtleLayer;
    MulleImageLayer      *turtleLayer2;
+   MulleImageLayer      *viechLayer;
    MulleSVGImage        *tigerSVGImage;
-   MulleBitmapImage     *viechBitmap;
-   MulleBitmapImage     *sealieBitmap;
-   MulleBitmapImage     *turtleBitmap;
-   CGRect               frame;
-   CGRect               bounds;
-   CGContext            *context;
-   UIWindow             *window;
-   UIView               *view;
+   MulleSVGLayer        *shiftedTigerLayer;
+   MulleSVGLayer        *tigerLayer;
+   UIApplication        *application;
    UIButton             *button;
-   UILabel              *label;
-   UIStepper            *stepper;
+   UIButton             *inScrollerButton;
    UIButton             *insideButton;
    UIButton             *nestedButton;
-   UIButton             *inScrollerButton;
-   UISegmentedControl   *segmentedControl;
+   UILabel              *label;
    UIScrollView         *scroller;
-   UIApplication        *application;
-   UISwitch             *checkbox;
+   UISegmentedControl   *segmentedControl;
    UISlider             *slider;
+   UIStepper            *stepper;
+   UISwitch             *checkbox;
+   UIView               *view;
+   UIWindow             *window;
 
    tigerSVGImage = [[[MulleSVGImage alloc] initWithBytes:svginput
                                           length:strlen( svginput) + 1] autorelease];
@@ -102,13 +102,16 @@ int   main()
    [tigerLayer setCStringName:"tiger"];
    fprintf( stderr, "layer: %p\n", tigerLayer);
 
+   shiftedTigerLayer = [[[MulleSVGLayer alloc] initWithSVGImage:tigerSVGImage] autorelease];
+   [shiftedTigerLayer setCStringName:"shiftedTiger"];
+   fprintf( stderr, "layer: %p\n", shiftedTigerLayer);
+
 
    // layer = [[[CALayer alloc] init] autorelease];
 
-   frame.origin       = CGPointMake( 0.0 * SCALE, 0.0 * SCALE);
-   frame.size.width   = 160 * SCALE;
-   frame.size.height  = 100 * SCALE;
-
+   frame.origin       = CGPointMake( 100.0 * SCALE, 100.0 * SCALE);
+   frame.size.width   = 320 * SCALE;
+   frame.size.height  = 200 * SCALE;
    [tigerLayer setFrame:frame];
  //  [layer setBounds:CGRectMake( 0.0, 0.0, 200, 30)];
    [tigerLayer setBackgroundColor:getNVGColor( 0xFFE0D0D0)];
@@ -116,28 +119,58 @@ int   main()
    [tigerLayer setBorderWidth:32.0f];
    [tigerLayer setCornerRadius:16.0f];
 
+   frame.origin = CGPointMake( 320 * SCALE, 200 * SCALE);
+   [shiftedTigerLayer setFrame:frame];
+
+   bounds = [shiftedTigerLayer bounds];
+   bounds.origin.x = -bounds.size.width / 2.0;
+   [shiftedTigerLayer setBounds:bounds];
+   [shiftedTigerLayer setBackgroundColor:getNVGColor( 0x407040FF)];
+
+
    viechBitmap = [[[MulleBitmapImage alloc] initWithConstBytes:viech_bitmap
-                                                    bitmapSize:viech_bitmap_size]
-                                                       autorelease];
-   fprintf( stderr, "viechBitmap: %p\n", viechBitmap);
+                                                     bitmapSize:viech_bitmap_size]
+                                                  autorelease];
+   fprintf( stderr, "viechBitmapImage: %p\n", viechBitmap);
+
+   sealieBitmap = [[[MulleBitmapImage alloc] initWithConstBytes:sealie_bitmap
+                                                     bitmapSize:sealie_bitmap_size]
+                                                  autorelease];
+   fprintf( stderr, "sealieBitmapImage: %p\n", sealieBitmap);
 
    turtleBitmap = [[[MulleBitmapImage alloc] initWithConstBytes:turtle_bitmap
                                                      bitmapSize:turtle_bitmap_size]
                                                   autorelease];
    fprintf( stderr, "turtleBitmapImage: %p\n", turtleBitmap);
 
+   viechLayer = [[[MulleImageLayer alloc] initWithImage:viechBitmap] autorelease];
+   [viechLayer setCStringName:"viech"];
+   frame.origin       = CGPointMake( 320.0 * SCALE, 0.0 * SCALE);
+   frame.size.width   = 320 * SCALE;
+   frame.size.height  = 200 * SCALE;
+   [viechLayer setFrame:frame];
+   fprintf( stderr, "layer: %p\n", viechLayer);
+
+   sealieLayer = [[[MulleImageLayer alloc] initWithImage:sealieBitmap] autorelease];
+   [sealieLayer setCStringName:"sealie"];
+   frame.origin       = CGPointMake( 30.0, 2.0);
+   frame.size.width   = 102;
+   frame.size.height  = 100;
+   [sealieLayer setFrame:frame];
+   fprintf( stderr, "layer: %p\n", sealieLayer);
+
    turtleLayer = [[[MulleImageLayer alloc] initWithImage:turtleBitmap] autorelease];
    [turtleLayer setCStringName:"turtle"];
-   frame.origin = CGPointMake( 0.0 * SCALE, 100.0  * SCALE);
-   frame.size.width  = turtle_bitmap_size.size.width;
-   frame.size.height = turtle_bitmap_size.size.height;
+   frame.origin       = CGPointMake( -50.0, 10.0);
+   frame.size.width   = 100;
+   frame.size.height  = 117;
    [turtleLayer setFrame:frame];
    fprintf( stderr, "layer: %p\n", turtleLayer);
 
    /*
     * window and app 
     */
-   window  = [[[UIWindow alloc] initWithFrame:CGRectMake( 0.0, 0.0, 400.0 * SCALE, 300.0 * SCALE)] autorelease];
+   window  = [[[UIWindow alloc] initWithFrame:CGRectMake( 0.0, 0.0, 640.0 * SCALE, 400.0 * SCALE)] autorelease];
    assert( window);
 
    [[UIApplication sharedInstance] addWindow:window];
@@ -148,8 +181,23 @@ int   main()
     * view placement in window 
     */
    view = [[[UIView alloc] initWithLayer:tigerLayer] autorelease];
+   [view setNeedsCaching];
    [window addSubview:view];
 
+/*
+   view = [[[UIView alloc] initWithLayer:shiftedTigerLayer] autorelease];
+   [window addSubview:view];
+
+   button = [[[UIButton alloc] initWithLayer:viechLayer] autorelease];
+   // [button setClipsSubviews:YES];
+   [button setClick:button_callback];
+   [button setDisabled:YES];
+   [window addSubview:button];
+
+   insideButton = [[[UIButton alloc] initWithLayer:sealieLayer] autorelease];
+   // [insideButton setClipsSubviews:YES];
+   [insideButton setClick:button_callback];
+   [button addSubview:insideButton];
 
    nestedButton = [[[UIButton alloc] initWithLayer:turtleLayer] autorelease];
    [nestedButton setBackgroundImage:turtleBitmap
@@ -159,73 +207,33 @@ int   main()
 
    // [insideButton setClipsSubviews:YES];
    [nestedButton setClick:button_callback];
-   [window addSubview:nestedButton];
+   [insideButton addSubview:nestedButton];
 
-   frame.origin      = CGPointMake( turtle_bitmap_size.size.width * SCALE, 100.0 * SCALE);
-   frame.size.width  = 140;
-   frame.size.height = 100;
 
-   label = [[[UILabel alloc] initWithFrame:frame] autorelease];
+   frame    = CGRectMake( 0.0 * SCALE, 200.0 * SCALE, 320.0 * SCALE, 200.0 * SCALE);
+   scroller = [[[UIScrollView alloc] initWithFrame:frame] autorelease];
+   [window addSubview:scroller];
 
-   // [insideButton setClipsSubviews:YES];
-   [label setCString:"UILabel"];
-   [label setFontName:"sans"];
-   [label setFontPixelSize:14.0 * SCALE];
-   [label setBackgroundColor:getNVGColor( 0x1F1F1FFF)];
-   [label setTextColor:getNVGColor( 0xFEFEFEFF)];
+   // another turtleLayer
+   turtleLayer2 = [[[MulleImageLayer alloc] initWithImage:turtleBitmap] autorelease];
+   [turtleLayer2 setCStringName:"turtle2"];
+   frame.origin       = CGPointMake( 0.0 * SCALE, 0.0 * SCALE);
+   frame.size.width   = 640 * SCALE;
+   frame.size.height  = 400 * SCALE;
+   [turtleLayer2 setFrame:frame];
+   fprintf( stderr, "layer: %p\n", turtleLayer2);
 
-   [window addSubview:label];
-
-   frame.origin      = CGPointMake( 160.0 * SCALE , 0 * SCALE);
-   frame.size.width  = 200;
-   frame.size.height = 100;
-
-   checkbox = [[[UISwitch alloc] initWithFrame:frame] autorelease];
-
-   // [insideButton setClipsSubviews:YES];
-   [checkbox setCString:"UISwitch"];
-   [checkbox setFontName:"sans"];
-   [checkbox setFontPixelSize:14.0 * SCALE];
-   [checkbox setBackgroundColor:getNVGColor( 0x112141FF)];
-   [checkbox setTextColor:getNVGColor( 0xFE00FEFF)];
-
-   [window addSubview:checkbox];
-
-   frame.origin      = CGPointMake( 160.0 * SCALE , 100.0 * SCALE);
-   frame.size.width  = 200;
-   frame.size.height = 100;
-
-   slider = [[[UISlider alloc] initWithFrame:frame] autorelease];
+   inScrollerButton = [[[UIButton alloc] initWithLayer:turtleLayer2] autorelease];
+   [inScrollerButton setBackgroundImage:turtleBitmap
+                               forState:UIControlStateNormal];
+   [inScrollerButton setBackgroundImage:sealieBitmap
+                               forState:UIControlStateSelected];
 
    // [insideButton setClipsSubviews:YES];
-   [slider setBackgroundColor:getNVGColor( 0x114111FF)];
-
-   [window addSubview:slider];
-
-   frame           = [label frame];
-   frame.origin.y += frame.size.height;
-
-   stepper = [[[UIStepper alloc] initWithFrame:frame] autorelease];
-
-   // [insideButton setClipsSubviews:YES];
-   [window addSubview:stepper];
-
-
-   frame.origin.y += frame.size.height;
-
-   segmentedControl = [[[UISegmentedControl alloc] initWithFrame:frame] autorelease];
-   [segmentedControl insertSegmentWithCString:"1" 
-                                     atIndex:0 
-                                    animated:NO];  
-   [segmentedControl insertSegmentWithCString:"0" 
-                                     atIndex:0 
-                                    animated:NO];  
-   [segmentedControl insertSegmentWithCString:"2" 
-                                     atIndex:2
-                                    animated:NO];   
-   [window addSubview:segmentedControl];
-
-
+   [inScrollerButton setClick:scroll_callback];
+   [[scroller contentView] addSubview:inScrollerButton];
+   [scroller setContentSize:[inScrollerButton frame].size];
+*/
    [window dump];
    [window renderLoopWithContext:context];
 

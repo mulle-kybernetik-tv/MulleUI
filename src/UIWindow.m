@@ -279,14 +279,17 @@ static void   mouseScrollCallback( GLFWwindow *window,
 
    assert( info);
 
-   glfwGetWindowContentScale( _window, &scale_x, &scale_y);
+   // glfwGetWindowContentScale( _window, &scale_x, &scale_y);
+   scale_x = 1.0; scale_y = 1.0;
    glfwGetWindowSize( _window, &winWidth, &winHeight);
    glfwGetFramebufferSize( _window, &fbWidth, &fbHeight);  
 
+   info->frame           = _frame;
    info->windowSize      = CGSizeMake( winWidth, winHeight);
    info->framebufferSize = CGSizeMake( fbWidth, fbHeight);
    info->UIScale         = CGVectorMake( scale_x, scale_y);
 	info->pixelRatio      = info->framebufferSize.width / info->windowSize.width;
+   info->isPerfEnabled   = NO;
 }
 
 // glitch hunt:
@@ -312,15 +315,14 @@ static void   mouseScrollCallback( GLFWwindow *window,
 
    glfwSwapInterval( 0);  // need for smooth pointer/control sync
 
+#ifdef PRINTF_PROFILE_RENDER
    monitor = glfwGetPrimaryMonitor();
    mode    = (GLFWvidmode *) glfwGetVideoMode( monitor);
    refresh = mode->refreshRate;
 
    nsperframe = (1000000000L + (mode->refreshRate - 1)) / mode->refreshRate;
-#ifdef PRINTF_PROFILE_RENDER
    fprintf( stderr, "Refresh: %d (%09ld ns/frame)\n", mode->refreshRate, nsperframe);
 #endif
-   #define PAINT_FRAMES  2 //  60 * 5
 
    // glfwMakeContextCurrent( _window );
    //
@@ -332,15 +334,18 @@ static void   mouseScrollCallback( GLFWwindow *window,
 
    while( ! glfwWindowShouldClose( _window))
    {
-      if( 1 || _didRender < PAINT_FRAMES)
+      if( 1)
       {
          // nvgGlobalCompositeOperation( ctxt->vg, NVG_ATOP);
 #ifdef PRINTF_PROFILE_RENDER
          clock_gettime( CLOCK_REALTIME, &start);
 #endif
          [self getFrameInfo:&info];
-         [context startRenderToFrame:_frame
-                           frameInfo:&info];
+         [self updateRenderCachesWithContext:context 
+                                   frameInfo:&info];
+
+         info.isPerfEnabled = YES;
+         [context startRenderWithFrameInfo:&info];
          [self renderWithContext:context];
          [context endRender];
 
@@ -371,19 +376,15 @@ static void   mouseScrollCallback( GLFWwindow *window,
          //
          // glClearColor( 1.0 - _didRender / 120.0, 1.0 - _didRender / 120.0, 1.0 - _didRender / 240.0, 0.0f );
          [context clearFramebuffer];
-   }
-      else
-         if( _didRender == PAINT_FRAMES)
-         {
-            printf( "finished\n");
-            _didRender++;
-         }
+      }
 
 #ifdef PRINTF_PROFILE_EVENTS
       clock_gettime( CLOCK_REALTIME, &start);
       printf( "@%ld:%09ld events start\n", start.tv_sec, start.tv_nsec);
 #endif
-      [self waitForEvents];
+
+      // use at max 200 Hz refresh rate (0: polls)
+      [self waitForEvents:0.0];
 
 #ifdef PRINTF_PROFILE_EVENTS
       clock_gettime( CLOCK_REALTIME, &end);
@@ -407,10 +408,12 @@ static void   mouseScrollCallback( GLFWwindow *window,
 }
 
 
-- (void) waitForEvents
+- (void) waitForEvents:(double) hz
 {
-   glfwWaitEventsTimeout( 1.0 / 200);
-      // glfwPollEvents();
+   if( hz == 0.0)
+   	glfwPollEvents();
+   else
+     glfwWaitEventsTimeout( 1.0 / hz);    
 }
 
 

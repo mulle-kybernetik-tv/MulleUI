@@ -2,6 +2,12 @@
 
 ![screeny.png](screeny.png)
 
+
+## Rendercache Progress
+
+* 14.8.2019: Rendering into a texture works
+
+
 ## Controls-Cleartype Branch Progress
 
 * 17.7.2019: Use cleartype code for drawing text. Noticably sharper now.

@@ -130,30 +130,38 @@ struct MulleNVGPerformance
    struct PerfGraph   gpuGraph;
    struct PerfGraph   memGraph;
    struct GPUtimer    gpuTimer;
+   BOOL               enabled;
 };
 
 
 struct MulleFrameInfo 
 {
+   CGRect     frame;
    CGSize     windowSize;
    CGSize     framebufferSize;
    CGVector   UIScale;
    CGFloat    pixelRatio;
+   BOOL       isPerfEnabled;
 };
 
+//
 // could make those variable public ?
+// for OpenGL we have one context per OpenGL, to keep fonts and 
+// other textures around. Each frame is encloded in a 
+// startRender and an endRender. frames can't be nested.
+//
 @interface CGContext : NSObject
 {
 	struct NVGcontext            *_vg;	
    struct MulleNVGPerformance   _perf;
    struct MulleFrameInfo        _currentFrameInfo;
    struct mulle_pointerarray    *_framebufferImages;
+   BOOL                         _isRendering;
 }
 
 - (struct NVGcontext *) nvgContext;
 
-- (void) startRenderToFrame:(CGRect) frame
-                  frameInfo:(struct MulleFrameInfo *) info;
+- (void) startRenderWithFrameInfo:(struct MulleFrameInfo *) info;
 - (void) resetTransform;
 - (void) endRender;
 
@@ -162,6 +170,10 @@ struct MulleFrameInfo
 - (int) textureIDForImage:(UIImage *) image;
 - (void) clearFramebuffer;
 - (void) getCurrentFrameInfo:(struct MulleFrameInfo *) info; 
+
+- (UIImage *) textureImageWithSize:(CGSize) size 
+                           options:(NSUInteger) options;
+- (void) removeTextureImage:(UIImage *) image; 
 
 @end
 

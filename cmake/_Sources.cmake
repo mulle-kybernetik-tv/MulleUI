@@ -23,6 +23,7 @@ src/MulleSegmentedControlLayer.m
 src/MulleSliderLayer.m
 src/MulleStepperLayer.m
 src/MulleTextLayer.m
+src/MulleTextureImage.m
 src/UIApplication.m
 src/UIButton.m
 src/UIControl.m

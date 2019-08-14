@@ -43,6 +43,7 @@ src/MulleSegmentedControlLayer.h
 src/MulleSliderLayer.h
 src/MulleStepperLayer.h
 src/MulleTextLayer.h
+src/MulleTextureImage.h
 src/Roboto-Regular.inc
 src/UIApplication.h
 src/UIButton.h
