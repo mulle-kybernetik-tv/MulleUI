@@ -273,3 +273,86 @@ CGRect CGRectUnion(CGRect r1, CGRect r2) {
     return ret;
 }
 
+
+unsigned int   MulleRectSubdivideByRect( CGRect rect, CGRect other, CGRect output[ 4])
+{
+   unsigned int   i;
+   CGFloat        left_margin;
+   CGFloat        right_margin;
+   CGFloat        top_margin;
+   CGFloat        bottom_margin;
+   CGFloat        extent;
+
+   // and assume other is smack dab in the middle of rect
+   //
+   //    000000000
+   //    111   222
+   //    333333333
+   //
+   // assume other is overlapping middle and part of the bottom
+   //
+   //    000000000
+   //    111   222
+   //    111   222
+   //
+   // assume other is overlapping middle and part of the bottom
+   //
+   //    000000000
+   //    111
+   //    111
+
+   i = 0;
+   
+   if ( ! CGRectIntersectsRect( rect, other))
+      return (0);
+
+   top_margin    = CGRectGetMinY( other) - CGRectGetMinY( rect);
+   bottom_margin = CGRectGetMaxY( rect)  - CGRectGetMaxY( other);
+   left_margin   = CGRectGetMinX( other) - CGRectGetMinX( rect);
+   right_margin  = CGRectGetMaxX( rect)  - CGRectGetMaxX( other);
+
+   extent = CGRectGetHeight(rect);
+   
+   if( top_margin > 0.0)
+   {
+      output[ i++] = CGRectMake( CGRectGetMinX( rect),
+                                 CGRectGetMinY( rect),
+                                 CGRectGetWidth( rect),
+                                 top_margin);
+      extent -= top_margin;
+   }
+   else
+      top_margin = 0.0;
+
+   if( bottom_margin > 0.0)
+   {
+      output[i++] = CGRectMake(CGRectGetMinX(rect),
+                               CGRectGetMaxY(rect) - bottom_margin,
+                               CGRectGetWidth(rect),
+                               bottom_margin);
+      extent -= bottom_margin;
+   }
+
+
+   if( extent > 0.0)
+   {
+      if( left_margin > 0.0)
+      {
+         output[i++] = CGRectMake(CGRectGetMinX(rect),
+                                  CGRectGetMinY (rect) + top_margin,
+                                  left_margin,
+                                  extent);
+      }
+
+      if( right_margin > 0.0)
+      {
+         output[i++] = CGRectMake(CGRectGetMaxX(rect) - right_margin,
+                                  CGRectGetMinY(rect) + top_margin,
+                                  right_margin,
+                                  extent);
+      }
+   }
+
+
+   return( i);
+}

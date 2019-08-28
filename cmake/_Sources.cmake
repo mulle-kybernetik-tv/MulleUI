@@ -46,6 +46,7 @@ src/UIWindow+UIResponder.m
 src/UIWindow.m
 src/bmp-writer.c
 src/main.m
+src/mulle-quadtree.m
 src/nanoperf.m
 src/nanosvg.m
 src/nanovg+CString.m

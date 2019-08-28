@@ -270,7 +270,7 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
 - (void) _createRenderCacheIfNeededWithContext:(CGContext *) context
                                      frameInfo:(struct MulleFrameInfo *) info
 {
-   MulleTextureImage   *image;
+   UIImage   *image;
 
    if( ! _needsCaching)
       return;
@@ -539,7 +539,7 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
                               options:(NSUInteger) options
 {
    struct MulleFrameInfo   renderInfo;
-   MulleTextureImage       *image;
+   UIImage                *image;
    CGRect                  frame;
 
    frame = [self frame];

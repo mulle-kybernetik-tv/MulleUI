@@ -115,7 +115,7 @@ static inline CGFloat CGRectGetMaxX(CGRect rect) {
 @Status Interoperable
 */
 static inline CGFloat CGRectGetMidX(CGRect rect) {
-    return CGRectGetMinX(rect) + ((CGRectGetMaxX(rect) - CGRectGetMinX(rect)) / 2.f);
+    return( rect.origin.x + rect.size.width / 2);
 }
 
 /**
@@ -127,16 +127,17 @@ static inline CGFloat CGRectGetMinY(CGRect rect) {
 
 /**
 @Status Interoperable
+TODO: CHECK THIS, WHAT DOES MAX Y MEAN GRAPHICALLY ?
 */
 static inline CGFloat CGRectGetMaxY(CGRect rect) {
-    return rect.origin.y + rect.size.height;
+    return(rect.origin.y + rect.size.height);
 }
 
 /**
 @Status Interoperable
 */
 static inline CGFloat CGRectGetMidY(CGRect rect) {
-    return CGRectGetMinY(rect) + ((CGRectGetMaxY(rect) - CGRectGetMinY(rect)) / 2.f);
+    return( rect.origin.y + rect.size.height / 2);
 }
 
 /**
@@ -157,8 +158,8 @@ static inline CGFloat CGRectGetHeight(CGRect rect) {
 @Status Interoperable
 */
 static inline int CGRectContainsPoint(CGRect rect, CGPoint point) {
-    return (point.x >= CGRectGetMinX(rect) && point.x <= CGRectGetMaxX(rect)) &&
-           (point.y >= CGRectGetMinY(rect) && point.y <= CGRectGetMaxY(rect));
+    return (point.x >= CGRectGetMinX(rect) && point.x < CGRectGetMaxX(rect)) &&
+           (point.y >= CGRectGetMinY(rect) && point.y < CGRectGetMaxY(rect));
 }
 
 /**
@@ -172,9 +173,9 @@ static inline int CGPointEqualToPoint(CGPoint a, CGPoint b) {
 @Status Interoperable
 */
 static inline CGRect CGRectInset(CGRect rect, CGFloat dx, CGFloat dy) {
-    rect.origin.x += dx;
-    rect.origin.y += dy;
-    rect.size.width -= dx * 2;
+    rect.origin.x    += dx;
+    rect.origin.y    += dy;
+    rect.size.width  -= dx * 2;
     rect.size.height -= dy * 2;
     return rect;
 }
@@ -228,7 +229,9 @@ static inline int CGRectIsInfinite(CGRect rect) {
 @Status Interoperable
 */
 static inline int CGRectContainsRect(CGRect a, CGRect b) {
-    return (CGRectGetMinX(b) >= CGRectGetMinX(a) && CGRectGetMaxX(b) <= CGRectGetMaxX(a) && CGRectGetMinY(b) >= CGRectGetMinY(a) &&
+    return( CGRectGetMinX(b) >= CGRectGetMinX(a) && 
+            CGRectGetMaxX(b) <= CGRectGetMaxX(a) && 
+            CGRectGetMinY(b) >= CGRectGetMinY(a) &&
             CGRectGetMaxY(b) <= CGRectGetMaxY(a));
 }
 
@@ -238,5 +241,7 @@ CGRect CGRectStandardize(CGRect rect);
 CGRect CGRectUnion(CGRect a, CGRect b);
 
 void CGRectDivide(CGRect rect, CGRect* slice, CGRect* remainder, CGFloat amount, CGRectEdge edge);
+
+unsigned int   MulleRectSubdivideByRect( CGRect rect, CGRect other, CGRect output[ 4]);
 
 #endif

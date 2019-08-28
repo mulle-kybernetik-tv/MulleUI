@@ -3,15 +3,21 @@
 #import "import-private.h"
 #import "UIWindow.h"
 #import "CGContext.h"
+#import "CALayer.h"  // for color
+#import "CGGeometry+CString.h"
 #import "UIEvent.h"
 #import "UIView+UIEvent.h"
 #include <time.h>
+#import "mulle-quadtree.h"
 
+
+// #define DRAW_SUBDIVISION
+#define DRAW_QUADTREE
 // #define DRAW_MOUSE_BOX   /* figure out how laggy mouse/draw is */
 // #define PRINTF_PROFILE_RENDER
 // #define ADD_RANDOM_LAG  /* make drawing sluggish */
 
-#ifdef DRAW_MOUSE_BOX
+#if defined( DRAW_MOUSE_BOX) || defined(DRAW_QUADTREE)
 # include <GL/gl.h>
 #endif
 
@@ -103,6 +109,15 @@ static void   mouseMoveCallback( GLFWwindow* window,
 
    self->_mousePosition.x = xpos;
    self->_mousePosition.y = ypos;
+
+   //
+   // Observed behaviour on linux: Depending on mouse sensitivity, it may 
+   // become obvious that there is a rounding bug in the Linux mouse handling
+   // where certain integer values are never returned. In my case this 
+   // turned out to be 200,200. So don't expect the mouse to provide all 
+   // possible integer coordinates for every pixel on the screen.
+   //
+   
    if( self->_discardEvents & UIEventTypeMotion)
       return;
 
@@ -344,7 +359,7 @@ static void   mouseScrollCallback( GLFWwindow *window,
          [self updateRenderCachesWithContext:context 
                                    frameInfo:&info];
 
-         info.isPerfEnabled = YES;
+         info.isPerfEnabled = NO;
          [context startRenderWithFrameInfo:&info];
          [self renderWithContext:context];
          [context endRender];
@@ -442,12 +457,198 @@ static void   mouseScrollCallback( GLFWwindow *window,
 }
 
 
+
+#ifdef DRAW_QUADTREE
+
+static void  print_area( CGRect rect, void *payload, void *window)
+{
+   fprintf( stderr, "%s %p\n", CGRectCStringDescription( rect), payload);
+}
+
+
+static void  clear_area( CGRect rect, void *payload, void *quadtree)
+{
+   mulle_quadtree_change_payload( quadtree, rect.origin, (void *) 1, (void *) 0);
+}
+
+
+static void  draw_area( CGRect rect, void *payload, void *window)
+{
+   double   x, y;
+   double   x2, y2;
+   CGRect   bounds;
+
+   x = rect.origin.x;
+   y = rect.origin.y;
+   x2 = rect.origin.x + rect.size.width - 1.0;
+   y2 = rect.origin.y + rect.size.height - 1.0;
+
+   bounds = [window bounds];
+
+   if( payload)
+      glColor3f(0.8, 0.4, 0.4);
+   else
+      glColor3f(0.4, 0.4, 0.8);
+
+   glBegin(GL_QUADS);
+
+   // assume 0.0,0.0 is in the middle of the screen
+   x = (x - (bounds.size.width / 2.0)) / (bounds.size.width / 2.0);
+   y = ((bounds.size.height / 2.0) - y) / (bounds.size.height / 2.0);
+   x2 = (x2 - (bounds.size.width / 2.0)) / (bounds.size.width / 2.0);
+   y2 = ((bounds.size.height / 2.0) - y2) / (bounds.size.height / 2.0);
+
+   glVertex3f( x, y, 0.0);
+   glVertex3f( x2, y, 0.0);
+   glVertex3f( x2, y2, 0.0);
+   glVertex3f( x, y2, 0.0);
+
+   glEnd();
+}
+
+- (void) renderWithContext:(CGContext *) context
+{
+   mulle_quadtree_walk( _quadtree, draw_area, self);
+}
+
+- (void) setupQuadtree
+{
+   CGRect       rect;
+   NSUInteger   i;
+
+   _quadtree = mulle_quadtree_create( [self bounds], 1, 10, NULL);
+   for( i = 0; i < 1000; i++)
+   {
+      rect = CGRectMake( rand() % (int) (_frame.size.width - 2.0),
+                         rand() % (int) (_frame.size.height - 2.0),
+                         2.0,
+                         2.0);
+      mulle_quadtree_insert( _quadtree, rect, NULL);
+   }
+
+#if 0   
+   mulle_quadtree_insert( _quadtree, CGRectMake( 100, 100, 32, 32), NULL);
+   mulle_quadtree_insert( _quadtree, CGRectMake( 100, 200, 32, 32), NULL);
+   mulle_quadtree_insert( _quadtree, CGRectMake( 200, 100, 32, 32), NULL);
+   mulle_quadtree_insert( _quadtree, CGRectMake( 200, 200, 32, 32), NULL);
+#endif
+
+   mulle_quadtree_walk( _quadtree, print_area, self);
+}
+#endif
+
+static CGRect  RandomRectOfSize( CGSize size)
+{
+   CGRect  rect;
+
+   rect.origin.x    = rand() % (int) size.width;
+   rect.origin.y    = rand() % (int) size.height;
+
+   do
+      rect.size.width  = rand() % (int) size.width;
+   while( rect.size.width < 10.0);
+
+   do
+      rect.size.height = rand() % (int) size.height;
+   while( rect.size.height < 10.0);
+   return( rect);
+}
+
+static CGRect   testRectangles[] =
+{
+   { 0, 0, 320, 200 },
+   { 320, 0, 320, 200 },
+   { 0, 200, 320, 200 },
+   { 320, 200, 320, 200 }
+};
+#define n_testRectangles   (sizeof( testRectangles) / sizeof( CGRect))
+
+- (void) newSubdividedRects
+{
+   NSUInteger   i;
+
+   _originalRect  = CGRectMake( 100, 50, 640 - 200, 400 - 100);
+   i = _nTest++;
+   if( i < n_testRectangles)
+      _subdivideRect = testRectangles[ i];
+   else
+      _subdivideRect = RandomRectOfSize( [self frame].size);
+
+   _nDividedRects = MulleRectSubdivideByRect( _originalRect, _subdivideRect, _dividedRects);
+}
+
+
 - (UIEvent *) handleEvent:(UIEvent *) event
 {
+#ifdef DRAW_QUADTREE
+   CGPoint       point;
+   NSUInteger    n;
+
+   if( [event eventType] == UIEventTypeMotion)
+   {
+      point = [event mousePosition];
+      n = mulle_quadtree_change_payload( _quadtree, point, (void *) 0, (void *) 1);
+      if( n)
+         mulle_quadtree_walk( _quadtree, clear_area, _quadtree);
+      mulle_quadtree_change_payload( _quadtree, point, (void *) 0, (void *) 1);
+   }
+#endif
+
+#ifdef DRAW_SUBDIVISION
+   if( [event eventType] == UIEventTypePresses)
+   {
+      if( [event action])
+         [self newSubdividedRects];
+   }
+#endif
    if( [event isKindOfClass:[UIMouseScrollEvent class]])
       [self dump];
    return( [super handleEvent:event]);
 }
+
+#ifdef DRAW_SUBDIVISION
+- (void) renderWithContext:(CGContext *) context
+{
+   NVGcontext   *vg;
+   NSUInteger   i;
+   
+   vg = [context nvgContext];   
+
+   nvgBeginPath( vg);
+   nvgRect( vg, _originalRect.origin.x, 
+                _originalRect.origin.y, 
+                _originalRect.size.width, 
+                _originalRect.size.height);
+
+   nvgStrokeWidth( vg, 3);
+   nvgStrokeColor( vg, getNVGColor( 0xFF0000FF));
+   nvgStroke( vg);  
+
+   nvgBeginPath( vg);
+   nvgRect( vg, _subdivideRect.origin.x, 
+                _subdivideRect.origin.y, 
+                _subdivideRect.size.width, 
+                _subdivideRect.size.height);
+
+   nvgStrokeWidth( vg, 2);
+   nvgStrokeColor( vg, getNVGColor( 0x0000FFFF));
+   nvgStroke( vg);  
+  
+   assert( _nDividedRects <= 4);
+   for( i = 0; i < _nDividedRects; i++)
+   {
+      nvgBeginPath( vg);
+      nvgRect( vg, _dividedRects[ i].origin.x, 
+                   _dividedRects[ i].origin.y, 
+                   _dividedRects[ i].size.width, 
+                   _dividedRects[ i].size.height);
+     
+      nvgFillColor( vg, getNVGColor( (0xF0000000 >> i) | (0x001F0000 << i) | 0xC0));
+      nvgFill( vg);  
+   }
+}
+#endif
+
 
 @end
 
