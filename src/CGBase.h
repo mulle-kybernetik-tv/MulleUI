@@ -41,4 +41,16 @@ typedef struct CGRect {
     CGSize size;
 } CGRect;
 
+
+static inline CGFloat   MulleCGFloatMaximum(float x, CGFloat y)
+{
+   return( x > y ? x : y);
+}
+
+static inline CGFloat   MulleCGFloatMinimum(CGFloat x, CGFloat y)
+{
+   return( x < y ? x : y);
+}
+
+
 #endif

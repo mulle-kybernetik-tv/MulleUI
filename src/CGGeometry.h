@@ -106,6 +106,7 @@ static inline CGFloat CGRectGetMinX(CGRect rect) {
 
 /**
 @Status Interoperable
+GetMaxY is a misnomer, its really the first Y point not inside the rectangle.
 */
 static inline CGFloat CGRectGetMaxX(CGRect rect) {
     return rect.origin.x + rect.size.width;
@@ -127,7 +128,7 @@ static inline CGFloat CGRectGetMinY(CGRect rect) {
 
 /**
 @Status Interoperable
-TODO: CHECK THIS, WHAT DOES MAX Y MEAN GRAPHICALLY ?
+GetMaxY is a misnomer, its really the first Y point not inside the rectangle.
 */
 static inline CGFloat CGRectGetMaxY(CGRect rect) {
     return(rect.origin.y + rect.size.height);
@@ -198,10 +199,14 @@ static inline int CGRectIsEmpty(CGRect rect) {
 
 /**
 @Status Interoperable
+   CGRectMake( 2.0, 0.0, 2.0, 1.0) and CGRectMake( 0.0, 0.0, 2.0, 1.0)
+   are not considered intersecting, though mathematically they are.
+   This is so that "adjacent" rectangles are not considered intersecting.
+   CGRectIntersection will return an intersection of 0 width or height though!
 */
 static inline int CGRectIntersectsRect(CGRect a, CGRect b) {
-    return !((b.origin.x > a.origin.x + a.size.width) || (b.origin.y > a.origin.y + a.size.height) ||
-             (a.origin.x > b.origin.x + b.size.width) || (a.origin.y > b.origin.y + b.size.height));
+    return !((b.origin.x >= CGRectGetMaxX( a)) || (b.origin.y >= CGRectGetMaxY( a)) ||
+             (a.origin.x >= CGRectGetMaxX( b)) || (a.origin.y >= CGRectGetMaxY( b)));
 }
 
 /**
