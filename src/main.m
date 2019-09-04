@@ -107,7 +107,7 @@ int   main()
    /*
     * view placement in window 
     */
-   [window newSubdividedRects];
+   [window setupQuadtree];
 
    [window dump];
    [window renderLoopWithContext:context];

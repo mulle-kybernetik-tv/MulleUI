@@ -8,6 +8,7 @@
 #import "import.h" // TODO: just get NSInteger from MulleObjC minimal via include
 
 #include "CGGeometry.h"
+#include <stdio.h>
 
 
 /** Opaque struct representing the quadtree. */
@@ -94,6 +95,10 @@ NSUInteger mulle_quadtree_walk( struct mulle_quadtree* tree,
 
 
 
+/*
+ * dump tree structure
+ */
+void   mulle_quadtree_dump( struct mulle_quadtree *tree, FILE *fp); 
 
 
 #endif

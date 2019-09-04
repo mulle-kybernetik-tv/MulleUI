@@ -359,7 +359,7 @@ static void   mouseScrollCallback( GLFWwindow *window,
          [self updateRenderCachesWithContext:context 
                                    frameInfo:&info];
 
-         info.isPerfEnabled = NO;
+         info.isPerfEnabled = YES;
          [context startRenderWithFrameInfo:&info];
          [self renderWithContext:context];
          [context endRender];
@@ -444,7 +444,6 @@ static void   mouseScrollCallback( GLFWwindow *window,
    _discardEvents = old;
 }
 
-
 - (void) requestClose
 {
    glfwSetWindowShouldClose( _window, GL_TRUE);
@@ -457,83 +456,66 @@ static void   mouseScrollCallback( GLFWwindow *window,
 }
 
 
-
 #ifdef DRAW_QUADTREE
-
-static void  print_area( CGRect rect, void *payload, void *window)
-{
-   fprintf( stderr, "%s %p\n", CGRectCStringDescription( rect), payload);
-}
-
 
 static void  clear_area( CGRect rect, void *payload, void *quadtree)
 {
-   mulle_quadtree_change_payload( quadtree, rect.origin, (void *) 1, (void *) 0);
+   mulle_quadtree_change_payload( quadtree, rect, (void *) 1, (void *) 0);
 }
 
 
-static void  draw_area( CGRect rect, void *payload, void *window)
+static void  draw_area( CGRect rect, void *payload, void *info)
 {
-   double   x, y;
-   double   x2, y2;
-   CGRect   bounds;
+   NVGcontext  *vg = info;
 
-   x = rect.origin.x;
-   y = rect.origin.y;
-   x2 = rect.origin.x + rect.size.width - 1.0;
-   y2 = rect.origin.y + rect.size.height - 1.0;
-
-   bounds = [window bounds];
+   nvgBeginPath( vg);
+   nvgRect( vg, rect.origin.x, rect.origin.y,
+                rect.size.width, rect.size.height);
 
    if( payload)
-      glColor3f(0.8, 0.4, 0.4);
+      nvgFillColor( vg, getNVGColor( 0xFFFF00FF));
    else
-      glColor3f(0.4, 0.4, 0.8);
-
-   glBegin(GL_QUADS);
-
-   // assume 0.0,0.0 is in the middle of the screen
-   x = (x - (bounds.size.width / 2.0)) / (bounds.size.width / 2.0);
-   y = ((bounds.size.height / 2.0) - y) / (bounds.size.height / 2.0);
-   x2 = (x2 - (bounds.size.width / 2.0)) / (bounds.size.width / 2.0);
-   y2 = ((bounds.size.height / 2.0) - y2) / (bounds.size.height / 2.0);
-
-   glVertex3f( x, y, 0.0);
-   glVertex3f( x2, y, 0.0);
-   glVertex3f( x2, y2, 0.0);
-   glVertex3f( x, y2, 0.0);
-
-   glEnd();
+      nvgFillColor( vg, getNVGColor( 0x2020F0FF));
+   nvgFill( vg);  
 }
 
 - (void) renderWithContext:(CGContext *) context
 {
-   mulle_quadtree_walk( _quadtree, draw_area, self);
+   mulle_quadtree_walk( _quadtree, draw_area, [context nvgContext]);
 }
+
+#define EXTENT  3.0
 
 - (void) setupQuadtree
 {
    CGRect       rect;
+   CGRect       bounds;
    NSUInteger   i;
+   NSUInteger   level;
+   NSUInteger   extent;
 
-   _quadtree = mulle_quadtree_create( [self bounds], 1, 10, NULL);
-   for( i = 0; i < 1000; i++)
+   bounds    = [self bounds];
+   extent    = round( bounds.size.width < bounds.size.height ? bounds.size.width : bounds.size.height);
+   level     = 0;
+   while( extent > 2)
    {
-      rect = CGRectMake( rand() % (int) (_frame.size.width - 2.0),
-                         rand() % (int) (_frame.size.height - 2.0),
-                         2.0,
-                         2.0);
+      level++;
+      extent >>= 1;
+   }
+
+   _quadtree = mulle_quadtree_create( bounds, level, 10, NULL);
+   for( i = 0; i < 10000; i++)
+   {
+      rect = CGRectMake( rand() % (int) (_frame.size.width - EXTENT),
+                         rand() % (int) (_frame.size.height - EXTENT),
+                         EXTENT,
+                         EXTENT);
       mulle_quadtree_insert( _quadtree, rect, NULL);
    }
 
-#if 0   
-   mulle_quadtree_insert( _quadtree, CGRectMake( 100, 100, 32, 32), NULL);
-   mulle_quadtree_insert( _quadtree, CGRectMake( 100, 200, 32, 32), NULL);
-   mulle_quadtree_insert( _quadtree, CGRectMake( 200, 100, 32, 32), NULL);
-   mulle_quadtree_insert( _quadtree, CGRectMake( 200, 200, 32, 32), NULL);
-#endif
-
-   mulle_quadtree_walk( _quadtree, print_area, self);
+#if 0
+   mulle_quadtree_dump( _quadtree, stderr);
+#endif   
 }
 #endif
 
@@ -541,8 +523,8 @@ static CGRect  RandomRectOfSize( CGSize size)
 {
    CGRect  rect;
 
-   rect.origin.x    = rand() % (int) size.width;
-   rect.origin.y    = rand() % (int) size.height;
+   rect.origin.x = rand() % (int) size.width;
+   rect.origin.y = rand() % (int) size.height;
 
    do
       rect.size.width  = rand() % (int) size.width;
@@ -581,16 +563,17 @@ static CGRect   testRectangles[] =
 - (UIEvent *) handleEvent:(UIEvent *) event
 {
 #ifdef DRAW_QUADTREE
-   CGPoint       point;
    NSUInteger    n;
+   CGRect        rect;
 
    if( [event eventType] == UIEventTypeMotion)
    {
-      point = [event mousePosition];
-      n = mulle_quadtree_change_payload( _quadtree, point, (void *) 0, (void *) 1);
-      if( n)
-         mulle_quadtree_walk( _quadtree, clear_area, _quadtree);
-      mulle_quadtree_change_payload( _quadtree, point, (void *) 0, (void *) 1);
+      rect.origin = [event mousePosition];
+      rect.size   = CGSizeMake( 1.0, 1.0);
+      n = mulle_quadtree_change_payload( _quadtree, rect, (void *) 0, (void *) 1);
+//      if( n)
+//         mulle_quadtree_walk( _quadtree, clear_area, _quadtree);
+//      mulle_quadtree_change_payload( _quadtree, rect, (void *) 0, (void *) 1);
    }
 #endif
 

@@ -12,11 +12,11 @@
    id                 _firstResponder;
    void               *_quadtree;
 
-   CGRect       _originalRect;
-   CGRect       _subdivideRect;
-   CGRect       _dividedRects[ 4];
-   NSUInteger   _nDividedRects;
-   NSUInteger   _nTest;
+   CGRect             _originalRect;
+   CGRect             _subdivideRect;
+   CGRect             _dividedRects[ 4];
+   NSUInteger         _nDividedRects;
+   NSUInteger         _nTest;
 }
 
 @property( retain) CGContext                  *context;

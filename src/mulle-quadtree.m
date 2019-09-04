@@ -168,7 +168,7 @@ static void  _mulle_quadtree_split_node( struct mulle_quadtree* tree,
    for( i = 0; i < 4; i++) 
    {
        subnode_rect = CGRectMake( node->rect.origin.x + ((i % 2 == 1) ? subnode_rect_size.width : 0),
-                                  node->rect.origin.y + ((i> 1) ? subnode_rect_size.height : 0),
+                                  node->rect.origin.y + ((i >= 2) ? subnode_rect_size.height : 0),
                                   subnode_rect_size.width,
                                   subnode_rect_size.height);
        node->subnodes[i] = _mulle_quadtree_node_create( subnode_rect, node->level + 1, tree->allocator);
@@ -236,7 +236,7 @@ static void  _mulle_quadtree_node_insert( struct mulle_quadtree* tree,
       return;
    }
 
-   // only memory the intersections that fits in our node,
+   // only memorize the intersections that fits in our node,
    // which is analog to how subnodes get their client rects
 
    intersection = CGRectIntersection( rect, node->rect);
@@ -377,6 +377,49 @@ static NSUInteger
 
 
 static void 
+   _mulle_quadtree_node_dump( struct _mulle_quadtree_node *node, 
+                              FILE *fp, 
+                              unsigned int level,
+                              unsigned int quadrant) 
+{
+   struct _mulle_quadtree_data   *data;
+   NSUInteger                    i;
+
+   for( i = 0; i < level; i++)
+      fputc( ' ', fp);
+   fprintf( fp, "%u/%u: %.2f %.2f %.2f %.2f\n", 
+                    level, quadrant,
+                     node->rect.origin.x,
+                     node->rect.origin.y,
+                     node->rect.size.width,
+                     node->rect.size.height);
+
+   if( node->subnodes[0]) 
+   {
+      assert( ! node->data);
+
+      for( i = 0; i < 4; i++) 
+        _mulle_quadtree_node_dump( node->subnodes[ i], fp, level + 1, i);
+      return;
+   } 
+
+   data = node->data;
+   while(data) 
+   {
+      for( i = 0; i <= level; i++)
+         fputc( ' ', fp);
+      fprintf( fp, "[%.2f %.2f %.2f %.2f = %p]\n", 
+                     data->rect.origin.x,
+                     data->rect.origin.y,
+                     data->rect.size.width,
+                     data->rect.size.height,
+                     data->payload);
+      data = data->next;
+   }
+}
+
+
+static void 
    _mulle_quadtree_node_release( struct _mulle_quadtree_node* node,
                                  struct mulle_allocator  *allocator) 
 {
@@ -481,4 +524,10 @@ NSUInteger   mulle_quadtree_walk( struct mulle_quadtree *tree,
                                   void *context) 
 {
    return _mulle_quadtree_node_walk( tree->root_node, callback, context);
+}
+
+
+void   mulle_quadtree_dump( struct mulle_quadtree *tree, FILE *fp) 
+{
+   _mulle_quadtree_node_dump( tree->root_node, fp, 0, 0);
 }
