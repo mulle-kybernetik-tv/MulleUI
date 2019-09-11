@@ -243,6 +243,8 @@ static void   mouseScrollCallback( GLFWwindow *window,
    mulle_pointerarray_release_all( _trackingViews);
    mulle_pointerarray_destroy( _trackingViews);
          
+   mulle_quadtree_destroy( _quadtree);
+
    // TODO: delete window ?
    [super dealloc];
 }
@@ -605,17 +607,26 @@ static CGRect   testRectangles[] =
    struct mulle_pointerarrayenumerator   rover;
    UIView       *view;
 
-
-   bounds    = [self bounds];
-   extent    = round( bounds.size.width < bounds.size.height ? bounds.size.width : bounds.size.height);
-   level     = 0;
+   bounds = [self bounds];
+   extent = round( bounds.size.width < bounds.size.height ? bounds.size.width : bounds.size.height);
+   level  = 0;
    while( extent > 2)
    {
       level++;
       extent >>= 1;
    }
 
-   _quadtree = mulle_quadtree_create( bounds, 10, 10, NULL);
+   //
+   // 1. create quadtree only, when we get an event ?
+   // 2. create quadtree for every frame ?
+   // 3. create quadtree only when scene (views with tracking rects change ?)
+   // 4. do not create quadtree when scrolling ?
+   // 5. cache freed quadtree nodes in a mulle_pointerarray ?
+   //
+   if( _quadtree)
+      mulle_quadtree_reset( _quadtree, bounds);
+   else
+      _quadtree = mulle_quadtree_create( bounds, 10, 10, NULL);
 
    rover = mulle_pointerarray_enumerate_nil( _trackingViews);
    while( view = mulle_pointerarrayenumerator_next( &rover))
