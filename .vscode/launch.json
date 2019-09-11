@@ -21,7 +21,7 @@
                 "miDebuggerPath": "/usr/local/bin/mulle-lldb-mi"
             },
             "linux": {
-                "miDebuggerPath": "/home/src/srcL/mulle-lldb-80/bin/lldb-mi"
+                "miDebuggerPath": "/home/src/srcL/mulle-lldb-90/bin/lldb-mi"
              },
             "preLaunchTask": "Debug"
         }

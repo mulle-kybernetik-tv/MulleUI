@@ -7,13 +7,14 @@
 #import "CGGeometry+CString.h"
 #import "UIEvent.h"
 #import "UIView+UIEvent.h"
+#import "UIView+CGGeometry.h"
 #include <time.h>
 #import "mulle-quadtree.h"
 #import "mulle-pointerarray+ObjC.h"
 
 
 // #define DRAW_SUBDIVISION
-// #define DRAW_QUADTREE
+#define DRAW_QUADTREE
 // #define DRAW_MOUSE_BOX   /* figure out how laggy mouse/draw is */
 // #define PRINTF_PROFILE_RENDER
 // #define ADD_RANDOM_LAG  /* make drawing sluggish */
@@ -580,14 +581,16 @@ static CGRect   testRectangles[] =
    NSUInteger                 n;
    struct MulleTrackingArea   *area;
    CGRect                     rect;
+   CGRect                     converted;
 
    n = [view numberOfTrackingAreas];
    for( i = 0; i < n; i++)
    {
-      area = [view trackingAreaAtIndex:i];
-      rect = MulleTrackingAreaGetRect( area);
-      // need transform step here
-      mulle_quadtree_insert( _quadtree, rect, 0);
+      area      = [view trackingAreaAtIndex:i];
+      rect      = MulleTrackingAreaGetRect( area);
+      converted = [self convertRect:rect 
+                           fromView:view];
+      mulle_quadtree_insert( _quadtree, converted, 0);
    }
 }
 
@@ -650,6 +653,8 @@ static void  draw_area( CGRect rect, void *payload, void *info)
 
 - (void) renderWithContext:(CGContext *) context
 {
+   [super renderWithContext:context];
+
    mulle_quadtree_walk( _quadtree, draw_area, [context nvgContext]);
 }
 

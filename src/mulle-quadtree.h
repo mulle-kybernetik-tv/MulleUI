@@ -44,8 +44,10 @@ void mulle_quadtree_release( struct mulle_quadtree * tree);
     You are responsible for making sure that payload reference remains valid 
     during the tree lifecycle.
     No check for duplicates is performed.
+    Returns 0, if rect does not intersect the quadtree and is therefore not
+               added. 1 otherwise.
 */
-void   mulle_quadtree_insert( struct mulle_quadtree* tree, 
+int   mulle_quadtree_insert( struct mulle_quadtree* tree, 
                               CGRect rect, 
                               void *payload);
 

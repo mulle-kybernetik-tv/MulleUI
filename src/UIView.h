@@ -75,6 +75,10 @@
 // 
 - (void) layoutSubviews;
 
+
+- (void) updateRenderCachesWithContext:(CGContext *) context
+                             frameInfo:(struct MulleFrameInfo *) info;
+                             
 // view must be part of window view hierarchy, for these function to work
 // properly
 - (struct MulleTrackingArea *) addTrackingAreaWithRect:(CGRect) rect

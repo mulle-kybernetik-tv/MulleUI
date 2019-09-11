@@ -93,7 +93,7 @@
       if( curr == stack)
          break;
 
-      subview = *--curr;
+      subview   = *--curr;
       translated = [subview translatedPoint:translated];
    }
    return( translated);
@@ -140,6 +140,21 @@
    if( toView)
       rect = [toView convertRect:rect
                           factor:1];
+   return( rect);
+}
+
+- (CGRect) convertRect:(CGRect) rect
+              fromView:(UIView *) fromView
+{
+   CGRect  rect;
+
+   if( self == fromView)
+      return( rect);
+   if( fromView)
+      rect = [fromView convertRect:rect
+                            factor:+1];
+   rect = [self convertRect:rect
+                     factor:-1];
    return( rect);
 }
 

@@ -146,7 +146,7 @@ static NSUInteger
     return count;
 }
 
-static void  _mulle_quadtree_node_insert( struct mulle_quadtree* tree, 
+static int  _mulle_quadtree_node_insert( struct mulle_quadtree* tree, 
                                          struct _mulle_quadtree_node* node, 
                                          CGRect rect, 
                                          void* payload);
@@ -200,26 +200,26 @@ static void  _mulle_quadtree_split_node( struct mulle_quadtree* tree,
 // The incoming rectangle is clipped against the quadtree and every part
 // is placed into the appropriate node
 //
-static void  _mulle_quadtree_node_insert( struct mulle_quadtree* tree, 
-                                          struct _mulle_quadtree_node* node, 
-                                          CGRect rect, 
-                                          void* payload) 
+static int  _mulle_quadtree_node_insert( struct mulle_quadtree* tree, 
+                                         struct _mulle_quadtree_node* node, 
+                                         CGRect rect, 
+                                         void  *payload) 
 {
    struct _mulle_quadtree_data   *new_data; 
    struct _mulle_quadtree_data   *data;
    struct _mulle_quadtree_data   *next;
    struct _mulle_quadtree_data   *prev;
    struct mulle_allocator        *allocator;
-   NSUInteger                    i;
+   unsigned int                  i;
    struct _mulle_quadtree_node   *subnode;
    CGRect                        intersection;
-   NSUInteger                    nRects;
-   BOOL                          workDone;
+   unsigned int                  nRects;
+   int                           workDone;
 
    assert( tree);
    assert( node);
 
-   workDone = NO;
+   workDone = 0;
    if( node->subnodes[ 0]) 
    {
       for( i = 0; i < 4; i++)
@@ -229,23 +229,16 @@ static void  _mulle_quadtree_node_insert( struct mulle_quadtree* tree,
          if( intersection.size.width <= 0.0 || intersection.size.height <= 0.0)
             continue;
 
-         _mulle_quadtree_node_insert( tree, subnode, intersection, payload);
-         workDone = YES;
+         workDone |= _mulle_quadtree_node_insert( tree, subnode, intersection, payload);
       }
-      assert( workDone);
-      return;
+      return( workDone);
    }
 
    // only memorize the intersections that fits in our node,
    // which is analog to how subnodes get their client rects
-
    intersection = CGRectIntersection( rect, node->rect);
    if( intersection.size.width <= 0.0 || intersection.size.height <= 0.0)
-   {
-      assert( workDone);
-      return;
-   }
-   workDone = YES;
+      return( 0);
 
    // Leaf node, insert here by creating a new element at the head of linked list
    new_data          = mulle_allocator_malloc( tree->allocator, sizeof(struct _mulle_quadtree_data));
@@ -268,6 +261,7 @@ static void  _mulle_quadtree_node_insert( struct mulle_quadtree* tree,
    {
       _mulle_quadtree_split_node( tree, node);
    }
+   return( 1);
 }
 
 static NSUInteger 
@@ -477,11 +471,11 @@ void   mulle_quadtree_release( struct mulle_quadtree* tree)
    mulle_allocator_free( tree->allocator, tree);
 }
 
-void   mulle_quadtree_insert( struct mulle_quadtree* tree,  
+int   mulle_quadtree_insert( struct mulle_quadtree* tree,  
                               CGRect rect, 
                               void *payload) 
 {
-   _mulle_quadtree_node_insert( tree, tree->root_node, rect, payload);
+   return( _mulle_quadtree_node_insert( tree, tree->root_node, rect, payload));
 }
 
 NSUInteger   mulle_quadtree_remove_payload( struct mulle_quadtree* tree, 

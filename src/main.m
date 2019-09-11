@@ -113,7 +113,7 @@ int   main()
    [window addSubview:view0];
 
    // must be after view was added to window
-   [view1 addTrackingAreaWithRect:CGRectMake( 160, 25, 50, 50)
+   [view1 addTrackingAreaWithRect:CGRectMake( 185, 25, 50, 50)
                          userInfo:nil];
 
 
