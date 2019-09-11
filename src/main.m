@@ -91,10 +91,11 @@ int   main()
    UISlider             *slider;
    UIStepper            *stepper;
    UISwitch             *checkbox;
-   UIView               *view;
+   UIView               *view0;
+   UIView               *view1;
    UIWindow             *window;
-
-   /*
+   
+   /* 
     * window and app 
     */
    window  = [[[UIWindow alloc] initWithFrame:CGRectMake( 0.0, 0.0, W * SCALE, H * SCALE)] autorelease];
@@ -102,14 +103,37 @@ int   main()
 
    [[UIApplication sharedInstance] addWindow:window];
 
-   context = [CGContext new];
+   view0 = [[[UIView alloc] initWithFrame:CGRectMake( 20, 20, 500, 300)] autorelease];
+   [[view0 layer] setBackgroundColor:getNVGColor( 0x7F7F7F7F)];
+
+   view1 = [[[UIView alloc] initWithFrame:CGRectMake( 40, 100, 420, 100)] autorelease];
+   [[view1 layer] setBackgroundColor:getNVGColor( 0x7F00007F)];
+   [view0 addSubview:view1];
+
+   [window addSubview:view0];
+
+   // must be after view was added to window
+   [view1 addTrackingAreaWithRect:CGRectMake( 160, 25, 50, 50)
+                         userInfo:nil];
+
 
    /*
     * view placement in window 
     */
+#if 0    
+   [window addTrackingAreaWithRect:CGRectMake( 20, 20, 300, 100)
+                          userInfo:nil];
+   [window addTrackingAreaWithRect:CGRectMake( 170, 20, 300, 100)
+                          userInfo:nil];
+   [window addTrackingAreaWithRect:CGRectMake( 95, 80, 300, 100)
+                          userInfo:nil];
+   [window addTrackingView:window];
+#endif   
    [window setupQuadtree];
 
    [window dump];
+
+   context = [[CGContext new] autorelease];
    [window renderLoopWithContext:context];
 
    [[UIApplication sharedInstance] terminate];

@@ -44,6 +44,7 @@ src/MulleSliderLayer.h
 src/MulleStepperLayer.h
 src/MulleTextLayer.h
 src/MulleTextureImage.h
+src/MulleTrackingArea.h
 src/Roboto-Regular.inc
 src/UIApplication.h
 src/UIButton.h
@@ -70,6 +71,7 @@ src/bmp-writer.h
 src/entypo.inc
 src/import.h
 src/include.h
+src/mulle-pointerarray+ObjC.h
 src/mulle-quadtree.h
 src/nanoperf.h
 src/nanovg+CString.h

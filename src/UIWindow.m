@@ -9,10 +9,11 @@
 #import "UIView+UIEvent.h"
 #include <time.h>
 #import "mulle-quadtree.h"
+#import "mulle-pointerarray+ObjC.h"
 
 
 // #define DRAW_SUBDIVISION
-#define DRAW_QUADTREE
+// #define DRAW_QUADTREE
 // #define DRAW_MOUSE_BOX   /* figure out how laggy mouse/draw is */
 // #define PRINTF_PROFILE_RENDER
 // #define ADD_RANDOM_LAG  /* make drawing sluggish */
@@ -229,6 +230,8 @@ static void   mouseScrollCallback( GLFWwindow *window,
 - (void) finalize
 {
    // TODO: delete window ?
+   //       remove from screen ?
+
    _firstResponder = nil;
    [super finalize];
 }
@@ -236,6 +239,9 @@ static void   mouseScrollCallback( GLFWwindow *window,
 
 - (void) dealloc
 {
+   mulle_pointerarray_release_all( _trackingViews);
+   mulle_pointerarray_destroy( _trackingViews);
+         
    // TODO: delete window ?
    [super dealloc];
 }
@@ -456,69 +462,6 @@ static void   mouseScrollCallback( GLFWwindow *window,
 }
 
 
-#ifdef DRAW_QUADTREE
-
-static void  clear_area( CGRect rect, void *payload, void *quadtree)
-{
-   mulle_quadtree_change_payload( quadtree, rect, (void *) 1, (void *) 0);
-}
-
-
-static void  draw_area( CGRect rect, void *payload, void *info)
-{
-   NVGcontext  *vg = info;
-
-   nvgBeginPath( vg);
-   nvgRect( vg, rect.origin.x, rect.origin.y,
-                rect.size.width, rect.size.height);
-
-   if( payload)
-      nvgFillColor( vg, getNVGColor( 0xFFFF00FF));
-   else
-      nvgFillColor( vg, getNVGColor( 0x2020F0FF));
-   nvgFill( vg);  
-}
-
-- (void) renderWithContext:(CGContext *) context
-{
-   mulle_quadtree_walk( _quadtree, draw_area, [context nvgContext]);
-}
-
-#define EXTENT  3.0
-
-- (void) setupQuadtree
-{
-   CGRect       rect;
-   CGRect       bounds;
-   NSUInteger   i;
-   NSUInteger   level;
-   NSUInteger   extent;
-
-   bounds    = [self bounds];
-   extent    = round( bounds.size.width < bounds.size.height ? bounds.size.width : bounds.size.height);
-   level     = 0;
-   while( extent > 2)
-   {
-      level++;
-      extent >>= 1;
-   }
-
-   _quadtree = mulle_quadtree_create( bounds, level, 10, NULL);
-   for( i = 0; i < 10000; i++)
-   {
-      rect = CGRectMake( rand() % (int) (_frame.size.width - EXTENT),
-                         rand() % (int) (_frame.size.height - EXTENT),
-                         EXTENT,
-                         EXTENT);
-      mulle_quadtree_insert( _quadtree, rect, NULL);
-   }
-
-#if 0
-   mulle_quadtree_dump( _quadtree, stderr);
-#endif   
-}
-#endif
-
 static CGRect  RandomRectOfSize( CGSize size)
 {
    CGRect  rect;
@@ -557,36 +500,6 @@ static CGRect   testRectangles[] =
       _subdivideRect = RandomRectOfSize( [self frame].size);
 
    _nDividedRects = MulleRectSubdivideByRect( _originalRect, _subdivideRect, _dividedRects);
-}
-
-
-- (UIEvent *) handleEvent:(UIEvent *) event
-{
-#ifdef DRAW_QUADTREE
-   NSUInteger    n;
-   CGRect        rect;
-
-   if( [event eventType] == UIEventTypeMotion)
-   {
-      rect.origin = [event mousePosition];
-      rect.size   = CGSizeMake( 1.0, 1.0);
-      n = mulle_quadtree_change_payload( _quadtree, rect, (void *) 0, (void *) 1);
-//      if( n)
-//         mulle_quadtree_walk( _quadtree, clear_area, _quadtree);
-//      mulle_quadtree_change_payload( _quadtree, rect, (void *) 0, (void *) 1);
-   }
-#endif
-
-#ifdef DRAW_SUBDIVISION
-   if( [event eventType] == UIEventTypePresses)
-   {
-      if( [event action])
-         [self newSubdividedRects];
-   }
-#endif
-   if( [event isKindOfClass:[UIMouseScrollEvent class]])
-      [self dump];
-   return( [super handleEvent:event]);
 }
 
 #ifdef DRAW_SUBDIVISION
@@ -632,6 +545,149 @@ static CGRect   testRectangles[] =
 }
 #endif
 
+# pragma mark - tracking rects  
+
+- (void) addTrackingView:(UIView *) view
+{
+   assert( view);
+   assert( [view isKindOfClass:[UIView class]]);
+
+   if( ! _trackingViews)
+      _trackingViews = mulle_pointerarray_create( NULL);
+
+   assert( mulle_pointerarray_find( _trackingViews, view) == -1);
+   [view retain];
+   mulle_pointerarray_add( _trackingViews, view);
+}
+
+
+- (void) removeTrackingView:(UIView *) view
+{
+   assert( [view isKindOfClass:[UIView class]]);
+
+   if( mulle_pointerarray_find( _trackingViews, view) != -1)
+   {
+        abort();
+      //mulle_pointerarray_remove( _trackingViews, view);
+      [view autorelease];
+   }
+}
+
+
+- (void) addTrackingAreasOfView:(UIView *) view
+{
+   NSUInteger                 i;
+   NSUInteger                 n;
+   struct MulleTrackingArea   *area;
+   CGRect                     rect;
+
+   n = [view numberOfTrackingAreas];
+   for( i = 0; i < n; i++)
+   {
+      area = [view trackingAreaAtIndex:i];
+      rect = MulleTrackingAreaGetRect( area);
+      // need transform step here
+      mulle_quadtree_insert( _quadtree, rect, 0);
+   }
+}
+
+
+- (void) setupQuadtree
+{
+   CGRect       rect;
+   CGRect       bounds;
+   NSUInteger   i;
+   NSUInteger   level;
+   NSUInteger   extent;
+   struct mulle_pointerarrayenumerator   rover;
+   UIView       *view;
+
+
+   bounds    = [self bounds];
+   extent    = round( bounds.size.width < bounds.size.height ? bounds.size.width : bounds.size.height);
+   level     = 0;
+   while( extent > 2)
+   {
+      level++;
+      extent >>= 1;
+   }
+
+   _quadtree = mulle_quadtree_create( bounds, 10, 10, NULL);
+
+   rover = mulle_pointerarray_enumerate_nil( _trackingViews);
+   while( view = mulle_pointerarrayenumerator_next( &rover))
+      [self addTrackingAreasOfView:view];
+   mulle_pointerarrayenumerator_done( &rover);
+
+#if 1
+   mulle_quadtree_dump( _quadtree, stderr);
+#endif   
+}
+
+
+#ifdef DRAW_QUADTREE
+
+static void  clear_area( CGRect rect, void *payload, void *quadtree)
+{
+   mulle_quadtree_change_payload( quadtree, rect, (void *) 1, (void *) 0);
+}
+
+
+static void  draw_area( CGRect rect, void *payload, void *info)
+{
+   NVGcontext  *vg = info;
+
+   nvgBeginPath( vg);
+   nvgRect( vg, rect.origin.x, rect.origin.y,
+                rect.size.width, rect.size.height);
+
+   if( payload)
+      nvgFillColor( vg, getNVGColor( 0xFFFF007F));
+   else
+      nvgFillColor( vg, getNVGColor( 0x2020F07F));
+   nvgFill( vg);  
+}
+
+- (void) renderWithContext:(CGContext *) context
+{
+   mulle_quadtree_walk( _quadtree, draw_area, [context nvgContext]);
+}
+
+#endif
+
+
+- (UIEvent *) handleEvent:(UIEvent *) event
+{
+#ifdef DRAW_QUADTREE
+   NSUInteger    n;
+   CGRect        rect;
+
+   if( [event eventType] == UIEventTypeMotion)
+   {
+      rect.origin = [event mousePosition];
+      rect.size   = CGSizeMake( 1.0, 1.0);
+
+      n = mulle_quadtree_change_payload( _quadtree, rect, (void *) 0, (void *) 1);
+      // MEMO: this code is crap with lots of quads since the walker is so slow
+      if( n)
+      {
+         mulle_quadtree_walk( _quadtree, clear_area, _quadtree);
+         mulle_quadtree_change_payload( _quadtree, rect, (void *) 0, (void *) 1);
+      }
+   }
+#endif
+
+#ifdef DRAW_SUBDIVISION
+   if( [event eventType] == UIEventTypePresses)
+   {
+      if( [event action])
+         [self newSubdividedRects];
+   }
+#endif
+   if( [event isKindOfClass:[UIMouseScrollEvent class]])
+      [self dump];
+   return( [super handleEvent:event]);
+}
 
 @end
 

@@ -24,6 +24,7 @@ src/MulleSliderLayer.m
 src/MulleStepperLayer.m
 src/MulleTextLayer.m
 src/MulleTextureImage.m
+src/MulleTrackingArea.m
 src/UIApplication.m
 src/UIButton.m
 src/UIControl.m
@@ -46,6 +47,7 @@ src/UIWindow+UIResponder.m
 src/UIWindow.m
 src/bmp-writer.c
 src/main.m
+src/mulle-pointerarray+ObjC.m
 src/mulle-quadtree.m
 src/nanoperf.m
 src/nanosvg.m

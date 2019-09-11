@@ -2,12 +2,14 @@
 
 #import <mulle-container/mulle-container.h>
 #import "CGGeometry.h"
+#import "MulleTrackingArea.h"
 
 
 @class CALayer;
 @class CGContext;
 @class UIWindow;
 @class MulleImageLayer;
+
 
 //
 // the main layer which is bottom-most defines the geometry
@@ -21,8 +23,10 @@
    UIView                      *_superview;
    CALayer                     *_mainLayer;
 
-   struct mulle_pointerarray   *_layers;
+   struct mulle_pointerarray   *_layers;     // todo why no inline ?
    struct mulle_pointerarray   *_subviews;
+
+   struct MulleTrackingAreaArray  _trackingAreas;
 
    MulleImageLayer             *_cacheLayer;  // same size as _mainLayer (contains all layers and subviews ?)
 }
@@ -43,6 +47,8 @@
 
 - (void) addLayer:(CALayer *) layer;
 - (void) addSubview:(UIView *) layer;
+
+- (CALayer *) layer;
 
 - (CGRect) bounds;
 - (void) setBounds:(CGRect) rect;
@@ -68,5 +74,13 @@
 // layout everything
 // 
 - (void) layoutSubviews;
+
+// view must be part of window view hierarchy, for these function to work
+// properly
+- (struct MulleTrackingArea *) addTrackingAreaWithRect:(CGRect) rect
+                                              userInfo:(id) userInfo;
+- (void) removeTrackingArea:(struct MulleTrackingArea *) trackingRect;
+- (NSUInteger) numberOfTrackingAreas;
+- (struct MulleTrackingArea *) trackingAreaAtIndex:(NSUInteger) i;
 
 @end

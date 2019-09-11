@@ -8,40 +8,13 @@
 #import "MulleTextureImage.h"
 #import "MulleImageLayer.h"
 #import "nanovg+CString.h"
+#import "mulle-pointerarray+ObjC.h"
 
 
 //#define RENDER_DEBUG
 
 
 @implementation UIView
-
-static void  pointerarray_release_all( struct mulle_pointerarray *array)
-{
-   struct mulle_pointerarrayenumerator   rover;
-   id     obj;
-
-   if( array)
-   {
-      rover = mulle_pointerarray_enumerate( array);
-      while( obj = mulle_pointerarrayenumerator_next( &rover))
-         [obj release];
-   }
-}
-
-
-static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
-{
-   struct mulle_pointerarrayenumerator   rover;
-   id     obj;
-
-   if( array)
-   {
-      rover = mulle_pointerarray_enumerate( array);
-      while( obj = mulle_pointerarrayenumerator_next( &rover))
-         *dst++ = obj;;
-   }
-}
-
 
 + (Class) layerClass
 {
@@ -80,18 +53,18 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
 
 - (void) dealloc
 {
-   if( _subviews)
-   {
-      pointerarray_release_all( _subviews);
-      mulle_pointerarray_destroy( _subviews);
-   }
+   mulle_pointerarray_release_all( _subviews);
+   mulle_pointerarray_destroy( _subviews);
 
-   if( _layers)
-   {
-      pointerarray_release_all( _layers);
-      mulle_pointerarray_destroy( _layers);
-   }
+   mulle_pointerarray_release_all( _layers);
+   mulle_pointerarray_destroy( _layers);
+
    [super dealloc];
+}
+
+- (CALayer *) layer
+{
+   return( _mainLayer);
 }
 
 
@@ -160,8 +133,7 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
    if( ! buf)
       return( -1);
 
-   if( _layers)
-      pointerarray_copy_all( _layers, buf);
+   mulle_pointerarray_copy_all( _layers, buf);
 
    buf[ n - 1] = _mainLayer;
 
@@ -182,8 +154,8 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
       return( n);
    if( ! buf)
       return( -1);
-   if( _subviews)
-      pointerarray_copy_all( _subviews, buf);
+
+   mulle_pointerarray_copy_all( _subviews, buf);
 
    return( n);
 }
@@ -570,6 +542,55 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
       nvgluBindFramebuffer( NULL);
    }
    return( image);
+}
+
+# pragma mark - tracking rectangles
+
+- (struct MulleTrackingArea *) addTrackingAreaWithRect:(CGRect) rect
+                                              userInfo:(id) userInfo 
+{
+   struct MulleTrackingArea   *tracking;
+   UIWindow                  *window;
+
+   if( MulleTrackingAreaArrayGetCount( &_trackingAreas) == 0)
+   {
+      // if window does not exist, then a late add would not be noticed
+      // and tracking fails... 
+      window = [self window];
+      assert( window);
+      [window addTrackingView:self];
+   }
+
+   tracking = MulleTrackingAreaArrayNewItem( &_trackingAreas);
+   MulleTrackingAreaInit( tracking, rect, userInfo);
+   return( tracking);
+}
+
+- (void) removeTrackingArea:(struct MulleTrackingArea *) item
+{
+   UIWindow   *window;
+
+   MulleTrackingAreaArrayRemoveItem( &_trackingAreas, item);
+   if( MulleTrackingAreaArrayGetCount( &_trackingAreas) == 0)
+   {
+      window = [self window];
+      assert( window);
+      [window removeTrackingView:self];
+   }
+}
+
+- (NSUInteger) numberOfTrackingAreas
+{
+   return( MulleTrackingAreaArrayGetCount( &_trackingAreas));
+}
+
+
+- (struct MulleTrackingArea *) trackingAreaAtIndex:(NSUInteger) i
+{
+   struct MulleTrackingArea   *item;
+
+   item = MulleTrackingAreaArrayGetItemAtIndex( &_trackingAreas, i);
+   return( item);
 }
 
 @end

@@ -12,6 +12,8 @@
    id                 _firstResponder;
    void               *_quadtree;
 
+   struct mulle_pointerarray   *_trackingViews;
+
    CGRect             _originalRect;
    CGRect             _subdivideRect;
    CGRect             _dividedRects[ 4];
@@ -37,5 +39,8 @@
 
 - (void) setupQuadtree;
 - (void) newSubdividedRects;
+
+- (void) addTrackingView:(UIView *) view;
+- (void) removeTrackingView:(UIView *) view;
 
 @end
