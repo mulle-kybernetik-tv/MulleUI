@@ -5,14 +5,15 @@
 
 @interface UIWindow : UIView
 {
-   void               *_window;  // GLFWwindow
+   void               *_window;            // GLFWwindow
 	NSUInteger         _didRender;
-   CGRect             _frame;    // has its own frame
-   NSUInteger         _discardEvents; // bitfield of UIEventtypes ?
+   CGRect             _frame;              // has its own frame
+   NSUInteger         _discardEvents;      // bitfield of UIEventtypes ?
    id                 _firstResponder;
    void               *_quadtree;
 
-   struct mulle_pointerarray   *_trackingViews;
+   struct mulle_pointerarray   _trackingViews; // views with tracking areas
+   struct mulle_pointerarray   _enteredViews;  // views with mouseEntered: sent
 
    CGRect             _originalRect;
    CGRect             _subdivideRect;

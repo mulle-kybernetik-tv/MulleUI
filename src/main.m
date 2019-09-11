@@ -62,6 +62,35 @@ static UIEvent   *scroll_callback( UIButton *button, UIEvent *event)
 }
 
 
+@implementation UIView( MouseMotion)
+
+- (UIEvent *) mouseDragged:(UIEvent *) event 
+{
+   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, CGPointCStringDescription( [event mousePosition]));
+   return( nil);
+}
+
+- (UIEvent *) mouseEntered:(UIEvent *) event 
+{
+   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, CGPointCStringDescription( [event mousePosition]));
+   return( nil);
+}
+
+- (UIEvent *) mouseMoved:(UIEvent *) event 
+{
+   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, CGPointCStringDescription( [event mousePosition]));
+   return( nil);
+}
+
+- (UIEvent *) mouseExited:(UIEvent *) event 
+{
+   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, CGPointCStringDescription( [event mousePosition]));
+   return( nil);
+}
+
+@end
+
+
 // scale stuff for stream
 #define SCALE     2.0
 

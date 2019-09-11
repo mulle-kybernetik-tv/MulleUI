@@ -225,6 +225,10 @@ static void   mouseScrollCallback( GLFWwindow *window,
 
    _primaryMonitorPPI = [UIWindow primaryMonitorPPI];
 
+   _quadtree = mulle_quadtree_create( [self bounds], 10, 10, NULL);
+   mulle_pointerarray_init( &_trackingViews, 16, 0, MulleObjCObjectGetAllocator( self));
+   mulle_pointerarray_init( &_enteredViews, 16, 0, MulleObjCObjectGetAllocator( self));
+
    return( self);
 }
 
@@ -240,8 +244,10 @@ static void   mouseScrollCallback( GLFWwindow *window,
 
 - (void) dealloc
 {
-   mulle_pointerarray_release_all( _trackingViews);
-   mulle_pointerarray_destroy( _trackingViews);
+   mulle_pointerarray_release_all( &_trackingViews);
+   mulle_pointerarray_done( &_trackingViews);
+   mulle_pointerarray_release_all( &_enteredViews);
+   mulle_pointerarray_done( &_enteredViews);
          
    mulle_quadtree_destroy( _quadtree);
 
@@ -408,6 +414,7 @@ static void   mouseScrollCallback( GLFWwindow *window,
 #endif
 
       // use at max 200 Hz refresh rate (0: polls)
+      [self setupQuadtree];
       [self waitForEvents:0.0];
 
 #ifdef PRINTF_PROFILE_EVENTS
@@ -555,12 +562,9 @@ static CGRect   testRectangles[] =
    assert( view);
    assert( [view isKindOfClass:[UIView class]]);
 
-   if( ! _trackingViews)
-      _trackingViews = mulle_pointerarray_create( NULL);
-
-   assert( mulle_pointerarray_find( _trackingViews, view) == -1);
+   assert( mulle_pointerarray_find( &_trackingViews, view) == -1);
    [view retain];
-   mulle_pointerarray_add( _trackingViews, view);
+   mulle_pointerarray_add( &_trackingViews, view);
 }
 
 
@@ -568,10 +572,10 @@ static CGRect   testRectangles[] =
 {
    assert( [view isKindOfClass:[UIView class]]);
 
-   if( mulle_pointerarray_find( _trackingViews, view) != -1)
+   if( mulle_pointerarray_find( &_trackingViews, view) != -1)
    {
         abort();
-      //mulle_pointerarray_remove( _trackingViews, view);
+      //mulle_pointerarray_remove( &_trackingViews, view);
       [view autorelease];
    }
 }
@@ -592,7 +596,7 @@ static CGRect   testRectangles[] =
       rect      = MulleTrackingAreaGetRect( area);
       converted = [self convertRect:rect 
                            fromView:view];
-      mulle_quadtree_insert( _quadtree, converted, 0);
+      mulle_quadtree_insert( _quadtree, converted, view);
    }
 }
 
@@ -623,19 +627,12 @@ static CGRect   testRectangles[] =
    // 4. do not create quadtree when scrolling ?
    // 5. cache freed quadtree nodes in a mulle_pointerarray ?
    //
-   if( _quadtree)
-      mulle_quadtree_reset( _quadtree, bounds);
-   else
-      _quadtree = mulle_quadtree_create( bounds, 10, 10, NULL);
+   mulle_quadtree_reset( _quadtree, bounds);
 
-   rover = mulle_pointerarray_enumerate_nil( _trackingViews);
+   rover = mulle_pointerarray_enumerate_nil( &_trackingViews);
    while( view = mulle_pointerarrayenumerator_next( &rover))
       [self addTrackingAreasOfView:view];
    mulle_pointerarrayenumerator_done( &rover);
-
-#if 1
-   mulle_quadtree_dump( _quadtree, stderr);
-#endif   
 }
 
 
@@ -672,24 +669,93 @@ static void  draw_area( CGRect rect, void *payload, void *info)
 #endif
 
 
+static void   collect_hit_views( CGRect rect, void *payload, void *userinfo)
+{
+   struct mulle_pointerarray   *array = userinfo;
+   UIView                      *view = payload;
+
+   mulle_pointerarray_add( array, view);
+}
+
+
 - (UIEvent *) handleEvent:(UIEvent *) event
 {
 #ifdef DRAW_QUADTREE
-   NSUInteger    n;
-   CGRect        rect;
+   CGRect                                rect;
+   CGPoint                               point;
+   struct mulle_pointerarray             views;
+   struct mulle_pointerarray             remaining;
+   struct mulle_pointerarrayenumerator   rover;
+   UIView                                *view;
+   unsigned int                          n;
+   BOOL                                  isDrag;
 
    if( [event eventType] == UIEventTypeMotion)
    {
-      rect.origin = [event mousePosition];
-      rect.size   = CGSizeMake( 1.0, 1.0);
+      mulle_pointerarray_init( &views, 16, 0, NULL);
 
-      n = mulle_quadtree_change_payload( _quadtree, rect, (void *) 0, (void *) 1);
-      // MEMO: this code is crap with lots of quads since the walker is so slow
-      if( n)
+      point = [event mousePosition];
+      
+      //
+      // this could be a dragging event though, which needs to be handled
+      // without tracking areas (...). But we only handle these events if
+      // a button is pressed. We don't send mouseMoved: then though (useful ?)
+      //
+      isDrag = [event buttonStates] != 0;
+      n      = mulle_quadtree_find_point( _quadtree, 
+                                          point,
+                                          collect_hit_views, 
+                                          &views);
+      //
+      // if we have no entered views and nothing is hit, then there is nothing
+      // to do
+      //
+      if( n || mulle_pointerarray_get_count( &_enteredViews))
       {
-         mulle_quadtree_walk( _quadtree, clear_area, _quadtree);
-         mulle_quadtree_change_payload( _quadtree, rect, (void *) 0, (void *) 1);
+         // first remove all views from enteredViews which are not in views
+         // and send them a MouseExited event
+         // send MouseMoved: events to all remaining enteredViews
+
+         mulle_pointerarray_init( &remaining, 16, 0, mulle_pointerarray_get_allocator( &_enteredViews));
+        
+         rover = mulle_pointerarray_enumerate_nil( &_enteredViews);
+         while( view = mulle_pointerarrayenumerator_next( &rover))
+         {
+            if( mulle_pointerarray_find( &views, view) == -1)
+            {
+               [view mouseExited:event];
+            }
+            else
+            {
+               // will be sent later by regular event handling code anyway
+               if( ! isDrag)
+                  [view mouseMoved:event];
+               mulle_pointerarray_add( &remaining, view);
+            }
+         }
+         mulle_pointerarrayenumerator_done( &rover);      
+
+         // remaining are now the remaining active enteredViews
+
+         rover = mulle_pointerarray_enumerate_nil( &views);
+         while( view = mulle_pointerarrayenumerator_next( &rover))
+         {
+            if( mulle_pointerarray_find( &remaining, view) == -1)
+            {
+               [view mouseEntered:event];
+               mulle_pointerarray_add( &remaining, view);
+            }
+         }
+         mulle_pointerarrayenumerator_done( &rover);      
+
+         // now move remaining to _enteredViews and switch to remaining
+         mulle_pointerarray_done( &_enteredViews);
+         memcpy( &_enteredViews, &remaining, sizeof( struct mulle_pointerarray));
       }
+      mulle_pointerarray_done( &views);
+
+      if( ! isDrag)
+         return( nil);
    }
 #endif
 

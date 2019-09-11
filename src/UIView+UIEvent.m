@@ -95,6 +95,8 @@
    uint64_t   state;
    SEL        sel;
 
+   assert( [event isKindOfClass:[UIMouseMotionEvent class]]);
+   
    sel   = 0;
    state = [event buttonStates];
    if( state)
@@ -115,11 +117,18 @@
                          withObject:event];
    }
 
+#if 0
+   //
+   // classically, these events do not happen when there is no tracking
+   // area set up. But I don't see the point, you just don't implement
+   // mouseMoved: and then this should be fairly harmless ?
+   //
    if( event && [self respondsToSelector:@selector( mouseMoved:)])
    {
       event = [self performSelector:sel
                          withObject:event];
    }
+#endif
 
    return( event);
 }
@@ -181,15 +190,11 @@
    struct mulle_pointerarrayenumerator   rover;
    UIView                                *view;
 
-   view = nil;
-   if( _subviews)
-   {
-      rover = mulle_pointerarray_reverseenumerate( _subviews);
-      while( view = mulle_pointerarrayenumerator_next( &rover))
-         if( CGRectContainsPoint( [view frame], point))
-            break;
-      mulle_pointerarrayenumerator_done( &rover);
-   }
+   rover = mulle_pointerarray_reverseenumerate_nil( _subviews);
+   while( view = mulle_pointerarrayenumerator_next( &rover))
+      if( CGRectContainsPoint( [view frame], point))
+         break;
+   mulle_pointerarrayenumerator_done( &rover);
    return( view);
 }
 
