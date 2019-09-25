@@ -19,6 +19,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 
 const CGRect    CGRectInfinite = { INFINITY, INFINITY, INFINITY, INFINITY };
@@ -347,4 +348,22 @@ unsigned int   MulleRectSubdivideByRect( CGRect rect, CGRect other, CGRect outpu
 
 
    return( i);
+}
+
+//
+// t is 0 to 1
+//
+//
+// stolen from: https://stackoverflow.com/questions/5634460/quadratic-b%C3%A9zier-curve-calculate-points
+//
+
+CGPoint   MulleQuadraticBezierGetPointForNormalizedDistance(MulleQuadraticBezier *b,
+                                                            CGFloat t)
+{
+   CGPoint curvePoint;
+
+   curvePoint.x = MulleQuadraticGetValueForNormalizedDistance( &b->x, t);
+   curvePoint.y = MulleQuadraticGetValueForNormalizedDistance( &b->y, t);
+
+   return( curvePoint);
 }

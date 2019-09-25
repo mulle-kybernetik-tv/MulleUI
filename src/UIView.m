@@ -12,7 +12,7 @@
 
 
 //#define RENDER_DEBUG
-
+//#define HAVE_RENDER_CACHE
 
 @implementation UIView
 
@@ -205,10 +205,12 @@
 // maybe wrong name ?
 - (void) setNeedsCaching  // wipes the _backinglayer and asks for a new one to be drawn
 {
+#ifdef HAVE_RENDER_CACHE
    // might have to do this atomically later on 
    _needsCaching = YES;
    [_cacheLayer autorelease];
    _cacheLayer = nil;
+#endif   
 }
 
 - (char *) cStringDescription
@@ -242,6 +244,7 @@
 - (void) _createRenderCacheIfNeededWithContext:(CGContext *) context
                                      frameInfo:(struct MulleFrameInfo *) info
 {
+#ifdef HAVE_RENDER_CACHE
    UIImage   *image;
 
    if( ! _needsCaching)
@@ -256,11 +259,13 @@
       _cacheLayer = [[MulleImageLayer alloc] initWithFrame:[_mainLayer frame]];
       [_cacheLayer setImage:image];
    }
+#endif   
 }
 
 - (void) updateRenderCachesWithContext:(CGContext *) context
                              frameInfo:(struct MulleFrameInfo *) info
 {
+#ifdef HAVE_RENDER_CACHE
    struct mulle_pointerarrayenumerator   rover;
    UIView                                *view;
 
@@ -276,6 +281,7 @@
 
    [self _createRenderCacheIfNeededWithContext:context
                                      frameInfo:info];
+#endif                                     
 }
 
 
@@ -301,6 +307,7 @@
    nvgCurrentTransform( vg, transform);
    nvgGetScissor( vg, &scissor);
 
+#ifdef HAVE_RENDER_CACHE
    if( _cacheLayer)
    {
       [_cacheLayer setTransform:transform
@@ -308,6 +315,7 @@
       [_cacheLayer drawInContext:context];
       return( YES);
    }
+#endif
 
    [_mainLayer setTransform:transform
                    scissor:&scissor];

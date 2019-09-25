@@ -54,8 +54,8 @@ typedef NSUInteger    UIControlState;
 // 
 @protocol UIControl
 
-typedef UIEvent       *UIControlClickHandler( id <UIControl> control, 
-								  							 UIEvent *event);
+typedef UIEvent   *UIControlClickHandler( id <UIControl> control, 
+                                          UIEvent *event);
 @property( assign) UIControlState  state;
 @property( assign) id  target;
 @property( assign) SEL action;

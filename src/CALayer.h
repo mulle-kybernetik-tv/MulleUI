@@ -10,6 +10,7 @@ typedef NVGcolor   CGColorRef;
 typedef void       *CGColorSpaceRef;
 
 
+// NVGColor is a float[ 4] in reality
 static inline NVGcolor getNVGColor( uint32_t color) 
 {
 	return nvgRGBA(
@@ -43,20 +44,25 @@ static inline size_t CGColorGetNumberOfComponents(CGColorRef color)
    return( 4);
 }
 
+static inline void   MulleColorGetComponents(CGColorRef color, CGFloat *components)
+{
+   components[ 0] = color.r;
+   components[ 1] = color.g;
+   components[ 2] = color.b;
+   components[ 3] = color.a;
+}
 
 
 static inline CGFloat   CGColorGetAlpha( CGColorRef color)
 {
-   return( color.a / (CGFloat) 0xFF);
+   return( color.a);
 }
-
-
 
 typedef float   _NVGtransform[ 6];   
 
 
 @class CGContext;
-
+struct MulleFrameInfo;
 
 @interface CALayer : NSObject  
 {
@@ -75,11 +81,14 @@ typedef float   _NVGtransform[ 6];
 // frame coordinates.
 //
 - (void) drawContentsInContext:(CGContext *) ctx;
+
 @property CGFloat cornerRadius;
 @property CGFloat borderWidth;
 @property CGColorRef borderColor;
 @property CGColorRef backgroundColor;
-
+@property void       (*drawContentsCallback)( NVGcontext *vg, 
+                                              CGRect frame, 
+                                              struct MulleFrameInfo *info);
 @property CGRect frame;
 @property CGRect bounds;
 

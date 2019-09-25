@@ -146,6 +146,12 @@
    return( _currentFrameInfo.UIScale.dx * 1.35); // Still true ????
 }
 
+- (struct MulleFrameInfo *) currentFrameInfo
+{
+   return( &_currentFrameInfo);
+}
+
+
 - (void) getCurrentFrameInfo:(struct MulleFrameInfo *) info
 {
    assert( info);

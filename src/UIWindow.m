@@ -8,9 +8,10 @@
 #import "UIEvent.h"
 #import "UIView+UIEvent.h"
 #import "UIView+CGGeometry.h"
-#include <time.h>
-#import "mulle-quadtree.h"
 #import "mulle-pointerarray+ObjC.h"
+#include <time.h>
+#include "mulle-quadtree.h"
+#include "mulle-timespec.h"
 
 
 // #define DRAW_SUBDIVISION
@@ -22,23 +23,6 @@
 #if defined( DRAW_MOUSE_BOX) || defined(DRAW_QUADTREE)
 # include <GL/gl.h>
 #endif
-
-
-struct timespec   timespec_diff( struct timespec start, struct timespec end)
-{
-   struct timespec temp;
-
-   if ((end.tv_nsec-start.tv_nsec) < 0)
-   {
-      temp.tv_sec  = end.tv_sec-start.tv_sec - 1;
-      temp.tv_nsec = 1000000000 + end.tv_nsec - start.tv_nsec;
-   } else
-   {
-      temp.tv_sec = end.tv_sec-start.tv_sec;
-      temp.tv_nsec = end.tv_nsec-start.tv_nsec;
-   }
-   return( temp);
-}
 
 
 @implementation UIWindow
@@ -301,6 +285,7 @@ static void   mouseScrollCallback( GLFWwindow *window,
 #endif
 
 
+
 - (void) getFrameInfo:(struct MulleFrameInfo *) info
 {
    float   scale_x, scale_y;
@@ -320,6 +305,271 @@ static void   mouseScrollCallback( GLFWwindow *window,
    info->UIScale         = CGVectorMake( scale_x, scale_y);
 	info->pixelRatio      = info->framebufferSize.width / info->windowSize.width;
    info->isPerfEnabled   = NO;
+   info->renderFrame     = _didRender;
+   // does not do refreshRate yet, the renderloop does this
+}
+
+enum AnimationBits
+{
+   AnimationStarted  = 0x1,
+   AnimationRepeats  = 0x2,
+   AnimationReverses = 0x4
+};
+
+
+//
+// Step0: convert timespec to double (MulleTime)
+// Step1: make time based instead of renderFrame based
+// Step2: turn into CAAnimation or some sort
+// Step3: add to CALayer
+// Collect all layers ?
+// Step4: After rendering, run through all animations in all layers
+//
+typedef double    MulleTimeStamp;
+
+#ifndef NS_IN_S
+# define NS_IN_S (1000*1000*1000)
+#endif
+
+static inline MulleTimeStamp   MulleTimeStampWithTimespec( struct timespec a)
+{
+   return( a.tv_sec + a.tv_nsec / (double) NS_IN_S);
+}
+
+static inline void   MulleTimeStampInit( MulleTimeStamp *p, double value)
+{
+   if( p)
+      *p = value;
+}
+
+
+static inline MulleTimeStamp   MulleTimeStampWithSecondsAndNanoseconds( int tv_sec, long tv_nsec)
+{
+   return( tv_sec + tv_nsec / (double) NS_IN_S);
+}
+
+
+static inline MulleTimeStamp   MulleTimeStampAdd( MulleTimeStamp a, MulleTimeStamp b)
+{
+   return( a + b);
+}
+
+
+static inline MulleTimeStamp   MulleTimeStampSubtract( MulleTimeStamp a, MulleTimeStamp b)
+{
+   return( a - b);
+}
+
+
+// stuff to animate:
+//  CGPoint
+//  CGColor
+//  CGFloat
+//  CGRect
+//  BOOL
+
+struct CGPointAnimationInfo
+{
+   MulleTimeStamp    renderStart;   // absolute
+   MulleTimeStamp    renderEnd;     // absolute
+   MulleTimeStamp    renderOffset;  // offset  (relative, copied from initialRenderOffset)
+   MulleTimeStamp    renderLength;  // length  (relative)
+   CGPoint           start;
+   CGPoint           end;
+   MulleQuadratic    quadratic;
+   NSUInteger        bits;
+};
+
+- (struct CGPointAnimationInfo *) pointAnimationInfoForLayer:(CALayer *) layer
+{
+   static struct CGPointAnimationInfo   info;
+   CGFloat                              x;
+   CGFloat                              y;
+
+   if( ! layer)
+      return( NULL);
+
+   if( info.bits)  // only initialize once
+      return( &info);
+
+   MulleTimeStampInit( &info.renderOffset, 2.0);
+   MulleTimeStampInit( &info.renderLength, 2.0);
+   info.bits   = AnimationRepeats + AnimationReverses;
+   x           = 0.025;
+   MulleQuadraticInit( &info.quadratic, 0.0, x, 1.0 - x, 1.0);
+   info.start  = [layer frame].origin;
+   info.end    = info.start;
+   info.end.x += 100;
+   return( &info);
+}
+
+
+// renderTime is absolute,
+- (void) doPointAnimation:(MulleTimeStamp) renderTime
+{
+   CALayer                       *layer;
+   struct CGPointAnimationInfo   *info;
+   CGPoint                       tmp;
+   CGRect                        frame;
+   CGFloat                       x;
+   CGFloat                       t;
+   MulleTimeStamp                offset;
+
+   //
+   // One layer
+   // The only animation possible is origin x/y
+   //
+   layer = [self layerToAnimate];
+   info  = [self pointAnimationInfoForLayer:layer];
+   if( ! info || info->renderLength == 0.0)
+      return;
+
+   // turn animation time into absolute
+   if( ! (info->bits & AnimationStarted))
+   {
+      info->renderStart = MulleTimeStampAdd( info->renderOffset, renderTime);
+      info->renderEnd   = MulleTimeStampAdd( info->renderStart, info->renderLength);
+      info->bits       |= AnimationStarted;
+   }
+
+   if( renderTime <= info->renderEnd)
+   {
+      if( renderTime < info->renderStart) 
+         return;
+ 
+      offset   = MulleTimeStampSubtract( renderTime, info->renderStart);
+      t        = offset / info->renderLength;
+      assert( t >= 0 && t <= 1.0);
+
+      x     = MulleQuadraticGetValueForNormalizedDistance( &info->quadratic, t);
+
+      frame = [layer frame];
+      frame.origin.x = (info->end.x - info->start.x) * x + info->start.x;
+      [layer setFrame:frame];
+
+      if( renderTime < info->renderEnd)
+         return;
+   }
+
+   if( ! (info->bits & AnimationRepeats))
+      return;
+
+   // start with next frame, with a new animation
+   info->bits &= ~AnimationStarted;
+   if( info->bits & AnimationReverses)
+   {
+      tmp                = info->start;
+      info->start        = info->end;
+      info->end          = tmp;
+      info->renderOffset = 0.0;
+   }
+}
+
+//
+// TODO: interpolating RGB is easy, but not necessarily very nice looking.
+//       Possibly implement http://labs.adamluptak.com/javascript-color-blending/
+//       though it is costly
+//
+struct CGColorAnimationInfo
+{
+   MulleTimeStamp    renderStart;   // absolute
+   MulleTimeStamp    renderEnd;     // absolute
+   MulleTimeStamp    renderOffset;  // offset  (relative, copied from initialRenderOffset)
+   MulleTimeStamp    renderLength;  // length  (relative)
+   CGFloat           start[ 4];     // decomposed color
+   CGFloat           end[ 4];
+   MulleQuadratic    quadratic;
+   NSUInteger        bits;
+};
+
+
+- (struct CGColorAnimationInfo *) colorAnimationInfoForLayer:(CALayer *) layer
+{
+   static struct CGColorAnimationInfo   info;
+   CGFloat                              x;
+   CGFloat                              y;
+
+   if( ! layer)
+      return( NULL);
+
+   if( info.bits)  // only initialize once
+      return( &info);
+
+   MulleTimeStampInit( &info.renderOffset, 2.0);
+   MulleTimeStampInit( &info.renderLength, 2.0);
+   info.bits   = AnimationRepeats + AnimationReverses;
+   x           = 0.025;
+   MulleQuadraticInit( &info.quadratic, 0.0, x, 1.0 - x, 1.0);
+   MulleColorGetComponents( [layer backgroundColor], info.start);
+   MulleColorGetComponents( getNVGColor( 0x000000FF), info.end);
+
+   return( &info);
+}
+
+
+// renderTime is absolute,
+- (void) doColorAnimation:(MulleTimeStamp) renderTime
+{
+   CALayer                       *layer;
+   struct CGColorAnimationInfo   *info;
+   CGFloat                       x;
+   CGFloat                       t;
+   MulleTimeStamp                offset;
+   CGFloat                       components[ 4];
+   CGFloat                       tmp[ 4];
+   CGColorRef                    color;
+   //
+   // One layer
+   // The only animation possible is origin x/y
+   //
+   layer = [self layerToAnimate];
+   info  = [self colorAnimationInfoForLayer:layer];
+   if( ! info || info->renderLength == 0.0)
+      return;
+
+   // turn animation time into absolute
+   if( ! (info->bits & AnimationStarted))
+   {
+      info->renderStart = MulleTimeStampAdd( info->renderOffset, renderTime);
+      info->renderEnd   = MulleTimeStampAdd( info->renderStart, info->renderLength);
+      info->bits       |= AnimationStarted;
+   }
+
+   if( renderTime <= info->renderEnd)
+   {
+      if( renderTime < info->renderStart) 
+         return;
+ 
+      offset   = MulleTimeStampSubtract( renderTime, info->renderStart);
+      t        = offset / info->renderLength;
+      assert( t >= 0 && t <= 1.0);
+
+      x     = MulleQuadraticGetValueForNormalizedDistance( &info->quadratic, t);
+
+      components[ 0] = (info->end[ 0] - info->start[ 0]) * x + info->start[ 0];
+      components[ 1] = (info->end[ 1] - info->start[ 1]) * x + info->start[ 1];
+      components[ 2] = (info->end[ 2] - info->start[ 2]) * x + info->start[ 2];
+      components[ 3] = (info->end[ 3] - info->start[ 3]) * x + info->start[ 3];
+
+      color = CGColorCreate( NULL, components);
+      [layer setBackgroundColor:color];
+
+      if( renderTime < info->renderEnd)
+         return;
+   }
+
+   if( ! (info->bits & AnimationRepeats))
+      return;
+
+   // start with next frame, with a new animation
+   info->bits &= ~AnimationStarted;
+   if( info->bits & AnimationReverses)
+   {
+      memcpy( tmp, info->start, sizeof( info->start));
+      memcpy( info->start, info->end, sizeof( info->start));
+      memcpy( info->end, tmp, sizeof( info->start));
+      info->renderOffset = 0.0;
+   }
 }
 
 // glitch hunt:
@@ -337,19 +587,21 @@ static void   mouseScrollCallback( GLFWwindow *window,
    struct timespec         sleep;
    GLFWmonitor             *monitor;
    GLFWvidmode             *mode;
-   int                     refresh;
    long                    nsperframe;
    struct MulleFrameInfo   info;
+   MulleTimeStamp          renderTime;
+
 
 //   _discardEvents = UIEventTypeMotion;
 
    glfwSwapInterval( 0);  // need for smooth pointer/control sync
 
-#ifdef PRINTF_PROFILE_RENDER
-   monitor = glfwGetPrimaryMonitor();
-   mode    = (GLFWvidmode *) glfwGetVideoMode( monitor);
-   refresh = mode->refreshRate;
+   // should check the monitor where the window is on really
+   monitor          = glfwGetPrimaryMonitor();
+   mode             = (GLFWvidmode *) glfwGetVideoMode( monitor);
+   info.refreshRate = mode->refreshRate;
 
+#ifdef PRINTF_PROFILE_RENDER
    nsperframe = (1000000000L + (mode->refreshRate - 1)) / mode->refreshRate;
    fprintf( stderr, "Refresh: %d (%09ld ns/frame)\n", mode->refreshRate, nsperframe);
 #endif
@@ -367,9 +619,8 @@ static void   mouseScrollCallback( GLFWwindow *window,
       if( 1)
       {
          // nvgGlobalCompositeOperation( ctxt->vg, NVG_ATOP);
-#ifdef PRINTF_PROFILE_RENDER
          clock_gettime( CLOCK_REALTIME, &start);
-#endif
+
          [self getFrameInfo:&info];
          [self updateRenderCachesWithContext:context 
                                    frameInfo:&info];
@@ -415,6 +666,9 @@ static void   mouseScrollCallback( GLFWwindow *window,
 
       // use at max 200 Hz refresh rate (0: polls)
       [self setupQuadtree];
+      renderTime = MulleTimeStampWithTimespec( start);
+      [self doPointAnimation:renderTime];
+      [self doColorAnimation:renderTime];
       [self waitForEvents:0.0];
 
 #ifdef PRINTF_PROFILE_EVENTS

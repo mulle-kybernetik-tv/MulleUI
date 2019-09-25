@@ -73,6 +73,7 @@ src/import.h
 src/include.h
 src/mulle-pointerarray+ObjC.h
 src/mulle-quadtree.h
+src/mulle-timespec.h
 src/nanoperf.h
 src/nanovg+CString.h
 src/sealie-bitmap.inc

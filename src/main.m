@@ -1,6 +1,7 @@
 #import "import-private.h"
 
 #import "CGContext.h"
+#import "CGGeometry+CString.h"
 #import "MulleBitmapImage.h"
 #import "MulleImageLayer.h"
 #import "MulleSVGImage.h"
@@ -91,6 +92,56 @@ static UIEvent   *scroll_callback( UIButton *button, UIEvent *event)
 @end
 
 
+static void   draw_bezier( NVGcontext *vg, CGRect frame, struct MulleFrameInfo *info)
+{
+   MulleQuadraticBezier   bezier;
+   CGPoint                point;
+   CGFloat                t;
+   void                   (*f)( NVGcontext *, float, float);
+
+   frame.origin.x    += 10;
+   frame.origin.y    += 10;
+   frame.size.width  -= 10 * 2;
+   frame.size.height -= 10 * 2;
+
+   nvgBeginPath( vg);
+   nvgRoundedRect( vg, frame.origin.x, 
+                       frame.origin.y, 
+                       frame.size.width, 
+                       frame.size.height, 
+                       10);
+   nvgFillColor(vg, getNVGColor( 0x5F7F5FFF));
+   nvgFill( vg);
+
+//   fprintf( stderr, "%u: %s\n", info->renderFrame, CGRectCStringDescription( frame));
+
+   MulleQuadraticBezierInit( &bezier, CGPointMake( 0.0, 0.0),
+                                      CGPointMake( 0.025, 0.5),
+                                      CGPointMake( 0.975, 0.5),
+                                      CGPointMake( 1.0, 0.0));
+
+   nvgBeginPath( vg);
+   f = nvgMoveTo;
+   for( t = 0.0; t <= 1.0; t += 1.0 / frame.size.width)
+   {
+      point = MulleQuadraticBezierGetPointForNormalizedDistance( &bezier, t);
+
+      assert( point.x >= 0 && point.x <= 1.0);
+      assert( point.y >= 0 && point.y <= 1.0);
+
+      point.x = frame.origin.x + point.x * frame.size.width;
+      point.y = frame.origin.y + point.y * frame.size.height;
+      (*f)( vg, point.x, point.y);
+      f = nvgLineTo;
+
+
+//      fprintf( stderr, "%.2f: %s\n", t, CGPointCStringDescription( point));
+   }
+   nvgStrokeColor(vg, getNVGColor( 0xFF0000FF));
+   nvgStroke( vg);
+}                                                               
+
+
 // scale stuff for stream
 #define SCALE     2.0
 
@@ -123,7 +174,8 @@ int   main()
    UIView               *view0;
    UIView               *view1;
    UIWindow             *window;
-   
+   CALayer              *layer;
+
    /* 
     * window and app 
     */
@@ -132,35 +184,16 @@ int   main()
 
    [[UIApplication sharedInstance] addWindow:window];
 
-   view0 = [[[UIView alloc] initWithFrame:CGRectMake( 20, 20, 500, 300)] autorelease];
-   [[view0 layer] setBackgroundColor:getNVGColor( 0x7F7F7F7F)];
-
-   view1 = [[[UIView alloc] initWithFrame:CGRectMake( 40, 100, 420, 100)] autorelease];
-   [[view1 layer] setBackgroundColor:getNVGColor( 0x7F00007F)];
-   [view0 addSubview:view1];
-
+   view0 = [[[UIView alloc] initWithFrame:CGRectMake( 100, 100, 400, 200)] autorelease];
+   layer = [view0 layer];
+   [layer setBackgroundColor:getNVGColor( 0x7F7F7F7F)];
+   [layer setDrawContentsCallback:draw_bezier];
    [window addSubview:view0];
-
-   // must be after view was added to window
-   [view1 addTrackingAreaWithRect:CGRectMake( 185, 25, 50, 50)
-                         userInfo:nil];
-
+   [window setLayerToAnimate:layer];
 
    /*
     * view placement in window 
     */
-#if 0    
-   [window addTrackingAreaWithRect:CGRectMake( 20, 20, 300, 100)
-                          userInfo:nil];
-   [window addTrackingAreaWithRect:CGRectMake( 170, 20, 300, 100)
-                          userInfo:nil];
-   [window addTrackingAreaWithRect:CGRectMake( 95, 80, 300, 100)
-                          userInfo:nil];
-   [window addTrackingView:window];
-#endif   
-   [window setupQuadtree];
-
-   [window dump];
 
    context = [[CGContext new] autorelease];
    [window renderLoopWithContext:context];

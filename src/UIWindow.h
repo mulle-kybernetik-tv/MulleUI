@@ -2,6 +2,8 @@
 
 #import <mulle-container/mulle-container.h>
 
+struct MulleFrameInfo;
+
 
 @interface UIWindow : UIView
 {
@@ -28,6 +30,8 @@
 @property( assign, readonly) uint64_t         mouseButtonStates;
 @property( assign, readonly) uint64_t         modifiers;
 @property( assign, readonly) CGFloat          primaryMonitorPPI;
+
+@property( retain) CALayer                   *layerToAnimate;
 
 - (void) renderLoopWithContext:(CGContext *) context;
 - (void) waitForEvents:(double) hz;

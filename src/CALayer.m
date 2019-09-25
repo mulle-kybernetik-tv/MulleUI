@@ -51,6 +51,8 @@
 
 - (void) drawContentsInContext:(CGContext *) context
 {
+   if( _drawContentsCallback)
+      (*_drawContentsCallback)( [context nvgContext], [self frame], [context currentFrameInfo]);
 }
 
 
@@ -117,18 +119,17 @@
    //
    tl.x = frame.origin.x;
    tl.y = frame.origin.y;
-   br.x = tl.x + frame.size.width - 1;
-   br.y = tl.y + frame.size.height - 1;
+   br.x = tl.x + frame.size.width;
+   br.y = tl.y + frame.size.height;
 
    if( tl.x <= br.x || tl.y <= br.y)
    {
       // fill 
-#if 1      
       nvgBeginPath( vg);
-      nvgRoundedRect( vg, tl.x, 
-                          tl.y, 
-                          br.x - tl.x + 1, 
-                          br.y - tl.y + 1, 
+      nvgRoundedRect( vg, frame.origin.x, 
+                          frame.origin.y, 
+                          frame.size.width, 
+                          frame.size.height, 
                           _cornerRadius);
 
    //   nvgMoveTo( vg, tl.x, tl.y);
@@ -138,7 +139,6 @@
    //   nvgLineTo( vg, tl.x, tl.y);
       nvgFillColor(vg, _backgroundColor);
       nvgFill( vg);
-#endif     
    }
 
    [self drawContentsInContext:context];
@@ -152,8 +152,8 @@
 
       tl.x = halfBorderWidth + frame.origin.x ;
       tl.y = halfBorderWidth + frame.origin.y;
-      br.x = tl.x + frame.size.width - halfBorderWidth * 2 - 1;
-      br.y = tl.y + frame.size.height - halfBorderWidth * 2 - 1;
+      br.x = tl.x + frame.size.width - halfBorderWidth * 2;
+      br.y = tl.y + frame.size.height - halfBorderWidth * 2;
 
       if( tl.x <= br.x || tl.y <= br.y)
       {
@@ -165,8 +165,8 @@
          nvgStrokeWidth( vg, (int) _borderWidth);
          nvgRoundedRect( vg, tl.x, 
                              tl.y, 
-                             br.x - tl.x + 1, 
-                             br.y - tl.y + 1, 
+                             br.x - tl.x, 
+                             br.y - tl.y, 
                              _cornerRadius / _borderWidth);
 
          nvgStrokeColor( vg, _borderColor);

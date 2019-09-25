@@ -10,6 +10,7 @@
 @class UIWindow;
 @class MulleImageLayer;
 
+struct MulleFrameInfo;
 
 //
 // the main layer which is bottom-most defines the geometry

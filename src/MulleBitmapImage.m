@@ -119,8 +119,8 @@
    if( ! filename || ! *filename)
       return( NO);
 
-   size = [(MulleBitmapImage *) _image intSize];
-   return( ! bmp_rgb32_write_file( filename, [_image bytes], size.width, size.height, 0) ? YES : NO);
+   size = _bitmapSize.size;
+   return( ! bmp_rgb32_write_file( filename, _image, size.width, size.height, 0) ? YES : NO);
 }
 
 @end

@@ -136,12 +136,14 @@ struct MulleNVGPerformance
 
 struct MulleFrameInfo 
 {
-   CGRect     frame;
-   CGSize     windowSize;
-   CGSize     framebufferSize;
-   CGVector   UIScale;
-   CGFloat    pixelRatio;
-   BOOL       isPerfEnabled;
+   CGRect        frame;
+   CGSize        windowSize;
+   CGSize        framebufferSize;
+   CGVector      UIScale;
+   CGFloat       pixelRatio;
+   NSUInteger    renderFrame;      // current frame nr (can wrap)
+   NSUInteger    refreshRate;      // often 60 Hz
+   BOOL          isPerfEnabled;
 };
 
 //
@@ -170,6 +172,7 @@ struct MulleFrameInfo
 - (int) textureIDForImage:(UIImage *) image;
 - (void) clearFramebuffer;
 - (void) getCurrentFrameInfo:(struct MulleFrameInfo *) info; 
+- (struct MulleFrameInfo *) currentFrameInfo;
 
 - (UIImage *) textureImageWithSize:(CGSize) size 
                            options:(NSUInteger) options;

@@ -29,7 +29,7 @@ typedef enum
 @property( assign, readonly) clock_t   timestamp;
 
 // current known state of modifier keys
-@property( assign, readonly) int       modifiers;
+@property( assign, readonly) uint64_t  modifiers;
 
 //
 // translated mousePosition to current view bounds (ephemeral)
