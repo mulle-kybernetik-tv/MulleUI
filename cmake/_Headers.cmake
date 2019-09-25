@@ -25,6 +25,7 @@ nanovg/src/nanovg_gl_utils.h
 nanovg/src/nanovg.h
 nanovg/src/stb_image.h
 nanovg/src/stb_truetype.h
+src/CAAnimation.h
 src/CALayer.h
 src/CGAffineTransform.h
 src/CGBase.h

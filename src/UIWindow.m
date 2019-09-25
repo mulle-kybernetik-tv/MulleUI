@@ -5,6 +5,7 @@
 #import "CGContext.h"
 #import "CALayer.h"  // for color
 #import "CGGeometry+CString.h"
+#import "CAAnimation.h"
 #import "UIEvent.h"
 #import "UIView+UIEvent.h"
 #import "UIView+CGGeometry.h"
@@ -309,82 +310,19 @@ static void   mouseScrollCallback( GLFWwindow *window,
    // does not do refreshRate yet, the renderloop does this
 }
 
-enum AnimationBits
+
+ //     memcpy( tmp, info->start, sizeof( info->start));
+ //     memcpy( info->start, info->end, sizeof( info->start));
+ //     memcpy( info->end, tmp, sizeof( info->start));
+
+
+
+
+- (struct CAAnimation *) pointAnimationForLayer:(CALayer *) layer
 {
-   AnimationStarted  = 0x1,
-   AnimationRepeats  = 0x2,
-   AnimationReverses = 0x4
-};
-
-
-//
-// Step0: convert timespec to double (MulleTime)
-// Step1: make time based instead of renderFrame based
-// Step2: turn into CAAnimation or some sort
-// Step3: add to CALayer
-// Collect all layers ?
-// Step4: After rendering, run through all animations in all layers
-//
-typedef double    MulleTimeStamp;
-
-#ifndef NS_IN_S
-# define NS_IN_S (1000*1000*1000)
-#endif
-
-static inline MulleTimeStamp   MulleTimeStampWithTimespec( struct timespec a)
-{
-   return( a.tv_sec + a.tv_nsec / (double) NS_IN_S);
-}
-
-static inline void   MulleTimeStampInit( MulleTimeStamp *p, double value)
-{
-   if( p)
-      *p = value;
-}
-
-
-static inline MulleTimeStamp   MulleTimeStampWithSecondsAndNanoseconds( int tv_sec, long tv_nsec)
-{
-   return( tv_sec + tv_nsec / (double) NS_IN_S);
-}
-
-
-static inline MulleTimeStamp   MulleTimeStampAdd( MulleTimeStamp a, MulleTimeStamp b)
-{
-   return( a + b);
-}
-
-
-static inline MulleTimeStamp   MulleTimeStampSubtract( MulleTimeStamp a, MulleTimeStamp b)
-{
-   return( a - b);
-}
-
-
-// stuff to animate:
-//  CGPoint
-//  CGColor
-//  CGFloat
-//  CGRect
-//  BOOL
-
-struct CGPointAnimationInfo
-{
-   MulleTimeStamp    renderStart;   // absolute
-   MulleTimeStamp    renderEnd;     // absolute
-   MulleTimeStamp    renderOffset;  // offset  (relative, copied from initialRenderOffset)
-   MulleTimeStamp    renderLength;  // length  (relative)
-   CGPoint           start;
-   CGPoint           end;
-   MulleQuadratic    quadratic;
-   NSUInteger        bits;
-};
-
-- (struct CGPointAnimationInfo *) pointAnimationInfoForLayer:(CALayer *) layer
-{
-   static struct CGPointAnimationInfo   info;
-   CGFloat                              x;
-   CGFloat                              y;
+   static struct CAAnimation   info;
+   CGRect                      start;
+   CGRect                      end;
 
    if( ! layer)
       return( NULL);
@@ -392,102 +330,28 @@ struct CGPointAnimationInfo
    if( info.bits)  // only initialize once
       return( &info);
 
-   MulleTimeStampInit( &info.renderOffset, 2.0);
-   MulleTimeStampInit( &info.renderLength, 2.0);
-   info.bits   = AnimationRepeats + AnimationReverses;
-   x           = 0.025;
-   MulleQuadraticInit( &info.quadratic, 0.0, x, 1.0 - x, 1.0);
-   info.start  = [layer frame].origin;
-   info.end    = info.start;
-   info.end.x += 100;
+   start         = [layer frame];
+   end           = start;
+   end.origin.x += 150;
+
+   CARectAnimationInit( &info, 
+                        @selector( setFrame:), 
+                        start, 
+                        end, 
+                        CARelativeTimeRangeMake( 2.0, 2.0), 
+                        CAAnimationRepeats + CAAnimationReverses);
+   info.repeatStart.rect            = start;
+   info.repeatStart.rect.origin.x  -= 150;
+
    return( &info);
 }
 
 
-// renderTime is absolute,
-- (void) doPointAnimation:(MulleTimeStamp) renderTime
+- (struct CAAnimation *) colorAnimationForLayer:(CALayer *) layer
 {
-   CALayer                       *layer;
-   struct CGPointAnimationInfo   *info;
-   CGPoint                       tmp;
-   CGRect                        frame;
-   CGFloat                       x;
-   CGFloat                       t;
-   MulleTimeStamp                offset;
-
-   //
-   // One layer
-   // The only animation possible is origin x/y
-   //
-   layer = [self layerToAnimate];
-   info  = [self pointAnimationInfoForLayer:layer];
-   if( ! info || info->renderLength == 0.0)
-      return;
-
-   // turn animation time into absolute
-   if( ! (info->bits & AnimationStarted))
-   {
-      info->renderStart = MulleTimeStampAdd( info->renderOffset, renderTime);
-      info->renderEnd   = MulleTimeStampAdd( info->renderStart, info->renderLength);
-      info->bits       |= AnimationStarted;
-   }
-
-   if( renderTime <= info->renderEnd)
-   {
-      if( renderTime < info->renderStart) 
-         return;
- 
-      offset   = MulleTimeStampSubtract( renderTime, info->renderStart);
-      t        = offset / info->renderLength;
-      assert( t >= 0 && t <= 1.0);
-
-      x     = MulleQuadraticGetValueForNormalizedDistance( &info->quadratic, t);
-
-      frame = [layer frame];
-      frame.origin.x = (info->end.x - info->start.x) * x + info->start.x;
-      [layer setFrame:frame];
-
-      if( renderTime < info->renderEnd)
-         return;
-   }
-
-   if( ! (info->bits & AnimationRepeats))
-      return;
-
-   // start with next frame, with a new animation
-   info->bits &= ~AnimationStarted;
-   if( info->bits & AnimationReverses)
-   {
-      tmp                = info->start;
-      info->start        = info->end;
-      info->end          = tmp;
-      info->renderOffset = 0.0;
-   }
-}
-
-//
-// TODO: interpolating RGB is easy, but not necessarily very nice looking.
-//       Possibly implement http://labs.adamluptak.com/javascript-color-blending/
-//       though it is costly
-//
-struct CGColorAnimationInfo
-{
-   MulleTimeStamp    renderStart;   // absolute
-   MulleTimeStamp    renderEnd;     // absolute
-   MulleTimeStamp    renderOffset;  // offset  (relative, copied from initialRenderOffset)
-   MulleTimeStamp    renderLength;  // length  (relative)
-   CGFloat           start[ 4];     // decomposed color
-   CGFloat           end[ 4];
-   MulleQuadratic    quadratic;
-   NSUInteger        bits;
-};
-
-
-- (struct CGColorAnimationInfo *) colorAnimationInfoForLayer:(CALayer *) layer
-{
-   static struct CGColorAnimationInfo   info;
-   CGFloat                              x;
-   CGFloat                              y;
+   static struct CAAnimation   info;
+   CGFloat                     x;
+   CGFloat                     y;
 
    if( ! layer)
       return( NULL);
@@ -495,82 +359,18 @@ struct CGColorAnimationInfo
    if( info.bits)  // only initialize once
       return( &info);
 
-   MulleTimeStampInit( &info.renderOffset, 2.0);
-   MulleTimeStampInit( &info.renderLength, 2.0);
-   info.bits   = AnimationRepeats + AnimationReverses;
-   x           = 0.025;
-   MulleQuadraticInit( &info.quadratic, 0.0, x, 1.0 - x, 1.0);
-   MulleColorGetComponents( [layer backgroundColor], info.start);
-   MulleColorGetComponents( getNVGColor( 0x000000FF), info.end);
+   CAColorAnimationInit( &info, 
+                         @selector( setBackgroundColor:),  
+                         [layer backgroundColor], 
+                         getNVGColor( 0x000000FF), 
+                         CARelativeTimeRangeMake( 2.0, 2.0), 
+                         CAAnimationRepeats + CAAnimationReverses);
 
    return( &info);
 }
 
 
-// renderTime is absolute,
-- (void) doColorAnimation:(MulleTimeStamp) renderTime
-{
-   CALayer                       *layer;
-   struct CGColorAnimationInfo   *info;
-   CGFloat                       x;
-   CGFloat                       t;
-   MulleTimeStamp                offset;
-   CGFloat                       components[ 4];
-   CGFloat                       tmp[ 4];
-   CGColorRef                    color;
-   //
-   // One layer
-   // The only animation possible is origin x/y
-   //
-   layer = [self layerToAnimate];
-   info  = [self colorAnimationInfoForLayer:layer];
-   if( ! info || info->renderLength == 0.0)
-      return;
 
-   // turn animation time into absolute
-   if( ! (info->bits & AnimationStarted))
-   {
-      info->renderStart = MulleTimeStampAdd( info->renderOffset, renderTime);
-      info->renderEnd   = MulleTimeStampAdd( info->renderStart, info->renderLength);
-      info->bits       |= AnimationStarted;
-   }
-
-   if( renderTime <= info->renderEnd)
-   {
-      if( renderTime < info->renderStart) 
-         return;
- 
-      offset   = MulleTimeStampSubtract( renderTime, info->renderStart);
-      t        = offset / info->renderLength;
-      assert( t >= 0 && t <= 1.0);
-
-      x     = MulleQuadraticGetValueForNormalizedDistance( &info->quadratic, t);
-
-      components[ 0] = (info->end[ 0] - info->start[ 0]) * x + info->start[ 0];
-      components[ 1] = (info->end[ 1] - info->start[ 1]) * x + info->start[ 1];
-      components[ 2] = (info->end[ 2] - info->start[ 2]) * x + info->start[ 2];
-      components[ 3] = (info->end[ 3] - info->start[ 3]) * x + info->start[ 3];
-
-      color = CGColorCreate( NULL, components);
-      [layer setBackgroundColor:color];
-
-      if( renderTime < info->renderEnd)
-         return;
-   }
-
-   if( ! (info->bits & AnimationRepeats))
-      return;
-
-   // start with next frame, with a new animation
-   info->bits &= ~AnimationStarted;
-   if( info->bits & AnimationReverses)
-   {
-      memcpy( tmp, info->start, sizeof( info->start));
-      memcpy( info->start, info->end, sizeof( info->start));
-      memcpy( info->end, tmp, sizeof( info->start));
-      info->renderOffset = 0.0;
-   }
-}
 
 // glitch hunt:
 //
@@ -589,8 +389,6 @@ struct CGColorAnimationInfo
    GLFWvidmode             *mode;
    long                    nsperframe;
    struct MulleFrameInfo   info;
-   MulleTimeStamp          renderTime;
-
 
 //   _discardEvents = UIEventTypeMotion;
 
@@ -666,9 +464,18 @@ struct CGColorAnimationInfo
 
       // use at max 200 Hz refresh rate (0: polls)
       [self setupQuadtree];
-      renderTime = MulleTimeStampWithTimespec( start);
-      [self doPointAnimation:renderTime];
-      [self doColorAnimation:renderTime];
+      {
+         CALayer              *layer;
+         CAAbsoluteTime          renderTime;
+         struct CAAnimation   *animation; 
+
+         renderTime = CAAbsoluteTimeWithTimespec( start);
+         layer      = [self layerToAnimate];
+         animation  = [self colorAnimationForLayer:layer];
+         CAAnimationAnimate( animation, layer, renderTime);
+         animation  = [self pointAnimationForLayer:layer];
+         CAAnimationAnimate( animation, layer, renderTime);
+      }
       [self waitForEvents:0.0];
 
 #ifdef PRINTF_PROFILE_EVENTS

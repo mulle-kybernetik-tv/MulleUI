@@ -280,7 +280,7 @@ static inline CGFloat   MulleQuadraticGetValueForNormalizedDistance( MulleQuadra
 {
    CGFloat   value;
 
-   assert(t >= 0.0 && t <= 1.0);
+   assert( t >= 0.0 && t <= 1.0);
 
    value = (1 - t) * (1 - t) * (1 - t) * b->value[0] +
        3 * (1 - t) * (1 - t) * t * b->value[1] +

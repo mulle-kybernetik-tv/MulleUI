@@ -7,6 +7,7 @@ endif()
 
 set( SOURCES
 nanovg/src/nanovg.c
+src/CAAnimation.m
 src/CALayer.m
 src/CGAffineTransform.c
 src/CGContext.m
