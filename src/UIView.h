@@ -2,6 +2,7 @@
 
 #import <mulle-container/mulle-container.h>
 #import "CGGeometry.h"
+#import "CATime.h"
 #import "MulleTrackingArea.h"
 
 
@@ -57,6 +58,7 @@ struct MulleFrameInfo;
 - (void) setFrame:(CGRect) rect;
 
 - (void) renderWithContext:(CGContext *) context;
+- (void) animateWithAbsoluteTime:(CAAbsoluteTime) renderTime;
 
 - (NSInteger) getLayers:(CALayer **) buf
                  length:(NSUInteger) length;

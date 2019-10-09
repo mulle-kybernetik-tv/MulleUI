@@ -6,6 +6,7 @@
 #import "CGGeometry+CString.h"
 #import "CGContext.h"
 #import "nanovg+CString.h"
+#import "UIView+CAAnimation.h"
 
 
 @implementation CALayer
@@ -32,11 +33,22 @@
 
 - (void) dealloc
 {
-   struct mulle_allocator  *allocator;
+   struct mulle_allocator               *allocator;
+   struct mulle_pointerarrayenumerator   rover;
+   CAAnimation                           *animation;
 
    allocator = MulleObjCObjectGetAllocator( self);
    mulle_allocator_free( allocator, _cStringName);
 
+   rover = mulle_pointerarray_enumerate_nil( &_animations);
+   while( animation = mulle_pointerarrayenumerator_next( &rover))
+      [animation release];
+   mulle_pointerarrayenumerator_done( &rover); 
+
+   mulle_pointerarray_done( &_animations);
+
+   [_snapshot release];
+   
    [super dealloc];
 }
 
@@ -245,6 +257,35 @@
 }
 
 
+
+// possibly rename to layerWillChange
+- (void) willChange
+{
+   if( ! [UIView areAnimationsEnabled])
+      return;
+   if( _snapshot)
+      return;
+  
+   [UIView addAnimatedLayer:self];
+   _snapshot = [self copy];
+}
+
+
+- (id) copy
+{
+   CALayer   *copy;
+
+   // this does a memcpy
+   copy = NSCopyObject( self, 0, NULL);
+
+   // nil out references to outside memory
+   copy->_snapshot    = nil;
+   mulle_pointerarray_init( &copy->_animations, 0, 0, NULL);
+   copy->_cStringName = NULL;
+   return( copy);
+}
+
+
 - (CGRect) bounds
 {
    CGRect  bounds;
@@ -296,6 +337,182 @@
    MulleObjCAutoreleaseAllocation( result, NULL);
 
    return( result);
+}
+
+
+# pragma mark - Animation
+
+
+- (void) addAnimation:(CAAnimation *) animation
+{
+   assert( animation);
+
+   assert( mulle_pointerarray_find( &_animations, animation) == -1);
+   mulle_pointerarray_add( &_animations, animation);
+}
+
+
+- (void) removeAllAnimations
+{
+   struct mulle_pointerarrayenumerator   rover;
+   CAAnimation                           *animation;
+
+   rover = mulle_pointerarray_enumerate_nil( &_animations);
+   while( animation = mulle_pointerarrayenumerator_next( &rover))
+      [animation autorelease];
+   mulle_pointerarrayenumerator_done( &rover); 
+
+   mulle_pointerarray_done( &_animations);
+   mulle_pointerarray_init( &_animations, 16, 0, NULL);
+}
+
+
+- (NSUInteger) numberOfAnimations
+{
+   return( mulle_pointerarray_get_count( &_animations));
+}
+
+
+- (void) animateWithAbsoluteTime:(CAAbsoluteTime) renderTime
+{
+   struct mulle_pointerarrayenumerator   rover;
+   CAAnimation                           *animation;
+
+#ifdef RENDER_DEBUG
+   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
+#endif
+
+   rover = mulle_pointerarray_enumerate_nil( &_animations);
+   while( animation = mulle_pointerarrayenumerator_next( &rover))
+      [animation animateLayer:self
+                 absoluteTime:renderTime];
+   mulle_pointerarrayenumerator_done( &rover);   
+}
+
+
+
+- (void) animatePropertiesWithSnapshotlayer:(CALayer *) snapshot
+                           animationOptions:(struct CAAnimationOptions *) options
+{
+   CGColorRef    startColor;
+   CGColorRef    endColor;
+   CGRect        startRect;
+   CGRect        endRect;
+   CAAnimation   *animation;
+      
+   /*
+    * Border
+    */
+   startColor = snapshot->_borderColor;
+   endColor   = _borderColor;
+   if( ! CGColorEqualToColor( startColor,  endColor))
+   {
+      animation = [[[CAAnimation alloc] initWithPropertySetter:@selector( setBorderColor:) 
+                                                    startColor:startColor
+                                                      endColor:endColor
+                                                       options:options] autorelease];
+  
+      [self addAnimation:animation];
+
+      // reset to start position 
+      _borderColor = snapshot->_borderColor;
+   }
+
+   /*
+    * BackgroundColor
+    */
+   startColor = snapshot->_backgroundColor;
+   endColor   = _backgroundColor;
+   if( ! CGColorEqualToColor( startColor,  endColor))
+   {
+      animation = [[[CAAnimation alloc] initWithPropertySetter:@selector( setBackgroundColor:) 
+                                                    startColor:startColor
+                                                      endColor:endColor
+                                                       options:options] autorelease];
+  
+      [self addAnimation:animation];
+
+      // reset to start position 
+      _backgroundColor = snapshot->_backgroundColor;
+   }
+
+   /*
+    * Frame
+    */
+   startRect = snapshot->_frame;
+   endRect   = _frame;    
+   if( ! CGRectEqualToRect( startRect, endRect))
+   {
+      animation = [[[CAAnimation alloc] initWithPropertySetter:@selector( setFrame:) 
+                                                     startRect:startRect
+                                                       endRect:endRect
+                                                       options:options] autorelease];
+  
+      [self addAnimation:animation];
+
+      // reset to start position 
+      _frame = snapshot->_frame;
+   }   
+}
+
+
+MulleQuadratic   CALayerQuadraticForCurveType( NSUInteger curvetype)
+{
+   MulleQuadratic   quadratic;
+
+   switch( [UIView animationCurve])
+   {
+   case UIViewAnimationCurveEaseInOut: 
+      MulleQuadraticInit( &quadratic, 0.0, 0.025, 1.0 - 0.025, 1.0);
+      break;
+      
+   case UIViewAnimationCurveEaseOut: 
+      MulleQuadraticInit( &quadratic, 0.0, 0.9, 0.9, 1.0);
+      break;
+
+   case UIViewAnimationCurveEaseIn: 
+      MulleQuadraticInit( &quadratic, 0.0, 0.0, 0.1, 1.0);
+      break;
+
+   default :
+      MulleQuadraticInit( &quadratic, 0.0, 0.333, 0.666, 1.0);
+      break;
+   }   
+
+   return( quadratic);
+}
+
+- (void) commitImplicitAnimationsWithAnimationID:(char *) animationsID
+                                         context:(void *) context
+{
+   CAAnimation                  *animation;
+   CGColorRef                   endColor;
+   CGColorRef                   startColor;
+   CGRect                       endRect;
+   CGRect                       startRect;
+   float                        repeatCount;
+   struct CAAnimationOptions    options;
+   struct CARelativeTimeRange   timeRange;
+
+   if( ! _snapshot)
+      return;
+
+   [self removeAllAnimations];
+
+   options.timeRange   = CARelativeTimeRangeMake( [UIView animationDelay], [UIView animationDuration]);
+   options.repeatCount = [UIView animationRepeatCount];
+   options.bits        = [UIView animationRepeatAutoreverses] ? CAAnimationReverses : 0;
+   options.curve       = CALayerQuadraticForCurveType( [UIView animationCurve]);
+
+   /** Our animatable properties
+       subclasses might want to add more
+    **/
+   [self animatePropertiesWithSnapshotlayer:_snapshot
+                           animationOptions:&options];
+
+
+   [_snapshot autorelease];
+   _snapshot = nil;  
 }
 
 @end

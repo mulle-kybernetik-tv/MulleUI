@@ -484,6 +484,47 @@
 }
 
 
+- (void) animateLayersWithAbsoluteTime:(CAAbsoluteTime) renderTime
+{
+   struct mulle_pointerarrayenumerator   rover;
+   CALayer                               *layer;
+
+#ifdef RENDER_DEBUG
+   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
+#endif
+
+   [_mainLayer animateWithAbsoluteTime:renderTime];
+   
+   rover = mulle_pointerarray_enumerate_nil( _layers);
+   while( layer = mulle_pointerarrayenumerator_next( &rover))
+      [layer animateWithAbsoluteTime:renderTime];
+   mulle_pointerarrayenumerator_done( &rover);
+}
+
+
+- (void) animateSubviewsWithAbsoluteTime:(CAAbsoluteTime) renderTime
+{
+   struct mulle_pointerarrayenumerator   rover;
+   UIView                                *view;
+
+#ifdef RENDER_DEBUG
+   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
+#endif
+
+   rover = mulle_pointerarray_enumerate_nil( _subviews);
+   while( view = mulle_pointerarrayenumerator_next( &rover))
+      [view animateWithAbsoluteTime:renderTime];
+   mulle_pointerarrayenumerator_done( &rover);
+}
+
+
+- (void) animateWithAbsoluteTime:(CAAbsoluteTime) renderTime
+{
+   [self animateLayersWithAbsoluteTime:renderTime];
+   [self animateSubviewsWithAbsoluteTime:renderTime];
+}
+
+
 - (void) layoutSubviews
 {
    // does nothing or will it ?

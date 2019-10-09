@@ -1,74 +1,41 @@
 #import "import.h"
 
-#import "CGBase.h"
+#import "CGColor.h"
+#import "CATime.h"
 
-#import <math.h>
-#import "nanovg.h"
-
-
-typedef NVGcolor   CGColorRef;
-typedef void       *CGColorSpaceRef;
-
-
-// NVGColor is a float[ 4] in reality
-static inline NVGcolor getNVGColor( uint32_t color) 
-{
-	return nvgRGBA(
-		(color >> 24) & 0xff,
-		(color >> 16) & 0xff,
-		(color >> 8) & 0xff,
-		(color >> 0) & 0xff);
-}
-
-
-static inline CGColorRef CGColorCreateGenericRGB( CGFloat red, CGFloat green, CGFloat blue, CGFloat alpha)
-{
-      return( nvgRGBA( (uint32_t) round( 0xff * red),
-                       (uint32_t) round( 0xff * green),
-                       (uint32_t) round( 0xff * blue),
-                       (uint32_t) round( 0xff * alpha)));
-}
-
-
-static inline CGColorRef CGColorCreate( CGColorSpaceRef space, const CGFloat *components)
-{
-   return( CGColorCreateGenericRGB( components[ 0], 
-                                    components[ 1], 
-                                    components[ 2],
-                                    components[ 3]));
-}
-
-
-static inline size_t CGColorGetNumberOfComponents(CGColorRef color)
-{
-   return( 4);
-}
-
-static inline void   MulleColorGetComponents(CGColorRef color, CGFloat *components)
-{
-   components[ 0] = color.r;
-   components[ 1] = color.g;
-   components[ 2] = color.b;
-   components[ 3] = color.a;
-}
-
-
-static inline CGFloat   CGColorGetAlpha( CGColorRef color)
-{
-   return( color.a);
-}
 
 typedef float   _NVGtransform[ 6];   
 
 
 @class CGContext;
+@class CAAnimation;
+
 struct MulleFrameInfo;
 
-@interface CALayer : NSObject  
+
+@interface CALayer : NSObject < NSCopying>
 {
-   _NVGtransform   _transform;
-   NVGscissor      _scissor;
+   _NVGtransform               _transform;
+   NVGscissor                  _scissor;
+   CALayer                     *_snapshot;
+   struct mulle_pointerarray   _animations;    
 }
+
+@property( observable) CGFloat      cornerRadius;
+@property( observable) CGFloat      borderWidth;
+@property( observable) CGColorRef   borderColor;
+@property( observable) CGColorRef   backgroundColor;
+@property( observable) CGRect       frame;
+@property( observable) CGRect       bounds;
+
+// non-observable
+@property char       *cStringName;
+@property void       (*drawContentsCallback)( NVGcontext *vg, 
+                                              CGRect frame, 
+                                              struct MulleFrameInfo *info);
+
+// properties used for rendering only
+@property CGRect     clipRect;
 
 
 - (instancetype) init;
@@ -82,24 +49,24 @@ struct MulleFrameInfo;
 //
 - (void) drawContentsInContext:(CGContext *) ctx;
 
-@property CGFloat cornerRadius;
-@property CGFloat borderWidth;
-@property CGColorRef borderColor;
-@property CGColorRef backgroundColor;
-@property void       (*drawContentsCallback)( NVGcontext *vg, 
-                                              CGRect frame, 
-                                              struct MulleFrameInfo *info);
-@property CGRect frame;
-@property CGRect bounds;
-
-@property char  *cStringName;
-
-// properties used for rendering only
-@property CGRect   clipRect;
 
 - (void) setTransform:(_NVGtransform) transform
               scissor:(NVGscissor *) scissor;
 
+
+- (void) addAnimation:(CAAnimation *) animation;
+- (void) removeAllAnimations;
+- (NSUInteger) numberOfAnimations;
+
+- (void) animateWithAbsoluteTime:(CAAbsoluteTime) time;
+
+//
+// called by UIView to create implicit animations from snapshotted values
+// the snapshot will be gone afterwards. Also cancels all other 
+// animations. (?)
+//
+- (void) commitImplicitAnimationsWithAnimationID:(char *) animationsID
+                                         context:(void *) context;
 
 @end
 

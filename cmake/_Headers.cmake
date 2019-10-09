@@ -27,8 +27,10 @@ nanovg/src/stb_image.h
 nanovg/src/stb_truetype.h
 src/CAAnimation.h
 src/CALayer.h
+src/CATime.h
 src/CGAffineTransform.h
 src/CGBase.h
+src/CGColor.h
 src/CGContext.h
 src/CGFont.h
 src/CGGeometry+CString.h
@@ -61,6 +63,7 @@ src/UISegmentedControl.h
 src/UISlider.h
 src/UIStepper.h
 src/UISwitch.h
+src/UIView+CAAnimation.h
 src/UIView+CGGeometry.h
 src/UIView+UIEvent.h
 src/UIView+UIResponder.h

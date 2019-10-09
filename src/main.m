@@ -2,6 +2,8 @@
 
 #import "CGContext.h"
 #import "CGGeometry+CString.h"
+#import "CALayer.h"
+#import "CAAnimation.h"
 #import "MulleBitmapImage.h"
 #import "MulleImageLayer.h"
 #import "MulleSVGImage.h"
@@ -15,6 +17,7 @@
 #import "UISlider.h"
 #import "UIStepper.h"
 #import "UISwitch.h"
+#import "UIView+CAAnimation.h"
 #import "UIWindow.h"
 #import <string.h>
 
@@ -116,9 +119,9 @@ static void   draw_bezier( NVGcontext *vg, CGRect frame, struct MulleFrameInfo *
 //   fprintf( stderr, "%u: %s\n", info->renderFrame, CGRectCStringDescription( frame));
 
    MulleQuadraticBezierInit( &bezier, CGPointMake( 0.0, 0.0),
-                                      CGPointMake( 0.025, 0.5),
-                                      CGPointMake( 0.975, 0.5),
-                                      CGPointMake( 1.0, 0.0));
+                                      CGPointMake( 0.33, 0.66),
+                                      CGPointMake( 0.66, 0.33),
+                                      CGPointMake( 1.0, 1.0));
 
    nvgBeginPath( vg);
    f = nvgMoveTo;
@@ -188,9 +191,20 @@ int   main()
    layer = [view0 layer];
    [layer setBackgroundColor:getNVGColor( 0x7F7F7F7F)];
    [layer setDrawContentsCallback:draw_bezier];
-   [window addSubview:view0];
-   [window setLayerToAnimate:layer];
 
+   [UIView beginAnimations:NULL
+                   context:NULL];
+   {
+      [layer setBackgroundColor:getNVGColor( 0x00FF00FF)];
+      [layer setFrame:CGRectMake( 200, 100, 400, 200)];
+      [UIView setAnimationRepeatCount:-1.0];
+      [UIView setAnimationRepeatAutoreverses:YES];
+      [UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
+   }
+   [UIView commitAnimations];
+
+   [window addSubview:view0];
+ 
    /*
     * view placement in window 
     */

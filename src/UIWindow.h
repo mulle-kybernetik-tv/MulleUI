@@ -31,8 +31,6 @@ struct MulleFrameInfo;
 @property( assign, readonly) uint64_t         modifiers;
 @property( assign, readonly) CGFloat          primaryMonitorPPI;
 
-@property( retain) CALayer                   *layerToAnimate;
-
 - (void) renderLoopWithContext:(CGContext *) context;
 - (void) waitForEvents:(double) hz;
 - (void) requestClose;

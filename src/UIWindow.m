@@ -311,67 +311,6 @@ static void   mouseScrollCallback( GLFWwindow *window,
 }
 
 
- //     memcpy( tmp, info->start, sizeof( info->start));
- //     memcpy( info->start, info->end, sizeof( info->start));
- //     memcpy( info->end, tmp, sizeof( info->start));
-
-
-
-
-- (struct CAAnimation *) pointAnimationForLayer:(CALayer *) layer
-{
-   static struct CAAnimation   info;
-   CGRect                      start;
-   CGRect                      end;
-
-   if( ! layer)
-      return( NULL);
-
-   if( info.bits)  // only initialize once
-      return( &info);
-
-   start         = [layer frame];
-   end           = start;
-   end.origin.x += 150;
-
-   CARectAnimationInit( &info, 
-                        @selector( setFrame:), 
-                        start, 
-                        end, 
-                        CARelativeTimeRangeMake( 2.0, 2.0), 
-                        CAAnimationRepeats + CAAnimationReverses);
-   info.repeatStart.rect            = start;
-   info.repeatStart.rect.origin.x  -= 150;
-
-   return( &info);
-}
-
-
-- (struct CAAnimation *) colorAnimationForLayer:(CALayer *) layer
-{
-   static struct CAAnimation   info;
-   CGFloat                     x;
-   CGFloat                     y;
-
-   if( ! layer)
-      return( NULL);
-
-   if( info.bits)  // only initialize once
-      return( &info);
-
-   CAColorAnimationInit( &info, 
-                         @selector( setBackgroundColor:),  
-                         [layer backgroundColor], 
-                         getNVGColor( 0x000000FF), 
-                         CARelativeTimeRangeMake( 2.0, 2.0), 
-                         CAAnimationRepeats + CAAnimationReverses);
-
-   return( &info);
-}
-
-
-
-
 // glitch hunt:
 //
 // a) we sometimes overflow the current frame
@@ -379,6 +318,11 @@ static void   mouseScrollCallback( GLFWwindow *window,
 // c) the glitch occurs when there is already drawing on the screen
 // d) the glitch looks like the buffer is cleared and then not swapped
 //
+static void   error_callback(int code, const char* description)
+{
+   fprintf( stderr, "GLFW Error #%d: \"%s\"\n", code, description);
+}
+
 - (void) renderLoopWithContext:(CGContext *) context
 {
    struct timespec         start;
@@ -392,6 +336,7 @@ static void   mouseScrollCallback( GLFWwindow *window,
 
 //   _discardEvents = UIEventTypeMotion;
 
+   glfwSetErrorCallback( error_callback); 
    glfwSwapInterval( 0);  // need for smooth pointer/control sync
 
    // should check the monitor where the window is on really
@@ -465,16 +410,10 @@ static void   mouseScrollCallback( GLFWwindow *window,
       // use at max 200 Hz refresh rate (0: polls)
       [self setupQuadtree];
       {
-         CALayer              *layer;
-         CAAbsoluteTime          renderTime;
-         struct CAAnimation   *animation; 
+         CAAbsoluteTime   renderTime;
 
          renderTime = CAAbsoluteTimeWithTimespec( start);
-         layer      = [self layerToAnimate];
-         animation  = [self colorAnimationForLayer:layer];
-         CAAnimationAnimate( animation, layer, renderTime);
-         animation  = [self pointAnimationForLayer:layer];
-         CAAnimationAnimate( animation, layer, renderTime);
+         [self animateWithAbsoluteTime:renderTime];
       }
       [self waitForEvents:0.0];
 

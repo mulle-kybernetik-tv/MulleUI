@@ -2,214 +2,233 @@
 
 #import "import-private.h"
 
+#include <assert.h>
 
-void   CAAnimationInit( struct CAAnimation *info,
-                        SEL propertySetter,
-                        enum CAAnimationValueType type,
-                        struct CAAnimationValueRange *range,
-                        struct CARelativeTimeRange timeRange,
-                        NSUInteger bits)
+
+@implementation CAAnimation
+
+- (id) initWithPropertySetter:(SEL) propertySetter
+                    valueType:(enum CAAnimationValueType) type
+                   valueRange:(struct CAAnimationValueRange *) range
+                  repeatStart:(union CAAnimationValue) repeatStart
+                      options:(struct CAAnimationOptions *) options
 {
-   memset( info, 0, sizeof( *info));
-  
-   info->relative       = timeRange;
-   info->bits           = bits & ~0xFFFF;  // mask off our internal state bits
-   info->propertySetter = propertySetter;
+   // no need for super coz NSObject based
+   
+   // reverses is only used if repeats is set
+   assert( ! (options->bits & 0xFFFF));
 
-   MulleQuadraticInit( &info->quadratic, 0.0, 0.025, 1.0 - 0.025, 1.0);
+   self->_relative       = options->timeRange;
+   self->_bits           = options->bits & ~0xFFFF;  // mask off our internal state bits
+   self->_propertySetter = propertySetter;
 
-   info->valueType   = type;
-   info->start       = range->start;
-   info->end         = range->end;
-   info->repeatStart = info->start;
+   self->_quadratic   = options->curve;
+
+   self->_valueType   = type;
+   self->_start       = range->start;
+   self->_end         = range->end;
+   self->_repeatStart = repeatStart;
+   self->_repeatCount = options->repeatCount;
+ 
+   return( self);
 }
 
-
-void   CAPointAnimationInit( struct CAAnimation *info,
-                            SEL propertySetter,
-                            CGPoint start,
-                            CGPoint end,
-                            struct CARelativeTimeRange timeRange,
-                            NSUInteger bits)
+- (id) initWithPropertySetter:(SEL) propertySetter
+                   startColor:(CGColorRef) start
+                     endColor:(CGColorRef) end
+                      options:(struct CAAnimationOptions *) options
 {
-   struct CAAnimationValueRange   range;
-
-   range.start.point = start;
-   range.end.point   = end;
-
-   CAAnimationInit( info, propertySetter, CAAnimationValueCGPoint, &range, timeRange, bits);
-}
-
-
-void   CARectAnimationInit( struct CAAnimation *info,
-                            SEL propertySetter,
-                            CGRect  start,
-                            CGRect  end,
-                            struct CARelativeTimeRange timeRange,
-                            NSUInteger bits)
-{
-   struct CAAnimationValueRange   range;
-
-   range.start.rect = start;
-   range.end.rect   = end;
-
-   CAAnimationInit( info, propertySetter, CAAnimationValueCGRect, &range, timeRange, bits);
-}
-
-
-void   CAColorAnimationInit( struct CAAnimation *info,
-                             SEL propertySetter,
-                             CGColorRef  start,
-                             CGColorRef  end,
-                             struct CARelativeTimeRange timeRange,
-                             NSUInteger bits)
-{
-   struct CAAnimationValueRange   range;
+   struct CAAnimationValueRange  range;
 
    range.start.color = start;
    range.end.color   = end;
+   return( [self initWithPropertySetter:propertySetter
+                              valueType:CAAnimationValueCGColorRef
+                             valueRange:&range
+                            repeatStart:range.start
+                                options:options]);
+}                      
 
-   CAAnimationInit( info, propertySetter, CAAnimationValueCGColorRef, &range, timeRange, bits);
-}
+- (id) initWithPropertySetter:(SEL) propertySetter
+                    startRect:(CGRect) start
+                      endRect:(CGRect) end
+                      options:(struct CAAnimationOptions *) options
+{
+   struct CAAnimationValueRange  range;
+
+   range.start.rect = start;
+   range.end.rect   = end;
+   return( [self initWithPropertySetter:propertySetter
+                              valueType:CAAnimationValueCGRect
+                             valueRange:&range
+                            repeatStart:range.start
+                                options:options]);
+}                      
 
 
-
-static inline void    CAAnimationInfoReverseAnimation( struct CAAnimation *info)
+- (void) reverse
 {
    union CAAnimationValue     tmp;     
 
-   info->relative.delay = 0.0;   
+   self->_relative.delay = 0.0;   
 
-   tmp         = info->start;
-   info->start = info->end;
-   info->end   = tmp;
-   if( info->bits & CAAnimationHasReversed)
+   tmp          = self->_start;
+   self->_start = self->_end;
+   self->_end   = tmp;
+   if( self->_bits & CAAnimationHasReversed)
    { 
-      info->end = tmp;
+      self->_end = tmp;
    }
    else
    {
-      info->end   = info->repeatStart;
-      info->bits |= CAAnimationHasReversed;
+      self->_end   = self->_repeatStart;
+      self->_bits |= CAAnimationHasReversed;
    }
 }
 
 
-void  CAAnimationAnimate( struct CAAnimation *info, CALayer *layer, CAAbsoluteTime now) 
+- (void) animateLayer:(CALayer *) layer
+normalizedRelativeTime:(double) x
 {
    union CAAnimationValue   value;
-   CGFloat                x;
-   CGFloat                t;
-   CAAbsoluteTime         delay;
 
-   if( ! info || info->relative.duration == 0.0)
+   assert( x >= 0.0 && x <= 1.0);
+   
+   switch( self->_valueType)
+   {
+   case CAAnimationValueUndefined :
+      abort();
+
+   case CAAnimationValueBOOL :
+      value.boolValue = round( (self->_end.boolValue - self->_start.boolValue) * x + self->_start.boolValue);
+      mulle_objc_object_call( layer, self->_propertySetter, (void *) (intptr_t) value.boolValue);          
+      break;
+
+   case CAAnimationValueNSInteger :
+      value.integerValue = round( (self->_end.integerValue - self->_start.integerValue) * x + self->_start.integerValue);
+      mulle_objc_object_call( layer, self->_propertySetter, (void *) value.integerValue);          
+      break;
+
+   case CAAnimationValueCGFloat :
+      value.floatValue = (self->_end.floatValue - self->_start.floatValue) * x + self->_start.floatValue;
+      {
+         mulle_objc_metaabi_param_block_void_return( float)   param;  
+
+         param.p = value.floatValue;
+         mulle_objc_object_call( layer, self->_propertySetter, &param);          
+      }
+      break;
+
+   case CAAnimationValueCGColorRef :
+      value.color.r = (self->_end.color.r - self->_start.color.r) * x + self->_start.color.r;
+      value.color.g = (self->_end.color.g - self->_start.color.g) * x + self->_start.color.g;
+      value.color.b = (self->_end.color.b - self->_start.color.b) * x + self->_start.color.b;
+      value.color.a = (self->_end.color.a - self->_start.color.a) * x + self->_start.color.a;
+
+      {
+         mulle_objc_metaabi_param_block_void_return( CGColorRef)   param;  
+
+         param.p = value.color;
+         mulle_objc_object_call( layer, self->_propertySetter, &param);          
+      }
+      break;
+
+   case CAAnimationValueCGPoint :
+      value.point.x = (self->_end.point.x - self->_start.point.x) * x + self->_start.point.x;
+      value.point.y = (self->_end.point.y - self->_start.point.y) * x + self->_start.point.y;
+      {
+         mulle_objc_metaabi_param_block_void_return( CGPoint)   param;  
+
+         param.p = value.point;
+         mulle_objc_object_call( layer, self->_propertySetter, &param);          
+      }
+      break;
+
+   case CAAnimationValueCGSize :
+      value.size.width  = (self->_end.size.width  - self->_start.size.width)  * x + self->_start.size.width;
+      value.size.height = (self->_end.size.height - self->_start.size.height) * x + self->_start.size.height;
+      {
+         mulle_objc_metaabi_param_block_void_return( CGSize)   param;  
+
+         param.p = value.size;
+         mulle_objc_object_call( layer, self->_propertySetter, &param);          
+      }
+      break;
+ 
+   case CAAnimationValueCGRect :
+      value.rect.origin.x    = (self->_end.rect.origin.x - self->_start.rect.origin.x) * x + self->_start.rect.origin.x;
+      value.rect.origin.y    = (self->_end.rect.origin.y - self->_start.rect.origin.y) * x + self->_start.rect.origin.y;
+      value.rect.size.width  = (self->_end.rect.size.width - self->_start.rect.size.width) * x + self->_start.rect.size.width;
+      value.rect.size.height = (self->_end.rect.size.height - self->_start.rect.size.height) * x + self->_start.rect.size.height;
+      {
+        mulle_objc_metaabi_param_block_void_return( CGRect)   param;  
+
+        param.p = value.rect;
+        mulle_objc_object_call( layer, self->_propertySetter, &param);          
+      }
+      break;
+   }
+}
+
+- (void) animateLayer:(CALayer *) layer
+         absoluteTime:(CAAbsoluteTime) now 
+{
+   CGFloat                  x;
+   CGFloat                  t;
+   CAAbsoluteTime           delay;
+
+   if( ! self || self->_relative.duration == 0.0)
       return;
 
    // turn animation time into absolute
-   if( ! (info->bits & CAAnimationStarted))
+   if( ! (self->_bits & CAAnimationStarted))
    {
-      info->absolute.start = CATimeAdd( now, info->relative.delay);
-      info->absolute.end   = CATimeAdd( info->absolute.start, info->relative.duration);
-      info->bits          |= CAAnimationStarted;
+      self->_absolute.start = CATimeAdd( now, self->_relative.delay);
+      self->_absolute.end   = CATimeAdd( self->_absolute.start, self->_relative.duration);
+      self->_bits          |= CAAnimationStarted;
    }
 
-   if( now <= info->absolute.end)
+   if( now <= self->_absolute.end)
    {
-      if( now < info->absolute.start) 
+      if( now < self->_absolute.start) 
          return;
  
-      delay = CATimeSubtract( now, info->absolute.start);
-      t     = delay / info->relative.duration;
-      x     = MulleQuadraticGetValueForNormalizedDistance( &info->quadratic, t);
-
+      delay = CATimeSubtract( now, self->_absolute.start);
+      t     = delay / self->_relative.duration;
+      x     = MulleQuadraticGetValueForNormalizedDistance( &self->_quadratic, t);
+      if( self->_repeatCount > 0.0)
+      {
+         if( x > self->_repeatCount)  // exhausted ? Done!
+         {
+            self->_repeatCount = 0.0;
+            return;
+         }
+      }
       assert( layer);
 
-      switch( info->valueType)
-      {
-      case CAAnimationValueUndefined :
-         abort();
+      [self animateLayer:layer
+  normalizedRelativeTime:x];
 
-      case CAAnimationValueBOOL :
-         value.boolValue = round( (info->end.boolValue - info->start.boolValue) * x + info->start.boolValue);
-         mulle_objc_object_call( layer, info->propertySetter, (void *) (intptr_t) value.boolValue);          
-         break;
-
-      case CAAnimationValueNSInteger :
-         value.integerValue = round( (info->end.integerValue - info->start.integerValue) * x + info->start.integerValue);
-         mulle_objc_object_call( layer, info->propertySetter, (void *) value.integerValue);          
-         break;
-
-      case CAAnimationValueCGFloat :
-         value.floatValue = (info->end.floatValue - info->start.floatValue) * x + info->start.floatValue;
-         {
-            mulle_objc_metaabi_param_block_void_return( float)   param;  
-
-            param.p = value.floatValue;
-            mulle_objc_object_call( layer, info->propertySetter, &param);          
-         }
-         break;
-
-      case CAAnimationValueCGColorRef :
-         value.color.r = (info->end.color.r - info->start.color.r) * x + info->start.color.r;
-         value.color.g = (info->end.color.g - info->start.color.g) * x + info->start.color.g;
-         value.color.b = (info->end.color.b - info->start.color.b) * x + info->start.color.b;
-         value.color.a = (info->end.color.a - info->start.color.a) * x + info->start.color.a;
-
-         {
-            mulle_objc_metaabi_param_block_void_return( CGColorRef)   param;  
-
-            param.p = value.color;
-            mulle_objc_object_call( layer, info->propertySetter, &param);          
-         }
-         break;
-
-      case CAAnimationValueCGPoint :
-         value.point.x = (info->end.point.x - info->start.point.x) * x + info->start.point.x;
-         value.point.y = (info->end.point.y - info->start.point.y) * x + info->start.point.y;
-         {
-           mulle_objc_metaabi_param_block_void_return( CGPoint)   param;  
-
-           param.p = value.point;
-           mulle_objc_object_call( layer, info->propertySetter, &param);          
-         }
-         break;
-
-      case CAAnimationValueCGSize :
-         value.size.width  = (info->end.size.width  - info->start.size.width)  * x + info->start.size.width;
-         value.size.height = (info->end.size.height - info->start.size.height) * x + info->start.size.height;
-         {
-           mulle_objc_metaabi_param_block_void_return( CGSize)   param;  
-
-           param.p = value.size;
-           mulle_objc_object_call( layer, info->propertySetter, &param);          
-         }
-         break;
-    
-      case CAAnimationValueCGRect :
-         value.rect.origin.x    = (info->end.rect.origin.x - info->start.rect.origin.x) * x + info->start.rect.origin.x;
-         value.rect.origin.y    = (info->end.rect.origin.y - info->start.rect.origin.y) * x + info->start.rect.origin.y;
-         value.rect.size.width  = (info->end.rect.size.width - info->start.rect.size.width) * x + info->start.rect.size.width;
-         value.rect.size.height = (info->end.rect.size.height - info->start.rect.size.height) * x + info->start.rect.size.height;
-         {
-           mulle_objc_metaabi_param_block_void_return( CGRect)   param;  
-
-           param.p = value.rect;
-           mulle_objc_object_call( layer, info->propertySetter, &param);          
-         }
-         break;
-      }
-
-      if( now < info->absolute.end)
+      if( now < self->_absolute.end)
          return;
    }
 
-   if( ! (info->bits & CAAnimationRepeats))
+   // not repeating ? done
+   if( self->_repeatCount == 0.0)
       return;
 
-   // start with next frame, with a new animation
-   info->bits &= ~CAAnimationStarted;
-   if( info->bits & CAAnimationReverses)
+   // _self->_repeatCount > 0.0 means repeats a finite number
+   if( self->_repeatCount > 0.0)
    {
-      CAAnimationInfoReverseAnimation( info);
+      self->_repeatCount -= 1.0;
+      if( self->_repeatCount <= 0.0)
+         return;
    }
+
+   // start with next frame, with a new animation
+   self->_bits &= ~CAAnimationStarted;
+   if( self->_bits & CAAnimationReverses)
+      [self reverse];
 }
+
+@end

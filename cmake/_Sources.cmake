@@ -40,6 +40,7 @@ src/UISegmentedControl.m
 src/UISlider.m
 src/UIStepper.m
 src/UISwitch.m
+src/UIView+CAAnimation.m
 src/UIView+CGGeometry.m
 src/UIView+UIEvent.m
 src/UIView+UIResponder.m
