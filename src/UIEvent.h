@@ -2,19 +2,26 @@
 
 #include "CGGeometry.h"
 
-
 #include <time.h>
 
-typedef enum  {
-    UIEventTypeTouches,  // Mouse click
-    UIEventTypeMotion,   // Mouse movemeent
-    UIEventTypePresses,  // Keyboard 
-    UIEventTypeScroll    // Keyboard 
+@class UIWindow;
+@class UIView;
+
+
+// bits suitable or bitmasking
+typedef enum
+{
+   UIEventTypePresses = 0x1,  // Keyboard
+   UIEventTypeTouches = 0x2,  // Mouse click
+   UIEventTypeMotion  = 0x4,  // Mouse movemeent
+   UIEventTypeScroll  = 0x8   // Mouse Scrollwheel
 } UIEventType;
 
-
 @interface UIEvent : NSObject
-
+{
+   UIWindow  *_window;   // assign  ??
+   CGPoint   _point;
+}
 
 @property( assign, readonly) CGPoint   mousePosition;
 
@@ -22,16 +29,18 @@ typedef enum  {
 @property( assign, readonly) clock_t   timestamp;
 
 // current known state of modifier keys
-@property( assign, readonly) int       modifiers;
+@property( assign, readonly) uint64_t  modifiers;
 
 //
 // translated mousePosition to current view bounds (ephemeral)
 // set by _handleEvent:position for
 //
-@property( assign) CGPoint   point;
+- (CGPoint) mousePositionInView:(UIView *) view;
+- (void) _setFirstResponderPoint:(CGPoint) point;
 
-- (id) initWithMousePosition:(CGPoint) pos
-                   modifiers:(int) mods;
+- (id) initWithWindow:(UIWindow *) window
+        mousePosition:(CGPoint) pos
+            modifiers:(int) mods;
 
 @end
 
@@ -52,11 +61,12 @@ typedef enum  {
 @property( assign, readonly) int   scanCode;
 @property( assign, readonly) int   action;
 
-- (id) initWithMousePosition:(CGPoint) pos
-                         key:(int) key
-                    scanCode:(int) scanCode
-                      action:(int) action
-                   modifiers:(int) mods;
+- (id) initWithWindow:(UIWindow *) window
+        mousePosition:(CGPoint) pos
+                  key:(int) key
+             scanCode:(int) scanCode
+               action:(int) action
+            modifiers:(int) mods;
 @end
 
 
@@ -65,10 +75,11 @@ typedef enum  {
 @property( assign, readonly) int   button;
 @property( assign, readonly) int   action;
 
-- (id) initWithMousePosition:(CGPoint) pos
-						    button:(int) button
-							 action:(int) action 
-                   modifiers:(int) mods;
+- (id) initWithWindow:(UIWindow *) window
+        mousePosition:(CGPoint) pos
+               button:(int) button
+               action:(int) action 
+            modifiers:(int) mods;
                   
 
 @end
@@ -76,9 +87,10 @@ typedef enum  {
 
 @interface UIMouseMotionEvent : UIEvent
 
-- (id) initWithMousePosition:(CGPoint) pos
-				    buttonStates:(uint64_t) buttonStates
-                   modifiers:(int) mods;
+- (id) initWithWindow:(UIWindow *) window
+        mousePosition:(CGPoint) pos
+         buttonStates:(uint64_t) buttonStates
+            modifiers:(int) mods;
 
 @property( assign, readonly) int   buttonStates;
 
@@ -87,9 +99,10 @@ typedef enum  {
 
 @interface UIMouseScrollEvent : UIEvent
 
-- (id) initWithMousePosition:(CGPoint) pos
-				    scrollOffset:(CGPoint) offset
-                   modifiers:(int) mods;
+- (id) initWithWindow:(UIWindow *) window
+        mousePosition:(CGPoint) pos
+         scrollOffset:(CGPoint) offset
+            modifiers:(int) mods;
 
 @property( assign, readonly) CGPoint   scrollOffset;
 

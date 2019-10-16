@@ -10,6 +10,8 @@
 #ifndef _mulle_gl_example_import_private_h__
 #define _mulle_gl_example_import_private_h__
 
+#include "_MulleGLExample-include-private.h"
+
 /* no headers */
 
 #endif

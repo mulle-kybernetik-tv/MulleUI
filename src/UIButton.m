@@ -2,31 +2,48 @@
 
 #import "UIImage.h"
 #import "CALayer.h"
+#import "UIView+UIResponder.h"
 
 
 @implementation UIButton
 
-- (UIEvent *) mouseUp:(UIEvent *) event
+- (BOOL) becomeFirstResponder
+{
+   if( [super becomeFirstResponder])
+   {
+      fprintf( stderr, "become\n");
+      [self toggleState];
+      return( YES);
+   }
+   return( NO);
+}
+
+
+- (BOOL) resignFirstResponder
+{
+   if( [super resignFirstResponder])
+   {
+      fprintf( stderr, "resign\n");
+      [self toggleState];
+      return( YES);
+   }
+   return( NO);
+}
+
+
+// use compatible code
+- (void) toggleState
 {
 	UIControlState   state;
 	CGRect           frame;
 	UIImage          *image;
 
-	event = [super mouseUp:event];
-	// event was not handled if not nil
-	if( event)
-	   return( event);
-
-	//
+   //
 	// target/action has been called already by UIControl
 	//
-	state = [self state];
-	if( state & UIControlStateSelected)
-		state &= ~UIControlStateSelected;
-	else
-		state |= UIControlStateSelected;
-	[self setState:state];
+   [super toggleState];
 
+   state = [self state];
 	image = [self backgroundImageForState:state];
 	if( ! image)
 	{
@@ -39,14 +56,12 @@
 		image = [self backgroundImageForState:state];
 	}
 	[self setBackgroundImage:image];
-
-	return( event);
 }
 
 
 static NSUInteger   imageIndexForControlState( UIControlState state)
 {
-	switch( state) 
+	switch( state)
 	{
 	case UIControlStateNormal                          : return( 0);
 	case UIControlStateSelected                        : return( 1);
@@ -70,7 +85,7 @@ static NSUInteger   imageIndexForControlState( UIControlState state)
 }
 
 
-- (void) setBackgroundImage:(UIImage *) image 
+- (void) setBackgroundImage:(UIImage *) image
                    forState:(UIControlState) state
 {
 	NSUInteger    index;
@@ -89,10 +104,10 @@ static NSUInteger   imageIndexForControlState( UIControlState state)
 	Class     layerClass;
 
 	assert( ! image || [image isKindOfClass:[UIImage class]]);
-	
+
 	if( ! image)
 		return;
-	
+
 	layer               = _mainLayer;
 	layerClass          = [layer class];
 	preferredLayerClass = [image preferredLayerClass];

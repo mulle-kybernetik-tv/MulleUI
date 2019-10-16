@@ -18,7 +18,7 @@
 
 - (void) setContentOffset:(CGPoint) offset;
 - (CGPoint) contentOffset;
-- (void) contentSize:(CGSize) offset;
+- (void) setContentSize:(CGSize) offset;
 - (CGSize) contentSize;
 
 // add subviews to contentView not to UIScrollView

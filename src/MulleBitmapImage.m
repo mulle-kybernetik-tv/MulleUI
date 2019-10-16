@@ -3,6 +3,7 @@
 #import "MulleBitmapImage.h"
 
 #import "stb_image.h"
+#include "bmp-writer.h"
 
 
 @implementation MulleBitmapImage
@@ -109,6 +110,17 @@
 - (NSUInteger) length
 {
    return( (NSUInteger) _bitmapSize.size.width * _bitmapSize.size.height * _bitmapSize.colorComponents);
+}
+
+- (BOOL) writeToBMPFileWithSystemRepresentation:(char *) filename
+{
+   mulle_int_size   size;
+
+   if( ! filename || ! *filename)
+      return( NO);
+
+   size = _bitmapSize.size;
+   return( ! bmp_rgb32_write_file( filename, _image, size.width, size.height, 0) ? YES : NO);
 }
 
 @end

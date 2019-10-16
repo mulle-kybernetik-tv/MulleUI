@@ -19,6 +19,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 
 const CGRect    CGRectInfinite = { INFINITY, INFINITY, INFINITY, INFINITY };
@@ -135,71 +136,59 @@ CGRect CGRectIntegral(CGRect r) {
 }
 
 
-static inline float max( float x, float y)
-{
-   return( x > y ? x : y);
-}
-
-static inline float min( float x, float y)
-{
-   return( x < y ? x : y);
-}
-
-
 /**
  @Status Interoperable
 */
-CGRect CGRectIntersection(CGRect r1, CGRect r2) {
+CGRect CGRectIntersection(CGRect r1, CGRect r2) 
+{
     r1 = CGRectStandardize(r1);
     r2 = CGRectStandardize(r2);
 
-    float x1, y1, x2, y2;
+    CGFloat  x1, y1, x2, y2;
     int isNull = 0;
-
-    if (r1.origin.x < r2.origin.x) {
-        if (r1.origin.x + r1.size.width < r2.origin.x) {
-            isNull = 0;
-        } else {
-            x1 = min(r1.origin.x + r1.size.width, r2.origin.x);
-            x2 = min(r1.origin.x + r1.size.width, r2.origin.x + r2.size.width);
-        }
-    } else {
-        if (r2.origin.x + r2.size.width < r1.origin.x) {
-            isNull = 1;
-        } else {
-            x1 = min(r2.origin.x + r2.size.width, r1.origin.x);
-            x2 = min(r2.origin.x + r2.size.width, r1.origin.x + r1.size.width);
-        }
-    }
-
-    if (r1.origin.y < r2.origin.y) {
-        if (r1.origin.y + r1.size.height < r2.origin.y) {
-            isNull = 1;
-        } else {
-            y1 = min(r1.origin.y + r1.size.height, r2.origin.y);
-            y2 = min(r1.origin.y + r1.size.height, r2.origin.y + r2.size.height);
-        }
-    } else {
-        if (r2.origin.y + r2.size.height < r1.origin.y) {
-            isNull = 1;
-        } else {
-            y1 = min(r2.origin.y + r2.size.height, r1.origin.y);
-            y2 = min(r2.origin.y + r2.size.height, r1.origin.y + r1.size.height);
-        }
-    }
-
     CGRect out;
 
-    if (isNull == 1) {
-        memcpy(&out, &CGRectNull, sizeof(CGRect));
-    } else {
-        out.origin.x = x1;
-        out.origin.y = y1;
-        out.size.width = x2 - x1;
-        out.size.height = y2 - y1;
+    if (r1.origin.x < r2.origin.x) 
+    {
+        if( r1.origin.x + r1.size.width < r2.origin.x) 
+            return( CGRectNull);
+
+        x1 = MulleCGFloatMinimum(r1.origin.x + r1.size.width, r2.origin.x);
+        x2 = MulleCGFloatMinimum(r1.origin.x + r1.size.width, r2.origin.x + r2.size.width);
+    } 
+    else 
+    {
+        if (r2.origin.x + r2.size.width < r1.origin.x)
+           return (CGRectNull);
+
+        x1 = MulleCGFloatMinimum(r2.origin.x + r2.size.width, r1.origin.x);
+        x2 = MulleCGFloatMinimum(r2.origin.x + r2.size.width, r1.origin.x + r1.size.width);
     }
 
-    return out;
+    if (r1.origin.y < r2.origin.y) 
+    {
+        if (r1.origin.y + r1.size.height < r2.origin.y)
+           return (CGRectNull);
+
+        y1 = MulleCGFloatMinimum(r1.origin.y + r1.size.height, r2.origin.y);
+        y2 = MulleCGFloatMinimum(r1.origin.y + r1.size.height, r2.origin.y + r2.size.height);
+    } 
+    else 
+    {
+        if (r2.origin.y + r2.size.height < r1.origin.y)
+           return (CGRectNull);
+
+        y1 = MulleCGFloatMinimum(r2.origin.y + r2.size.height, r1.origin.y);
+        y2 = MulleCGFloatMinimum(r2.origin.y + r2.size.height, r1.origin.y + r1.size.height);
+    }
+
+
+   out.origin.x = x1;
+   out.origin.y = y1;
+   out.size.width = x2 - x1;
+   out.size.height = y2 - y1;
+
+   return out;
 }
 
 /**
@@ -273,3 +262,108 @@ CGRect CGRectUnion(CGRect r1, CGRect r2) {
     return ret;
 }
 
+
+unsigned int   MulleRectSubdivideByRect( CGRect rect, CGRect other, CGRect output[ 4])
+{
+   unsigned int   i;
+   CGFloat        left_margin;
+   CGFloat        right_margin;
+   CGFloat        top_margin;
+   CGFloat        bottom_margin;
+   CGFloat        extent;
+
+   // isn't this overkill ? 
+   rect  = CGRectStandardize( rect);
+   other = CGRectStandardize( other);
+
+   // and assume other is smack dab in the middle of rect
+   //
+   //    000000000
+   //    111   222
+   //    333333333
+   //
+   // assume other is overlapping middle and part of the bottom
+   //
+   //    000000000
+   //    111   222
+   //    111   222
+   //
+   // assume other is overlapping middle and part of the bottom
+   //
+   //    000000000
+   //    111
+   //    111
+
+   i = 0;
+   
+   if ( ! CGRectIntersectsRect( rect, other))
+      return (0);
+
+   top_margin    = CGRectGetMinY( other) - CGRectGetMinY( rect);
+   bottom_margin = CGRectGetMaxY( rect)  - CGRectGetMaxY( other);
+   left_margin   = CGRectGetMinX( other) - CGRectGetMinX( rect);
+   right_margin  = CGRectGetMaxX( rect)  - CGRectGetMaxX( other);
+
+   extent = CGRectGetHeight(rect);
+   
+   if( top_margin > 0.0)
+   {
+      output[ i++] = CGRectMake( CGRectGetMinX( rect),
+                                 CGRectGetMinY( rect),
+                                 CGRectGetWidth( rect),
+                                 top_margin);
+      extent -= top_margin;
+   }
+   else
+      top_margin = 0.0;
+
+   if( bottom_margin > 0.0)
+   {
+      output[i++] = CGRectMake(CGRectGetMinX(rect),
+                               CGRectGetMaxY(rect) - bottom_margin,
+                               CGRectGetWidth(rect),
+                               bottom_margin);
+      extent -= bottom_margin;
+   }
+
+
+   if( extent > 0.0)
+   {
+      if( left_margin > 0.0)
+      {
+         output[i++] = CGRectMake(CGRectGetMinX(rect),
+                                  CGRectGetMinY (rect) + top_margin,
+                                  left_margin,
+                                  extent);
+      }
+
+      if( right_margin > 0.0)
+      {
+         output[i++] = CGRectMake(CGRectGetMaxX(rect) - right_margin,
+                                  CGRectGetMinY(rect) + top_margin,
+                                  right_margin,
+                                  extent);
+      }
+   }
+
+
+   return( i);
+}
+
+//
+// t is 0 to 1
+//
+//
+// stolen from: https://stackoverflow.com/questions/5634460/quadratic-b%C3%A9zier-curve-calculate-points
+//
+
+CGPoint   MulleQuadraticBezierGetPointForNormalizedDistance(MulleQuadraticBezier *b,
+                                                            CGFloat t)
+{
+   CGPoint curvePoint;
+
+   curvePoint.x = MulleQuadraticGetValueForNormalizedDistance( &b->x, t);
+   curvePoint.y = MulleQuadraticGetValueForNormalizedDistance( &b->y, t);
+
+   return( curvePoint);
+}

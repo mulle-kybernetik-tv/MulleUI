@@ -18,4 +18,7 @@
 // rename with `mulle-sourcetree mark mulle-objc-compat set include whatever.h`
 # import <mulle-objc-compat/mulle-objc-compat.h>   // mulle-objc-compat
 
+#include "_MulleGLExample-include.h"
+
+
 #endif

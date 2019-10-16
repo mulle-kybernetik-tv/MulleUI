@@ -5,36 +5,16 @@
 #import "CALayer.h"
 #import "CGContext.h"
 #import "CGGeometry+CString.h"
+#import "MulleTextureImage.h"
+#import "MulleImageLayer.h"
 #import "nanovg+CString.h"
+#import "mulle-pointerarray+ObjC.h"
 
 
 //#define RENDER_DEBUG
-//#define RENDER_VERBOSE_DEBUG
-
+//#define HAVE_RENDER_CACHE
 
 @implementation UIView
-
-static void  pointerarray_release_all( struct mulle_pointerarray *array)
-{
-   struct mulle_pointerarrayenumerator   rover;
-   id     obj;
-
-   rover = mulle_pointerarray_enumerate( array);
-   while( obj = mulle_pointerarrayenumerator_next( &rover))
-      [obj release];
-}
-
-
-static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
-{
-   struct mulle_pointerarrayenumerator   rover;
-   id     obj;
-
-   rover = mulle_pointerarray_enumerate( array);
-   while( obj = mulle_pointerarrayenumerator_next( &rover))
-      *dst++ = obj;;
-}
-
 
 + (Class) layerClass
 {
@@ -73,22 +53,21 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
 
 - (void) dealloc
 {
-   if( _subviews)
-   {
-      pointerarray_release_all( _subviews);
-      mulle_pointerarray_destroy( _subviews);
-   }
+   mulle_pointerarray_release_all( _subviews);
+   mulle_pointerarray_destroy( _subviews);
 
-   if( _layers)
-   {
-      pointerarray_release_all( _layers);
-      mulle_pointerarray_destroy( _layers);
-   }
+   mulle_pointerarray_release_all( _layers);
+   mulle_pointerarray_destroy( _layers);
 
    [_subviewsArrayProxy release];
    [_yoga release];
 
    [super dealloc];
+}
+
+- (CALayer *) layer
+{
+   return( _mainLayer);
 }
 
 
@@ -143,7 +122,7 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
 - (NSInteger) getLayers:(CALayer **) buf
                  length:(NSUInteger) length
 {
-   NSUInteger  n;
+   NSUInteger   n;
 
    if( ! _mainLayer)
       return( 0);
@@ -157,8 +136,7 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
    if( ! buf)
       return( -1);
 
-   if( _layers)
-      pointerarray_copy_all( _layers, buf);
+   mulle_pointerarray_copy_all( _layers, buf);
 
    buf[ n - 1] = _mainLayer;
 
@@ -169,7 +147,7 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
 - (NSInteger) getSubviews:(UIView **) buf
                    length:(NSUInteger) length
 {
-   NSUInteger  n;
+   NSUInteger   n;
 
    n = 0;
    if( _subviews)
@@ -179,8 +157,8 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
       return( n);
    if( ! buf)
       return( -1);
-   if( _subviews)
-      pointerarray_copy_all( _subviews, buf);
+
+   mulle_pointerarray_copy_all( _subviews, buf);
 
    return( n);
 }
@@ -231,9 +209,19 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
 
 - (void) setNeedsLayout
 {
-	_needsLayout = YES;
+   _needsLayout = YES;
 }
 
+// maybe wrong name ?
+- (void) setNeedsCaching  // wipes the _backinglayer and asks for a new one to be drawn
+{
+#ifdef HAVE_RENDER_CACHE
+   // might have to do this atomically later on 
+   _needsCaching = YES;
+   [_cacheLayer autorelease];
+   _cacheLayer = nil;
+#endif   
+}
 
 - (char *) cStringDescription
 {
@@ -263,14 +251,57 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
    return( result);
 }
 
+- (void) _createRenderCacheIfNeededWithContext:(CGContext *) context
+                                     frameInfo:(struct MulleFrameInfo *) info
+{
+#ifdef HAVE_RENDER_CACHE
+   UIImage   *image;
 
-- (void) renderLayersWithContext:(CGContext *) context
+   if( ! _needsCaching)
+      return;
+
+   _needsCaching = NO;
+   image = [self textureImageWithContext:context
+                              frameInfo:info
+                                 options:0];
+   if( image)
+   {
+      _cacheLayer = [[MulleImageLayer alloc] initWithFrame:[_mainLayer frame]];
+      [_cacheLayer setImage:image];
+   }
+#endif   
+}
+
+- (void) updateRenderCachesWithContext:(CGContext *) context
+                             frameInfo:(struct MulleFrameInfo *) info
+{
+#ifdef HAVE_RENDER_CACHE
+   struct mulle_pointerarrayenumerator   rover;
+   UIView                                *view;
+
+#ifdef RENDER_DEBUG
+   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
+#endif
+
+   rover = mulle_pointerarray_enumerate_nil( _subviews);
+   while( view = mulle_pointerarrayenumerator_next( &rover))
+      [view updateRenderCachesWithContext:context
+                                frameInfo:info];
+   mulle_pointerarrayenumerator_done( &rover);
+
+   [self _createRenderCacheIfNeededWithContext:context
+                                     frameInfo:info];
+#endif                                     
+}
+
+
+- (BOOL) renderLayersWithContext:(CGContext *) context
 {
    struct mulle_pointerarrayenumerator   rover;
-   CALayer                                *layer;
-   _NVGtransform                          transform;
-   NVGscissor                             scissor;
-   NVGcontext                             *vg;
+   CALayer                               *layer;
+   _NVGtransform                         transform;
+   NVGscissor                            scissor;
+   NVGcontext                            *vg;
 
 #ifdef RENDER_DEBUG
    fprintf( stderr, "%s %s (f:%s b:%s)\n", 
@@ -284,21 +315,30 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
    nvgCurrentTransform( vg, transform);
    nvgGetScissor( vg, &scissor);
 
+#ifdef HAVE_RENDER_CACHE
+   if( _cacheLayer)
+   {
+      [_cacheLayer setTransform:transform
+                          scissor:&scissor];
+      [_cacheLayer drawInContext:context];
+      return( YES);
+   }
+#endif
+
    [_mainLayer setTransform:transform
                     scissor:&scissor];
    [_mainLayer drawInContext:context];
 
-   if( _layers)
+   rover = mulle_pointerarray_enumerate_nil( _layers);
+   while( layer = mulle_pointerarrayenumerator_next( &rover))
    {
-      rover = mulle_pointerarray_enumerate( _layers);
-      while( layer = mulle_pointerarrayenumerator_next( &rover))
-      {
-         [layer setTransform:transform
-                     scissor:&scissor];
-         [layer drawInContext:context];
-      }
-      mulle_pointerarrayenumerator_done( &rover);
+      [layer setTransform:transform
+                  scissor:&scissor];
+      [layer drawInContext:context];
    }
+   mulle_pointerarrayenumerator_done( &rover);
+
+   return( NO);
 }
 
 
@@ -311,49 +351,11 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
    fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
 #endif
 
-   if( _subviews)
-   {
-      rover = mulle_pointerarray_enumerate( _subviews);
-      while( view = mulle_pointerarrayenumerator_next( &rover))
-         [view renderWithContext:context];
-      mulle_pointerarrayenumerator_done( &rover);
-   }
+   rover = mulle_pointerarray_enumerate_nil( _subviews);
+   while( view = mulle_pointerarrayenumerator_next( &rover))
+      [view renderWithContext:context];
+   mulle_pointerarrayenumerator_done( &rover);
 }
-
-
-
-#if 0
-- (void) debugFill:(NVGcontext *) vg
-{
-   CGPoint  tl;
-   CGPoint  br;
-
-   tl.x = 100.0;
-   tl.y = 100.0;
-   br.x = 200.0;
-   br.y = 200.0;
-
-//   tl.x = frame.origin.x;
-//   tl.y = frame.origin.y;
-//   br.x = tl.x + frame.size.width - 1;
-//   br.y = tl.y + frame.size.height - 1;
-
-   nvgBeginPath( vg);
-   nvgRoundedRect( vg, tl.x, 
-                       tl.y, 
-                       br.x - tl.x + 1, 
-                       br.y - tl.y + 1, 
-                       20);
-
-//   nvgMoveTo( vg, tl.x, tl.y);
-//   nvgLineTo( vg, br.x, tl.y);
-//   nvgLineTo( vg, br.x, br.y);
-//   nvgLineTo( vg, tl.x, br.y);
-//   nvgLineTo( vg, tl.x, tl.y);
-   nvgFillColor(vg, getNVGColor( 0x00FF00FF));
-   nvgFill( vg);
-}
-#endif
 
 
 - (void) renderWithContext:(CGContext *) context
@@ -392,9 +394,9 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
    // run layout if necessary (right place here ?)
    if( [self needsLayout])
    {
-   	[self setNeedsLayout:NO];
-   	[self layoutSubviews];
-   	assert( ! [self needsLayout]);
+      [self setNeedsLayout:NO];
+      [self layoutSubviews];
+      assert( ! [self needsLayout]);
    }
 
    vg = [context nvgContext];
@@ -419,7 +421,8 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
    //
    // The masterLayer also sets up the scissors for the following renders
    //
-   [self renderLayersWithContext:context];
+   if( [self renderLayersWithContext:context])
+      return;
 
    //
    // transform for subview though, which are inside our bounds
@@ -494,9 +497,50 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
 }
 
 
+- (void) animateLayersWithAbsoluteTime:(CAAbsoluteTime) renderTime
+{
+   struct mulle_pointerarrayenumerator   rover;
+   CALayer                               *layer;
+
+#ifdef RENDER_DEBUG
+   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
+#endif
+
+   [_mainLayer animateWithAbsoluteTime:renderTime];
+   
+   rover = mulle_pointerarray_enumerate_nil( _layers);
+   while( layer = mulle_pointerarrayenumerator_next( &rover))
+      [layer animateWithAbsoluteTime:renderTime];
+   mulle_pointerarrayenumerator_done( &rover);
+}
+
+
+- (void) animateSubviewsWithAbsoluteTime:(CAAbsoluteTime) renderTime
+{
+   struct mulle_pointerarrayenumerator   rover;
+   UIView                                *view;
+
+#ifdef RENDER_DEBUG
+   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
+#endif
+
+   rover = mulle_pointerarray_enumerate_nil( _subviews);
+   while( view = mulle_pointerarrayenumerator_next( &rover))
+      [view animateWithAbsoluteTime:renderTime];
+   mulle_pointerarrayenumerator_done( &rover);
+}
+
+
+- (void) animateWithAbsoluteTime:(CAAbsoluteTime) renderTime
+{
+   [self animateLayersWithAbsoluteTime:renderTime];
+   [self animateSubviewsWithAbsoluteTime:renderTime];
+}
+
+
 - (void) layoutSubviews
 {
-	// does nothing or will it ?
+   // does nothing or will it ?
 }
 
 
@@ -517,17 +561,98 @@ static void  pointerarray_copy_all( struct mulle_pointerarray *array, id *dst)
 
    if( [view isKindOfClass:[UIWindow class]])
    {
-      fprintf( stderr, "window found\n");
+      //fprintf( stderr, "window found\n");
       return( (UIWindow *) view);
    }
    return( nil);
 }
 
 
-// https://developer.apple.com/documentation/uikit/uiview/1622625-sizethatfits?language=objc
-- (CGSize) sizeThatFits:(CGSize) size
+- (UIImage *) textureImageWithContext:(CGContext *) context
+                            frameInfo:(struct MulleFrameInfo *) info
+                              options:(NSUInteger) options
 {
-   return( [_mainLayer frame].size);
+   struct MulleFrameInfo   renderInfo;
+   UIImage                *image;
+   CGRect                  frame;
+
+   frame = [self frame];
+
+   renderInfo.frame                  = frame;
+   renderInfo.windowSize             = frame.size;
+   renderInfo.framebufferSize.width  = frame.size.width / info->pixelRatio;
+   renderInfo.framebufferSize.height = frame.size.height / info->pixelRatio;
+   renderInfo.UIScale                = info->UIScale;
+   renderInfo.pixelRatio             = info->pixelRatio;
+   renderInfo.isPerfEnabled          = NO;
+
+   image = [context textureImageWithSize:renderInfo.framebufferSize
+                                 options:options];
+   if( image)
+   {
+      // Draw some stuff to an FBO as a test
+      nvgluBindFramebuffer( [image framebuffer]);
+      @autoreleasepool
+      {
+         [context startRenderWithFrameInfo:&renderInfo];
+         [context clearFramebuffer];
+         // translate to 0.0 ? scale to fit ?
+         nvgTranslate( [context nvgContext], -frame.origin.x, -frame.origin.y);
+         [self renderWithContext:context];
+         [context endRender];
+      }
+      nvgluBindFramebuffer( NULL);
+   }
+   return( image);
+}
+
+# pragma mark - tracking rectangles
+
+- (struct MulleTrackingArea *) addTrackingAreaWithRect:(CGRect) rect
+                                              userInfo:(id) userInfo 
+{
+   struct MulleTrackingArea   *tracking;
+   UIWindow                  *window;
+
+   if( MulleTrackingAreaArrayGetCount( &_trackingAreas) == 0)
+   {
+      // if window does not exist, then a late add would not be noticed
+      // and tracking fails... 
+      window = [self window];
+      assert( window);
+      [window addTrackingView:self];
+   }
+
+   tracking = MulleTrackingAreaArrayNewItem( &_trackingAreas);
+   MulleTrackingAreaInit( tracking, rect, userInfo);
+   return( tracking);
+}
+
+- (void) removeTrackingArea:(struct MulleTrackingArea *) item
+{
+   UIWindow   *window;
+
+   MulleTrackingAreaArrayRemoveItem( &_trackingAreas, item);
+   if( MulleTrackingAreaArrayGetCount( &_trackingAreas) == 0)
+   {
+      window = [self window];
+      assert( window);
+      [window removeTrackingView:self];
+   }
+}
+
+- (NSUInteger) numberOfTrackingAreas
+{
+   return( MulleTrackingAreaArrayGetCount( &_trackingAreas));
+}
+
+
+- (struct MulleTrackingArea *) trackingAreaAtIndex:(NSUInteger) i
+{
+   struct MulleTrackingArea   *item;
+
+   item = MulleTrackingAreaArrayGetItemAtIndex( &_trackingAreas, i);
+   return( item);
 }
 
 @end

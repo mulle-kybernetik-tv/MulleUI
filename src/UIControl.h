@@ -54,8 +54,8 @@ typedef NSUInteger    UIControlState;
 // 
 @protocol UIControl
 
-typedef UIEvent       *UIControlClickHandler( id <UIControl> control, 
-								  							 UIEvent *event);
+typedef UIEvent   *UIControlClickHandler( id <UIControl> control, 
+                                          UIEvent *event);
 @property( assign) UIControlState  state;
 @property( assign) id  target;
 @property( assign) SEL action;
@@ -72,6 +72,11 @@ typedef UIEvent       *UIControlClickHandler( id <UIControl> control,
 
 - (UIEvent *) mouseUp:(UIEvent *) event;
 
+- (UIEvent *) consumeMouseUp:(UIEvent *) event;
+- (UIEvent *) consumeMouseDown:(UIEvent *) event;
+- (UIEvent *) performClickAndTargetActionCallbacks:(UIEvent *) event;
+
+
 // these are convenience for state, don't override these
 // overide state if needed
 
@@ -82,12 +87,13 @@ typedef UIEvent       *UIControlClickHandler( id <UIControl> control,
 - (BOOL) isSelected;
 - (void) setSelected:(BOOL) flag;
 
+- (char *) cStringDescription;
 @end
 
 
 
-#define UIControlIvars \
+#define UIControlIvars              \
    UIControlState           _state;	\
-   id                      _target;	\
    UIControlClickHandler   *_click;	\
+   id                      _target;	\
    SEL                     _action

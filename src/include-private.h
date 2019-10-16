@@ -8,8 +8,9 @@
           #import this file anywhere (except in import-private.h)
  */
 
-
-#define GLFW_INCLUDE_ES2
+// keep undefined for OpenGL3
+// see: https://www.glfw.org/docs/latest/build_guide.html
+#define GLFW_INCLUDE_ES2       // GLES2
 
 /* This is a central include file to not expose includes to consumers of
    this library. It must not be imported by .h files, but by .c files
@@ -29,6 +30,7 @@
 
 #include "nanovg.h"
 #include "nanovg_gl.h"
+#include "nanovg_gl_utils.h"
 #include "nanosvg.h"
 
 

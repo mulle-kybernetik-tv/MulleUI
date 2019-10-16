@@ -3,12 +3,16 @@
 #import <mulle-container/mulle-container.h>
 #import "CGGeometry.h"
 #import "YogaProtocol.h"
+#import "CATime.h"
+#import "MulleTrackingArea.h"
 
 
 @class CALayer;
 @class CGContext;
 @class UIWindow;
+@class MulleImageLayer;
 
+struct MulleFrameInfo;
 
 //
 // the main layer which is bottom-most defines the geometry
@@ -22,20 +26,24 @@
    UIView                      *_superview;
    CALayer                     *_mainLayer;
 
-   struct mulle_pointerarray   *_layers;
+   struct mulle_pointerarray   *_layers;     // todo why no inline ?
    struct mulle_pointerarray   *_subviews;
 
    // ivars for Yoga
-   id <NSArray,NSFastEnumeration>   *_subviewsArrayProxy;
+   id <NSArray,NSFastEnumeration>   _subviewsArrayProxy;
    YGLayout                         *_yoga;
    BOOL                             _isYogaEnabled;
+   struct MulleTrackingAreaArray    _trackingAreas;
+
+   MulleImageLayer                  *_cacheLayer;  // same size as _mainLayer (contains all layers and subviews ?)
 }
 
 @property BOOL clipsSubviews;
 @property BOOL needsLayout;
+@property BOOL needsCaching;
 
 - (void) setNeedsLayout;
-
+- (void) setNeedsCaching;  // wipes the _cacheLayer and asks for a new one to be drawn
 
 + (Class) layerClass;
 
@@ -47,12 +55,15 @@
 - (void) addLayer:(CALayer *) layer;
 - (void) addSubview:(UIView *) layer;
 
+- (CALayer *) layer;
+
 - (CGRect) bounds;
 - (void) setBounds:(CGRect) rect;
 - (CGRect) frame;
 - (void) setFrame:(CGRect) rect;
 
 - (void) renderWithContext:(CGContext *) context;
+- (void) animateWithAbsoluteTime:(CAAbsoluteTime) renderTime;
 
 - (NSInteger) getLayers:(CALayer **) buf
                  length:(NSUInteger) length;
@@ -64,7 +75,7 @@
 
 - (CGRect) clipRect;
 
-- (CALayer *) mainLayer;
+// - (CALayer *) mainLayer;  // mainlayer is an internal thing
 
 - (CGSize) sizeThatFits:(CGSize) size;
 
@@ -73,5 +84,17 @@
 // layout everything
 // 
 - (void) layoutSubviews;
+
+
+- (void) updateRenderCachesWithContext:(CGContext *) context
+                             frameInfo:(struct MulleFrameInfo *) info;
+                             
+// view must be part of window view hierarchy, for these function to work
+// properly
+- (struct MulleTrackingArea *) addTrackingAreaWithRect:(CGRect) rect
+                                              userInfo:(id) userInfo;
+- (void) removeTrackingArea:(struct MulleTrackingArea *) trackingRect;
+- (NSUInteger) numberOfTrackingAreas;
+- (struct MulleTrackingArea *) trackingAreaAtIndex:(NSUInteger) i;
 
 @end

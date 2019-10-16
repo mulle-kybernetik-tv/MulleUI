@@ -2,19 +2,28 @@
 
 #import <mulle-container/mulle-container.h>
 
+struct MulleFrameInfo;
 
-//
-// though a UIWindow is a UIView, it doesn't have a mainLayer
-// or any sublayers
-// It will erase it contents with black.
-//
-@interface UIWindow : UIView 
+
+@interface UIWindow : UIView
 {
-   void         *_window;  // GLFWwindow
-	NSUInteger   _didRender;  
-   CGRect       _frame;    // has its own frame
-   BOOL         _discardEvents;
-   BOOL         _resizing;
+   void               *_window;            // GLFWwindow
+	NSUInteger         _didRender;
+   CGRect             _frame;              // has its own frame
+   NSUInteger         _discardEvents;      // bitfield of UIEventtypes ?
+   id                 _firstResponder;
+   void               *_quadtree;
+
+   struct mulle_pointerarray   _trackingViews; // views with tracking areas
+   struct mulle_pointerarray   _enteredViews;  // views with mouseEntered: sent
+
+   CGRect             _originalRect;
+   CGRect             _subdivideRect;
+   CGRect             _dividedRects[ 4];
+   NSUInteger         _nDividedRects;
+   NSUInteger         _nTest;
+
+   BOOL               _resizing;
 }
 
 @property( retain) CGContext                  *context;
@@ -22,10 +31,21 @@
 @property( assign, readonly) CGPoint          mousePosition;
 @property( assign, readonly) uint64_t         mouseButtonStates;
 @property( assign, readonly) uint64_t         modifiers;
+@property( assign, readonly) CGFloat          primaryMonitorPPI;
 
 - (void) renderLoopWithContext:(CGContext *) context;
-- (void) waitForEvents;
+- (void) waitForEvents:(double) hz;
 - (void) requestClose;
 + (void) sendEmptyEvent;
+
+- (id) _firstResponder;
+
++ (CGFloat) primaryMonitorPPI;
+
+- (void) setupQuadtree;
+- (void) newSubdividedRects;
+
+- (void) addTrackingView:(UIView *) view;
+- (void) removeTrackingView:(UIView *) view;
 
 @end
