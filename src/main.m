@@ -190,13 +190,18 @@ int   main()
    view0 = [[[UIView alloc] initWithFrame:CGRectMake( 100, 100, 400, 200)] autorelease];
    layer = [view0 layer];
    [layer setBackgroundColor:getNVGColor( 0x7F7F7F7F)];
+   [layer setBorderColor:getNVGColor( 0xFFFFFFFF)];
+   [layer setBorderWidth:4.0];
    [layer setDrawContentsCallback:draw_bezier];
 
    [UIView beginAnimations:NULL
                    context:NULL];
    {
       [layer setBackgroundColor:getNVGColor( 0x00FF00FF)];
-      [layer setFrame:CGRectMake( 200, 100, 400, 200)];
+      [layer setFrame:CGRectMake( 0, 0, 600, 400)];
+      [layer setBorderColor:getNVGColor( 0xFF0000FF)];
+      [layer setBorderWidth:40.0];
+      [layer setCornerRadius:30.0];
       [UIView setAnimationRepeatCount:-1.0];
       [UIView setAnimationRepeatAutoreverses:YES];
       [UIView setAnimationCurve:UIViewAnimationCurveEaseOut];

@@ -399,7 +399,9 @@
    CGRect        startRect;
    CGRect        endRect;
    CAAnimation   *animation;
-      
+   CGFloat       startValue;
+   CGFloat       endValue;
+
    /*
     * Border
     */
@@ -437,6 +439,42 @@
    }
 
    /*
+    * BorderWidth
+    */
+   startValue = snapshot->_borderWidth;
+   endValue   = _borderWidth;
+   if( startValue != endValue)
+   {
+      animation = [[[CAAnimation alloc] initWithPropertySetter:@selector( setBorderWidth:) 
+                                               startFloatValue:startValue
+                                                 endFloatValue:endValue
+                                                       options:options] autorelease];
+  
+      [self addAnimation:animation];
+
+      // reset to start position 
+      _borderWidth = snapshot->_borderWidth;
+   }
+
+   /*
+    * CornerRadius
+    */
+   startValue = snapshot->_cornerRadius;
+   endValue   = _cornerRadius;
+   if( startValue != endValue)
+   {
+      animation = [[[CAAnimation alloc] initWithPropertySetter:@selector( setCornerRadius:) 
+                                               startFloatValue:startValue
+                                                 endFloatValue:endValue
+                                                       options:options] autorelease];
+  
+      [self addAnimation:animation];
+
+      // reset to start position 
+      _cornerRadius = snapshot->_cornerRadius;
+   }
+
+   /*
     * Frame
     */
    startRect = snapshot->_frame;
@@ -452,7 +490,25 @@
 
       // reset to start position 
       _frame = snapshot->_frame;
-   }   
+   }  
+
+   /*
+    * Bounds
+    */
+   startRect = snapshot->_bounds;
+   endRect   = _bounds;    
+   if( ! CGRectEqualToRect( startRect, endRect))
+   {
+      animation = [[[CAAnimation alloc] initWithPropertySetter:@selector( setBounds:) 
+                                                     startRect:startRect
+                                                       endRect:endRect
+                                                       options:options] autorelease];
+  
+      [self addAnimation:animation];
+
+      // reset to start position 
+      _bounds = snapshot->_bounds;
+   }    
 }
 
 

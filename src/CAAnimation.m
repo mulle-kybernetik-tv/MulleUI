@@ -66,6 +66,22 @@
 }                      
 
 
+- (id) initWithPropertySetter:(SEL) propertySetter
+              startFloatValue:(CGFloat) start
+                endFloatValue:(CGFloat) end
+                      options:(struct CAAnimationOptions *) options
+{
+   struct CAAnimationValueRange  range;
+
+   range.start.floatValue = start;
+   range.end.floatValue   = end;
+   return( [self initWithPropertySetter:propertySetter
+                              valueType:CAAnimationValueCGFloat
+                             valueRange:&range
+                            repeatStart:range.start
+                                options:options]);
+}                      
+
 - (void) reverse
 {
    union CAAnimationValue     tmp;     

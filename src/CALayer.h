@@ -21,6 +21,7 @@ struct MulleFrameInfo;
    struct mulle_pointerarray   _animations;    
 }
 
+// animatable properties
 @property( observable) CGFloat      cornerRadius;
 @property( observable) CGFloat      borderWidth;
 @property( observable) CGColorRef   borderColor;

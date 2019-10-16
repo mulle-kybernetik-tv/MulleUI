@@ -148,6 +148,10 @@ struct CAAnimationOptions
                       endRect:(CGRect) end
                       options:(struct CAAnimationOptions *) options;
 
+- (id) initWithPropertySetter:(SEL) propertySetter
+              startFloatValue:(CGFloat) start
+                endFloatValue:(CGFloat) end
+                      options:(struct CAAnimationOptions *) options;
 
 // called by the renderloop
 - (void) animateLayer:(CALayer *) layer
