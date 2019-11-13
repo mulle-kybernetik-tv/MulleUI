@@ -43,7 +43,6 @@ struct MulleFrameInfo;
 + (CGFloat) primaryMonitorPPI;
 
 - (void) setupQuadtree;
-- (void) newSubdividedRects;
 
 - (void) addTrackingView:(UIView *) view;
 - (void) removeTrackingView:(UIView *) view;

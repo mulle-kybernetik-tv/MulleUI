@@ -125,8 +125,10 @@ static inline void   SelfUnlock()
    //       part of a layer ? Window layer ? Or some completely different 
    //       mechanism ?
    //
+
+   // return to idle
    _mulle_atomic_pointer_write( &Self._animationState, 
-                               (void *) (intptr_t)  UIViewAnimationCommitting);
+                               (void *) (intptr_t)  UIViewAnimationIdle);
 }                 
 
 

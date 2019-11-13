@@ -67,7 +67,7 @@
 {
 	CGRect   bounds;
 
-	bounds = [_contentView bounds];
+	bounds      = [_contentView bounds];
 	bounds.size = size;
 	[_contentView setBounds:bounds];
 }
@@ -86,7 +86,6 @@
 {
 	return( _contentView);
 }
-
 
 
 - (UIView *) horizontalScrollIndicatorView  // subview index #n - 2

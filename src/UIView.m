@@ -1,6 +1,7 @@
 #import "import-private.h"
 
 #import "UIView.h"
+#import "UIView+CAAnimation.h"
 #import "UIWindow.h"
 #import "CALayer.h"
 #import "CGContext.h"
@@ -310,7 +311,6 @@
                         CGRectCStringDescription( [self frame]),
                         CGRectCStringDescription( [self bounds]));
 #endif
-
    vg = [context nvgContext];
    nvgCurrentTransform( vg, transform);
    nvgGetScissor( vg, &scissor);
@@ -391,16 +391,7 @@
       return;
    }
 
-   // run layout if necessary (right place here ?)
-   if( [self needsLayout])
-   {
-      [self setNeedsLayout:NO];
-      [self layoutSubviews];
-      assert( ! [self needsLayout]);
-   }
-
    vg = [context nvgContext];
-
 
    // remember for later
    nvgCurrentTransform( vg, transform);
@@ -573,7 +564,7 @@
                               options:(NSUInteger) options
 {
    struct MulleFrameInfo   renderInfo;
-   UIImage                *image;
+   MulleTextureImage       *image;
    CGRect                  frame;
 
    frame = [self frame];
@@ -654,5 +645,61 @@
    item = MulleTrackingAreaArrayGetItemAtIndex( &_trackingAreas, i);
    return( item);
 }
+
+
+
+// https://developer.apple.com/documentation/uikit/uiview/1622625-sizethatfits?language=objc
+- (CGSize) sizeThatFits:(CGSize) size
+{
+   return( [_mainLayer frame].size);
+}
+
+# pragma mark - 
+
+- (void) startLayoutWithFrameInfo:(struct MulleFrameInfo *) info
+{
+   [UIView beginAnimations:NULL
+                   context:NULL];
+
+   // linear is better for animations that are restarted often,
+   // like during a resize
+   [UIView setAnimationCurve:UIViewAnimationCurveLinear];
+
+   // if this is too small, it looks more like a glitch than a wanted effect
+   // e.g. 0.05 too small
+   [UIView setAnimationDuration:0.20];
+}
+
+
+- (void) endLayout
+{
+   [UIView commitAnimations];
+}
+
+- (void) layoutIfNeeded 
+{
+   // run layout if necessary (right place here ?)
+   if( [self needsLayout])
+   {
+      [self setNeedsLayout:NO];
+      [self layoutSubviews];
+      assert( ! [self needsLayout]);
+   }
+}
+
+
+- (void) layoutSubviewsIfNeeded
+{
+   struct mulle_pointerarrayenumerator   rover;
+   UIView                                *view;
+
+   [self layoutIfNeeded];
+
+   rover = mulle_pointerarray_enumerate_nil( _subviews);
+   while( view = mulle_pointerarrayenumerator_next( &rover))
+      [view layoutSubviewsIfNeeded];
+   mulle_pointerarrayenumerator_done( &rover);
+}
+
 
 @end

@@ -164,8 +164,8 @@ struct MulleFrameInfo
 - (struct NVGcontext *) nvgContext;
 
 - (void) startRenderWithFrameInfo:(struct MulleFrameInfo *) info;
-- (void) resetTransform;
 - (void) endRender;
+- (void) resetTransform;
 
 - (CGFont *) fontWithName:(char *) s;
 - (CGFloat) fontScale;

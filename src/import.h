@@ -20,6 +20,6 @@
    sourcetree, then you don't need it.
  */
 
-#import "_MulleGLExample-import.h"
+#import "_MulleUIKit-import.h"
 
 /* You can add some more import statements here */

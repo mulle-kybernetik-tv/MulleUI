@@ -85,6 +85,9 @@ struct MulleFrameInfo;
 // 
 - (void) layoutSubviews;
 
+- (void) startLayoutWithFrameInfo:(struct MulleFrameInfo *) info;
+- (void) layoutIfNeeded;
+- (void) endLayout;
 
 - (void) updateRenderCachesWithContext:(CGContext *) context
                              frameInfo:(struct MulleFrameInfo *) info;

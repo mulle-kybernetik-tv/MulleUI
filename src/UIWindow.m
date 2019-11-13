@@ -18,13 +18,9 @@
 
 #import "CALayer.h"  // debugging tmp
 
-#define CALLBACK_DEBUG
-//#define PRINTF_PROFILE_RENDER
-#define PRINTF_PROFILE_EVENTS
-
-#if defined( DRAW_MOUSE_BOX) || defined(DRAW_QUADTREE)
-# include <GL/gl.h>
-#endif
+// #define CALLBACK_DEBUG
+// #define PRINTF_PROFILE_RENDER
+// #define PRINTF_PROFILE_EVENTS
 
 
 @implementation UIWindow
@@ -354,41 +350,6 @@ static void   framebufferResizeCallback( GLFWwindow* window, int width, int heig
    abort();
 }
 
-#ifdef DRAW_MOUSE_BOX
-
-- (void) renderWithContext:(CGContext *) context
-{
-      double   x,y;
-      double   pixelsX,pixelsY;
-
-      // poll to get most up to date value
-      // this makes a difference on Linux X.org at least
-      glfwGetCursorPos( _window, &x, &y);
-
-//      assert( x == ctxt.mouse_x);
-//      assert( y == ctxt.mouse_y);
-
-      glColor3f(1.0, 1.0, 1.0);
-
-      glBegin(GL_QUADS);
-
-      // assume 0.0,0.0 is in the middle of the screen
-      x = (x - (_frame.size.width / 2.0)) / (_frame.size.width / 2.0);
-      y = ((_frame.size.height / 2.0) - y) / (_frame.size.height / 2.0);
-
-      pixelsX = 32 / _frame.size.width;
-      pixelsY = 32 / _frame.size.height;
-      glVertex3f ( x - pixelsX, y - pixelsY, 0.0);
-      glVertex3f ( x + pixelsX, y - pixelsY, 0.0);
-      glVertex3f ( x + pixelsX, y + pixelsY, 0.0);
-      glVertex3f ( x - pixelsX, y + pixelsY, 0.0);
-
-      glEnd();
-}
-#endif
-
-
-
 - (void) getFrameInfo:(struct MulleFrameInfo *) info
 {
    float   scale_x, scale_y;
@@ -451,6 +412,8 @@ static void   error_callback(int code, const char* description)
    fprintf( stderr, "Refresh: %d (%09ld ns/frame)\n", mode->refreshRate, nsperframe);
 #endif
 
+   [self layoutIfNeeded];
+
    // glfwMakeContextCurrent( _window );
    //
    // gut feeling: when we do onw swap buffers first, once, we know we have enough
@@ -504,19 +467,26 @@ static void   error_callback(int code, const char* description)
          [context clearFramebuffer];
       }
 
-#ifdef PRINTF_PROFILE_EVENTS
-      clock_gettime( CLOCK_REALTIME, &start);
-      printf( "@%ld:%09ld events start\n", start.tv_sec, start.tv_nsec);
-#endif
+      // do this before the animation step, as this will generate animations
+      [self startLayoutWithFrameInfo:&info];
+      [self layoutSubviewsIfNeeded];
+      [self endLayout];
 
-      // use at max 200 Hz refresh rate (0: polls)
-      [self setupQuadtree];
       {
          CAAbsoluteTime   renderTime;
 
          renderTime = CAAbsoluteTimeWithTimespec( start);
          [self animateWithAbsoluteTime:renderTime];
       }
+
+      [self setupQuadtree];
+
+#ifdef PRINTF_PROFILE_EVENTS
+      clock_gettime( CLOCK_REALTIME, &start);
+      printf( "@%ld:%09ld events start\n", start.tv_sec, start.tv_nsec);
+#endif
+
+      // use at max 200 Hz refresh rate (0: polls)
       [self waitForEvents:0.0];
 
 #ifdef PRINTF_PROFILE_EVENTS
@@ -535,7 +505,6 @@ static void   error_callback(int code, const char* description)
    YGLayout   *yoga;
    CGRect     frame;
 
-
    contentView = [[self subviews] objectAtIndex:0];
    assert( contentView);
 
@@ -543,9 +512,11 @@ static void   error_callback(int code, const char* description)
    frame.origin = CGPointZero;
    [contentView setFrame:frame];
    assert( [contentView layer]);
+/*   
    [[contentView layer] setBackgroundColor:getNVGColor( ((uint32_t) frame.size.width * 0xFFFF +
                                                 (uint32_t) frame.size.height * 0xFF) |
                                                 0xFF)];
+*/                                                
    yoga = [contentView yoga];
    [yoga setWidth:YGPointValue( frame.size.width)];
    [yoga setHeight:YGPointValue( frame.size.height)];   
@@ -598,13 +569,13 @@ static void   error_callback(int code, const char* description)
 }
 
 
-- (void) waitForEvents
+- (void) waitForEvents:(double) hz
 {
-   glfwWaitEvents();
-   if( _resizing)
-      [self waitForEndOfResize];
+   if( hz == 0.0)
+   	glfwPollEvents();
+   else
+     glfwWaitEventsTimeout( 1.0 / hz);    
 }
-
 
 
 - (void) discardPendingEvents
@@ -630,89 +601,6 @@ static void   error_callback(int code, const char* description)
    glfwPostEmptyEvent();
 }
 
-
-static CGRect  RandomRectOfSize( CGSize size)
-{
-   CGRect  rect;
-
-   rect.origin.x = rand() % (int) size.width;
-   rect.origin.y = rand() % (int) size.height;
-
-   do
-      rect.size.width  = rand() % (int) size.width;
-   while( rect.size.width < 10.0);
-
-   do
-      rect.size.height = rand() % (int) size.height;
-   while( rect.size.height < 10.0);
-   return( rect);
-}
-
-static CGRect   testRectangles[] =
-{
-   { 0, 0, 320, 200 },
-   { 320, 0, 320, 200 },
-   { 0, 200, 320, 200 },
-   { 320, 200, 320, 200 }
-};
-#define n_testRectangles   (sizeof( testRectangles) / sizeof( CGRect))
-
-- (void) newSubdividedRects
-{
-   NSUInteger   i;
-
-   _originalRect  = CGRectMake( 100, 50, 640 - 200, 400 - 100);
-   i = _nTest++;
-   if( i < n_testRectangles)
-      _subdivideRect = testRectangles[ i];
-   else
-      _subdivideRect = RandomRectOfSize( [self frame].size);
-
-   _nDividedRects = MulleRectSubdivideByRect( _originalRect, _subdivideRect, _dividedRects);
-}
-
-#ifdef DRAW_SUBDIVISION
-- (void) renderWithContext:(CGContext *) context
-{
-   NVGcontext   *vg;
-   NSUInteger   i;
-   
-   vg = [context nvgContext];   
-
-   nvgBeginPath( vg);
-   nvgRect( vg, _originalRect.origin.x, 
-                _originalRect.origin.y, 
-                _originalRect.size.width, 
-                _originalRect.size.height);
-
-   nvgStrokeWidth( vg, 3);
-   nvgStrokeColor( vg, getNVGColor( 0xFF0000FF));
-   nvgStroke( vg);  
-
-   nvgBeginPath( vg);
-   nvgRect( vg, _subdivideRect.origin.x, 
-                _subdivideRect.origin.y, 
-                _subdivideRect.size.width, 
-                _subdivideRect.size.height);
-
-   nvgStrokeWidth( vg, 2);
-   nvgStrokeColor( vg, getNVGColor( 0x0000FFFF));
-   nvgStroke( vg);  
-  
-   assert( _nDividedRects <= 4);
-   for( i = 0; i < _nDividedRects; i++)
-   {
-      nvgBeginPath( vg);
-      nvgRect( vg, _dividedRects[ i].origin.x, 
-                   _dividedRects[ i].origin.y, 
-                   _dividedRects[ i].size.width, 
-                   _dividedRects[ i].size.height);
-     
-      nvgFillColor( vg, getNVGColor( (0xF0000000 >> i) | (0x001F0000 << i) | 0xC0));
-      nvgFill( vg);  
-   }
-}
-#endif
 
 # pragma mark - tracking rects  
 
@@ -795,39 +683,6 @@ static CGRect   testRectangles[] =
 }
 
 
-#ifdef DRAW_QUADTREE
-
-static void  clear_area( CGRect rect, void *payload, void *quadtree)
-{
-   mulle_quadtree_change_payload( quadtree, rect, (void *) 1, (void *) 0);
-}
-
-
-static void  draw_area( CGRect rect, void *payload, void *info)
-{
-   NVGcontext  *vg = info;
-
-   nvgBeginPath( vg);
-   nvgRect( vg, rect.origin.x, rect.origin.y,
-                rect.size.width, rect.size.height);
-
-   if( payload)
-      nvgFillColor( vg, getNVGColor( 0xFFFF007F));
-   else
-      nvgFillColor( vg, getNVGColor( 0x2020F07F));
-   nvgFill( vg);  
-}
-
-- (void) renderWithContext:(CGContext *) context
-{
-   [super renderWithContext:context];
-
-   mulle_quadtree_walk( _quadtree, draw_area, [context nvgContext]);
-}
-
-#endif
-
-
 static void   collect_hit_views( CGRect rect, void *payload, void *userinfo)
 {
    struct mulle_pointerarray   *array = userinfo;
@@ -839,7 +694,6 @@ static void   collect_hit_views( CGRect rect, void *payload, void *userinfo)
 
 - (UIEvent *) handleEvent:(UIEvent *) event
 {
-#ifdef DRAW_QUADTREE
    CGRect                                rect;
    CGPoint                               point;
    struct mulle_pointerarray             views;
@@ -916,15 +770,8 @@ static void   collect_hit_views( CGRect rect, void *payload, void *userinfo)
       if( ! isDrag)
          return( nil);
    }
-#endif
 
-#ifdef DRAW_SUBDIVISION
-   if( [event eventType] == UIEventTypePresses)
-   {
-      if( [event action])
-         [self newSubdividedRects];
-   }
-#endif
+
    if( [event isKindOfClass:[UIMouseScrollEvent class]])
       [self dump];
    return( [super handleEvent:event]);

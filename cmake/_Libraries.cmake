@@ -8,477 +8,491 @@ if( MULLE_TRACE_INCLUDE)
 endif()
 
 #
-# Generated from sourcetree: GL;no-all-load,no-header,no-import;
+# Generated from sourcetree: GL;no-all-load,no-header,no-import,no-os-darwin;
 # Disable with: `mulle-sourcetree mark GL no-link`
 #
-if( NOT GL_LIBRARY)
-   find_library( GL_LIBRARY NAMES GL)
-   message( STATUS "GL_LIBRARY is ${GL_LIBRARY}")
-   #
-   # The order looks ascending, but due to the way this file is read
-   # it ends up being descending, which is what we need.
-   #
-   if( GL_LIBRARY)
+if( NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+   if( NOT GL_LIBRARY)
+      find_library( GL_LIBRARY NAMES GL)
+      message( STATUS "GL_LIBRARY is ${GL_LIBRARY}")
       #
-      # Add to GL_LIBRARY list.
-      # Disable with: `mulle-sourcetree mark GL no-cmakeadd`
+      # The order looks ascending, but due to the way this file is read
+      # it ends up being descending, which is what we need.
       #
-      set( OS_SPECIFIC_LIBRARIES
-         ${OS_SPECIFIC_LIBRARIES}
-         ${GL_LIBRARY}
-         CACHE INTERNAL "need to cache this"
-      )
-      #
-      # Inherit ObjC loader and link dependency info.
-      # Disable with: `mulle-sourcetree mark GL no-cmakeinherit`
-      #
-      # // temporarily expand CMAKE_MODULE_PATH
-      get_filename_component( _TMP_GL_ROOT "${GL_LIBRARY}" DIRECTORY)
-      get_filename_component( _TMP_GL_ROOT "${_TMP_GL_ROOT}" DIRECTORY)
-      #
-      #
-      # Search for "DependenciesAndLibraries.cmake" to include.
-      # Disable with: `mulle-sourcetree mark GL no-cmakedependency`
-      #
-      foreach( _TMP_GL_NAME "GL")
-         set( _TMP_GL_DIR "${_TMP_GL_ROOT}/include/${_TMP_GL_NAME}/cmake")
-         # use explicit path to avoid "surprises"
-         if( EXISTS "${_TMP_GL_DIR}/DependenciesAndLibraries.cmake")
-            unset( GL_DEFINITIONS)
-            list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_GL_DIR}")
-            # we only want top level INHERIT_OBJC_LOADERS, so disable them
-            if( NOT NO_INHERIT_OBJC_LOADERS)
-               set( NO_INHERIT_OBJC_LOADERS OFF)
+      if( GL_LIBRARY)
+         #
+         # Add to GL_LIBRARY list.
+         # Disable with: `mulle-sourcetree mark GL no-cmakeadd`
+         #
+         set( OS_SPECIFIC_LIBRARIES
+            ${OS_SPECIFIC_LIBRARIES}
+            ${GL_LIBRARY}
+            CACHE INTERNAL "need to cache this"
+         )
+         #
+         # Inherit ObjC loader and link dependency info.
+         # Disable with: `mulle-sourcetree mark GL no-cmakeinherit`
+         #
+         # // temporarily expand CMAKE_MODULE_PATH
+         get_filename_component( _TMP_GL_ROOT "${GL_LIBRARY}" DIRECTORY)
+         get_filename_component( _TMP_GL_ROOT "${_TMP_GL_ROOT}" DIRECTORY)
+         #
+         #
+         # Search for "DependenciesAndLibraries.cmake" to include.
+         # Disable with: `mulle-sourcetree mark GL no-cmakedependency`
+         #
+         foreach( _TMP_GL_NAME "GL")
+            set( _TMP_GL_DIR "${_TMP_GL_ROOT}/include/${_TMP_GL_NAME}/cmake")
+            # use explicit path to avoid "surprises"
+            if( EXISTS "${_TMP_GL_DIR}/DependenciesAndLibraries.cmake")
+               unset( GL_DEFINITIONS)
+               list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_GL_DIR}")
+               # we only want top level INHERIT_OBJC_LOADERS, so disable them
+               if( NOT NO_INHERIT_OBJC_LOADERS)
+                  set( NO_INHERIT_OBJC_LOADERS OFF)
+               endif()
+               list( APPEND _TMP_INHERIT_OBJC_LOADERS ${NO_INHERIT_OBJC_LOADERS})
+               set( NO_INHERIT_OBJC_LOADERS ON)
+               #
+               include( "${_TMP_GL_DIR}/DependenciesAndLibraries.cmake")
+               #
+               list( GET _TMP_INHERIT_OBJC_LOADERS -1 NO_INHERIT_OBJC_LOADERS)
+               list( REMOVE_AT _TMP_INHERIT_OBJC_LOADERS -1)
+               #
+               list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_GL_DIR}")
+               set( INHERITED_DEFINITIONS
+                  ${INHERITED_DEFINITIONS}
+                  ${GL_DEFINITIONS}
+                  CACHE INTERNAL "need to cache this"
+               )
+               break()
+            else()
+               message( STATUS "${_TMP_GL_DIR}/DependenciesAndLibraries.cmake not found")
             endif()
-            list( APPEND _TMP_INHERIT_OBJC_LOADERS ${NO_INHERIT_OBJC_LOADERS})
-            set( NO_INHERIT_OBJC_LOADERS ON)
-            #
-            include( "${_TMP_GL_DIR}/DependenciesAndLibraries.cmake")
-            #
-            list( GET _TMP_INHERIT_OBJC_LOADERS -1 NO_INHERIT_OBJC_LOADERS)
-            list( REMOVE_AT _TMP_INHERIT_OBJC_LOADERS -1)
-            #
-            list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_GL_DIR}")
-            set( INHERITED_DEFINITIONS
-               ${INHERITED_DEFINITIONS}
-               ${GL_DEFINITIONS}
-               CACHE INTERNAL "need to cache this"
-            )
-            break()
-         else()
-            message( STATUS "${_TMP_GL_DIR}/DependenciesAndLibraries.cmake not found")
-         endif()
-      endforeach()
-   else()
-      message( FATAL_ERROR "GL_LIBRARY was not found")
+         endforeach()
+      else()
+         message( FATAL_ERROR "GL_LIBRARY was not found")
+      endif()
    endif()
 endif()
 
 
 #
-# Generated from sourcetree: GLU;no-all-load,no-header,no-import;
+# Generated from sourcetree: GLU;no-all-load,no-header,no-import,no-os-darwin;
 # Disable with: `mulle-sourcetree mark GLU no-link`
 #
-if( NOT GLU_LIBRARY)
-   find_library( GLU_LIBRARY NAMES GLU)
-   message( STATUS "GLU_LIBRARY is ${GLU_LIBRARY}")
-   #
-   # The order looks ascending, but due to the way this file is read
-   # it ends up being descending, which is what we need.
-   #
-   if( GLU_LIBRARY)
+if( NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+   if( NOT GLU_LIBRARY)
+      find_library( GLU_LIBRARY NAMES GLU)
+      message( STATUS "GLU_LIBRARY is ${GLU_LIBRARY}")
       #
-      # Add to GLU_LIBRARY list.
-      # Disable with: `mulle-sourcetree mark GLU no-cmakeadd`
+      # The order looks ascending, but due to the way this file is read
+      # it ends up being descending, which is what we need.
       #
-      set( OS_SPECIFIC_LIBRARIES
-         ${OS_SPECIFIC_LIBRARIES}
-         ${GLU_LIBRARY}
-         CACHE INTERNAL "need to cache this"
-      )
-      #
-      # Inherit ObjC loader and link dependency info.
-      # Disable with: `mulle-sourcetree mark GLU no-cmakeinherit`
-      #
-      # // temporarily expand CMAKE_MODULE_PATH
-      get_filename_component( _TMP_GLU_ROOT "${GLU_LIBRARY}" DIRECTORY)
-      get_filename_component( _TMP_GLU_ROOT "${_TMP_GLU_ROOT}" DIRECTORY)
-      #
-      #
-      # Search for "DependenciesAndLibraries.cmake" to include.
-      # Disable with: `mulle-sourcetree mark GLU no-cmakedependency`
-      #
-      foreach( _TMP_GLU_NAME "GLU")
-         set( _TMP_GLU_DIR "${_TMP_GLU_ROOT}/include/${_TMP_GLU_NAME}/cmake")
-         # use explicit path to avoid "surprises"
-         if( EXISTS "${_TMP_GLU_DIR}/DependenciesAndLibraries.cmake")
-            unset( GLU_DEFINITIONS)
-            list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_GLU_DIR}")
-            # we only want top level INHERIT_OBJC_LOADERS, so disable them
-            if( NOT NO_INHERIT_OBJC_LOADERS)
-               set( NO_INHERIT_OBJC_LOADERS OFF)
+      if( GLU_LIBRARY)
+         #
+         # Add to GLU_LIBRARY list.
+         # Disable with: `mulle-sourcetree mark GLU no-cmakeadd`
+         #
+         set( OS_SPECIFIC_LIBRARIES
+            ${OS_SPECIFIC_LIBRARIES}
+            ${GLU_LIBRARY}
+            CACHE INTERNAL "need to cache this"
+         )
+         #
+         # Inherit ObjC loader and link dependency info.
+         # Disable with: `mulle-sourcetree mark GLU no-cmakeinherit`
+         #
+         # // temporarily expand CMAKE_MODULE_PATH
+         get_filename_component( _TMP_GLU_ROOT "${GLU_LIBRARY}" DIRECTORY)
+         get_filename_component( _TMP_GLU_ROOT "${_TMP_GLU_ROOT}" DIRECTORY)
+         #
+         #
+         # Search for "DependenciesAndLibraries.cmake" to include.
+         # Disable with: `mulle-sourcetree mark GLU no-cmakedependency`
+         #
+         foreach( _TMP_GLU_NAME "GLU")
+            set( _TMP_GLU_DIR "${_TMP_GLU_ROOT}/include/${_TMP_GLU_NAME}/cmake")
+            # use explicit path to avoid "surprises"
+            if( EXISTS "${_TMP_GLU_DIR}/DependenciesAndLibraries.cmake")
+               unset( GLU_DEFINITIONS)
+               list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_GLU_DIR}")
+               # we only want top level INHERIT_OBJC_LOADERS, so disable them
+               if( NOT NO_INHERIT_OBJC_LOADERS)
+                  set( NO_INHERIT_OBJC_LOADERS OFF)
+               endif()
+               list( APPEND _TMP_INHERIT_OBJC_LOADERS ${NO_INHERIT_OBJC_LOADERS})
+               set( NO_INHERIT_OBJC_LOADERS ON)
+               #
+               include( "${_TMP_GLU_DIR}/DependenciesAndLibraries.cmake")
+               #
+               list( GET _TMP_INHERIT_OBJC_LOADERS -1 NO_INHERIT_OBJC_LOADERS)
+               list( REMOVE_AT _TMP_INHERIT_OBJC_LOADERS -1)
+               #
+               list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_GLU_DIR}")
+               set( INHERITED_DEFINITIONS
+                  ${INHERITED_DEFINITIONS}
+                  ${GLU_DEFINITIONS}
+                  CACHE INTERNAL "need to cache this"
+               )
+               break()
+            else()
+               message( STATUS "${_TMP_GLU_DIR}/DependenciesAndLibraries.cmake not found")
             endif()
-            list( APPEND _TMP_INHERIT_OBJC_LOADERS ${NO_INHERIT_OBJC_LOADERS})
-            set( NO_INHERIT_OBJC_LOADERS ON)
-            #
-            include( "${_TMP_GLU_DIR}/DependenciesAndLibraries.cmake")
-            #
-            list( GET _TMP_INHERIT_OBJC_LOADERS -1 NO_INHERIT_OBJC_LOADERS)
-            list( REMOVE_AT _TMP_INHERIT_OBJC_LOADERS -1)
-            #
-            list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_GLU_DIR}")
-            set( INHERITED_DEFINITIONS
-               ${INHERITED_DEFINITIONS}
-               ${GLU_DEFINITIONS}
-               CACHE INTERNAL "need to cache this"
-            )
-            break()
-         else()
-            message( STATUS "${_TMP_GLU_DIR}/DependenciesAndLibraries.cmake not found")
-         endif()
-      endforeach()
-   else()
-      message( FATAL_ERROR "GLU_LIBRARY was not found")
+         endforeach()
+      else()
+         message( FATAL_ERROR "GLU_LIBRARY was not found")
+      endif()
    endif()
 endif()
 
 
 #
-# Generated from sourcetree: X11;no-all-load,no-header,no-import;
+# Generated from sourcetree: X11;no-all-load,no-header,no-import,no-os-darwin;
 # Disable with: `mulle-sourcetree mark X11 no-link`
 #
-if( NOT X11_LIBRARY)
-   find_library( X11_LIBRARY NAMES X11)
-   message( STATUS "X11_LIBRARY is ${X11_LIBRARY}")
-   #
-   # The order looks ascending, but due to the way this file is read
-   # it ends up being descending, which is what we need.
-   #
-   if( X11_LIBRARY)
+if( NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+   if( NOT X11_LIBRARY)
+      find_library( X11_LIBRARY NAMES X11)
+      message( STATUS "X11_LIBRARY is ${X11_LIBRARY}")
       #
-      # Add to X11_LIBRARY list.
-      # Disable with: `mulle-sourcetree mark X11 no-cmakeadd`
+      # The order looks ascending, but due to the way this file is read
+      # it ends up being descending, which is what we need.
       #
-      set( OS_SPECIFIC_LIBRARIES
-         ${OS_SPECIFIC_LIBRARIES}
-         ${X11_LIBRARY}
-         CACHE INTERNAL "need to cache this"
-      )
-      #
-      # Inherit ObjC loader and link dependency info.
-      # Disable with: `mulle-sourcetree mark X11 no-cmakeinherit`
-      #
-      # // temporarily expand CMAKE_MODULE_PATH
-      get_filename_component( _TMP_X11_ROOT "${X11_LIBRARY}" DIRECTORY)
-      get_filename_component( _TMP_X11_ROOT "${_TMP_X11_ROOT}" DIRECTORY)
-      #
-      #
-      # Search for "DependenciesAndLibraries.cmake" to include.
-      # Disable with: `mulle-sourcetree mark X11 no-cmakedependency`
-      #
-      foreach( _TMP_X11_NAME "X11")
-         set( _TMP_X11_DIR "${_TMP_X11_ROOT}/include/${_TMP_X11_NAME}/cmake")
-         # use explicit path to avoid "surprises"
-         if( EXISTS "${_TMP_X11_DIR}/DependenciesAndLibraries.cmake")
-            unset( X11_DEFINITIONS)
-            list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_X11_DIR}")
-            # we only want top level INHERIT_OBJC_LOADERS, so disable them
-            if( NOT NO_INHERIT_OBJC_LOADERS)
-               set( NO_INHERIT_OBJC_LOADERS OFF)
+      if( X11_LIBRARY)
+         #
+         # Add to X11_LIBRARY list.
+         # Disable with: `mulle-sourcetree mark X11 no-cmakeadd`
+         #
+         set( OS_SPECIFIC_LIBRARIES
+            ${OS_SPECIFIC_LIBRARIES}
+            ${X11_LIBRARY}
+            CACHE INTERNAL "need to cache this"
+         )
+         #
+         # Inherit ObjC loader and link dependency info.
+         # Disable with: `mulle-sourcetree mark X11 no-cmakeinherit`
+         #
+         # // temporarily expand CMAKE_MODULE_PATH
+         get_filename_component( _TMP_X11_ROOT "${X11_LIBRARY}" DIRECTORY)
+         get_filename_component( _TMP_X11_ROOT "${_TMP_X11_ROOT}" DIRECTORY)
+         #
+         #
+         # Search for "DependenciesAndLibraries.cmake" to include.
+         # Disable with: `mulle-sourcetree mark X11 no-cmakedependency`
+         #
+         foreach( _TMP_X11_NAME "X11")
+            set( _TMP_X11_DIR "${_TMP_X11_ROOT}/include/${_TMP_X11_NAME}/cmake")
+            # use explicit path to avoid "surprises"
+            if( EXISTS "${_TMP_X11_DIR}/DependenciesAndLibraries.cmake")
+               unset( X11_DEFINITIONS)
+               list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_X11_DIR}")
+               # we only want top level INHERIT_OBJC_LOADERS, so disable them
+               if( NOT NO_INHERIT_OBJC_LOADERS)
+                  set( NO_INHERIT_OBJC_LOADERS OFF)
+               endif()
+               list( APPEND _TMP_INHERIT_OBJC_LOADERS ${NO_INHERIT_OBJC_LOADERS})
+               set( NO_INHERIT_OBJC_LOADERS ON)
+               #
+               include( "${_TMP_X11_DIR}/DependenciesAndLibraries.cmake")
+               #
+               list( GET _TMP_INHERIT_OBJC_LOADERS -1 NO_INHERIT_OBJC_LOADERS)
+               list( REMOVE_AT _TMP_INHERIT_OBJC_LOADERS -1)
+               #
+               list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_X11_DIR}")
+               set( INHERITED_DEFINITIONS
+                  ${INHERITED_DEFINITIONS}
+                  ${X11_DEFINITIONS}
+                  CACHE INTERNAL "need to cache this"
+               )
+               break()
+            else()
+               message( STATUS "${_TMP_X11_DIR}/DependenciesAndLibraries.cmake not found")
             endif()
-            list( APPEND _TMP_INHERIT_OBJC_LOADERS ${NO_INHERIT_OBJC_LOADERS})
-            set( NO_INHERIT_OBJC_LOADERS ON)
-            #
-            include( "${_TMP_X11_DIR}/DependenciesAndLibraries.cmake")
-            #
-            list( GET _TMP_INHERIT_OBJC_LOADERS -1 NO_INHERIT_OBJC_LOADERS)
-            list( REMOVE_AT _TMP_INHERIT_OBJC_LOADERS -1)
-            #
-            list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_X11_DIR}")
-            set( INHERITED_DEFINITIONS
-               ${INHERITED_DEFINITIONS}
-               ${X11_DEFINITIONS}
-               CACHE INTERNAL "need to cache this"
-            )
-            break()
-         else()
-            message( STATUS "${_TMP_X11_DIR}/DependenciesAndLibraries.cmake not found")
-         endif()
-      endforeach()
-   else()
-      message( FATAL_ERROR "X11_LIBRARY was not found")
+         endforeach()
+      else()
+         message( FATAL_ERROR "X11_LIBRARY was not found")
+      endif()
    endif()
 endif()
 
 
 #
-# Generated from sourcetree: Xrandr;no-all-load,no-header,no-import;
+# Generated from sourcetree: Xrandr;no-all-load,no-header,no-import,no-os-darwin;
 # Disable with: `mulle-sourcetree mark Xrandr no-link`
 #
-if( NOT XRANDR_LIBRARY)
-   find_library( XRANDR_LIBRARY NAMES Xrandr)
-   message( STATUS "XRANDR_LIBRARY is ${XRANDR_LIBRARY}")
-   #
-   # The order looks ascending, but due to the way this file is read
-   # it ends up being descending, which is what we need.
-   #
-   if( XRANDR_LIBRARY)
+if( NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+   if( NOT XRANDR_LIBRARY)
+      find_library( XRANDR_LIBRARY NAMES Xrandr)
+      message( STATUS "XRANDR_LIBRARY is ${XRANDR_LIBRARY}")
       #
-      # Add to XRANDR_LIBRARY list.
-      # Disable with: `mulle-sourcetree mark Xrandr no-cmakeadd`
+      # The order looks ascending, but due to the way this file is read
+      # it ends up being descending, which is what we need.
       #
-      set( OS_SPECIFIC_LIBRARIES
-         ${OS_SPECIFIC_LIBRARIES}
-         ${XRANDR_LIBRARY}
-         CACHE INTERNAL "need to cache this"
-      )
-      #
-      # Inherit ObjC loader and link dependency info.
-      # Disable with: `mulle-sourcetree mark Xrandr no-cmakeinherit`
-      #
-      # // temporarily expand CMAKE_MODULE_PATH
-      get_filename_component( _TMP_XRANDR_ROOT "${XRANDR_LIBRARY}" DIRECTORY)
-      get_filename_component( _TMP_XRANDR_ROOT "${_TMP_XRANDR_ROOT}" DIRECTORY)
-      #
-      #
-      # Search for "DependenciesAndLibraries.cmake" to include.
-      # Disable with: `mulle-sourcetree mark Xrandr no-cmakedependency`
-      #
-      foreach( _TMP_XRANDR_NAME "Xrandr")
-         set( _TMP_XRANDR_DIR "${_TMP_XRANDR_ROOT}/include/${_TMP_XRANDR_NAME}/cmake")
-         # use explicit path to avoid "surprises"
-         if( EXISTS "${_TMP_XRANDR_DIR}/DependenciesAndLibraries.cmake")
-            unset( XRANDR_DEFINITIONS)
-            list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_XRANDR_DIR}")
-            # we only want top level INHERIT_OBJC_LOADERS, so disable them
-            if( NOT NO_INHERIT_OBJC_LOADERS)
-               set( NO_INHERIT_OBJC_LOADERS OFF)
+      if( XRANDR_LIBRARY)
+         #
+         # Add to XRANDR_LIBRARY list.
+         # Disable with: `mulle-sourcetree mark Xrandr no-cmakeadd`
+         #
+         set( OS_SPECIFIC_LIBRARIES
+            ${OS_SPECIFIC_LIBRARIES}
+            ${XRANDR_LIBRARY}
+            CACHE INTERNAL "need to cache this"
+         )
+         #
+         # Inherit ObjC loader and link dependency info.
+         # Disable with: `mulle-sourcetree mark Xrandr no-cmakeinherit`
+         #
+         # // temporarily expand CMAKE_MODULE_PATH
+         get_filename_component( _TMP_XRANDR_ROOT "${XRANDR_LIBRARY}" DIRECTORY)
+         get_filename_component( _TMP_XRANDR_ROOT "${_TMP_XRANDR_ROOT}" DIRECTORY)
+         #
+         #
+         # Search for "DependenciesAndLibraries.cmake" to include.
+         # Disable with: `mulle-sourcetree mark Xrandr no-cmakedependency`
+         #
+         foreach( _TMP_XRANDR_NAME "Xrandr")
+            set( _TMP_XRANDR_DIR "${_TMP_XRANDR_ROOT}/include/${_TMP_XRANDR_NAME}/cmake")
+            # use explicit path to avoid "surprises"
+            if( EXISTS "${_TMP_XRANDR_DIR}/DependenciesAndLibraries.cmake")
+               unset( XRANDR_DEFINITIONS)
+               list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_XRANDR_DIR}")
+               # we only want top level INHERIT_OBJC_LOADERS, so disable them
+               if( NOT NO_INHERIT_OBJC_LOADERS)
+                  set( NO_INHERIT_OBJC_LOADERS OFF)
+               endif()
+               list( APPEND _TMP_INHERIT_OBJC_LOADERS ${NO_INHERIT_OBJC_LOADERS})
+               set( NO_INHERIT_OBJC_LOADERS ON)
+               #
+               include( "${_TMP_XRANDR_DIR}/DependenciesAndLibraries.cmake")
+               #
+               list( GET _TMP_INHERIT_OBJC_LOADERS -1 NO_INHERIT_OBJC_LOADERS)
+               list( REMOVE_AT _TMP_INHERIT_OBJC_LOADERS -1)
+               #
+               list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_XRANDR_DIR}")
+               set( INHERITED_DEFINITIONS
+                  ${INHERITED_DEFINITIONS}
+                  ${XRANDR_DEFINITIONS}
+                  CACHE INTERNAL "need to cache this"
+               )
+               break()
+            else()
+               message( STATUS "${_TMP_XRANDR_DIR}/DependenciesAndLibraries.cmake not found")
             endif()
-            list( APPEND _TMP_INHERIT_OBJC_LOADERS ${NO_INHERIT_OBJC_LOADERS})
-            set( NO_INHERIT_OBJC_LOADERS ON)
-            #
-            include( "${_TMP_XRANDR_DIR}/DependenciesAndLibraries.cmake")
-            #
-            list( GET _TMP_INHERIT_OBJC_LOADERS -1 NO_INHERIT_OBJC_LOADERS)
-            list( REMOVE_AT _TMP_INHERIT_OBJC_LOADERS -1)
-            #
-            list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_XRANDR_DIR}")
-            set( INHERITED_DEFINITIONS
-               ${INHERITED_DEFINITIONS}
-               ${XRANDR_DEFINITIONS}
-               CACHE INTERNAL "need to cache this"
-            )
-            break()
-         else()
-            message( STATUS "${_TMP_XRANDR_DIR}/DependenciesAndLibraries.cmake not found")
-         endif()
-      endforeach()
-   else()
-      message( FATAL_ERROR "XRANDR_LIBRARY was not found")
+         endforeach()
+      else()
+         message( FATAL_ERROR "XRANDR_LIBRARY was not found")
+      endif()
    endif()
 endif()
 
 
 #
-# Generated from sourcetree: Xxf86vm;no-all-load,no-header,no-import;
+# Generated from sourcetree: Xxf86vm;no-all-load,no-header,no-import,no-os-darwin;
 # Disable with: `mulle-sourcetree mark Xxf86vm no-link`
 #
-if( NOT XXF86VM_LIBRARY)
-   find_library( XXF86VM_LIBRARY NAMES Xxf86vm)
-   message( STATUS "XXF86VM_LIBRARY is ${XXF86VM_LIBRARY}")
-   #
-   # The order looks ascending, but due to the way this file is read
-   # it ends up being descending, which is what we need.
-   #
-   if( XXF86VM_LIBRARY)
+if( NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+   if( NOT XXF86VM_LIBRARY)
+      find_library( XXF86VM_LIBRARY NAMES Xxf86vm)
+      message( STATUS "XXF86VM_LIBRARY is ${XXF86VM_LIBRARY}")
       #
-      # Add to XXF86VM_LIBRARY list.
-      # Disable with: `mulle-sourcetree mark Xxf86vm no-cmakeadd`
+      # The order looks ascending, but due to the way this file is read
+      # it ends up being descending, which is what we need.
       #
-      set( OS_SPECIFIC_LIBRARIES
-         ${OS_SPECIFIC_LIBRARIES}
-         ${XXF86VM_LIBRARY}
-         CACHE INTERNAL "need to cache this"
-      )
-      #
-      # Inherit ObjC loader and link dependency info.
-      # Disable with: `mulle-sourcetree mark Xxf86vm no-cmakeinherit`
-      #
-      # // temporarily expand CMAKE_MODULE_PATH
-      get_filename_component( _TMP_XXF86VM_ROOT "${XXF86VM_LIBRARY}" DIRECTORY)
-      get_filename_component( _TMP_XXF86VM_ROOT "${_TMP_XXF86VM_ROOT}" DIRECTORY)
-      #
-      #
-      # Search for "DependenciesAndLibraries.cmake" to include.
-      # Disable with: `mulle-sourcetree mark Xxf86vm no-cmakedependency`
-      #
-      foreach( _TMP_XXF86VM_NAME "Xxf86vm")
-         set( _TMP_XXF86VM_DIR "${_TMP_XXF86VM_ROOT}/include/${_TMP_XXF86VM_NAME}/cmake")
-         # use explicit path to avoid "surprises"
-         if( EXISTS "${_TMP_XXF86VM_DIR}/DependenciesAndLibraries.cmake")
-            unset( XXF86VM_DEFINITIONS)
-            list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_XXF86VM_DIR}")
-            # we only want top level INHERIT_OBJC_LOADERS, so disable them
-            if( NOT NO_INHERIT_OBJC_LOADERS)
-               set( NO_INHERIT_OBJC_LOADERS OFF)
+      if( XXF86VM_LIBRARY)
+         #
+         # Add to XXF86VM_LIBRARY list.
+         # Disable with: `mulle-sourcetree mark Xxf86vm no-cmakeadd`
+         #
+         set( OS_SPECIFIC_LIBRARIES
+            ${OS_SPECIFIC_LIBRARIES}
+            ${XXF86VM_LIBRARY}
+            CACHE INTERNAL "need to cache this"
+         )
+         #
+         # Inherit ObjC loader and link dependency info.
+         # Disable with: `mulle-sourcetree mark Xxf86vm no-cmakeinherit`
+         #
+         # // temporarily expand CMAKE_MODULE_PATH
+         get_filename_component( _TMP_XXF86VM_ROOT "${XXF86VM_LIBRARY}" DIRECTORY)
+         get_filename_component( _TMP_XXF86VM_ROOT "${_TMP_XXF86VM_ROOT}" DIRECTORY)
+         #
+         #
+         # Search for "DependenciesAndLibraries.cmake" to include.
+         # Disable with: `mulle-sourcetree mark Xxf86vm no-cmakedependency`
+         #
+         foreach( _TMP_XXF86VM_NAME "Xxf86vm")
+            set( _TMP_XXF86VM_DIR "${_TMP_XXF86VM_ROOT}/include/${_TMP_XXF86VM_NAME}/cmake")
+            # use explicit path to avoid "surprises"
+            if( EXISTS "${_TMP_XXF86VM_DIR}/DependenciesAndLibraries.cmake")
+               unset( XXF86VM_DEFINITIONS)
+               list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_XXF86VM_DIR}")
+               # we only want top level INHERIT_OBJC_LOADERS, so disable them
+               if( NOT NO_INHERIT_OBJC_LOADERS)
+                  set( NO_INHERIT_OBJC_LOADERS OFF)
+               endif()
+               list( APPEND _TMP_INHERIT_OBJC_LOADERS ${NO_INHERIT_OBJC_LOADERS})
+               set( NO_INHERIT_OBJC_LOADERS ON)
+               #
+               include( "${_TMP_XXF86VM_DIR}/DependenciesAndLibraries.cmake")
+               #
+               list( GET _TMP_INHERIT_OBJC_LOADERS -1 NO_INHERIT_OBJC_LOADERS)
+               list( REMOVE_AT _TMP_INHERIT_OBJC_LOADERS -1)
+               #
+               list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_XXF86VM_DIR}")
+               set( INHERITED_DEFINITIONS
+                  ${INHERITED_DEFINITIONS}
+                  ${XXF86VM_DEFINITIONS}
+                  CACHE INTERNAL "need to cache this"
+               )
+               break()
+            else()
+               message( STATUS "${_TMP_XXF86VM_DIR}/DependenciesAndLibraries.cmake not found")
             endif()
-            list( APPEND _TMP_INHERIT_OBJC_LOADERS ${NO_INHERIT_OBJC_LOADERS})
-            set( NO_INHERIT_OBJC_LOADERS ON)
-            #
-            include( "${_TMP_XXF86VM_DIR}/DependenciesAndLibraries.cmake")
-            #
-            list( GET _TMP_INHERIT_OBJC_LOADERS -1 NO_INHERIT_OBJC_LOADERS)
-            list( REMOVE_AT _TMP_INHERIT_OBJC_LOADERS -1)
-            #
-            list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_XXF86VM_DIR}")
-            set( INHERITED_DEFINITIONS
-               ${INHERITED_DEFINITIONS}
-               ${XXF86VM_DEFINITIONS}
-               CACHE INTERNAL "need to cache this"
-            )
-            break()
-         else()
-            message( STATUS "${_TMP_XXF86VM_DIR}/DependenciesAndLibraries.cmake not found")
-         endif()
-      endforeach()
-   else()
-      message( FATAL_ERROR "XXF86VM_LIBRARY was not found")
+         endforeach()
+      else()
+         message( FATAL_ERROR "XXF86VM_LIBRARY was not found")
+      endif()
    endif()
 endif()
 
 
 #
-# Generated from sourcetree: Xinerama;no-all-load,no-header,no-import;
+# Generated from sourcetree: Xinerama;no-all-load,no-header,no-import,no-os-darwin;
 # Disable with: `mulle-sourcetree mark Xinerama no-link`
 #
-if( NOT XINERAMA_LIBRARY)
-   find_library( XINERAMA_LIBRARY NAMES Xinerama)
-   message( STATUS "XINERAMA_LIBRARY is ${XINERAMA_LIBRARY}")
-   #
-   # The order looks ascending, but due to the way this file is read
-   # it ends up being descending, which is what we need.
-   #
-   if( XINERAMA_LIBRARY)
+if( NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+   if( NOT XINERAMA_LIBRARY)
+      find_library( XINERAMA_LIBRARY NAMES Xinerama)
+      message( STATUS "XINERAMA_LIBRARY is ${XINERAMA_LIBRARY}")
       #
-      # Add to XINERAMA_LIBRARY list.
-      # Disable with: `mulle-sourcetree mark Xinerama no-cmakeadd`
+      # The order looks ascending, but due to the way this file is read
+      # it ends up being descending, which is what we need.
       #
-      set( OS_SPECIFIC_LIBRARIES
-         ${OS_SPECIFIC_LIBRARIES}
-         ${XINERAMA_LIBRARY}
-         CACHE INTERNAL "need to cache this"
-      )
-      #
-      # Inherit ObjC loader and link dependency info.
-      # Disable with: `mulle-sourcetree mark Xinerama no-cmakeinherit`
-      #
-      # // temporarily expand CMAKE_MODULE_PATH
-      get_filename_component( _TMP_XINERAMA_ROOT "${XINERAMA_LIBRARY}" DIRECTORY)
-      get_filename_component( _TMP_XINERAMA_ROOT "${_TMP_XINERAMA_ROOT}" DIRECTORY)
-      #
-      #
-      # Search for "DependenciesAndLibraries.cmake" to include.
-      # Disable with: `mulle-sourcetree mark Xinerama no-cmakedependency`
-      #
-      foreach( _TMP_XINERAMA_NAME "Xinerama")
-         set( _TMP_XINERAMA_DIR "${_TMP_XINERAMA_ROOT}/include/${_TMP_XINERAMA_NAME}/cmake")
-         # use explicit path to avoid "surprises"
-         if( EXISTS "${_TMP_XINERAMA_DIR}/DependenciesAndLibraries.cmake")
-            unset( XINERAMA_DEFINITIONS)
-            list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_XINERAMA_DIR}")
-            # we only want top level INHERIT_OBJC_LOADERS, so disable them
-            if( NOT NO_INHERIT_OBJC_LOADERS)
-               set( NO_INHERIT_OBJC_LOADERS OFF)
+      if( XINERAMA_LIBRARY)
+         #
+         # Add to XINERAMA_LIBRARY list.
+         # Disable with: `mulle-sourcetree mark Xinerama no-cmakeadd`
+         #
+         set( OS_SPECIFIC_LIBRARIES
+            ${OS_SPECIFIC_LIBRARIES}
+            ${XINERAMA_LIBRARY}
+            CACHE INTERNAL "need to cache this"
+         )
+         #
+         # Inherit ObjC loader and link dependency info.
+         # Disable with: `mulle-sourcetree mark Xinerama no-cmakeinherit`
+         #
+         # // temporarily expand CMAKE_MODULE_PATH
+         get_filename_component( _TMP_XINERAMA_ROOT "${XINERAMA_LIBRARY}" DIRECTORY)
+         get_filename_component( _TMP_XINERAMA_ROOT "${_TMP_XINERAMA_ROOT}" DIRECTORY)
+         #
+         #
+         # Search for "DependenciesAndLibraries.cmake" to include.
+         # Disable with: `mulle-sourcetree mark Xinerama no-cmakedependency`
+         #
+         foreach( _TMP_XINERAMA_NAME "Xinerama")
+            set( _TMP_XINERAMA_DIR "${_TMP_XINERAMA_ROOT}/include/${_TMP_XINERAMA_NAME}/cmake")
+            # use explicit path to avoid "surprises"
+            if( EXISTS "${_TMP_XINERAMA_DIR}/DependenciesAndLibraries.cmake")
+               unset( XINERAMA_DEFINITIONS)
+               list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_XINERAMA_DIR}")
+               # we only want top level INHERIT_OBJC_LOADERS, so disable them
+               if( NOT NO_INHERIT_OBJC_LOADERS)
+                  set( NO_INHERIT_OBJC_LOADERS OFF)
+               endif()
+               list( APPEND _TMP_INHERIT_OBJC_LOADERS ${NO_INHERIT_OBJC_LOADERS})
+               set( NO_INHERIT_OBJC_LOADERS ON)
+               #
+               include( "${_TMP_XINERAMA_DIR}/DependenciesAndLibraries.cmake")
+               #
+               list( GET _TMP_INHERIT_OBJC_LOADERS -1 NO_INHERIT_OBJC_LOADERS)
+               list( REMOVE_AT _TMP_INHERIT_OBJC_LOADERS -1)
+               #
+               list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_XINERAMA_DIR}")
+               set( INHERITED_DEFINITIONS
+                  ${INHERITED_DEFINITIONS}
+                  ${XINERAMA_DEFINITIONS}
+                  CACHE INTERNAL "need to cache this"
+               )
+               break()
+            else()
+               message( STATUS "${_TMP_XINERAMA_DIR}/DependenciesAndLibraries.cmake not found")
             endif()
-            list( APPEND _TMP_INHERIT_OBJC_LOADERS ${NO_INHERIT_OBJC_LOADERS})
-            set( NO_INHERIT_OBJC_LOADERS ON)
-            #
-            include( "${_TMP_XINERAMA_DIR}/DependenciesAndLibraries.cmake")
-            #
-            list( GET _TMP_INHERIT_OBJC_LOADERS -1 NO_INHERIT_OBJC_LOADERS)
-            list( REMOVE_AT _TMP_INHERIT_OBJC_LOADERS -1)
-            #
-            list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_XINERAMA_DIR}")
-            set( INHERITED_DEFINITIONS
-               ${INHERITED_DEFINITIONS}
-               ${XINERAMA_DEFINITIONS}
-               CACHE INTERNAL "need to cache this"
-            )
-            break()
-         else()
-            message( STATUS "${_TMP_XINERAMA_DIR}/DependenciesAndLibraries.cmake not found")
-         endif()
-      endforeach()
-   else()
-      message( FATAL_ERROR "XINERAMA_LIBRARY was not found")
+         endforeach()
+      else()
+         message( FATAL_ERROR "XINERAMA_LIBRARY was not found")
+      endif()
    endif()
 endif()
 
 
 #
-# Generated from sourcetree: Xcursor;no-all-load,no-header,no-import;
+# Generated from sourcetree: Xcursor;no-all-load,no-header,no-import,no-os-darwin;
 # Disable with: `mulle-sourcetree mark Xcursor no-link`
 #
-if( NOT XCURSOR_LIBRARY)
-   find_library( XCURSOR_LIBRARY NAMES Xcursor)
-   message( STATUS "XCURSOR_LIBRARY is ${XCURSOR_LIBRARY}")
-   #
-   # The order looks ascending, but due to the way this file is read
-   # it ends up being descending, which is what we need.
-   #
-   if( XCURSOR_LIBRARY)
+if( NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+   if( NOT XCURSOR_LIBRARY)
+      find_library( XCURSOR_LIBRARY NAMES Xcursor)
+      message( STATUS "XCURSOR_LIBRARY is ${XCURSOR_LIBRARY}")
       #
-      # Add to XCURSOR_LIBRARY list.
-      # Disable with: `mulle-sourcetree mark Xcursor no-cmakeadd`
+      # The order looks ascending, but due to the way this file is read
+      # it ends up being descending, which is what we need.
       #
-      set( OS_SPECIFIC_LIBRARIES
-         ${OS_SPECIFIC_LIBRARIES}
-         ${XCURSOR_LIBRARY}
-         CACHE INTERNAL "need to cache this"
-      )
-      #
-      # Inherit ObjC loader and link dependency info.
-      # Disable with: `mulle-sourcetree mark Xcursor no-cmakeinherit`
-      #
-      # // temporarily expand CMAKE_MODULE_PATH
-      get_filename_component( _TMP_XCURSOR_ROOT "${XCURSOR_LIBRARY}" DIRECTORY)
-      get_filename_component( _TMP_XCURSOR_ROOT "${_TMP_XCURSOR_ROOT}" DIRECTORY)
-      #
-      #
-      # Search for "DependenciesAndLibraries.cmake" to include.
-      # Disable with: `mulle-sourcetree mark Xcursor no-cmakedependency`
-      #
-      foreach( _TMP_XCURSOR_NAME "Xcursor")
-         set( _TMP_XCURSOR_DIR "${_TMP_XCURSOR_ROOT}/include/${_TMP_XCURSOR_NAME}/cmake")
-         # use explicit path to avoid "surprises"
-         if( EXISTS "${_TMP_XCURSOR_DIR}/DependenciesAndLibraries.cmake")
-            unset( XCURSOR_DEFINITIONS)
-            list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_XCURSOR_DIR}")
-            # we only want top level INHERIT_OBJC_LOADERS, so disable them
-            if( NOT NO_INHERIT_OBJC_LOADERS)
-               set( NO_INHERIT_OBJC_LOADERS OFF)
+      if( XCURSOR_LIBRARY)
+         #
+         # Add to XCURSOR_LIBRARY list.
+         # Disable with: `mulle-sourcetree mark Xcursor no-cmakeadd`
+         #
+         set( OS_SPECIFIC_LIBRARIES
+            ${OS_SPECIFIC_LIBRARIES}
+            ${XCURSOR_LIBRARY}
+            CACHE INTERNAL "need to cache this"
+         )
+         #
+         # Inherit ObjC loader and link dependency info.
+         # Disable with: `mulle-sourcetree mark Xcursor no-cmakeinherit`
+         #
+         # // temporarily expand CMAKE_MODULE_PATH
+         get_filename_component( _TMP_XCURSOR_ROOT "${XCURSOR_LIBRARY}" DIRECTORY)
+         get_filename_component( _TMP_XCURSOR_ROOT "${_TMP_XCURSOR_ROOT}" DIRECTORY)
+         #
+         #
+         # Search for "DependenciesAndLibraries.cmake" to include.
+         # Disable with: `mulle-sourcetree mark Xcursor no-cmakedependency`
+         #
+         foreach( _TMP_XCURSOR_NAME "Xcursor")
+            set( _TMP_XCURSOR_DIR "${_TMP_XCURSOR_ROOT}/include/${_TMP_XCURSOR_NAME}/cmake")
+            # use explicit path to avoid "surprises"
+            if( EXISTS "${_TMP_XCURSOR_DIR}/DependenciesAndLibraries.cmake")
+               unset( XCURSOR_DEFINITIONS)
+               list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_XCURSOR_DIR}")
+               # we only want top level INHERIT_OBJC_LOADERS, so disable them
+               if( NOT NO_INHERIT_OBJC_LOADERS)
+                  set( NO_INHERIT_OBJC_LOADERS OFF)
+               endif()
+               list( APPEND _TMP_INHERIT_OBJC_LOADERS ${NO_INHERIT_OBJC_LOADERS})
+               set( NO_INHERIT_OBJC_LOADERS ON)
+               #
+               include( "${_TMP_XCURSOR_DIR}/DependenciesAndLibraries.cmake")
+               #
+               list( GET _TMP_INHERIT_OBJC_LOADERS -1 NO_INHERIT_OBJC_LOADERS)
+               list( REMOVE_AT _TMP_INHERIT_OBJC_LOADERS -1)
+               #
+               list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_XCURSOR_DIR}")
+               set( INHERITED_DEFINITIONS
+                  ${INHERITED_DEFINITIONS}
+                  ${XCURSOR_DEFINITIONS}
+                  CACHE INTERNAL "need to cache this"
+               )
+               break()
+            else()
+               message( STATUS "${_TMP_XCURSOR_DIR}/DependenciesAndLibraries.cmake not found")
             endif()
-            list( APPEND _TMP_INHERIT_OBJC_LOADERS ${NO_INHERIT_OBJC_LOADERS})
-            set( NO_INHERIT_OBJC_LOADERS ON)
-            #
-            include( "${_TMP_XCURSOR_DIR}/DependenciesAndLibraries.cmake")
-            #
-            list( GET _TMP_INHERIT_OBJC_LOADERS -1 NO_INHERIT_OBJC_LOADERS)
-            list( REMOVE_AT _TMP_INHERIT_OBJC_LOADERS -1)
-            #
-            list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_XCURSOR_DIR}")
-            set( INHERITED_DEFINITIONS
-               ${INHERITED_DEFINITIONS}
-               ${XCURSOR_DEFINITIONS}
-               CACHE INTERNAL "need to cache this"
-            )
-            break()
-         else()
-            message( STATUS "${_TMP_XCURSOR_DIR}/DependenciesAndLibraries.cmake not found")
-         endif()
-      endforeach()
-   else()
-      message( FATAL_ERROR "XCURSOR_LIBRARY was not found")
+         endforeach()
+      else()
+         message( FATAL_ERROR "XCURSOR_LIBRARY was not found")
+      endif()
    endif()
 endif()
 
@@ -683,5 +697,117 @@ if( NOT M_LIBRARY)
       endforeach()
    else()
       message( FATAL_ERROR "M_LIBRARY was not found")
+   endif()
+endif()
+
+
+#
+# Generated from sourcetree: z;no-all-load,no-cmakeinherit,no-header,no-import,no-share;
+# Disable with: `mulle-sourcetree mark z no-link`
+#
+if( NOT Z_LIBRARY)
+   find_library( Z_LIBRARY NAMES z)
+   message( STATUS "Z_LIBRARY is ${Z_LIBRARY}")
+   #
+   # The order looks ascending, but due to the way this file is read
+   # it ends up being descending, which is what we need.
+   #
+   if( Z_LIBRARY)
+      #
+      # Add to Z_LIBRARY list.
+      # Disable with: `mulle-sourcetree mark z no-cmakeadd`
+      #
+      set( OS_SPECIFIC_LIBRARIES
+         ${OS_SPECIFIC_LIBRARIES}
+         ${Z_LIBRARY}
+         CACHE INTERNAL "need to cache this"
+      )
+      # intentionally left blank
+   else()
+      message( FATAL_ERROR "Z_LIBRARY was not found")
+   endif()
+endif()
+
+
+#
+# Generated from sourcetree: bz2;no-all-load,no-cmakeinherit,no-header,no-import,no-share;
+# Disable with: `mulle-sourcetree mark bz2 no-link`
+#
+if( NOT BZ2_LIBRARY)
+   find_library( BZ2_LIBRARY NAMES bz2)
+   message( STATUS "BZ2_LIBRARY is ${BZ2_LIBRARY}")
+   #
+   # The order looks ascending, but due to the way this file is read
+   # it ends up being descending, which is what we need.
+   #
+   if( BZ2_LIBRARY)
+      #
+      # Add to BZ2_LIBRARY list.
+      # Disable with: `mulle-sourcetree mark bz2 no-cmakeadd`
+      #
+      set( OS_SPECIFIC_LIBRARIES
+         ${OS_SPECIFIC_LIBRARIES}
+         ${BZ2_LIBRARY}
+         CACHE INTERNAL "need to cache this"
+      )
+      # intentionally left blank
+   else()
+      message( FATAL_ERROR "BZ2_LIBRARY was not found")
+   endif()
+endif()
+
+
+#
+# Generated from sourcetree: png;no-all-load,no-cmakeinherit,no-header,no-import,no-share;
+# Disable with: `mulle-sourcetree mark png no-link`
+#
+if( NOT PNG_LIBRARY)
+   find_library( PNG_LIBRARY NAMES png)
+   message( STATUS "PNG_LIBRARY is ${PNG_LIBRARY}")
+   #
+   # The order looks ascending, but due to the way this file is read
+   # it ends up being descending, which is what we need.
+   #
+   if( PNG_LIBRARY)
+      #
+      # Add to PNG_LIBRARY list.
+      # Disable with: `mulle-sourcetree mark png no-cmakeadd`
+      #
+      set( OS_SPECIFIC_LIBRARIES
+         ${OS_SPECIFIC_LIBRARIES}
+         ${PNG_LIBRARY}
+         CACHE INTERNAL "need to cache this"
+      )
+      # intentionally left blank
+   else()
+      message( FATAL_ERROR "PNG_LIBRARY was not found")
+   endif()
+endif()
+
+
+#
+# Generated from sourcetree: harfbuzz;no-all-load,no-cmakeinherit,no-header,no-import,no-share;
+# Disable with: `mulle-sourcetree mark harfbuzz no-link`
+#
+if( NOT HARFBUZZ_LIBRARY)
+   find_library( HARFBUZZ_LIBRARY NAMES harfbuzz)
+   message( STATUS "HARFBUZZ_LIBRARY is ${HARFBUZZ_LIBRARY}")
+   #
+   # The order looks ascending, but due to the way this file is read
+   # it ends up being descending, which is what we need.
+   #
+   if( HARFBUZZ_LIBRARY)
+      #
+      # Add to HARFBUZZ_LIBRARY list.
+      # Disable with: `mulle-sourcetree mark harfbuzz no-cmakeadd`
+      #
+      set( OS_SPECIFIC_LIBRARIES
+         ${OS_SPECIFIC_LIBRARIES}
+         ${HARFBUZZ_LIBRARY}
+         CACHE INTERNAL "need to cache this"
+      )
+      # intentionally left blank
+   else()
+      message( FATAL_ERROR "HARFBUZZ_LIBRARY was not found")
    endif()
 endif()

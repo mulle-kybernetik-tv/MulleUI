@@ -31,4 +31,10 @@
    [_yoga applyLayoutPreservingOrigin:NO];
 }
 
+
+- (void) setAutoresizingMask:(NSUInteger) mask
+{
+   // TODO:   
+}
+
 @end

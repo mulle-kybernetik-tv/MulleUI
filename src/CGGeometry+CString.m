@@ -1,8 +1,8 @@
 #import "CGGeometry+CString.h"
 
+#import "import-private.h"
+
 #include <stdio.h>
-#include <mulle-allocator/mulle-allocator.h>
-#include <MulleObjC/mulle-objc.h>
 
 
 char   *CGPointCStringDescription( CGPoint point)
@@ -20,12 +20,12 @@ char   *CGPointCStringDescription( CGPoint point)
       s = mulle_malloc( required + 1);
       sprintf( s, "%.2f %.2f",
             point.x,
-            point.y);      
+            point.y);
    }
    else
       s = mulle_strdup( buf);
-      
-   MulleObjCAutoreleaseAllocation( s);
+
+   MulleObjCAutoreleaseAllocation( s, NULL);
    return( s);
 }
 
@@ -49,7 +49,7 @@ char   *CGRectCStringDescription( CGRect rect)
             rect.origin.x,
             rect.origin.y,
             rect.size.width,
-            rect.size.height);      
+            rect.size.height);
    }
    else
       s = mulle_strdup( buf);

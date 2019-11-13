@@ -1,5 +1,7 @@
 #import "UIView.h"
 
+#import "UIEdgeInsets.h"
+
 
 /* 
  * a UIScrollView is a container for UIViews like a regular UIView
@@ -9,6 +11,11 @@
 @class UIScrollContentView;
 @class MulleScrollIndicatorView;
 
+
+@protocol UIScrollViewDelegate
+@end
+
+
 @interface UIScrollView : UIView
 {
 	UIScrollContentView       *_contentView;
@@ -16,10 +23,14 @@
 	MulleScrollIndicatorView  *_verIndicatorView;
 }
 
+@property UIEdgeInsets   contentInset;
+
+
 - (void) setContentOffset:(CGPoint) offset;
 - (CGPoint) contentOffset;
 - (void) setContentSize:(CGSize) offset;
 - (CGSize) contentSize;
+
 
 // add subviews to contentView not to UIScrollView
 - (UIScrollContentView *) contentView;  

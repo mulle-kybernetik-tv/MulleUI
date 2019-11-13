@@ -21,7 +21,7 @@
    Here the prefix is harmless and serves disambiguation. If you have no
    sourcetree, then you don't need it.
  */
-#include "_MulleGLExample-include.h"
+#include "_MulleUIKit-include.h"
 
 /* You can add some more include statements here */
 

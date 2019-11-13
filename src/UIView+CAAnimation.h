@@ -18,6 +18,8 @@ enum UIViewAnimationCurve
 // Possible solution: Have [UIWindow window] in a thread local variable
 // and forward all these UIView calls there
 //
+// TODO: outsource this into CATransaction ?
+//
 @interface UIView ( CAAnimation)
 
 + (void) beginAnimations:(char *) animationID 

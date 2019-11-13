@@ -584,6 +584,9 @@ struct mulle_quadtree   *mulle_quadtree_create( CGRect world_rect,
 
 void   mulle_quadtree_free( struct mulle_quadtree* tree) 
 {  
+   if( ! tree)
+      return;
+
    mulle_allocator_free( tree->allocator, tree);
 }
 
@@ -594,6 +597,9 @@ void   mulle_quadtree_done( struct mulle_quadtree  *tree)
    struct _mulle_quadtree_node   *n_next;
    struct _mulle_quadtree_data   *d;
    struct _mulle_quadtree_data   *d_next;
+
+   if( ! tree)
+      return;
 
    _mulle_quadtree_deepdestroy_node( tree, tree->root_node);
 
@@ -617,6 +623,9 @@ void   mulle_quadtree_done( struct mulle_quadtree  *tree)
 void   mulle_quadtree_reset( struct mulle_quadtree  *tree, 
                              CGRect world_rect) 
 {
+   if( ! tree)
+      return;
+
    _mulle_quadtree_deeprecycle_node( tree, tree->root_node);
    tree->root_node = _mulle_quadtree_create_node( tree, world_rect, 0);
 }
@@ -632,6 +641,9 @@ int   mulle_quadtree_insert( struct mulle_quadtree *tree,
                              CGRect rect, 
                              void *payload) 
 {
+   if( ! tree)
+      return( -1);
+
    return( _mulle_quadtree_node_insert( tree, tree->root_node, rect, payload));
 }
 
@@ -639,33 +651,45 @@ unsigned int   mulle_quadtree_remove_payload( struct mulle_quadtree* tree,
                                               CGRect rect, 
                                               void *payload) 
 {
+   if( ! tree)
+      return( 0);
+
     return _mulle_quadtree_node_remove_payload(tree->root_node, rect, payload, tree);
 }
 
 
 unsigned int   mulle_quadtree_change_payload( struct mulle_quadtree* tree, 
-                                            CGRect rect, 
-                                            void *payload,
-                                            void *newpayload) 
+                                              CGRect rect, 
+                                              void *payload,
+                                              void *newpayload) 
 {
-    return _mulle_quadtree_node_change_payload( tree->root_node, rect, payload, newpayload);
+   if( ! tree)
+      return( 0);
+    
+   return _mulle_quadtree_node_change_payload( tree->root_node, rect, payload, newpayload);
 }
 
 
 unsigned int   mulle_quadtree_find_point( struct mulle_quadtree *tree, 
-                                        CGPoint p,
-                                        mulle_quadtree_callback callback, 
-                                        void *context) 
+                                          CGPoint p,
+                                          mulle_quadtree_callback callback, 
+                                          void *context) 
 {
+   if( ! tree)
+      return( 0);
+
    return _mulle_quadtree_node_find_point( tree->root_node, p, callback, context);
 }
 
 
 unsigned int   mulle_quadtree_find_intersecting_rect( struct mulle_quadtree *tree, 
-                                                    CGRect r,
-                                                    mulle_quadtree_callback callback, 
-                                                    void *context) 
+                                                      CGRect r,
+                                                      mulle_quadtree_callback callback, 
+                                                      void *context) 
 {
+   if( ! tree)
+      return( 0);
+
     return _mulle_quadtree_node_find_intersecting_rect( tree->root_node, r, callback, context);
 }
 
@@ -674,11 +698,15 @@ unsigned int   mulle_quadtree_walk( struct mulle_quadtree *tree,
                                   mulle_quadtree_callback callback, 
                                   void *context) 
 {
+   if( ! tree || ! callback)
+      return( 0);
    return _mulle_quadtree_node_walk( tree->root_node, callback, context);
 }
 
 
 void   mulle_quadtree_dump( struct mulle_quadtree *tree, FILE *fp) 
 {
+   if( ! tree || !fp)
+      return;
    _mulle_quadtree_node_dump( tree->root_node, fp, 0, 0);
 }
