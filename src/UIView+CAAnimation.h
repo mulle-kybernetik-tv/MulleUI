@@ -10,6 +10,8 @@ enum UIViewAnimationCurve
    UIViewAnimationCurveLinear
 };
 
+
+
 //
 // Doing it like this is kinda bad, because different windows could have
 // different threads but they couldn't create animations at the same time
@@ -29,10 +31,9 @@ enum UIViewAnimationCurve
 + (BOOL) areAnimationsEnabled;
 + (void) addAnimatedLayer:(CALayer *) layer;
 
-// not supported
-//+ (void) setAnimationDelegate:(id) delegate;
-//+ (void) setAnimationWillStartSelector:(SEL) selector;
-//+ (void) setAnimationDidStopSelector:(SEL) selector;
++ (void) setAnimationDelegate:(id) delegate;
++ (void) setAnimationWillStartSelector:(SEL) selector;
++ (void) setAnimationDidStopSelector:(SEL) selector;
 
 + (NSUInteger) animationCurve;
 + (void) setAnimationCurve:(NSUInteger) curve;
@@ -56,5 +57,3 @@ enum UIViewAnimationCurve
 + (float) animationRepeatCount;
 
 @end
-
-

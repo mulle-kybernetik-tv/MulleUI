@@ -108,6 +108,27 @@ struct CAAnimationOptions
 
 @class CALayer;
 
+// All animations in one UIView beginAnimations:context: have the
+// same duration and start and repeatCount
+
+@interface MulleAnimationDelegate : NSObject
+
+@property( assign) id     delegate;
+@property( assign) SEL    animationWillStartSelector;
+@property( assign) SEL    animationDidStopSelector;
+@property( assign) void   *context;
+@property( assign) char   *identifier; 
+
+@property( assign) NSUInteger  started; 
+@property( assign) NSUInteger  ended; 
+
+- (void) willStart;
+- (void) didPreempt;
+- (void) didEnd;
+
+@end
+
+
 
 //
 // TODO: interpolating RGB is easy, but not necessarily very nice looking.
@@ -129,7 +150,11 @@ struct CAAnimationOptions
    struct CAAbsoluteTimeRange   _absolute;   
    CGFloat                      _repeatCount; // original state will be lost 
    NSUInteger                   _bits;        // options and more
+   NSUInteger                   _frames;
 }
+
+//@property( retain) CAAnimationGroup        *animationGroup;
+@property( retain) MulleAnimationDelegate  *animationDelegate;
 
 
 - (id) initWithPropertySetter:(SEL) propertySetter

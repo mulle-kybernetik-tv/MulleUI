@@ -346,7 +346,7 @@ static CGFloat YGSanitizeMeasurement(
   return result;
 }
 
-static BOOL YGNodeHasExactSameChildren(const YGNodeRef node, id <NSArray> subviews)
+static BOOL YGNodeHasExactSameChildren(const YGNodeRef node, NSArray * subviews)
 {
   NSUInteger   i;
 
@@ -378,14 +378,14 @@ static void YGAttachNodesFromViewHierachy(UIView *const view)
   } else {
     YGNodeSetMeasureFunc(node, NULL);
 
-    id <NSMutableArray> subviewsToInclude = [[MulleMutableObjectArray new] autorelease];
+    MulleMutableObjectArray * subviewsToInclude = [[MulleMutableObjectArray new] autorelease];
     for (UIView *subview in [view subviews]) {
       if( [[subview yoga] isIncludedInLayout]) {
         [subviewsToInclude addObject:subview];
       }
     }
 
-    if (!YGNodeHasExactSameChildren(node, subviewsToInclude)) {
+    if (!YGNodeHasExactSameChildren(node, (NSArray *) subviewsToInclude)) {
       YGRemoveAllChildren(node);
        i = 0;
        for (UIView *const subview in subviewsToInclude) {

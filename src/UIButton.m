@@ -5,31 +5,16 @@
 #import "UIView+UIResponder.h"
 
 
+// implemented by UIResponder protocol class, but mulle-clang can't figure
+// it out (yet)
+@interface UIView( ProtocolClass)
+
+- (void) toggleState;
+
+@end
+
+
 @implementation UIButton
-
-- (BOOL) becomeFirstResponder
-{
-   if( [super becomeFirstResponder])
-   {
-      fprintf( stderr, "become\n");
-      [self toggleState];
-      return( YES);
-   }
-   return( NO);
-}
-
-
-- (BOOL) resignFirstResponder
-{
-   if( [super resignFirstResponder])
-   {
-      fprintf( stderr, "resign\n");
-      [self toggleState];
-      return( YES);
-   }
-   return( NO);
-}
-
 
 // use compatible code
 - (void) toggleState
@@ -56,6 +41,29 @@
 		image = [self backgroundImageForState:state];
 	}
 	[self setBackgroundImage:image];
+}
+
+- (BOOL) becomeFirstResponder
+{
+   if( [super becomeFirstResponder])
+   {
+      fprintf( stderr, "become\n");
+      [self toggleState];
+      return( YES);
+   }
+   return( NO);
+}
+
+
+- (BOOL) resignFirstResponder
+{
+   if( [super resignFirstResponder])
+   {
+      fprintf( stderr, "resign\n");
+      [self toggleState];
+      return( YES);
+   }
+   return( NO);
 }
 
 

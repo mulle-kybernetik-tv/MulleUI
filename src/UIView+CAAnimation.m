@@ -80,8 +80,11 @@ static inline void   SelfUnlock()
       // reset everything to default values or ?
       Self._animationDelay              = 0.0;
       Self._animationDuration           = 2.0;
-      Self._animationReverses = 0.0;
+      Self._animationReverses           = 0.0;
       Self._animationRepeatCount        = 0.0;
+      Self._delegate                    = nil;
+      Self._animationWillStartSelector  = 0;
+      Self._animationDidStopSelector    = 0;
    }
    SelfUnlock();
 }                 
@@ -93,7 +96,11 @@ static inline void   SelfUnlock()
    struct mulle_pointerarray             tmp;
    struct mulle_pointerarrayenumerator   rover;
    void                                  *context;
- 
+   id                                    delegate;
+   SEL                                   willStart;
+   SEL                                   didEnd;
+   MulleAnimationDelegate                *animationDelegate;
+   
    assert( _mulle_atomic_pointer_read( &Self._animationState) == (void *) (intptr_t) UIViewAnimationStarted);
 
    SelfLock();
@@ -107,13 +114,33 @@ static inline void   SelfUnlock()
       Self._animationID = NULL;
       context           = Self._context;
       context           = NULL;
+
+      delegate  = Self._delegate;
+      Self._delegate = nil;
+      willStart = Self._animationWillStartSelector;
+      Self._animationWillStartSelector = 0;
+      didEnd    = Self._animationDidStopSelector;
+      Self._animationDidStopSelector = 0;
    }
    SelfUnlock();
 
+   animationDelegate = nil;
+   if( delegate)
+   {
+      animationDelegate = [[MulleAnimationDelegate new] autorelease];
+      [animationDelegate setIdentifier:animationID];
+      [animationDelegate setContext:context];
+      [animationDelegate setDelegate:delegate];
+      [animationDelegate setAnimationWillStartSelector:willStart];
+      [animationDelegate setAnimationDidStopSelector:didEnd];
+   }
+
    rover = mulle_pointerarray_enumerate_nil( &tmp);
-   while( layer = mulle_pointerarrayenumerator_next( &rover))
+   while( (layer = mulle_pointerarrayenumerator_next( &rover)))
+   {
       [layer commitImplicitAnimationsWithAnimationID:animationID
-                                             context:context];
+                                   animationDelegate:animationDelegate];
+   }
    mulle_pointerarrayenumerator_done( &rover);
 
    mulle_free( animationID);
@@ -157,6 +184,78 @@ static inline void   SelfUnlock()
 }
 
 /* "properties" */
+
+
++ (id) animationDelegate
+{
+   id   value;
+
+   SelfLock();
+   {
+      value = Self._delegate;
+   }
+   SelfUnlock();   
+   return( value);
+}
+
++ (SEL) animationDidStopSelector
+{
+   SEL   value;
+
+   SelfLock();
+   {
+      value = Self._animationDidStopSelector;
+   }
+   SelfUnlock();   
+   return( value);
+}
+
++ (SEL) animationWillStartSelector
+{
+   SEL   value;
+
+   SelfLock();
+   {
+      value = Self._animationWillStartSelector;
+   }
+   SelfUnlock();   
+   return( value);
+}
+
+
++ (void) setAnimationDelegate:(id) value
+{
+   SelfLock();
+   {
+      Self._delegate = value;
+   }
+   SelfUnlock();   
+}
+
+
++ (void) setAnimationDidStopSelector:(SEL) value
+{
+   SelfLock();
+   {
+      Self._animationDidStopSelector = value;
+   }
+   SelfUnlock();   
+}
+
+
++ (void) setAnimationWillStartSelector:(SEL) value
+{
+   SelfLock();
+   {
+      Self._animationWillStartSelector = value;
+   }
+   SelfUnlock();   
+}
+
+
+
+//
+
 
 + (CARelativeTime) animationDelay
 {
@@ -295,34 +394,4 @@ static inline void   SelfUnlock()
    SelfUnlock();   
 }
 
-
-
-+ (void) setAnimationDelegate:(id) delegate
-{
-   SelfLock();
-   {
-      Self._delegate = delegate;
-   }
-   SelfUnlock();  
-}
-
-
-+ (void) setAnimationWillStartSelector:(SEL) selector
-{
-   SelfLock();
-   {
-      Self._animationWillStartSelector = selector;
-   }
-   SelfUnlock();  
-}
-
-
-+ (void) setAnimationDidStopSelector:(SEL) selector
-{
-   SelfLock();
-   {
-      Self._animationDidStopSelector = selector;
-   }
-   SelfUnlock();  
-}
 @end

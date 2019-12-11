@@ -4,7 +4,6 @@
 
 @interface UILabel : UIView
 
-- (void) setCString:(char *) s;
 
 // points
 - (CGFloat) fontSize;
@@ -14,6 +13,7 @@
 
 @interface UILabel( Forwarding)
 
+- (void) setCString:(char *) s;
 - (char *) cString;
 - (char *) fontName;
 - (void) setFontName:(char *) s;

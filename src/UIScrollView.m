@@ -2,6 +2,8 @@
 
 #import "CGGeometry+CString.h"
 #import "UIView+UIEvent.h"
+#import "UIView+CGGeometry.h"
+#import "UIView+Yoga.h"
 #import "UIEvent.h"
 #import "UIEdgeInsets.h"
 #import "MulleScrollIndicatorView.h"
@@ -100,6 +102,11 @@
 }
 
 
+- (BOOL) isDragging
+{
+   return( NO);
+}
+
 //
 // event handling
 // In category ?
@@ -138,7 +145,7 @@
 	if( view == _horIndicatorView)
 	{
       translated = [self translatedPoint:point];
-      offset     = [view contentOffsetAtPoint:translated];
+      offset     = [_horIndicatorView contentOffsetAtPoint:translated];
       [self setContentOffset:offset];
 		return( nil);
 	}
@@ -146,7 +153,7 @@
 	if( view == _verIndicatorView)
 	{
       translated = [self translatedPoint:point];
-      offset     = [view contentOffsetAtPoint:translated];
+      offset     = [_verIndicatorView contentOffsetAtPoint:translated];
       [self setContentOffset:offset];
 		return( nil);
 	}
@@ -232,6 +239,12 @@
                   CGRectCStringDescription( verFrame));
 #endif
 	[_verIndicatorView setFrame:verFrame];
+}
+
+
+- (void) scrollRectToVisible:(CGRect) rect 
+                    animated:(BOOL) animated
+{
 }
 
 @end

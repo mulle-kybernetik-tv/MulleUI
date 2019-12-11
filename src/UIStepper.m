@@ -49,19 +49,6 @@
       _value = value;
 }
 
-
-//
-// works as long as the return value is no struct or double
-//
-- (void *) forward:(void *) param
-{
-   MulleStepperLayer  *layer;
-
-   layer = (MulleStepperLayer *) _mainLayer;
-   return( MulleObjCPerformSelector( layer, _cmd, param));
-}
-
-
 - (void) setValueFromEvent:(UIEvent *) event
 {
    [self setValue:0.0];

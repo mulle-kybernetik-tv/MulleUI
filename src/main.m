@@ -43,6 +43,13 @@ static char   svginput[] = \
 #endif
 
 
+@interface UIWindow( Debug)
+
+- (void) dump;
+
+@end
+
+
 static UIEvent   *button_callback( UIButton *button, UIEvent *event)
 {
    fprintf( stderr, "button_callback: %s\n", [button cStringDescription]);

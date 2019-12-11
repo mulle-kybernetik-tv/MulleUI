@@ -13,8 +13,4 @@
 @property( assign, setter=setContinuous:) BOOL   isContinuous;
 @property( assign, setter=setMomentary:)  BOOL   isMomentary;
 
-
-- (void) setBackgroundColor:(CGColorRef) color;
-- (CGColorRef) backgroundColor;
-
 @end

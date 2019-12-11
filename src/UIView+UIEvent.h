@@ -15,8 +15,10 @@
 - (UIEvent *) handleEvent:(UIEvent *) event
                atPosition:(CGPoint) position;
 
-// translate from paren bounds to self bounds
-- (CGPoint) translatedPoint:(CGPoint) point;
+// TODO: rename or hide or whatever
+- (UIEvent *) _handleEvent:(UIEvent *) event;
+
+- (UIView *) subviewAtPoint:(CGPoint) point;
 
 @end
 

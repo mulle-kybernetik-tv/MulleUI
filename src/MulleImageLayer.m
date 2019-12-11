@@ -6,6 +6,8 @@
 
 @implementation UIImage( MulleImageLayer)
 
+#pragma clang diagnostic ignored "-Wobjc-protocol-method-implementation"
+
 - (Class) preferredLayerClass
 {
 	return( [MulleImageLayer class]);

@@ -12,8 +12,4 @@
 
 @property( assign, setter=setContinuous:) BOOL   isContinuous;
 
-- (void) setBackgroundColor:(CGColorRef) color;
-- (CGColorRef) backgroundColor;
-
-
 @end

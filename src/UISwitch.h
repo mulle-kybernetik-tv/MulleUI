@@ -10,16 +10,19 @@
    UIControlIvars;
 }
 
+@end
+
+
+@interface UISwitch( CACheckBoxLayerForwarding)
+
+- (void) setTextColor:(CGColorRef)color;
+- (CGColorRef) textColor;
+
 - (char *)cString;
 - (void)setCString:(char *)s;
 - (char *) fontName;
 - (void) setFontName:(char *)s;
 - (CGFloat) fontPixelSize;
 - (void) setFontPixelSize:(CGFloat)s;
-
-- (void) setBackgroundColor:(CGColorRef)color;
-- (CGColorRef) backgroundColor;
-- (void) setTextColor:(CGColorRef)color;
-- (CGColorRef) textColor;
 
 @end

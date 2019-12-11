@@ -39,11 +39,6 @@ typedef struct mulle_bitmap_size
 } mulle_bitmap_size;
 
 
-typedef struct {
-    CGFloat dx;
-    CGFloat dy;
-} CGVector;
-
 typedef enum 
 { 
    CGRectMinXEdge, 

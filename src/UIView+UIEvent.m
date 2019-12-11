@@ -2,8 +2,20 @@
 
 #import "UIWindow.h"
 #import "UIWindow+UIResponder.h"
+#import "UIResponder.h"
+#import "UIView+CGGeometry.h"
 #import "CALayer.h"  // for _NVGtransform
 #import "CGGeometry+CString.h"
+
+@interface UIResponder
+@end 
+
+
+@interface UIResponder( PrivateFuture)
+
+- (UIEvent *) _handleEvent:(UIEvent *) event;
+
+@end
 
 
 //#define HITTEST_DEBUG
@@ -140,7 +152,7 @@
    // https://developer.apple.com/documentation/appkit/nsscrollview/1403494-scrollwheel?language=objc
    //
    if( event && [self respondsToSelector:@selector( scrollWheel:)])
-      event = [self scrollWheel:event];
+      event = (UIMouseScrollEvent *) [self scrollWheel:event];
 
    return( event);
 }
@@ -191,7 +203,7 @@
    UIView                                *view;
 
    rover = mulle_pointerarray_reverseenumerate_nil( _subviews);
-   while( view = mulle_pointerarrayenumerator_next( &rover))
+   while( (view = mulle_pointerarrayenumerator_next( &rover)))
       if( CGRectContainsPoint( [view frame], point))
          break;
    mulle_pointerarrayenumerator_done( &rover);
@@ -231,6 +243,8 @@
    struct mulle_pointerarrayenumerator   rover;
    UIView                                *view;
 
+   if( [self isUserInteractionEnabled] == NO || [self isHidden] || [self alpha] < 0.01)
+      return( event);
    // from UIView+CGGeometry
    translated = [self translatedPoint:position];
 
@@ -246,7 +260,7 @@
    if( _subviews)
    {
       rover = mulle_pointerarray_reverseenumerate( _subviews);
-      while( view = mulle_pointerarrayenumerator_next( &rover))
+      while( (view = mulle_pointerarrayenumerator_next( &rover)))
       {
          event = [view handleEvent:event
                         atPosition:translated];
@@ -266,7 +280,7 @@
 }
 
 
-- (UIEvent *) responder:(id<UIResponder>) responder
+- (UIEvent *) responder:(id <UIResponder>) responder
             handleEvent:(UIEvent *) event
 {
    // fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [responder cStringDescription]);
@@ -274,7 +288,8 @@
    do
    {
       // TODO: translate positions
-      event = [responder _handleEvent:event];
+      //       UIViewController could also be the responde here
+      event = [(UIView *) responder _handleEvent:event];
       if( ! event)
          break;
       responder = [responder nextResponder];

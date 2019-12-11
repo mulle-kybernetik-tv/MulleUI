@@ -117,6 +117,7 @@ struct NVGcontext;
 
 @class CGFont;
 @class UIImage;
+@class MulleTextureImage;
 
 
 struct MulleNVGPerformance
@@ -161,6 +162,8 @@ struct MulleFrameInfo
    BOOL                         _isRendering;
 }
 
+@property CGFloat    alpha;
+
 - (struct NVGcontext *) nvgContext;
 
 - (void) startRenderWithFrameInfo:(struct MulleFrameInfo *) info;
@@ -174,13 +177,18 @@ struct MulleFrameInfo
 - (void) getCurrentFrameInfo:(struct MulleFrameInfo *) info; 
 - (struct MulleFrameInfo *) currentFrameInfo;
 
-- (UIImage *) textureImageWithSize:(CGSize) size 
-                           options:(NSUInteger) options;
+- (MulleTextureImage *) textureImageWithSize:(CGSize) size 
+                                     options:(NSUInteger) options;
 - (void) removeTextureImage:(UIImage *) image; 
 
 @end
 
 typedef CGContext   *CGContextRef;
+
+static inline void   CGContextSetAlpha( CGContextRef self, CGFloat alpha)
+{
+   [self setAlpha:alpha];
+}
 
 
 #if 0

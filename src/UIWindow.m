@@ -315,6 +315,17 @@ static void   framebufferResizeCallback( GLFWwindow* window, int width, int heig
    return( self);
 }
 
+- (void) setAlpha:(CGFloat) value 
+{
+   assert( 0 && "don't set alpha on window");
+}
+
+- (CGFloat) alpha 
+{
+   return( 1.0);
+}
+
+
 - (void) finalize
 {
    // TODO: delete window ?
@@ -437,6 +448,9 @@ static void   error_callback(int code, const char* description)
          [context startRenderWithFrameInfo:&info];
          [self renderWithContext:context];
          [context endRender];
+
+         if( _drawWindowCallback)
+            (*_drawWindowCallback)( self, &info);
 
 #ifdef PRINTF_PROFILE_RENDER
          clock_gettime( CLOCK_REALTIME, &end);
@@ -677,7 +691,7 @@ static void   error_callback(int code, const char* description)
    mulle_quadtree_reset( _quadtree, bounds);
 
    rover = mulle_pointerarray_enumerate_nil( &_trackingViews);
-   while( view = mulle_pointerarrayenumerator_next( &rover))
+   while( (view = mulle_pointerarrayenumerator_next( &rover)))
       [self addTrackingAreasOfView:view];
    mulle_pointerarrayenumerator_done( &rover);
 }
@@ -714,7 +728,7 @@ static void   collect_hit_views( CGRect rect, void *payload, void *userinfo)
       // without tracking areas (...). But we only handle these events if
       // a button is pressed. We don't send mouseMoved: then though (useful ?)
       //
-      isDrag = [event buttonStates] != 0;
+      isDrag = [(UIMouseMotionEvent *) event buttonStates] != 0;
       n      = mulle_quadtree_find_point( _quadtree, 
                                           point,
                                           collect_hit_views, 
@@ -732,7 +746,7 @@ static void   collect_hit_views( CGRect rect, void *payload, void *userinfo)
          mulle_pointerarray_init( &remaining, 16, 0, mulle_pointerarray_get_allocator( &_enteredViews));
         
          rover = mulle_pointerarray_enumerate_nil( &_enteredViews);
-         while( view = mulle_pointerarrayenumerator_next( &rover))
+         while( (view = mulle_pointerarrayenumerator_next( &rover)))
          {
             if( mulle_pointerarray_find( &views, view) == -1)
             {
@@ -751,7 +765,7 @@ static void   collect_hit_views( CGRect rect, void *payload, void *userinfo)
          // remaining are now the remaining active enteredViews
 
          rover = mulle_pointerarray_enumerate_nil( &views);
-         while( view = mulle_pointerarrayenumerator_next( &rover))
+         while( (view = mulle_pointerarrayenumerator_next( &rover)))
          {
             if( mulle_pointerarray_find( &remaining, view) == -1)
             {

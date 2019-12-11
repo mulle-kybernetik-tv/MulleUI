@@ -16,13 +16,6 @@
    return( [MulleScrollIndicatorLayer class]);
 }
 
-
-- (void *) forward:(void *) param
-{
-   return( mulle_objc_object_call( _mainLayer, _cmd, param));
-}
-
-
 @end
 
 

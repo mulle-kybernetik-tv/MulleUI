@@ -15,17 +15,6 @@
 }
 
 
-//
-// works as long as the return value is no struct or double
-//
-- (void *) forward:(void *) param
-{
-   MulleSliderLayer  *layer;
-
-   layer = (MulleSliderLayer *) _mainLayer;
-   return( MulleObjCPerformSelector( layer, _cmd, param));
-}
-
 - (void) setValueFromEvent:(UIEvent *) event
 {
    CGPoint  point;

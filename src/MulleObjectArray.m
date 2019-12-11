@@ -7,6 +7,24 @@
 }
 @end
 
+@implementation MulleObjectArrayEnumerator
+
+- (instancetype) initWithPointerarray:(struct mulle_pointerarray *) p
+{
+   assert( p);
+
+   _rover = mulle_pointerarray_enumerate( p);
+   return( self);
+}
+
+
+- (id) nextObject
+{
+   return(  mulle_pointerarrayenumerator_next( &_rover));
+}
+
+@end
+
 
 @implementation MulleObjectArray 
 
@@ -22,7 +40,7 @@
 
 - (instancetype) init
 {
-   self->_pointerarray = mulle_pointerarray_create( MulleObjCObjectGetAllocator( self));
+   self->_pointerarray = mulle_pointerarray_create_nil( MulleObjCObjectGetAllocator( self));
    self->_freeWhenDone = YES;
    return( self);
 }
@@ -37,7 +55,7 @@
       id <NSObject>                         obj;
 
       rover = mulle_pointerarray_enumerate( self->_pointerarray);
-      while( obj = mulle_pointerarrayenumerator_next( &rover))
+      while( (obj = mulle_pointerarrayenumerator_next( &rover)))
          [obj release];
       mulle_pointerarrayenumerator_done( &rover);
 
@@ -116,23 +134,6 @@ struct _MulleObjectArrayFastEnumerationState
 @end
 
 
-@implementation MulleObjectArrayEnumerator
-
-- (instancetype) initWithPointerarray:(struct mulle_pointerarray *) p
-{
-   assert( p);
-
-   _rover = mulle_pointerarray_enumerate( p);
-   return( self);
-}
-
-
-- (id) nextObject
-{
-   return(  mulle_pointerarrayenumerator_next( &_rover));
-}
-
-@end
 
 
 
@@ -147,6 +148,12 @@ struct _MulleObjectArrayFastEnumerationState
 
 
 - (void) removeObjectAtIndex:(NSUInteger) i
+{
+   abort();
+} 
+
+
+- (void) removeAllObjects
 {
    abort();
 } 

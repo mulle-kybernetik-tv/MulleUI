@@ -138,6 +138,7 @@
                        info->frame.size.height, 
                        info->pixelRatio);
    _isRendering = YES;
+   _alpha       = 1.0;
    
    nvgResetTransform( _vg);
    nvgScissor( _vg, 0.0, 0.0, info->frame.size.width, info->frame.size.height);
@@ -268,8 +269,8 @@
 }
 
 
-- (UIImage *) textureImageWithSize:(CGSize) size 
-                           options:(NSUInteger) options
+- (MulleTextureImage *) textureImageWithSize:(CGSize) size 
+                                     options:(NSUInteger) options
 {
    MulleTextureImage   *image;
 
@@ -280,7 +281,7 @@
       return( nil);
 
    if( ! _framebufferImages)
-      _framebufferImages = mulle_pointerarray_create( NULL);
+      _framebufferImages = mulle_pointerarray_create_nil( NULL);
    mulle_pointerarray_add( _framebufferImages, image);
    return( image);
 }

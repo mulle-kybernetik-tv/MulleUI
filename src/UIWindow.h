@@ -33,6 +33,10 @@ struct MulleFrameInfo;
 @property( assign, readonly) uint64_t         modifiers;
 @property( assign, readonly) CGFloat          primaryMonitorPPI;
 
+// nanovg will be done here, here is good time to do plain
+// OpenGL calls
+@property void   (*drawWindowCallback)( UIWindow *window, 
+                                        struct MulleFrameInfo *info);
 - (void) renderLoopWithContext:(CGContext *) context;
 - (void) waitForEvents:(double) hz;
 - (void) requestClose;

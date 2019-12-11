@@ -3,7 +3,7 @@
 #import "UIView.h"
 
 
-@implementation UIControl
+PROTOCOLCLASS_IMPLEMENTATION( UIControl)
 
 @dynamic action;
 @dynamic click;
@@ -83,7 +83,8 @@
    UIControlClickHandler  *click;
    SEL                    sel;
 
-   if( click = [self click])
+   click = [self click];
+   if( click)
       event = (*click)( self, event);
    if( event && (sel = [self action]))
    {
@@ -215,4 +216,6 @@ static void   setStateBit( UIControl *self, enum UIControlStateBit bit, BOOL fla
 {
 	setStateBit( self, UIControlStateSelected, flag);
 }
-@end
+
+PROTOCOLCLASS_END()
+

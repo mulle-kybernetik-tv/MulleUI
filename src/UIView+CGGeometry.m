@@ -9,7 +9,6 @@
 @implementation UIView( CGGeometry)
 
 
-
 //
 // Transform for incoming values of the superview to translate into
 // bounds space of the view. For hit tests.
@@ -100,6 +99,12 @@
 }
 
 
+- (CGPoint) convertPoint:(CGPoint) point
+                  toView:(UIView *) toView
+{
+   abort();
+}
+
 
 //
 // this code works without precomputing the affine tranform and its inverse
@@ -175,7 +180,7 @@
    if( _subviews)
    {
       rover = mulle_pointerarray_enumerate( _subviews);
-      while( view = mulle_pointerarrayenumerator_next( &rover))
+      while( (view = mulle_pointerarrayenumerator_next( &rover)))
          [view dumpWithIndent:indent];
       mulle_pointerarrayenumerator_done( &rover);
    }

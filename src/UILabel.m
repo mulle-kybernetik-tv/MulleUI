@@ -16,18 +16,6 @@
 }
 
 
-//
-// works as long as the return value is no struct or double
-//
-- (void *) forward:(void *) param
-{
-   MulleTextLayer  *layer;
-
-   layer = (MulleTextLayer *) _mainLayer;
-   return( MulleObjCPerformSelector( layer, _cmd, param));
-}
-
-
 - (void) setCStringName:(char *) s
 {
    // ignore
@@ -69,7 +57,6 @@
       ppi = 100;
    [layer setFontPixelSize:points * ppi / 72.0];
 }
-
 
 @end
 

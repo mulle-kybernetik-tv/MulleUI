@@ -35,6 +35,13 @@ typedef struct CGSize {
     CGFloat height;
 } CGSize;
 
+
+typedef struct {
+    CGFloat dx;
+    CGFloat dy;
+} CGVector;
+
+
 typedef struct CGRect {
     CGPoint origin;
     CGSize size;

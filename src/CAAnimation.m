@@ -209,6 +209,11 @@ normalizedRelativeTime:(double) x
       if( now < self->_absolute.start) 
          return;
  
+      if( _frames++ == 0)
+      {
+         [_animationDelegate willStart];
+      }
+
       delay = CATimeSubtract( now, self->_absolute.start);
       t     = delay / self->_relative.duration;
       x     = MulleQuadraticGetValueForNormalizedDistance( &self->_quadratic, t);
@@ -231,20 +236,77 @@ normalizedRelativeTime:(double) x
 
    // not repeating ? done
    if( self->_repeatCount == 0.0)
+   {
+      [_animationDelegate didEnd];
       return;
+   }
 
    // _self->_repeatCount > 0.0 means repeats a finite number
    if( self->_repeatCount > 0.0)
    {
       self->_repeatCount -= 1.0;
       if( self->_repeatCount <= 0.0)
+      {
+         [_animationDelegate didEnd];
          return;
+      }
    }
 
    // start with next frame, with a new animation
    self->_bits &= ~CAAnimationStarted;
    if( self->_bits & CAAnimationReverses)
       [self reverse];
+}
+
+@end
+
+
+
+@implementation MulleAnimationDelegate : NSObject
+
+- (void) willStart
+{
+   // if this is the first time we got this, then
+   // send the delegate a message
+   if( _started++)
+      return;
+   if( ! _animationWillStartSelector)
+      return;
+
+   [_delegate performSelector:_animationWillStartSelector
+                   withObject:(id) _identifier
+                   withObject:_context];      
+}
+
+- (void) didEnd
+{
+   // if we got #animations messages, then the last one
+   // to finish sends the delegate emessage
+   if( ++_ended != _started)
+      return;
+   if( ! _animationDidStopSelector)
+      return;   
+ 
+   [_delegate performSelector:_animationDidStopSelector
+                   withObject:(id) _identifier
+                   withObject:_context];
+}
+
+
+- (void) didPreempt
+{
+   // if we got #animations messages, then the last one
+   // to finish sends the delegat message
+   if(  _ended == _started)
+      return;
+   if( ! _animationDidStopSelector)
+      return;   
+ 
+   _ended = _started;  // don't send more
+
+   [_delegate performSelector:_animationDidStopSelector
+                   withObject:(id) _identifier
+                   withObject:_context];
 }
 
 @end

@@ -9,6 +9,7 @@ typedef float   _NVGtransform[ 6];
 
 @class CGContext;
 @class CAAnimation;
+@class MulleAnimationDelegate;
 
 struct MulleFrameInfo;
 
@@ -24,6 +25,7 @@ struct MulleFrameInfo;
 // animatable properties
 @property( observable) CGFloat      cornerRadius;
 @property( observable) CGFloat      borderWidth;
+@property( observable) CGFloat      opacity;
 @property( observable) CGColorRef   borderColor;
 @property( observable) CGColorRef   backgroundColor;
 @property( observable) CGRect       frame;
@@ -67,7 +69,7 @@ struct MulleFrameInfo;
 // animations. (?)
 //
 - (void) commitImplicitAnimationsWithAnimationID:(char *) animationsID
-                                         context:(void *) context;
+                               animationDelegate:(MulleAnimationDelegate *) animationDelegate;
 
 @end
 

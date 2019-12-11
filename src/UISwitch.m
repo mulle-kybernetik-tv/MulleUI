@@ -3,7 +3,7 @@
 #import "MulleCheckboxLayer.h"
 
 
-@implementation UISwitch : UIView
+@implementation UISwitch 
 
 - (id) initWithFrame:(CGRect) frame
 {
@@ -11,18 +11,6 @@
 
    checkboxLayer = [[[MulleCheckboxLayer alloc] initWithFrame:frame] autorelease];
    return( [self initWithLayer:checkboxLayer]);
-}
-
-
-//
-// works as long as the return value is no struct or double
-//
-- (void *) forward:(void *) param
-{
-   MulleCheckboxLayer  *layer;
-
-   layer = (MulleCheckboxLayer *) _mainLayer;
-   return( MulleObjCPerformSelector( layer, _cmd, param));
 }
 
 

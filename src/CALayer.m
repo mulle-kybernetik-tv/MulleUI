@@ -8,7 +8,7 @@
 #import "nanovg+CString.h"
 #import "UIView+CAAnimation.h"
 
-
+#pragma clang diagnostic ignored "-Wparentheses"
 // #define RENDER_DEBUG
 // #define CALAYER_DEBUG
 
@@ -21,6 +21,7 @@
       return( self);
 
    _bounds.origin.x = INFINITY;
+   _opacity         = 1.0;
    return( self);
 }
 
@@ -399,6 +400,7 @@
 
 
 - (void) animatePropertiesWithSnapshotlayer:(CALayer *) snapshot
+                          animationDelegate:(MulleAnimationDelegate *) animationDelegate
                            animationOptions:(struct CAAnimationOptions *) options
 {
    CGColorRef    startColor;
@@ -420,7 +422,7 @@
                                                     startColor:startColor
                                                       endColor:endColor
                                                        options:options] autorelease];
-  
+      [animation setAnimationDelegate:animationDelegate];
       [self addAnimation:animation];
 
       // reset to start position 
@@ -438,7 +440,7 @@
                                                     startColor:startColor
                                                       endColor:endColor
                                                        options:options] autorelease];
-  
+      [animation setAnimationDelegate:animationDelegate];
       [self addAnimation:animation];
 
       // reset to start position 
@@ -456,7 +458,7 @@
                                                startFloatValue:startValue
                                                  endFloatValue:endValue
                                                        options:options] autorelease];
-  
+      [animation setAnimationDelegate:animationDelegate];
       [self addAnimation:animation];
 
       // reset to start position 
@@ -474,7 +476,7 @@
                                                startFloatValue:startValue
                                                  endFloatValue:endValue
                                                        options:options] autorelease];
-  
+      [animation setAnimationDelegate:animationDelegate];
       [self addAnimation:animation];
 
       // reset to start position 
@@ -492,7 +494,7 @@
                                                      startRect:startRect
                                                        endRect:endRect
                                                        options:options] autorelease];
-  
+      [animation setAnimationDelegate:animationDelegate];
       [self addAnimation:animation];
 
       // reset to start position 
@@ -510,7 +512,7 @@
                                                      startRect:startRect
                                                        endRect:endRect
                                                        options:options] autorelease];
-  
+      [animation setAnimationDelegate:animationDelegate];
       [self addAnimation:animation];
 
       // reset to start position 
@@ -545,8 +547,9 @@ MulleQuadratic   CALayerQuadraticForCurveType( NSUInteger curvetype)
    return( quadratic);
 }
 
+
 - (void) commitImplicitAnimationsWithAnimationID:(char *) animationsID
-                                         context:(void *) context
+                               animationDelegate:(MulleAnimationDelegate *) animationDelegate
 {
    CAAnimation                  *animation;
    CGColorRef                   endColor;
@@ -571,8 +574,8 @@ MulleQuadratic   CALayerQuadraticForCurveType( NSUInteger curvetype)
        subclasses might want to add more
     **/
    [self animatePropertiesWithSnapshotlayer:_snapshot
+                          animationDelegate:animationDelegate
                            animationOptions:&options];
-
 
    [_snapshot autorelease];
    _snapshot = nil;  

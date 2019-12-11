@@ -1,5 +1,7 @@
 #import "import.h"
 
+#import "UIResponder.h"
+
 
 @class UIEvent;
 
@@ -42,17 +44,16 @@ selected image when deselected.
 
 typedef NSUInteger    UIControlState;
 
-
-// protocolclass! @protocolclass 
-
-@class UIControl;
-
-// formal protocol part
-
+#define UIControlIvars              \
+   UIControlState           _state;	\
+   UIControlClickHandler   *_click;	\
+   id                      _target;	\
+   SEL                     _action
+ 
 //
 // A UIControl translates event into target/Action or click Events
 // 
-@protocol UIControl
+PROTOCOLCLASS_INTERFACE( UIControl, UIResponder)
 
 typedef UIEvent   *UIControlClickHandler( id <UIControl> control, 
                                           UIEvent *event);
@@ -61,14 +62,7 @@ typedef UIEvent   *UIControlClickHandler( id <UIControl> control,
 @property( assign) SEL action;
 @property( assign) UIControlClickHandler  *click;
 
-@end
-
-
-@interface UIControl < UIControl>
-@end
-
-// informal protocol part
-@interface UIControl( UIControl)
+@optional 
 
 - (UIEvent *) mouseUp:(UIEvent *) event;
 
@@ -88,12 +82,9 @@ typedef UIEvent   *UIControlClickHandler( id <UIControl> control,
 - (void) setSelected:(BOOL) flag;
 
 - (char *) cStringDescription;
-@end
+
+- (void) toggleState;
+
+PROTOCOLCLASS_END()
 
 
-
-#define UIControlIvars              \
-   UIControlState           _state;	\
-   UIControlClickHandler   *_click;	\
-   id                      _target;	\
-   SEL                     _action

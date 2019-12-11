@@ -4,6 +4,7 @@
 #import "CGGeometry.h"
 #import "YogaProtocol.h"
 #import "CATime.h"
+#import "CGColor.h"
 #import "MulleTrackingArea.h"
 
 
@@ -14,6 +15,7 @@
 
 struct MulleFrameInfo;
 
+
 //
 // the main layer which is bottom-most defines the geometry
 // the UIView must have a mainLayer which is responsible for the "background"
@@ -21,7 +23,7 @@ struct MulleFrameInfo;
 // Then the subviews are drawn/composited on those (these are scaled and 
 // transformed)
 //
-@interface UIView : NSObject < Yoga >
+@interface UIView : NSObject
 {
    UIView                      *_superview;
    CALayer                     *_mainLayer;
@@ -38,29 +40,30 @@ struct MulleFrameInfo;
    MulleImageLayer                  *_cacheLayer;  // same size as _mainLayer (contains all layers and subviews ?)
 }
 
-@property BOOL clipsSubviews;
-@property BOOL needsLayout;
-@property BOOL needsCaching;
+@property( getter=isHidden)                 BOOL   hidden;
+@property( getter=isUserInteractionEnabled) BOOL   userInteractionEnabled;
+@property BOOL      clipsSubviews;
+@property BOOL      needsLayout;
+@property BOOL      needsCaching;
+@property BOOL      needsDisplay;  // a NOP for compatiblity
 
-- (void) setNeedsLayout;
+@property CGFloat   alpha;
+
+// - (void) setNeedsLayout;   // done by Yoga
+- (void) setNeedsDisplay;
 - (void) setNeedsCaching;  // wipes the _cacheLayer and asks for a new one to be drawn
 
 + (Class) layerClass;
 
-- (id) initWithFrame:(CGRect) frame;
+- (instancetype) initWithFrame:(CGRect) frame;
 
 // designated initializer
-- (id) initWithLayer:(CALayer *) layer;
+- (instancetype) initWithLayer:(CALayer *) layer;
 
 - (void) addLayer:(CALayer *) layer;
 - (void) addSubview:(UIView *) layer;
 
 - (CALayer *) layer;
-
-- (CGRect) bounds;
-- (void) setBounds:(CGRect) rect;
-- (CGRect) frame;
-- (void) setFrame:(CGRect) rect;
 
 - (void) renderWithContext:(CGContext *) context;
 - (void) animateWithAbsoluteTime:(CAAbsoluteTime) renderTime;
@@ -83,9 +86,10 @@ struct MulleFrameInfo;
 // You do not need not to call super in UIView subclasses, if you manually
 // layout everything
 // 
-- (void) layoutSubviews;
+//- (void) layoutSubviews;
 
 - (void) startLayoutWithFrameInfo:(struct MulleFrameInfo *) info;
+- (void) layoutSubviewsIfNeeded;
 - (void) layoutIfNeeded;
 - (void) endLayout;
 
@@ -99,5 +103,25 @@ struct MulleFrameInfo;
 - (void) removeTrackingArea:(struct MulleTrackingArea *) trackingRect;
 - (NSUInteger) numberOfTrackingAreas;
 - (struct MulleTrackingArea *) trackingAreaAtIndex:(NSUInteger) i;
+
+@end
+
+
+@interface UIView( CALayerForwarding)
+
+// methods forward to CALayer (mainLayer)
+- (CGRect) bounds;
+- (void) setBounds:(CGRect) rect;
+- (CGRect) frame;
+- (void) setFrame:(CGRect) rect;
+
+- (void) setBackgroundColor:(CGColorRef) color;
+- (void) setBorderColor:(CGColorRef) color;
+- (void) setBorderWidth:(CGFloat) value;
+- (void) setCornerRadius:(CGFloat) color;
+- (CGColorRef) backgroundColor;
+- (CGColorRef) borderColor;
+- (CGFloat) borderWidth;
+- (CGFloat) cornerRadius;
 
 @end

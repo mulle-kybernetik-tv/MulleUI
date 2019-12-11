@@ -4,16 +4,30 @@
 
 
 @interface MulleScrollIndicatorView : UIView
-
-- (CGPoint) contentOffsetAtPoint:(CGPoint) point;
-
 @end
 
 
-@interface MulleScrollIndicatorLayer : CALayer 
+// TODO: put everything into a protocol ??
+@protocol MulleScrollIndicatorLayer
 
 @property( assign) CGFloat   bubbleOffset;
 @property( assign) CGFloat   bubbleLength;
 @property( assign) CGFloat   contentLength;
 
+- (CGPoint) contentOffsetAtPoint:(CGPoint) point;
+- (CGRect) bubbleFrameWithBounds:(CGRect) bounds;
+
+@end
+
+@interface MulleScrollIndicatorLayer : CALayer  <MulleScrollIndicatorLayer> 
+{
+   CGFloat   _bubbleOffset;
+   CGFloat   _bubbleLength;
+   CGFloat   _contentLength;   
+}
+@end
+
+
+// TODO: test what this actually does!
+@interface MulleScrollIndicatorView( MulleScrollIndicatorLayerForwarding) <MulleScrollIndicatorLayer>
 @end

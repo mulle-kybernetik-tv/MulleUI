@@ -21,7 +21,4 @@
 @property( assign) BOOL   wraps;
 @property( assign) BOOL   autorepeat;  // not autorepeats :(
 
-- (void) setBackgroundColor:(CGColorRef) color;
-- (CGColorRef) backgroundColor;
-
 @end

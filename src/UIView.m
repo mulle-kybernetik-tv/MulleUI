@@ -23,7 +23,7 @@
 }
 
 
-- (id) initWithFrame:(CGRect) frame
+- (instancetype) initWithFrame:(CGRect) frame
 {
    CALayer   *layer;
    Class     cls;
@@ -35,8 +35,8 @@
    return( self);
 }
 
-
-- (id) initWithLayer:(CALayer *) layer
+// designated initializer
+- (instancetype) initWithLayer:(CALayer *) layer
 {
    assert( ! layer || [layer isKindOfClass:[CALayer class]]);
 
@@ -45,9 +45,10 @@
       [self release];
       return( nil);
    }
-   _mainLayer     = [layer retain];
-   _clipsSubviews = YES;  // default
-
+   _mainLayer              = [layer retain];
+   _clipsSubviews          = YES;  // default
+   _userInteractionEnabled = YES;  // 
+   _alpha                  = 1.0;
    return( self);
 }
 
@@ -88,7 +89,7 @@
    assert(_mainLayer != layer);
 
    if( ! _layers)
-      _layers = mulle_pointerarray_create( NULL);
+      _layers = mulle_pointerarray_create_nil( NULL);
 
    assert( mulle_pointerarray_find( _layers, layer) == -1);
    [layer retain];
@@ -96,19 +97,31 @@
 }
 
 
+- (struct mulle_pointerarray *) _subviews 
+{
+   struct mulle_allocator   *allocator;
+
+   if( ! _subviews)
+   {
+      allocator = MulleObjCObjectGetAllocator( self);
+      _subviews = mulle_pointerarray_alloc( allocator);
+      mulle_pointerarray_init( _subviews, 4, nil, allocator);
+   }
+   return( _subviews);
+}
+
 - (void) addSubview:(UIView *) view
 {
+   struct mulle_pointerarray  *subviews;
    assert( view);
    assert( view != self);
    assert( ! [view superview]);
    assert( [view isKindOfClass:[UIView class]]);
-
-   if( ! _subviews)
-      _subviews = mulle_pointerarray_create( NULL);
-
-   assert( mulle_pointerarray_find( _subviews, view) == -1);
+   
+   subviews = [self _subviews];
+   assert( mulle_pointerarray_find( subviews, view) == -1);
    [view retain];
-   mulle_pointerarray_add( _subviews, view);
+   mulle_pointerarray_add( subviews, view);
 
    view->_superview = self;
 }
@@ -178,6 +191,7 @@
 }
 
 
+
 - (CGRect) bounds
 {
    return( [_mainLayer bounds]);
@@ -208,10 +222,68 @@
 }
 
 
-- (void) setNeedsLayout
+- (void) setNeedsDisplay
 {
-   _needsLayout = YES;
+   _needsDisplay = YES;
 }
+
+
+- (void *) forward:(void *) param
+{
+   return( mulle_objc_object_inlinecall_variablemethodid( _mainLayer,
+                                                          (mulle_objc_methodid_t) _cmd,
+                                                          param));
+}
+
+
+//// conveniences
+//- (void) setBackgroundColor:(CGColorRef) color 
+//{
+//   [_mainLayer setBackgroundColor:color];
+//}
+//
+//- (void) setBorderColor:(CGColorRef) color 
+//{
+//   return( [_mainLayer setBorderColor:color]);
+//}
+//
+//- (void) setBorderWidth:(CGFloat) value 
+//{
+//   [_mainLayer setBorderWidth:value];
+//}
+//
+//- (void) setCornerRadius:(CGFloat) value 
+//{
+//   return( [_mainLayer setCornerRadius:value]);
+//}
+//
+//
+//- (CGColorRef) backgroundColor
+//{
+//   return( [_mainLayer backgroundColor]);
+//}
+//
+//- (CGColorRef) borderColor 
+//{
+//   return( [_mainLayer borderColor]);
+//}
+//
+//- (CGFloat) borderWidth 
+//{
+//   return( [_mainLayer borderWidth]);
+//}
+//
+//- (CGFloat) cornerRadius 
+//{
+//   return( [_mainLayer cornerRadius]);
+//}
+//
+
+// Done by Yoga
+// - (void) setNeedsLayout
+// {
+//    _needsLayout = YES;
+// }
 
 // maybe wrong name ?
 - (void) setNeedsCaching  // wipes the _backinglayer and asks for a new one to be drawn
@@ -303,6 +375,8 @@
    _NVGtransform                         transform;
    NVGscissor                            scissor;
    NVGcontext                            *vg;
+   CGFloat                               oldAlpha;
+   CGFloat                               alpha;
 
 #ifdef RENDER_DEBUG
    fprintf( stderr, "%s %s (f:%s b:%s)\n", 
@@ -311,7 +385,9 @@
                         CGRectCStringDescription( [self frame]),
                         CGRectCStringDescription( [self bounds]));
 #endif
+
    vg = [context nvgContext];
+
    nvgCurrentTransform( vg, transform);
    nvgGetScissor( vg, &scissor);
 
@@ -319,7 +395,7 @@
    if( _cacheLayer)
    {
       [_cacheLayer setTransform:transform
-                          scissor:&scissor];
+                        scissor:&scissor];
       [_cacheLayer drawInContext:context];
       return( YES);
    }
@@ -330,7 +406,7 @@
    [_mainLayer drawInContext:context];
 
    rover = mulle_pointerarray_enumerate_nil( _layers);
-   while( layer = mulle_pointerarrayenumerator_next( &rover))
+   while( (layer = mulle_pointerarrayenumerator_next( &rover)))
    {
       [layer setTransform:transform
                   scissor:&scissor];
@@ -352,13 +428,12 @@
 #endif
 
    rover = mulle_pointerarray_enumerate_nil( _subviews);
-   while( view = mulle_pointerarrayenumerator_next( &rover))
+   while( (view = mulle_pointerarrayenumerator_next( &rover)))
       [view renderWithContext:context];
    mulle_pointerarrayenumerator_done( &rover);
 }
 
-
-- (void) renderWithContext:(CGContext *) context
+- (void) _renderWithContext:(CGContext *) context
 {
    _NVGtransform   transform;
    NVGscissor      scissor;
@@ -368,11 +443,8 @@
    CGRect          bounds;
    CGRect          contextClipRect;
    CGRect          clipRect;
-
-#ifdef RENDER_DEBUG
-   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
-#endif
-
+   CGFloat         alpha;
+  
    frame = [self frame];
    if( frame.size.width <= 0.0 || frame.size.height <= 0.0)
    {
@@ -390,7 +462,7 @@
 #endif
       return;
    }
-
+   
    vg = [context nvgContext];
 
    // remember for later
@@ -441,7 +513,7 @@
          nvgIntersectScissor( vg, frame.origin.x, frame.origin.y, frame.size.width, frame.size.height);
 
 #ifdef RENDER_VERBOSE_DEBUG
-      fprintf( stderr, "Set transform for subviews of %s (not a window)\n", [self cStringDescription]);
+         fprintf( stderr, "Set transform for subviews of %s (not a window)\n", [self cStringDescription]);
 #endif
       nvgTranslate( vg, frame.origin.x, frame.origin.y);
 #ifdef RENDER_VERBOSE_DEBUG
@@ -488,6 +560,39 @@
 }
 
 
+- (void) renderWithContext:(CGContext *) context
+{
+   CGFloat  alpha;
+   CGFloat  oldAlpha;
+
+#ifdef RENDER_DEBUG
+   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
+#endif
+
+   alpha = [self alpha];
+   if( alpha < 0.01)
+      return;
+   if( [self isHidden])
+      return;
+   //
+   // set alpha, if needed 
+   // layers need to read this and multiply with their opacity and
+   // colors (or texture operations)
+   //
+   if( alpha != 1.0)
+   {
+      oldAlpha = [context alpha];
+      [context setAlpha:oldAlpha * alpha];
+   }
+
+   [self _renderWithContext:context];
+
+   // reset alpha, if needed
+   if( alpha != 1.0)
+      [context setAlpha:oldAlpha];
+}
+
+
 - (void) animateLayersWithAbsoluteTime:(CAAbsoluteTime) renderTime
 {
    struct mulle_pointerarrayenumerator   rover;
@@ -500,7 +605,7 @@
    [_mainLayer animateWithAbsoluteTime:renderTime];
    
    rover = mulle_pointerarray_enumerate_nil( _layers);
-   while( layer = mulle_pointerarrayenumerator_next( &rover))
+   while( (layer = mulle_pointerarrayenumerator_next( &rover)))
       [layer animateWithAbsoluteTime:renderTime];
    mulle_pointerarrayenumerator_done( &rover);
 }
@@ -516,7 +621,7 @@
 #endif
 
    rover = mulle_pointerarray_enumerate_nil( _subviews);
-   while( view = mulle_pointerarrayenumerator_next( &rover))
+   while( (view = mulle_pointerarrayenumerator_next( &rover)))
       [view animateWithAbsoluteTime:renderTime];
    mulle_pointerarrayenumerator_done( &rover);
 }
@@ -547,7 +652,7 @@
    UIView   *parent;
 
    view = self;
-   while( parent = [view superview])
+   while( (parent = [view superview]))
       view = parent;
 
    if( [view isKindOfClass:[UIWindow class]])
@@ -696,7 +801,7 @@
    [self layoutIfNeeded];
 
    rover = mulle_pointerarray_enumerate_nil( _subviews);
-   while( view = mulle_pointerarrayenumerator_next( &rover))
+   while( (view = mulle_pointerarrayenumerator_next( &rover)))
       [view layoutSubviewsIfNeeded];
    mulle_pointerarrayenumerator_done( &rover);
 }
