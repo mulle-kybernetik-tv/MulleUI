@@ -35,6 +35,24 @@ static char  *cpToUTF8(int cp, char* str)
 @implementation MulleCheckboxLayer : CALayer
 
 
+- (void) setFontName:(char *) s
+{
+   MulleObjCObjectSetDuplicatedCString( self, &_fontName, s);
+}
+
+- (void) setCString:(char *) s
+{
+   MulleObjCObjectSetDuplicatedCString( self, &_cString, s);
+}
+
+- (void) dealloc 
+{
+   MulleObjCObjectDeallocateMemory( self, &_fontName);
+   MulleObjCObjectDeallocateMemory( self, &_cString);
+   [super dealloc];
+}
+
+
 - (void) drawContentsInContext:(CGContext *) context
 {
    CGFloat             fontPixelSize;
@@ -48,7 +66,7 @@ static char  *cpToUTF8(int cp, char* str)
    font = [context fontWithName:_fontName ? _fontName : "sans"];
    name = [font name];  // get actual name, which could have different address
 
-   frame    = [self frame];
+   frame = [self frame];
 
    fontPixelSize = [self fontPixelSize];
    if( fontPixelSize == 0.0)
@@ -79,5 +97,6 @@ static char  *cpToUTF8(int cp, char* str)
       nvgText(vg, frame.origin.x + 9 + 2, frame.origin.y + frame.size.height * 0.5f, cpToUTF8(ICON_CHECK, icon), NULL);
    }
 }
+
 
 @end

@@ -7,6 +7,7 @@ endif()
 
 set( SOURCES
 nanovg/src/nanovg.c
+src/CAAnimationGroup.m
 src/CAAnimation.m
 src/CALayer.m
 src/CGAffineTransform.c
@@ -31,6 +32,8 @@ src/MulleTextLayer.m
 src/MulleTextureImage.m
 src/MulleTrackingArea.m
 src/PSTCollectionView/NSIndexPath+PSTCollectionViewAdditions.m
+src/PSTCollectionView/NSString+CGGeometry.m
+src/PSTCollectionView/NSValue+CGGeometry.m
 src/PSTCollectionView/PSTCollectionViewCell.m
 src/PSTCollectionView/PSTCollectionViewController.m
 src/PSTCollectionView/PSTCollectionViewData.m
@@ -46,10 +49,12 @@ src/PSTCollectionView/PSTGridLayoutSection.m
 src/PSTCollectionView/UIViewController.m
 src/UIApplication.m
 src/UIButton.m
+src/UIColor.m
 src/UIControl.m
 src/UIEdgeInsets+CString.m
 src/UIEdgeInsets.c
 src/UIEvent.m
+src/UIFont.m
 src/UIImage.m
 src/UILabel.m
 src/UIResponder.m

@@ -6,10 +6,18 @@
 
 @implementation MulleSegmentedControlLayer : CALayer
 
+
+- (void) setFontName:(char *) s
+{
+   MulleObjCObjectSetDuplicatedCString( self, &_fontName, s);
+}
+
 - (void) dealloc
 {
    struct mulle_allocator   *allocator;
    NSUInteger               i;
+
+   MulleObjCObjectDeallocateMemory( self, &_fontName);
 
    allocator = MulleObjCObjectGetAllocator( self);
 

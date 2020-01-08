@@ -18,8 +18,8 @@
 - (void) setTextColor:(CGColorRef)color;
 - (CGColorRef) textColor;
 
-- (char *)cString;
-- (void)setCString:(char *)s;
+- (char *) cString;
+- (void) setCString:(char *)s;
 - (char *) fontName;
 - (void) setFontName:(char *)s;
 - (CGFloat) fontPixelSize;

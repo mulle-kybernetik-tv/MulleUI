@@ -30,6 +30,7 @@ nanovg/src/nanovg_gl_utils.h
 nanovg/src/nanovg.h
 nanovg/src/stb_image.h
 nanovg/src/stb_truetype.h
+src/CAAnimationGroup.h
 src/CAAnimation.h
 src/CALayer.h
 src/CATime.h
@@ -58,7 +59,8 @@ src/MulleTextLayer.h
 src/MulleTextureImage.h
 src/MulleTrackingArea.h
 src/PSTCollectionView/NSIndexPath+PSTCollectionViewAdditions.h
-src/PSTCollectionView/NSString.h
+src/PSTCollectionView/NSString+CGGeometry.h
+src/PSTCollectionView/NSValue+CGGeometry.h
 src/PSTCollectionView/PSTCollectionViewCell.h
 src/PSTCollectionView/PSTCollectionViewCommon.h
 src/PSTCollectionView/PSTCollectionViewController.h
@@ -77,10 +79,12 @@ src/PSTCollectionView/UIViewController.h
 src/Roboto-Regular.inc
 src/UIApplication.h
 src/UIButton.h
+src/UIColor.h
 src/UIControl.h
 src/UIEdgeInsets+CString.h
 src/UIEdgeInsets.h
 src/UIEvent.h
+src/UIFont.h
 src/UIImage.h
 src/UILabel.h
 src/UIResponder.h

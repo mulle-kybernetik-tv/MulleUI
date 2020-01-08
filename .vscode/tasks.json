@@ -37,7 +37,7 @@
                 ]
             },
             "args": [
-                "craft",
+                "craft"
             ],
             "group": {
                 "kind": "build"
@@ -63,6 +63,9 @@
            "args": [
               "clean"
            ],
+	        "group" :{
+               "kind": "build",
+ 	     },
            "problemMatcher": [],
             "presentation": {
                "showReuseMessage": false

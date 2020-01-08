@@ -315,10 +315,12 @@ static void   framebufferResizeCallback( GLFWwindow* window, int width, int heig
    return( self);
 }
 
+
 - (void) setAlpha:(CGFloat) value 
 {
    assert( 0 && "don't set alpha on window");
 }
+
 
 - (CGFloat) alpha 
 {
@@ -510,6 +512,7 @@ static void   error_callback(int code, const char* description)
                                                   diff.tv_sec ? 999999999 : diff.tv_nsec);
 #endif
    }
+   [self dump];
 }
 
 

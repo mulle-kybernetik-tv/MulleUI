@@ -5,6 +5,6 @@
 // as the group...
 @interface CAAnimationGroup : CAAnimation
 
-@property( assign) id<NSArray *>  *animations;
+@property( assign) id<NSArray>  animations;
 
 @end

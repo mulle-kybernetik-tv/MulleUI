@@ -6,6 +6,26 @@
 
 @implementation MulleTextLayer : CALayer
 
+- (void) setName:(char *) s
+{
+   MulleObjCObjectSetDuplicatedCString( self, &_fontName, s);
+}
+
+
+- (void) setCString:(char *) s
+{
+   MulleObjCObjectSetDuplicatedCString( self, &_cString, s);
+}
+
+
+- (void) dealloc 
+{
+   MulleObjCObjectDeallocateMemory( self, &_fontName);
+   MulleObjCObjectDeallocateMemory( self, &_cString);
+
+   [super dealloc]; 
+}
+
 
 /* MEMO: Font/Glyph scaling
  *
@@ -52,6 +72,10 @@
    float               bounds[ 4];
    CGSize              extents;
 
+   // nothing to draw ? then bail
+   if( ! _cString || ! *_cString)
+      return;
+
    font  = [context fontWithName:_fontName ? _fontName : "sans"];
    name  = [font name];  // get actual name, which could have different address
    frame = [self frame];
@@ -65,6 +89,7 @@
    nvgFontFace( vg, name);
    nvgTextColor( vg, [self textColor], [self backgroundColor]); // TODO: use textColor
 
+   // TODO: use textalign property
    nvgTextAlign( vg, NVG_ALIGN_LEFT|NVG_ALIGN_MIDDLE);
    nvgTextBounds( vg, 0.0, 0.0, _cString, NULL, bounds);
 

@@ -58,7 +58,7 @@ typedef NS_ENUM(NSUInteger, PSTCollectionElementCategory) {
     PSTCollectionReusableView         *_firstResponderView;
     UIView                            *_newContentView;
     int                               _firstResponderViewType;
-    NSString *                     _firstResponderViewKind;
+    NSString *                        _firstResponderViewKind;
     NSIndexPath                       *_firstResponderIndexPath;
     NSMutableDictionary               *_visibleViewsDict;
     NSIndexPath                       *_pendingSelectionIndexPath;

@@ -264,6 +264,19 @@ normalizedRelativeTime:(double) x
 
 @implementation MulleAnimationDelegate : NSObject
 
+- (void) setIdentifier:(char *) s
+{
+   MulleObjCObjectSetDuplicatedCString( self, &_identifier, s);
+}
+
+
+- (void) dealloc 
+{
+   MulleObjCObjectDeallocateMemory( self, &_identifier);
+   [super dealloc];
+}
+
+
 - (void) willStart
 {
    // if this is the first time we got this, then

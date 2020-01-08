@@ -7,6 +7,27 @@
 @implementation MulleStepperLayer : CALayer
 
 
+- (void) setName:(char *) s
+{
+   MulleObjCObjectSetDuplicatedCString( self, &_fontName, s);
+}
+
+
+- (void) setCString:(char *) s
+{
+   MulleObjCObjectSetDuplicatedCString( self, &_cString, s);
+}
+
+
+- (void) dealloc 
+{
+   MulleObjCObjectDeallocateMemory( self, &_fontName);
+   MulleObjCObjectDeallocateMemory( self, &_cString);
+
+   [super dealloc]; 
+}
+
+
 - (void) drawContentsInContext:(CGContext *) context
 {
    CGFloat             fontPixelSize;

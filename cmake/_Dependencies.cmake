@@ -143,91 +143,6 @@ endif()
 
 
 #
-# Generated from sourcetree: Foundation-startup;no-dynamic-link,no-header,no-intermediate-link;
-# Disable with: `mulle-sourcetree mark Foundation-startup no-link`
-#
-if( NOT FOUNDATION_STARTUP_LIBRARY)
-   find_library( FOUNDATION_STARTUP_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}Foundation-startup${CMAKE_STATIC_LIBRARY_SUFFIX} Foundation-startup NO_CMAKE_SYSTEM_PATH)
-   message( STATUS "FOUNDATION_STARTUP_LIBRARY is ${FOUNDATION_STARTUP_LIBRARY}")
-   #
-   # The order looks ascending, but due to the way this file is read
-   # it ends up being descending, which is what we need.
-   #
-   if( FOUNDATION_STARTUP_LIBRARY)
-      #
-      # Add to FOUNDATION_STARTUP_LIBRARY list.
-      # Disable with: `mulle-sourcetree mark Foundation-startup no-cmakeadd`
-      #
-      set( STARTUP_ALL_LOAD_DEPENDENCY_LIBRARIES
-         ${STARTUP_ALL_LOAD_DEPENDENCY_LIBRARIES}
-         ${FOUNDATION_STARTUP_LIBRARY}
-         CACHE INTERNAL "need to cache this"
-      )
-      #
-      # Inherit ObjC loader and link dependency info.
-      # Disable with: `mulle-sourcetree mark Foundation-startup no-cmakeinherit`
-      #
-      # // temporarily expand CMAKE_MODULE_PATH
-      get_filename_component( _TMP_FOUNDATION_STARTUP_ROOT "${FOUNDATION_STARTUP_LIBRARY}" DIRECTORY)
-      get_filename_component( _TMP_FOUNDATION_STARTUP_ROOT "${_TMP_FOUNDATION_STARTUP_ROOT}" DIRECTORY)
-      #
-      #
-      # Search for "DependenciesAndLibraries.cmake" to include.
-      # Disable with: `mulle-sourcetree mark Foundation-startup no-cmakedependency`
-      #
-      foreach( _TMP_FOUNDATION_STARTUP_NAME "Foundation-startup")
-         set( _TMP_FOUNDATION_STARTUP_DIR "${_TMP_FOUNDATION_STARTUP_ROOT}/include/${_TMP_FOUNDATION_STARTUP_NAME}/cmake")
-         # use explicit path to avoid "surprises"
-         if( EXISTS "${_TMP_FOUNDATION_STARTUP_DIR}/DependenciesAndLibraries.cmake")
-            unset( FOUNDATION_STARTUP_DEFINITIONS)
-            list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_FOUNDATION_STARTUP_DIR}")
-            # we only want top level INHERIT_OBJC_LOADERS, so disable them
-            if( NOT NO_INHERIT_OBJC_LOADERS)
-               set( NO_INHERIT_OBJC_LOADERS OFF)
-            endif()
-            list( APPEND _TMP_INHERIT_OBJC_LOADERS ${NO_INHERIT_OBJC_LOADERS})
-            set( NO_INHERIT_OBJC_LOADERS ON)
-            #
-            include( "${_TMP_FOUNDATION_STARTUP_DIR}/DependenciesAndLibraries.cmake")
-            #
-            list( GET _TMP_INHERIT_OBJC_LOADERS -1 NO_INHERIT_OBJC_LOADERS)
-            list( REMOVE_AT _TMP_INHERIT_OBJC_LOADERS -1)
-            #
-            list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_FOUNDATION_STARTUP_DIR}")
-            set( INHERITED_DEFINITIONS
-               ${INHERITED_DEFINITIONS}
-               ${FOUNDATION_STARTUP_DEFINITIONS}
-               CACHE INTERNAL "need to cache this"
-            )
-            break()
-         else()
-            message( STATUS "${_TMP_FOUNDATION_STARTUP_DIR}/DependenciesAndLibraries.cmake not found")
-         endif()
-      endforeach()
-      #
-      # Search for "objc-loader.inc" in include directory.
-      # Disable with: `mulle-sourcetree mark Foundation-startup no-cmakeloader`
-      #
-      if( NOT NO_INHERIT_OBJC_LOADERS)
-         foreach( _TMP_FOUNDATION_STARTUP_NAME "Foundation-startup")
-            set( _TMP_FOUNDATION_STARTUP_FILE "${_TMP_FOUNDATION_STARTUP_ROOT}/include/${_TMP_FOUNDATION_STARTUP_NAME}/MulleObjCLoader+${_TMP_FOUNDATION_STARTUP_NAME}.h")
-            if( EXISTS "${_TMP_FOUNDATION_STARTUP_FILE}")
-               set( INHERITED_OBJC_LOADERS
-                  ${INHERITED_OBJC_LOADERS}
-                  ${_TMP_FOUNDATION_STARTUP_FILE}
-                  CACHE INTERNAL "need to cache this"
-               )
-               break()
-            endif()
-         endforeach()
-      endif()
-   else()
-      message( FATAL_ERROR "FOUNDATION_STARTUP_LIBRARY was not found")
-   endif()
-endif()
-
-
-#
 # Generated from sourcetree: Foundation;no-singlephase;
 # Disable with: `mulle-sourcetree mark Foundation no-link`
 #
@@ -308,5 +223,90 @@ if( NOT FOUNDATION_LIBRARY)
       endif()
    else()
       message( FATAL_ERROR "FOUNDATION_LIBRARY was not found")
+   endif()
+endif()
+
+
+#
+# Generated from sourcetree: Foundation-startup;no-dynamic-link,no-header,no-intermediate-link;
+# Disable with: `mulle-sourcetree mark Foundation-startup no-link`
+#
+if( NOT FOUNDATION_STARTUP_LIBRARY)
+   find_library( FOUNDATION_STARTUP_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}Foundation-startup${CMAKE_STATIC_LIBRARY_SUFFIX} Foundation-startup NO_CMAKE_SYSTEM_PATH)
+   message( STATUS "FOUNDATION_STARTUP_LIBRARY is ${FOUNDATION_STARTUP_LIBRARY}")
+   #
+   # The order looks ascending, but due to the way this file is read
+   # it ends up being descending, which is what we need.
+   #
+   if( FOUNDATION_STARTUP_LIBRARY)
+      #
+      # Add to FOUNDATION_STARTUP_LIBRARY list.
+      # Disable with: `mulle-sourcetree mark Foundation-startup no-cmakeadd`
+      #
+      set( STARTUP_ALL_LOAD_DEPENDENCY_LIBRARIES
+         ${STARTUP_ALL_LOAD_DEPENDENCY_LIBRARIES}
+         ${FOUNDATION_STARTUP_LIBRARY}
+         CACHE INTERNAL "need to cache this"
+      )
+      #
+      # Inherit ObjC loader and link dependency info.
+      # Disable with: `mulle-sourcetree mark Foundation-startup no-cmakeinherit`
+      #
+      # // temporarily expand CMAKE_MODULE_PATH
+      get_filename_component( _TMP_FOUNDATION_STARTUP_ROOT "${FOUNDATION_STARTUP_LIBRARY}" DIRECTORY)
+      get_filename_component( _TMP_FOUNDATION_STARTUP_ROOT "${_TMP_FOUNDATION_STARTUP_ROOT}" DIRECTORY)
+      #
+      #
+      # Search for "DependenciesAndLibraries.cmake" to include.
+      # Disable with: `mulle-sourcetree mark Foundation-startup no-cmakedependency`
+      #
+      foreach( _TMP_FOUNDATION_STARTUP_NAME "Foundation-startup")
+         set( _TMP_FOUNDATION_STARTUP_DIR "${_TMP_FOUNDATION_STARTUP_ROOT}/include/${_TMP_FOUNDATION_STARTUP_NAME}/cmake")
+         # use explicit path to avoid "surprises"
+         if( EXISTS "${_TMP_FOUNDATION_STARTUP_DIR}/DependenciesAndLibraries.cmake")
+            unset( FOUNDATION_STARTUP_DEFINITIONS)
+            list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_FOUNDATION_STARTUP_DIR}")
+            # we only want top level INHERIT_OBJC_LOADERS, so disable them
+            if( NOT NO_INHERIT_OBJC_LOADERS)
+               set( NO_INHERIT_OBJC_LOADERS OFF)
+            endif()
+            list( APPEND _TMP_INHERIT_OBJC_LOADERS ${NO_INHERIT_OBJC_LOADERS})
+            set( NO_INHERIT_OBJC_LOADERS ON)
+            #
+            include( "${_TMP_FOUNDATION_STARTUP_DIR}/DependenciesAndLibraries.cmake")
+            #
+            list( GET _TMP_INHERIT_OBJC_LOADERS -1 NO_INHERIT_OBJC_LOADERS)
+            list( REMOVE_AT _TMP_INHERIT_OBJC_LOADERS -1)
+            #
+            list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_FOUNDATION_STARTUP_DIR}")
+            set( INHERITED_DEFINITIONS
+               ${INHERITED_DEFINITIONS}
+               ${FOUNDATION_STARTUP_DEFINITIONS}
+               CACHE INTERNAL "need to cache this"
+            )
+            break()
+         else()
+            message( STATUS "${_TMP_FOUNDATION_STARTUP_DIR}/DependenciesAndLibraries.cmake not found")
+         endif()
+      endforeach()
+      #
+      # Search for "objc-loader.inc" in include directory.
+      # Disable with: `mulle-sourcetree mark Foundation-startup no-cmakeloader`
+      #
+      if( NOT NO_INHERIT_OBJC_LOADERS)
+         foreach( _TMP_FOUNDATION_STARTUP_NAME "Foundation-startup")
+            set( _TMP_FOUNDATION_STARTUP_FILE "${_TMP_FOUNDATION_STARTUP_ROOT}/include/${_TMP_FOUNDATION_STARTUP_NAME}/MulleObjCLoader+${_TMP_FOUNDATION_STARTUP_NAME}.h")
+            if( EXISTS "${_TMP_FOUNDATION_STARTUP_FILE}")
+               set( INHERITED_OBJC_LOADERS
+                  ${INHERITED_OBJC_LOADERS}
+                  ${_TMP_FOUNDATION_STARTUP_FILE}
+                  CACHE INTERNAL "need to cache this"
+               )
+               break()
+            endif()
+         endforeach()
+      endif()
+   else()
+      message( FATAL_ERROR "FOUNDATION_STARTUP_LIBRARY was not found")
    endif()
 endif()

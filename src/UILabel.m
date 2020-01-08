@@ -3,6 +3,8 @@
 #import "UIWindow.h"
 #import "MulleTextLayer.h"
 #import "CGFont.h"
+#import "UIColor.h"
+#import "UIFont.h"
 
 
 @implementation UILabel : UIView
@@ -28,7 +30,7 @@
    CGFloat         ppi;
    UIWindow        *window;
 
-   layer     = (MulleTextLayer *) _mainLayer;
+   layer  = (MulleTextLayer *) _mainLayer;
    window = [self window];
    if( window)
       ppi = [window primaryMonitorPPI];
@@ -56,6 +58,34 @@
    if( ! ppi)
       ppi = 100;
    [layer setFontPixelSize:points * ppi / 72.0];
+}
+
+
+- (void *) forward:(void *) param
+{
+   switch( _cmd)
+   {
+   case @selector( textAlignment)     : _cmd = @selector( alignmentMode); break;
+   case @selector( setTextAlignment:) : _cmd = @selector( setAlignmentMode:); break;
+   }
+   return( mulle_objc_object_inlinecall_variablemethodid( _mainLayer,
+                                                    (mulle_objc_methodid_t) _cmd,
+                                                    param));
+}
+
+
+- (void) setFont:(UIFont *) font
+{
+   [self setFontName:[font fontName]];
+   // TODO: figure out pointSize vs pixelSize
+   [self setFontPixelSize:[font pointSize]];
+}
+
+- (UIFont *) font
+{
+   // TODO: figure out pointSize vs pixelSize
+   return( [UIFont fontWithNameCString:[self fontName]
+                                  size:[self fontPixelSize]]);
 }
 
 @end
