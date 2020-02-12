@@ -1,38 +1,22 @@
 #import "import-private.h"
 
-#import "CGContext.h"
-#import "CGGeometry+CString.h"
-#import "CALayer.h"
-#import "CAAnimation.h"
-#import "PSTCollectionView.h"
-#import "PSTCollectionViewCell.h"
-#import "MulleBitmapImage.h"
-#import "MulleImageLayer.h"
 #import "MulleSVGImage.h"
 #import "MulleSVGLayer.h"
-
-#import "UIColor.h"
-#import "UIFont.h"
-
+#import "MulleBitmapImage.h"
+#import "MulleImageLayer.h"
+#import "CGContext.h"
+#import "UIWindow.h"
 #import "UIApplication.h"
 #import "UIButton.h"
-#import "UIView+Yoga.h"
+#import "UIColor.h"
 #import "UIScrollView.h"
 #import "UIEvent.h"
-#import "UILabel.h"
-#import "UIScrollView.h"
-#import "UISegmentedControl.h"
-#import "UISlider.h"
-#import "UIStepper.h"
-#import "UISwitch.h"
-#import "UIView+CAAnimation.h"
-#import "UIWindow.h"
 #import <string.h>
 
 
-//	stolen from catgl ©2015,2018 Yuichiro Nakada
-#define W  320
-#define H  200
+// stolen from catgl ©2015,2018 Yuichiro Nakada
+#define W  200
+#define H  100
 
 #include "Ghostscript_Tiger-svg.inc"
 #include "sealie-bitmap.inc"
@@ -47,91 +31,6 @@ static char   svginput[] = \
 "\n"
 ;
 #endif
-
-
-@interface Cell : PSTCollectionViewCell
-
-@property( assign) UILabel *   label;
-
-@end
-
-
-@implementation Cell
-
-- (id) initWithFrame:(CGRect) frame 
-{
-    if ((self = [super initWithFrame:frame])) 
-    {
-        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0.0, 0.0, frame.size.width, frame.size.height)];
-        [label setAutoresizingMask:UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth];
-        [label setTextAlignment:UITextAlignmentCenter];
-        [label setFont:[UIFont boldSystemFontOfSize:50.0]];
-        [label setBackgroundColor:[UIColor underPageBackgroundColor]];
-        [label setTextColor:[UIColor blackColor]];
-
-        [[self contentView] addSubview:label];
-        _label = label;
-    }
-    return self;
-}
-
-
-#pragma mark - PSTCollectionViewDataSource
-
-+ (NSInteger) collectionView:(PSTCollectionView *) view 
-      numberOfItemsInSection:(NSInteger) section 
-{
-   if( section == 0)
-      return 2;
-   return( 0);
-}
-
-#pragma mark - PSTCollectionViewDelegate
-
-+ (PSTCollectionViewCell *) collectionView:(PSTCollectionView *) collectionView 
-                    cellForItemAtIndexPath:(NSIndexPath *)indexPath 
-{
-   char   buf[ 128];
-   static int  count;
-
-    Cell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"MY_CELL" 
-                                                           forIndexPath:indexPath];
-    sprintf( buf, "what--%d", count++);
-    [[cell label] setCString:buf];
-    return cell;
-}
-
-#pragma mark - PSTCollectionViewDelegateFlowLayout
-
-+ (CGSize) collectionView:(PSTCollectionView *) collectionView 
-                   layout:(PSTCollectionViewLayout*)collectionViewLayout 
-  sizeForItemAtIndexPath:(NSIndexPath *)indexPath 
-{
-    return CGSizeMake(200, 40);
-}
-
-+ (CGFloat)collectionView:(PSTCollectionView *)collectionView 
-                   layout:(PSTCollectionViewLayout*) collectionViewLayout 
-                   minimumInteritemSpacingForSectionAtIndex:(NSInteger)section 
-{
-    return 4;
-}
-
-+ (CGFloat) collectionView:(PSTCollectionView *) collectionView 
-                    layout:(PSTCollectionViewLayout*)collectionViewLayout 
-minimumLineSpacingForSectionAtIndex:(NSInteger)section 
-{
-    return 10;
-}
-
-@end
-
-
-@interface UIWindow( Debug)
-
-- (void) dump;
-
-@end
 
 
 static UIEvent   *button_callback( UIButton *button, UIEvent *event)
@@ -159,96 +58,203 @@ static UIEvent   *scroll_callback( UIButton *button, UIEvent *event)
 }
 
 
-@implementation UIView( MouseMotion)
-
-- (UIEvent *) mouseDragged:(UIEvent *) event 
+static UIEvent   *dump_window( UIButton *button, UIEvent *event)
 {
-   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, CGPointCStringDescription( [event mousePosition]));
+   fprintf( stderr, "dump_window: %s\n", [button cStringDescription]);
+
+   [[button window] dump];
+
    return( nil);
 }
-
-- (UIEvent *) mouseEntered:(UIEvent *) event 
-{
-   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, CGPointCStringDescription( [event mousePosition]));
-   return( nil);
-}
-
-- (UIEvent *) mouseMoved:(UIEvent *) event 
-{
-   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, CGPointCStringDescription( [event mousePosition]));
-   return( nil);
-}
-
-- (UIEvent *) mouseExited:(UIEvent *) event 
-{
-   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, CGPointCStringDescription( [event mousePosition]));
-   return( nil);
-}
-
-@end
 
 
 // scale stuff for stream
 #define SCALE     2.0
 
-
-static void   setupSceneInWindow( UIWindow *window)
+int   main()
 {
-   PSTCollectionView            *root;
-   PSTCollectionViewFlowLayout   *layout;
-   CGRect                        frame;
+   MulleSVGLayer      *tigerLayer;
+   MulleSVGLayer      *shiftedTigerLayer;
+   MulleImageLayer    *viechLayer;
+   MulleImageLayer    *sealieLayer;
+   MulleImageLayer    *turtleLayer;
+   MulleImageLayer    *turtleLayer2;
+   MulleSVGImage      *tigerSVGImage;
+   MulleBitmapImage   *viechBitmap;
+   MulleBitmapImage   *sealieBitmap;
+   MulleBitmapImage   *turtleBitmap;
+   CGRect             frame;
+   CGRect             windowFrame;
+   CGRect             bounds;
+   CGContext          *context;
+   UIWindow           *window;
+   UIView             *view;
+   UIView             *contentView;
+   UIButton           *button;
+   UIButton           *insideButton;
+   UIButton           *nestedButton;
+   UIButton           *inScrollerButton;
+   UIScrollView       *scroller;
+   UIApplication      *application;
 
-   frame = [window bounds];
-   assert( frame.size.width > 0.0);
-   assert( frame.size.height > 0.0);
+   tigerSVGImage = [[[MulleSVGImage alloc] initWithBytes:svginput
+                                          length:strlen( svginput) + 1] autorelease];
+   fprintf( stderr, "tigerSVGImage: %p\n", tigerSVGImage);
 
-   frame.origin.x    += 150;
-   frame.origin.y    += 50;
-   frame.size.width  -= 200;
-   frame.size.height -= 100;
+   tigerLayer = [[[MulleSVGLayer alloc] initWithSVGImage:tigerSVGImage] autorelease];
+   [tigerLayer setCStringName:"tiger"];
+   fprintf( stderr, "layer: %p\n", tigerLayer);
 
-   layout = [[PSTCollectionViewFlowLayout new] autorelease];;
-   root   = [[[PSTCollectionView alloc] initWithFrame:frame
-                                 collectionViewLayout:layout] autorelease];
-   [[root layer] setBackgroundColor:getNVGColor( 0xFF0000FF)]; // red
-   [[root layer] setCStringName:"root"];
-  
-   [root registerClass:[Cell class] forCellWithReuseIdentifier:@"MY_CELL"];
-   [root setDataSource:[Cell class]];
-   [root setDelegate:[Cell class]];
-
-   [window addSubview:root];
-
-   [root reloadData];
-
-}
+   shiftedTigerLayer = [[[MulleSVGLayer alloc] initWithSVGImage:tigerSVGImage] autorelease];
+   [shiftedTigerLayer setCStringName:"shiftedTiger"];
+   fprintf( stderr, "layer: %p\n", shiftedTigerLayer);
 
 
-int  main()
-{
-   CGContext       *context;
-   UIApplication   *application;
-   UIWindow        *window;
+   // layer = [[[CALayer alloc] init] autorelease];
 
-   /* 
+   frame.origin       = CGPointMake( 0.0 * SCALE, 0.0 * SCALE);
+   frame.size.width   = 320 * SCALE;
+   frame.size.height  = 200 * SCALE;
+   [tigerLayer setFrame:frame];
+ //  [layer setBounds:CGRectMake( 0.0, 0.0, 200, 30)];
+   [tigerLayer setBackgroundColor:getNVGColor( 0xFFE0D0D0)];
+   [tigerLayer setBorderColor:getNVGColor( 0xFF30FF80)];
+   [tigerLayer setBorderWidth:32.0f];
+   [tigerLayer setCornerRadius:16.0f];
+
+   frame.origin = CGPointMake( 320 * SCALE, 200 * SCALE);
+   [shiftedTigerLayer setFrame:frame];
+
+   bounds = [shiftedTigerLayer bounds];
+   bounds.origin.x = -bounds.size.width / 2.0;
+   [shiftedTigerLayer setBounds:bounds];
+   [shiftedTigerLayer setBackgroundColor:getNVGColor( 0x407040FF)];
+
+
+   viechBitmap = [[[MulleBitmapImage alloc] initWithConstBytes:viech_bitmap
+                                                    bitmapSize:viech_bitmap_size]
+                                                  autorelease];
+   fprintf( stderr, "viechBitmapImage: %p\n", viechBitmap);
+
+   sealieBitmap = [[[MulleBitmapImage alloc] initWithConstBytes:sealie_bitmap
+                                                     bitmapSize:sealie_bitmap_size]
+                                                  autorelease];
+   fprintf( stderr, "sealieBitmapImage: %p\n", sealieBitmap);
+
+   turtleBitmap = [[[MulleBitmapImage alloc] initWithConstBytes:turtle_bitmap
+                                                     bitmapSize:turtle_bitmap_size]
+                                                  autorelease];
+   fprintf( stderr, "turtleBitmapImage: %p\n", turtleBitmap);
+
+
+   viechLayer = [[[MulleImageLayer alloc] initWithImage:viechBitmap] autorelease];
+   [viechLayer setCStringName:"viech"];
+   frame.origin       = CGPointMake( 320.0 * SCALE, 0.0 * SCALE);
+   frame.size.width   = 320 * SCALE;
+   frame.size.height  = 200 * SCALE;
+   [viechLayer setFrame:frame];
+   fprintf( stderr, "layer: %p\n", viechLayer);
+
+   sealieLayer = [[[MulleImageLayer alloc] initWithImage:sealieBitmap] autorelease];
+   [sealieLayer setCStringName:"sealie"];
+   frame.origin       = CGPointMake( 30.0, 2.0);
+   frame.size.width   = 102;
+   frame.size.height  = 100;
+   [sealieLayer setFrame:frame];
+   fprintf( stderr, "layer: %p\n", sealieLayer);
+
+   turtleLayer = [[[MulleImageLayer alloc] initWithImage:turtleBitmap] autorelease];
+   [turtleLayer setCStringName:"turtle"];
+   frame.origin       = CGPointMake( -50.0, 10.0);
+   frame.size.width   = 100;
+   frame.size.height  = 117;
+   [turtleLayer setFrame:frame];
+   fprintf( stderr, "layer: %p\n", turtleLayer);
+
+   /*
     * window and app 
     */
-   window  = [[[UIWindow alloc] initWithFrame:CGRectMake( 0.0, 0.0, W * SCALE, H * SCALE)] autorelease];
+   windowFrame = CGRectMake( 0.0, 0.0, 340.0 * SCALE, 220.0 * SCALE);
+   window      = [[[UIWindow alloc] initWithFrame:windowFrame] autorelease];
    assert( window);
 
-   application = [UIApplication sharedInstance];
-   [application addWindow:window];
+   windowFrame = CGRectMake( 1.0 * SCALE, 1.0 * SCALE, (340.0 - 2) * SCALE, (220.0 - 2) * SCALE);
+   contentView = [[[UIView alloc] initWithFrame:windowFrame] autorelease];
+   [contentView setBackgroundColor:[UIColor yellowColor]];
+   [window addSubview:contentView];
 
-   setupSceneInWindow( window);
+   [[UIApplication sharedInstance] addWindow:window];
+
    /*
     * view placement in window 
     */
+#if 0
+   view = [[[UIView alloc] initWithLayer:tigerLayer] autorelease];
+   [contentView addSubview:view];
+
+   view = [[[UIView alloc] initWithLayer:shiftedTigerLayer] autorelease];
+   [contentView addSubview:view];
+
+   button = [[[UIButton alloc] initWithLayer:viechLayer] autorelease];
+   // [button setClipsSubviews:YES];
+   [button setClick:button_callback];
+   [button setDisabled:YES];
+   [contentView addSubview:button];
+
+   insideButton = [[[UIButton alloc] initWithLayer:sealieLayer] autorelease];
+   // [insideButton setClipsSubviews:YES];
+   [insideButton setClick:button_callback];
+   [button addSubview:insideButton];
+
+   nestedButton = [[[UIButton alloc] initWithLayer:turtleLayer] autorelease];
+   [nestedButton setBackgroundImage:turtleBitmap
+                           forState:UIControlStateNormal];
+   [nestedButton setBackgroundImage:viechBitmap
+                           forState:UIControlStateSelected];
+
+   // [insideButton setClipsSubviews:YES];
+   [nestedButton setClick:button_callback];
+   [insideButton addSubview:nestedButton];
+#endif
+
+#if 1
+    // another turtleLayer
+   turtleLayer2 = [[[MulleImageLayer alloc] initWithImage:turtleBitmap] autorelease];
+   [turtleLayer2 setCStringName:"turtle2"];
+   frame.origin       = CGPointMake( 0.0 * SCALE, 0.0 * SCALE);
+   frame.size.width   = 320 * SCALE * 10;
+   frame.size.height  = 200 * SCALE * 10;
+   [turtleLayer2 setFrame:frame];
+   fprintf( stderr, "layer: %p\n", turtleLayer2);
+
+   inScrollerButton = [[[UIButton alloc] initWithLayer:turtleLayer2] autorelease];
+   [inScrollerButton setBackgroundImage:turtleBitmap
+                               forState:UIControlStateNormal];
+   [inScrollerButton setBackgroundImage:sealieBitmap
+                               forState:UIControlStateSelected];
+//   [contentView addSubview:inScrollerButton];
+#endif   
+#if 1
+   bounds   = frame;
+   frame    = CGRectMake( 10.0 * SCALE, 10.0 * SCALE, 320.0 * SCALE, 200.0 * SCALE);
+   scroller = [[[UIScrollView alloc] initWithFrame:frame] autorelease];
+   [scroller setContentSize:bounds.size];
+   [[scroller contentView] addSubview:inScrollerButton];
+   [contentView addSubview:scroller];
+   [inScrollerButton setClick:dump_window];
+#endif
+
+   // [insideButton setClipsSubviews:YES];
+#if 0
+   [inScrollerButton setClick:scroll_callback];
+   [[scroller contentView] addSubview:inScrollerButton];
+#endif
 
    [window dump];
 
-   context = [[CGContext new] autorelease];
+   context = [CGContext object];
    [window renderLoopWithContext:context];
 
-   [application terminate];
+   [[UIApplication sharedInstance] terminate];
 }
 

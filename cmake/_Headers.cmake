@@ -99,6 +99,7 @@ src/UIView+NSArray.h
 src/UIView+UIEvent.h
 src/UIView+UIResponder.h
 src/UIView.h
+src/UIWindow+CGGeometry.h
 src/UIWindow+UIResponder.h
 src/UIWindow.h
 src/YogaKit/UIView+Yoga.h
@@ -111,7 +112,9 @@ src/import.h
 src/include.h
 src/mulle-pointerarray+ObjC.h
 src/mulle-quadtree.h
+src/mulle-time.h
 src/mulle-timespec.h
+src/mulle-timeval.h
 src/nanoperf.h
 src/nanovg+CString.h
 src/sealie-bitmap.inc

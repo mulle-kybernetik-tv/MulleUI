@@ -58,5 +58,4 @@ static inline CGFloat   MulleCGFloatMinimum(CGFloat x, CGFloat y)
    return( x < y ? x : y);
 }
 
-
 #endif

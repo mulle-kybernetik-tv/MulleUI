@@ -2,9 +2,14 @@
 
 #import "UIView.h"
 
+#define LOG_EVENTS
 
 PROTOCOLCLASS_IMPLEMENTATION( UIControl)
 
+//
+// so the protocolclass can not provide implementations, as it doesn't
+// know the layout of the class that inherits
+//
 @dynamic action;
 @dynamic click;
 @dynamic state;
@@ -42,7 +47,9 @@ PROTOCOLCLASS_IMPLEMENTATION( UIControl)
 
 - (UIEvent *) mouseDown:(UIEvent *) event
 {
-   // fprintf( stderr, "%s: %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
+#ifdef LOG_EVENTS   
+   fprintf( stderr, "%s: %s\n", __PRETTY_FUNCTION__, [(UIView *) self cStringDescription]);
+#endif
 
 	event = [self consumeEventIfDisabled:event];
 	// event was handled if nil
@@ -65,14 +72,16 @@ PROTOCOLCLASS_IMPLEMENTATION( UIControl)
 
 - (UIEvent *) mouseDragged:(UIEvent *) event
 {
-   // fprintf( stderr, "%s: %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
+#ifdef LOG_EVENTS   
+   fprintf( stderr, "%s: %s\n", __PRETTY_FUNCTION__, [(UIView *) self cStringDescription]);
+#endif
 
 	event = [self consumeEventIfDisabled:event];
 	// event was handled if nil
 	if( ! event)
 	   return( event);   
 
-   // we alway snarf up the mouseDown: event (why pass to parent ?)
+   // we alway snarf up the mouseDragged: event (why pass to parent ?)
    event = [self consumeMouseDragged:event];
    return( event);
 }
@@ -104,7 +113,9 @@ PROTOCOLCLASS_IMPLEMENTATION( UIControl)
 
 - (UIEvent *) mouseUp:(UIEvent *) event
 {
-   // fprintf( stderr, "%s: %s\n", __PRETTY_FUNCTION__, [(UIView *) self cStringDescription]);
+#ifdef LOG_EVENTS   
+   fprintf( stderr, "%s: %s\n", __PRETTY_FUNCTION__, [(UIView *) self cStringDescription]);
+#endif
 
 	event = [self consumeEventIfDisabled:event];
 	// event was handled if nil

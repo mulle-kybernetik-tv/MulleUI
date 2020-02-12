@@ -32,6 +32,9 @@ struct MulleFrameInfo;
 @property( assign, readonly) uint64_t         mouseButtonStates;
 @property( assign, readonly) uint64_t         modifiers;
 @property( assign, readonly) CGFloat          primaryMonitorPPI;
+@property( assign) CGFloat                    scrollWheelSensitivity;
+
+@property( assign, getter=isScrollWheelNatural) BOOL scrollWheelNatural;
 
 // nanovg will be done here, here is good time to do plain
 // OpenGL calls

@@ -13,12 +13,11 @@
 #define _mulle_ui_kit_include_h__
 
 // How to tweak the following glfw #include
-//    remove:        `mulle-sourcetree mark glfw no-header`
-//    rename:        `mulle-sourcetree mark glfw set include whatever.h`
-//    make private:  `mulle-sourcetree mark glfw no-public`
-//    make public:   `mulle-sourcetree mark glfw public`
-//    make optional: `mulle-sourcetree mark glfw no-require`
-//    remove for os: `mulle-sourcetree mark glfw no-os-<osname>`
+//    remove:          `mulle-sourcetree mark glfw no-header`
+//    rename:          `mulle-sourcetree mark glfw set include whatever.h`
+//    toggle public:   `mulle-sourcetree mark glfw [no-]public`
+//    toggle optional: `mulle-sourcetree mark glfw [no-]require`
+//    remove for os:   `mulle-sourcetree mark glfw no-os-<osname>`
 # include <GLFW/glfw3.h>   // glfw
 
 #endif

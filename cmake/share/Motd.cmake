@@ -11,15 +11,17 @@ if( NOT __MOTD__CMAKE__)
    #
    if( MSVC)
       find_program( CREATE_MOTD_EXE mulle-create-build-motd.bat
-         PATHS "${MULLE_VIRTUAL_ROOT}/.mulle/share/env/var/$ENV{MULLE_HOSTNAME}/bin"
+         PATHS "${MULLE_VIRTUAL_ROOT}/.mulle/var/$ENV{MULLE_HOSTNAME}/env/bin"
       )
    else()
+      # will fail on WSL if .mulle/var is elsewhere`. should get
+      # location from `mulle-env vardir env`
       find_program( CREATE_MOTD_EXE mulle-create-build-motd
-         PATHS "${MULLE_VIRTUAL_ROOT}/.mulle/share/env/var/$ENV{MULLE_HOSTNAME}/bin"
+         PATHS "${MULLE_VIRTUAL_ROOT}/.mulle/var/$ENV{MULLE_HOSTNAME}/env/bin"
       )
    endif()
 
-
+   # must run in singlephase
    if( CREATE_MOTD_EXE)
       add_custom_target( __motd__ ALL
          COMMAND "${CREATE_MOTD_EXE}" $ENV{CREATE_BUILD_MOTD_FLAGS}

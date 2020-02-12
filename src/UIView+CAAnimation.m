@@ -7,7 +7,6 @@
 
 @implementation UIView ( CAAnimation)
 
-
 enum 
 {
    UIViewAnimationIdle,
@@ -16,7 +15,7 @@ enum
 };
 
 
-struct 
+static struct 
 {
    mulle_thread_mutex_t        _lock;
 
@@ -53,12 +52,12 @@ static inline void   SelfUnlock()
 + (void) load 
 {
    mulle_thread_mutex_init( &Self._lock);
-   mulle_pointerarray_init( &Self._animatedLayers, 16, 0, NULL);
+   _mulle_pointerarray_init( &Self._animatedLayers, 16, 0, NULL);
 }
 
 + (void) unload 
 {
-   mulle_pointerarray_done( &Self._animatedLayers);
+   _mulle_pointerarray_done( &Self._animatedLayers);
    mulle_thread_mutex_done( &Self._lock);
 }
 
@@ -66,16 +65,18 @@ static inline void   SelfUnlock()
                  context:(void *) context
 {
    assert( _mulle_atomic_pointer_read( &Self._animationState) == NULL);
-
+   assert( ! animationID);
+   
    SelfLock();
    {
       mulle_free( Self._animationID);
+
       Self._animationID       = animationID ? mulle_strdup( animationID) : NULL;
       Self._context           = context;
       _mulle_atomic_pointer_nonatomic_write( &Self._animationState, 
                                             (void *) (intptr_t)  UIViewAnimationStarted);
-      mulle_pointerarray_done( &Self._animatedLayers);
-      mulle_pointerarray_init( &Self._animatedLayers, 16, 0, NULL);
+      _mulle_pointerarray_done( &Self._animatedLayers);
+      _mulle_pointerarray_init( &Self._animatedLayers, 16, 0, NULL);
 
       // reset everything to default values or ?
       Self._animationDelay              = 0.0;
@@ -109,18 +110,18 @@ static inline void   SelfUnlock()
                                             (void *) (intptr_t)  UIViewAnimationCommitting);
 
       memcpy( &tmp, &Self._animatedLayers, sizeof( struct mulle_pointerarray));
-      mulle_pointerarray_init( &Self._animatedLayers, 16, 0, NULL);
+      _mulle_pointerarray_init( &Self._animatedLayers, 16, 0, NULL);
       animationID       = Self._animationID;
       Self._animationID = NULL;
       context           = Self._context;
       context           = NULL;
 
-      delegate  = Self._delegate;
-      Self._delegate = nil;
-      willStart = Self._animationWillStartSelector;
+      delegate                         = Self._delegate;
+      Self._delegate                   = nil;
+      willStart                        = Self._animationWillStartSelector;
       Self._animationWillStartSelector = 0;
-      didEnd    = Self._animationDidStopSelector;
-      Self._animationDidStopSelector = 0;
+      didEnd                           = Self._animationDidStopSelector;
+      Self._animationDidStopSelector   = 0;
    }
    SelfUnlock();
 
@@ -136,7 +137,7 @@ static inline void   SelfUnlock()
    }
 
    rover = mulle_pointerarray_enumerate_nil( &tmp);
-   while( (layer = mulle_pointerarrayenumerator_next( &rover)))
+   while( (layer = _mulle_pointerarrayenumerator_next( &rover)))
    {
       [layer commitImplicitAnimationsWithAnimationID:animationID
                                    animationDelegate:animationDelegate];
@@ -177,8 +178,8 @@ static inline void   SelfUnlock()
 
    SelfLock();
    {
-      assert( mulle_pointerarray_find( &Self._animatedLayers, layer) == -1);
-      mulle_pointerarray_add( &Self._animatedLayers, layer);   
+      assert( _mulle_pointerarray_find( &Self._animatedLayers, layer) == -1);
+      _mulle_pointerarray_add( &Self._animatedLayers, layer);   
    }
    SelfUnlock();
 }

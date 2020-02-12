@@ -1,6 +1,8 @@
 #import "MulleScrollIndicatorView.h"
 
 #import "UIEdgeInsets.h"
+#import "UIView+UIEvent.h"
+#import "UIView+UIResponder.h"
 #import "CGGeometry+CString.h"
 #import "CGContext.h"
 #import "nanovg.h"
@@ -14,6 +16,37 @@
 + (Class) layerClass
 {
    return( [MulleScrollIndicatorLayer class]);
+}
+
+- (UIEvent *) mouseDown:(UIEvent *) event
+{
+   return( [[self superview] mouseDown:event]);
+}
+
+- (UIEvent *) mouseDragged:(UIMouseMotionEvent *) event
+{
+   return( [[self superview] mouseDragged:event]);
+}
+
+- (UIEvent *) mouseUp:(UIEvent *) event
+{
+   return( [[self superview] mouseUp:event]);
+}
+
+
+- (UIEvent *) rightMouseDown:(UIEvent *) event
+{
+   return( [[self superview] mouseDown:event]);  // sic
+}
+
+- (UIEvent *) rightMouseDragged:(UIMouseMotionEvent *) event
+{
+   return( [[self superview] mouseDragged:event]);
+}
+
+- (UIEvent *) rightMouseUp:(UIEvent *) event
+{
+   return( [[self superview] mouseUp:event]);  // sic
 }
 
 @end
@@ -101,29 +134,44 @@
 }
 
 
-- (CGPoint) contentOffsetAtPoint:(CGPoint) point
+//
+// if point is in bubble, return bubble start
+// otherwise where the bubble would go
+//
+- (CGFloat) bubbleValueAtPoint:(CGPoint) point
 {
    CGRect   bubbleFrame;
    CGRect   bounds;
    BOOL     isHorizontal;
 
    bounds      = [self bounds];
-   bubbleFrame = [self bubbleFrameWithBounds:bounds];
 
-   if( CGRectContainsPoint( bubbleFrame, point))
-      return( CGPointMake( 0.0, 0.0));
+   // the frame as actually drawn
+   bubbleFrame = [self bubbleFrameWithBounds:bounds];
 
    isHorizontal = bounds.size.width > bounds.size.height;
    if( isHorizontal)
    {
-      if( point.x < bubbleFrame.origin.x)
-         return( CGPointMake( -_bubbleLength, 0.0));
-      return( CGPointMake( +_bubbleLength, 0.0));
+      if( CGRectContainsPoint( bubbleFrame, point))
+         return( bubbleFrame.origin.x);
+      if( point.x + bubbleFrame.size.width > bounds.size.width)
+         return( bounds.size.width - bubbleFrame.size.width);
+      // try to center point in bubble
+      point.x -= bubbleFrame.size.width / 2.0;
+      if( point.x < 0.0)
+         point.x = 0.0;
+      return( point.x);
    }
 
-   if( point.y < bubbleFrame.origin.y)
-      return( CGPointMake( 0.0, -_bubbleLength));
-   return( CGPointMake( 0.0, +_bubbleLength));
+   if( CGRectContainsPoint( bubbleFrame, point))
+      return( bubbleFrame.origin.y);
+   if( point.y + bubbleFrame.size.height > bounds.size.height)
+      return( bounds.size.height - bubbleFrame.size.height);
+   // try to center point in bubble
+   point.y -= bubbleFrame.size.height / 2.0;
+   if( point.y < 0.0)
+      point.y = 0.0;
+   return( point.y);
 }
 
 
@@ -187,7 +235,7 @@
 
 
    bubbleFrame = [self bubbleFrameWithBounds:bounds];
-
+   
 #ifdef LAYOUT_DEBUG
    fprintf( stderr, "bubbleFrame bubble: %s\n", CGRectCStringDescription( bubbleFrame));  		
 #endif

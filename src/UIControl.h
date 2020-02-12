@@ -49,7 +49,12 @@ typedef NSUInteger    UIControlState;
    UIControlClickHandler   *_click;	\
    id                      _target;	\
    SEL                     _action
- 
+
+#define UIControlProperties                         \
+   @property( assign) UIControlState  state;        \
+   @property( assign) id  target;                   \
+   @property( assign) SEL action;                   \
+   @property( assign) UIControlClickHandler  *click
 //
 // A UIControl translates event into target/Action or click Events
 // 
@@ -57,10 +62,8 @@ PROTOCOLCLASS_INTERFACE( UIControl, UIResponder)
 
 typedef UIEvent   *UIControlClickHandler( id <UIControl> control, 
                                           UIEvent *event);
-@property( assign) UIControlState  state;
-@property( assign) id  target;
-@property( assign) SEL action;
-@property( assign) UIControlClickHandler  *click;
+
+UIControlProperties;
 
 @optional 
 

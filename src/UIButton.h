@@ -17,6 +17,8 @@
    UIImage   *_backgroundImage[ 4];
 }
 
+UIControlProperties;
+
 // UIControlState can be:
 //
 //    UIControlStateNormal

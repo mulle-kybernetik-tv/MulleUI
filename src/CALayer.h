@@ -29,6 +29,13 @@ struct MulleFrameInfo;
 @property( observable) CGColorRef   borderColor;
 @property( observable) CGColorRef   backgroundColor;
 @property( observable) CGRect       frame;
+
+//
+// With Bounds origin + width you set the transform that is done
+// during the drawing. We don't have sublayers, so it doesn't affect them
+// The bounds property is local to each layer and not inherited. If not set
+// it's the same as { 0, 0, frame.size.width, frame.size.height }
+//
 @property( observable) CGRect       bounds;
 
 // non-observable

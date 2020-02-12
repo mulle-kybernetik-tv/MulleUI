@@ -48,10 +48,10 @@ if( CREATE_OBJC_LOADER_INC)
 
    # The preferred way:
    #
-   # _1_MulleGLExample is an object library (a collection of files).
-   # _2_MulleGLExample is the loader with OBJC_LOADER_INC.
+   # _1_MulleUIKit is an object library (a collection of files).
+   # _2_MulleUIKit is the loader with OBJC_LOADER_INC.
    #
-   # Produce a static library _3_MulleGLExample from _1_MulleGLExample
+   # Produce a static library _3_MulleUIKit from _1_MulleUIKit
    # to feed into MULLE_OBJC_LOADER_TOOL.
    #
    # The static library is, so that the commandline doesn't overflow for

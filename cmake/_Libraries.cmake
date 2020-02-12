@@ -21,7 +21,7 @@ if( NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
       #
       if( GL_LIBRARY)
          #
-         # Add to GL_LIBRARY list.
+         # Add to GL_LIBRARY to OS_SPECIFIC_LIBRARIES list.
          # Disable with: `mulle-sourcetree mark GL no-cmakeadd`
          #
          set( OS_SPECIFIC_LIBRARIES
@@ -91,7 +91,7 @@ if( NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
       #
       if( GLU_LIBRARY)
          #
-         # Add to GLU_LIBRARY list.
+         # Add to GLU_LIBRARY to OS_SPECIFIC_LIBRARIES list.
          # Disable with: `mulle-sourcetree mark GLU no-cmakeadd`
          #
          set( OS_SPECIFIC_LIBRARIES
@@ -161,7 +161,7 @@ if( NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
       #
       if( X11_LIBRARY)
          #
-         # Add to X11_LIBRARY list.
+         # Add to X11_LIBRARY to OS_SPECIFIC_LIBRARIES list.
          # Disable with: `mulle-sourcetree mark X11 no-cmakeadd`
          #
          set( OS_SPECIFIC_LIBRARIES
@@ -231,7 +231,7 @@ if( NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
       #
       if( XRANDR_LIBRARY)
          #
-         # Add to XRANDR_LIBRARY list.
+         # Add to XRANDR_LIBRARY to OS_SPECIFIC_LIBRARIES list.
          # Disable with: `mulle-sourcetree mark Xrandr no-cmakeadd`
          #
          set( OS_SPECIFIC_LIBRARIES
@@ -301,7 +301,7 @@ if( NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
       #
       if( XXF86VM_LIBRARY)
          #
-         # Add to XXF86VM_LIBRARY list.
+         # Add to XXF86VM_LIBRARY to OS_SPECIFIC_LIBRARIES list.
          # Disable with: `mulle-sourcetree mark Xxf86vm no-cmakeadd`
          #
          set( OS_SPECIFIC_LIBRARIES
@@ -371,7 +371,7 @@ if( NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
       #
       if( XINERAMA_LIBRARY)
          #
-         # Add to XINERAMA_LIBRARY list.
+         # Add to XINERAMA_LIBRARY to OS_SPECIFIC_LIBRARIES list.
          # Disable with: `mulle-sourcetree mark Xinerama no-cmakeadd`
          #
          set( OS_SPECIFIC_LIBRARIES
@@ -441,7 +441,7 @@ if( NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
       #
       if( XCURSOR_LIBRARY)
          #
-         # Add to XCURSOR_LIBRARY list.
+         # Add to XCURSOR_LIBRARY to OS_SPECIFIC_LIBRARIES list.
          # Disable with: `mulle-sourcetree mark Xcursor no-cmakeadd`
          #
          set( OS_SPECIFIC_LIBRARIES
@@ -510,7 +510,7 @@ if( NOT DL_LIBRARY)
    #
    if( DL_LIBRARY)
       #
-      # Add to DL_LIBRARY list.
+      # Add to DL_LIBRARY to OS_SPECIFIC_LIBRARIES list.
       # Disable with: `mulle-sourcetree mark dl no-cmakeadd`
       #
       set( OS_SPECIFIC_LIBRARIES
@@ -578,7 +578,7 @@ if( NOT PTHREAD_LIBRARY)
    #
    if( PTHREAD_LIBRARY)
       #
-      # Add to PTHREAD_LIBRARY list.
+      # Add to PTHREAD_LIBRARY to OS_SPECIFIC_LIBRARIES list.
       # Disable with: `mulle-sourcetree mark pthread no-cmakeadd`
       #
       set( OS_SPECIFIC_LIBRARIES
@@ -646,7 +646,7 @@ if( NOT M_LIBRARY)
    #
    if( M_LIBRARY)
       #
-      # Add to M_LIBRARY list.
+      # Add to M_LIBRARY to OS_SPECIFIC_LIBRARIES list.
       # Disable with: `mulle-sourcetree mark m no-cmakeadd`
       #
       set( OS_SPECIFIC_LIBRARIES
@@ -714,7 +714,7 @@ if( NOT Z_LIBRARY)
    #
    if( Z_LIBRARY)
       #
-      # Add to Z_LIBRARY list.
+      # Add to Z_LIBRARY to OS_SPECIFIC_LIBRARIES list.
       # Disable with: `mulle-sourcetree mark z no-cmakeadd`
       #
       set( OS_SPECIFIC_LIBRARIES
@@ -742,7 +742,7 @@ if( NOT BZ2_LIBRARY)
    #
    if( BZ2_LIBRARY)
       #
-      # Add to BZ2_LIBRARY list.
+      # Add to BZ2_LIBRARY to OS_SPECIFIC_LIBRARIES list.
       # Disable with: `mulle-sourcetree mark bz2 no-cmakeadd`
       #
       set( OS_SPECIFIC_LIBRARIES
@@ -770,7 +770,7 @@ if( NOT PNG_LIBRARY)
    #
    if( PNG_LIBRARY)
       #
-      # Add to PNG_LIBRARY list.
+      # Add to PNG_LIBRARY to OS_SPECIFIC_LIBRARIES list.
       # Disable with: `mulle-sourcetree mark png no-cmakeadd`
       #
       set( OS_SPECIFIC_LIBRARIES
@@ -798,7 +798,7 @@ if( NOT HARFBUZZ_LIBRARY)
    #
    if( HARFBUZZ_LIBRARY)
       #
-      # Add to HARFBUZZ_LIBRARY list.
+      # Add to HARFBUZZ_LIBRARY to OS_SPECIFIC_LIBRARIES list.
       # Disable with: `mulle-sourcetree mark harfbuzz no-cmakeadd`
       #
       set( OS_SPECIFIC_LIBRARIES

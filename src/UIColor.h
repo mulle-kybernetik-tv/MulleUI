@@ -17,10 +17,11 @@
 + (CGColorRef) blueColor;
 + (CGColorRef) greenColor;
 + (CGColorRef) grayColor;
++ (CGColorRef) yellowColor;
 + (CGColorRef) darkGrayColor;
 + (CGColorRef) lightGrayColor;
 + (CGColorRef) underPageBackgroundColor;
-+ (CGColorRef ) colorWithCGColor:(CGColorRef) cgColor;
++ (CGColorRef) colorWithCGColor:(CGColorRef) cgColor;
 
 @end
 

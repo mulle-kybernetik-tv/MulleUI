@@ -41,9 +41,9 @@
 - (UIEvent *) otherMouseUp:(UIEvent *) event;
 - (UIEvent *) rightMouseUp:(UIEvent *) event;
 
-- (UIEvent *) mouseDragged:(UIEvent *) event;
-- (UIEvent *) otherMouseDragged:(UIEvent *) event;
-- (UIEvent *) rightMouseDragged:(UIEvent *) event;
+- (UIEvent *) mouseDragged:(UIMouseMotionEvent *) event;
+- (UIEvent *) otherMouseDragged:(UIMouseMotionEvent *) event;
+- (UIEvent *) rightMouseDragged:(UIMouseMotionEvent *) event;
 
 - (UIEvent *) mouseEntered:(UIEvent *) event;
 - (UIEvent *) mouseExited:(UIEvent *) event;

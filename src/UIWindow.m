@@ -18,7 +18,10 @@
 
 #import "CALayer.h"  // debugging tmp
 
+// #define LAYOUT_ANIMATIONS
 // #define CALLBACK_DEBUG
+//#define MOUSE_MOTION_CALLBACK_DEBUG
+#define MOUSE_BUTTON_CALLBACK_DEBUG
 // #define PRINTF_PROFILE_RENDER
 // #define PRINTF_PROFILE_EVENTS
 
@@ -66,7 +69,7 @@ static void   mouseButtonCallback( GLFWwindow* window,
 
    self  = glfwGetWindowUserPointer( window);
 
-#ifdef CALLBACK_DEBUG
+#if defined( CALLBACK_DEBUG) || defined( MOUSE_BUTTON_CALLBACK_DEBUG)
    fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
 #endif
 
@@ -86,6 +89,8 @@ static void   mouseButtonCallback( GLFWwindow* window,
                                             modifiers:mods];
    [self handleEvent:event];
    [event release];
+
+   // [self dump];
 }
 
 
@@ -95,12 +100,19 @@ static void   mouseMoveCallback( GLFWwindow* window,
 {
    UIWindow   *self;
    UIEvent    *event;
+   CGRect     frame;
 
    self = glfwGetWindowUserPointer( window);
 
-#ifdef CALLBACK_DEBUG
-   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
+#if defined( CALLBACK_DEBUG) || defined( MOUSE_MOTION_CALLBACK_DEBUG)
+   fprintf( stderr, "%s %s (%.1f, %.1f)\n", __PRETTY_FUNCTION__, [self cStringDescription], xpos, ypos);
 #endif
+
+   // coordinates are window relative ?
+   // we get not events for the window title bar
+
+	self->_mousePosition.x = xpos;
+	self->_mousePosition.y = ypos;
 
    //
    // Observed behaviour on linux: Depending on mouse sensitivity, it may 
@@ -109,7 +121,6 @@ static void   mouseMoveCallback( GLFWwindow* window,
    // turned out to be 200,200. So don't expect the mouse to provide all 
    // possible integer coordinates for every pixel on the screen.
    //
-   
    if( self->_discardEvents & UIEventTypeMotion)
       return;
 
@@ -133,6 +144,7 @@ static void   mouseScrollCallback( GLFWwindow *window,
    UIEvent    *event;
    uint64_t   bit;
    CGPoint    scrollOffset;
+   CGFloat    sensitivity;
 
    self  = glfwGetWindowUserPointer( window);
 
@@ -143,7 +155,18 @@ static void   mouseScrollCallback( GLFWwindow *window,
    if( self->_discardEvents)
       return;
 
-   scrollOffset = CGPointMake( xoffset, yoffset);
+   sensitivity = [self scrollWheelSensitivity];
+   if( sensitivity != 0.0)
+   {
+      xoffset *= sensitivity;
+      yoffset *= sensitivity;
+   }
+   
+   if( [self isScrollWheelNatural])
+      scrollOffset = CGPointMake( xoffset, yoffset);
+   else
+      scrollOffset = CGPointMake( -xoffset, -yoffset);
+     
    event        = [[UIMouseScrollEvent alloc] initWithWindow:self
                                                mousePosition:self->_mousePosition
                                                 scrollOffset:scrollOffset
@@ -164,7 +187,7 @@ static void   windowMoveCallback( GLFWwindow* window, int xpos, int ypos)
    fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
 #endif
 
-   fprintf( stderr, "%p moved: x=%d y=%d\n", self, xpos, ypos);
+//   fprintf( stderr, "%p moved: x=%d y=%d\n", self, xpos, ypos);
 
    frame        = [self frame];
    frame.origin = CGPointMake( xpos, ypos);
@@ -199,7 +222,6 @@ static void   windowResizeCallback( GLFWwindow* window, int width, int height)
    fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
 #endif
 }
-
 
 
 static void   framebufferResizeCallback( GLFWwindow* window, int width, int height)
@@ -312,6 +334,8 @@ static void   framebufferResizeCallback( GLFWwindow* window, int width, int heig
    glfwSetFramebufferSizeCallback( _window, framebufferResizeCallback);
    glfwSetWindowRefreshCallback( _window, windowRefreshCallback);
 
+   _scrollWheelSensitivity = 20.0;
+   
    return( self);
 }
 
@@ -484,10 +508,13 @@ static void   error_callback(int code, const char* description)
       }
 
       // do this before the animation step, as this will generate animations
+#if LAYOUT_ANIMATIONS      
       [self startLayoutWithFrameInfo:&info];
+#endif      
       [self layoutSubviewsIfNeeded];
+#if LAYOUT_ANIMATIONS      
       [self endLayout];
-
+#endif
       {
          CAAbsoluteTime   renderTime;
 
@@ -534,11 +561,12 @@ static void   error_callback(int code, const char* description)
                                                 (uint32_t) frame.size.height * 0xFF) |
                                                 0xFF)];
 */                                                
-   yoga = [contentView yoga];
+/*   yoga = [contentView yoga];
    [yoga setWidth:YGPointValue( frame.size.width)];
    [yoga setHeight:YGPointValue( frame.size.height)];   
 
    [contentView setNeedsLayout];
+   */
 }
 
 
@@ -626,9 +654,9 @@ static void   error_callback(int code, const char* description)
    assert( view);
    assert( [view isKindOfClass:[UIView class]]);
 
-   assert( mulle_pointerarray_find( &_trackingViews, view) == -1);
+   assert( _mulle_pointerarray_find( &_trackingViews, view) == -1);
    [view retain];
-   mulle_pointerarray_add( &_trackingViews, view);
+   _mulle_pointerarray_add( &_trackingViews, view);
 }
 
 
@@ -636,7 +664,7 @@ static void   error_callback(int code, const char* description)
 {
    assert( [view isKindOfClass:[UIView class]]);
 
-   if( mulle_pointerarray_find( &_trackingViews, view) != -1)
+   if( _mulle_pointerarray_find( &_trackingViews, view) != -1)
    {
         abort();
       //mulle_pointerarray_remove( &_trackingViews, view);
@@ -694,7 +722,7 @@ static void   error_callback(int code, const char* description)
    mulle_quadtree_reset( _quadtree, bounds);
 
    rover = mulle_pointerarray_enumerate_nil( &_trackingViews);
-   while( (view = mulle_pointerarrayenumerator_next( &rover)))
+   while( (view = _mulle_pointerarrayenumerator_next( &rover)))
       [self addTrackingAreasOfView:view];
    mulle_pointerarrayenumerator_done( &rover);
 }
@@ -705,7 +733,7 @@ static void   collect_hit_views( CGRect rect, void *payload, void *userinfo)
    struct mulle_pointerarray   *array = userinfo;
    UIView                      *view = payload;
 
-   mulle_pointerarray_add( array, view);
+   _mulle_pointerarray_add( array, view);
 }
 
 
@@ -722,7 +750,7 @@ static void   collect_hit_views( CGRect rect, void *payload, void *userinfo)
 
    if( [event eventType] == UIEventTypeMotion)
    {
-      mulle_pointerarray_init( &views, 16, 0, NULL);
+      _mulle_pointerarray_init( &views, 16, 0, NULL);
 
       point = [event mousePosition];
       
@@ -746,12 +774,12 @@ static void   collect_hit_views( CGRect rect, void *payload, void *userinfo)
          // and send them a MouseExited event
          // send MouseMoved: events to all remaining enteredViews
 
-         mulle_pointerarray_init( &remaining, 16, 0, mulle_pointerarray_get_allocator( &_enteredViews));
+         _mulle_pointerarray_init( &remaining, 16, 0, _mulle_pointerarray_get_allocator( &_enteredViews));
         
          rover = mulle_pointerarray_enumerate_nil( &_enteredViews);
-         while( (view = mulle_pointerarrayenumerator_next( &rover)))
+         while( (view = _mulle_pointerarrayenumerator_next( &rover)))
          {
-            if( mulle_pointerarray_find( &views, view) == -1)
+            if( _mulle_pointerarray_find( &views, view) == -1)
             {
                [view mouseExited:event];
             }
@@ -760,7 +788,7 @@ static void   collect_hit_views( CGRect rect, void *payload, void *userinfo)
                // will be sent later by regular event handling code anyway
                if( ! isDrag)
                   [view mouseMoved:event];
-               mulle_pointerarray_add( &remaining, view);
+               _mulle_pointerarray_add( &remaining, view);
             }
          }
          mulle_pointerarrayenumerator_done( &rover);      
@@ -768,12 +796,12 @@ static void   collect_hit_views( CGRect rect, void *payload, void *userinfo)
          // remaining are now the remaining active enteredViews
 
          rover = mulle_pointerarray_enumerate_nil( &views);
-         while( (view = mulle_pointerarrayenumerator_next( &rover)))
+         while( (view = _mulle_pointerarrayenumerator_next( &rover)))
          {
-            if( mulle_pointerarray_find( &remaining, view) == -1)
+            if( _mulle_pointerarray_find( &remaining, view) == -1)
             {
                [view mouseEntered:event];
-               mulle_pointerarray_add( &remaining, view);
+               _mulle_pointerarray_add( &remaining, view);
             }
          }
          mulle_pointerarrayenumerator_done( &rover);      
@@ -789,8 +817,8 @@ static void   collect_hit_views( CGRect rect, void *payload, void *userinfo)
    }
 
 
-   if( [event isKindOfClass:[UIMouseScrollEvent class]])
-      [self dump];
+//   if( [event isKindOfClass:[UIMouseScrollEvent class]])
+//      [self dump];
    return( [super handleEvent:event]);
 }
 

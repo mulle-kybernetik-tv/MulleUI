@@ -40,14 +40,14 @@ sourcetree_task_run()
 {
    log_entry "mulle-sde/c-cmake::sourcetree_task_run" "$@"
 
-   log_info "Updating ${C_MAGENTA}${C_BOLD}${PROJECT_NAME}${C_INFO} sourcetree"
+   log_info "Reflecting ${C_MAGENTA}${C_BOLD}${PROJECT_NAME}${C_INFO} sourcetree"
 
    case "${MULLE_SOURCETREE_TO_CMAKE_RUN}" in
       NO|DISABLE*|OFF)
       ;;
 
       *)
-         exekutor mulle-sourcetree-to-cmake ${MULLE_SOURCETREE_TO_CMAKE_FLAGS} "$@"  || return $?
+         exekutor mulle-sourcetree-to-cmake "$@"  || return $?
       ;;
    esac
 
@@ -56,7 +56,7 @@ sourcetree_task_run()
       ;;
 
       *)
-         exekutor mulle-sourcetree-to-c ${MULLE_SOURCETREE_TO_C_FLAGS} "$@" || return $?
+         exekutor mulle-sourcetree-to-c "$@" || return $?
       ;;
    esac
 }

@@ -41,7 +41,7 @@
 
 - (void) finalize
 {
-   [_context removeTextureImage:self];   
+   [_context removeFramebufferImage:self];   
    if( _framebuffer)
    	nvgluDeleteFramebuffer((NVGLUframebuffer *) _framebuffer);   
    [super finalize];

@@ -22,11 +22,12 @@
 #include <assert.h>
 
 
-const CGRect        CGRectInfinite = { INFINITY, INFINITY, INFINITY, INFINITY };
-const CGPoint       CGPointZero;
-const CGRect        CGRectZero;
-const CGSize        CGSizeZero;
-const CGRect        CGRectNull = { INFINITY, INFINITY, 0.0f, 0.0f };
+const CGRect    CGRectInfinite = { INFINITY, INFINITY, INFINITY, INFINITY };
+const CGPoint   CGPointZero;
+const CGRect    CGRectZero;
+const CGSize    CGSizeZero;
+const CGVector  CGVectorZero;
+const CGRect    CGRectNull = {INFINITY, INFINITY, 0.0f, 0.0f};
 
 /**
  @Status Interoperable

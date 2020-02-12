@@ -45,7 +45,7 @@
    mulle_allocator_free( allocator, _cStringName);
 
    rover = mulle_pointerarray_enumerate_nil( &_animations);
-   while( animation = mulle_pointerarrayenumerator_next( &rover))
+   while( animation = _mulle_pointerarrayenumerator_next( &rover))
       [animation release];
    mulle_pointerarrayenumerator_done( &rover); 
 
@@ -288,7 +288,7 @@
 
    // nil out references to outside memory
    copy->_snapshot    = nil;
-   mulle_pointerarray_init( &copy->_animations, 0, 0, NULL);
+   _mulle_pointerarray_init( &copy->_animations, 0, 0, NULL);
    copy->_cStringName = NULL;
    return( copy);
 }
@@ -355,8 +355,8 @@
 {
    assert( animation);
 
-   assert( mulle_pointerarray_find( &_animations, animation) == -1);
-   mulle_pointerarray_add( &_animations, animation);
+   assert( _mulle_pointerarray_find( &_animations, animation) == -1);
+   _mulle_pointerarray_add( &_animations, animation);
 }
 
 
@@ -366,12 +366,12 @@
    CAAnimation                           *animation;
 
    rover = mulle_pointerarray_enumerate_nil( &_animations);
-   while( animation = mulle_pointerarrayenumerator_next( &rover))
+   while( animation = _mulle_pointerarrayenumerator_next( &rover))
       [animation autorelease];
    mulle_pointerarrayenumerator_done( &rover); 
 
-   mulle_pointerarray_done( &_animations);
-   mulle_pointerarray_init( &_animations, 16, 0, NULL);
+   _mulle_pointerarray_done( &_animations);
+   _mulle_pointerarray_init( &_animations, 16, 0, NULL);
 }
 
 
@@ -391,7 +391,7 @@
 #endif
 
    rover = mulle_pointerarray_enumerate_nil( &_animations);
-   while( animation = mulle_pointerarrayenumerator_next( &rover))
+   while( animation = _mulle_pointerarrayenumerator_next( &rover))
       [animation animateLayer:self
                  absoluteTime:renderTime];
    mulle_pointerarrayenumerator_done( &rover);   

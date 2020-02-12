@@ -179,8 +179,8 @@
 
    if( _subviews)
    {
-      rover = mulle_pointerarray_enumerate( _subviews);
-      while( (view = mulle_pointerarrayenumerator_next( &rover)))
+      rover = mulle_pointerarray_enumerate_nil( _subviews);
+      while( (view = _mulle_pointerarrayenumerator_next( &rover)))
          [view dumpWithIndent:indent];
       mulle_pointerarrayenumerator_done( &rover);
    }

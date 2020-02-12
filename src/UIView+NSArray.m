@@ -23,7 +23,7 @@ static inline NSUInteger   UIViewGetIndexOfSubview( UIView *self, UIView *other)
 
    i     = 0;
    rover = mulle_pointerarray_enumerate_nil( self->_subviews);
-   while( p = mulle_pointerarrayenumerator_next( &rover))   
+   while( p = _mulle_pointerarrayenumerator_next( &rover))   
    {
       if( p == other)
         return(i);
@@ -45,8 +45,8 @@ static inline NSUInteger   UIViewGetIndexOfSubview( UIView *self, UIView *other)
 }
 
 
-void  mulle_pointerarray_swap( struct mulle_pointerarray *array1, 
-                               struct mulle_pointerarray *array2)
+void  _mulle_pointerarray_swap( struct mulle_pointerarray *array1, 
+                                struct mulle_pointerarray *array2)
 {
    struct mulle_pointerarray   tmp;
 
@@ -71,7 +71,7 @@ void  mulle_pointerarray_remove_at_index( struct mulle_pointerarray *array,
    count = mulle_pointerarray_get_count( array);
    if( i == count - 1)
    {
-      mulle_pointerarray_remove_last( array);
+      _mulle_pointerarray_remove_last( array);
       return;
    }
 
@@ -81,15 +81,15 @@ void  mulle_pointerarray_remove_at_index( struct mulle_pointerarray *array,
    if( deletion >= sentinel)
       return;
 
-  mulle_pointerarray_init( &tmp,
-                            count - 1,
-                            mulle_pointerarray_get_notakey( array),
-                            mulle_pointerarray_get_allocator( array));
-
+   _mulle_pointerarray_init( &tmp,
+                             count - 1,
+                             _mulle_pointerarray_get_notakey( array),
+                             _mulle_pointerarray_get_allocator( array));
+ 
    // copy old over including item of insertion
    while( curr < deletion)
    {
-      mulle_pointerarray_add( &tmp, *curr++);
+      _mulle_pointerarray_add( &tmp, *curr++);
       curr++;
    }
 
@@ -99,12 +99,12 @@ void  mulle_pointerarray_remove_at_index( struct mulle_pointerarray *array,
    // copy rest
    while( curr < sentinel)
    {
-      mulle_pointerarray_add( &tmp, *curr++);
+      _mulle_pointerarray_add( &tmp, *curr++);
       curr++;
    }
 
-   mulle_pointerarray_swap( array, &tmp);
-   mulle_pointerarray_done( &tmp);
+   _mulle_pointerarray_swap( array, &tmp);
+   _mulle_pointerarray_done( &tmp);
 }
 
 
@@ -129,7 +129,7 @@ void  mulle_pointerarray_insert_at_index( struct mulle_pointerarray *array,
    count = mulle_pointerarray_get_count( array);
    if( i == count)
    {
-      mulle_pointerarray_add( array, item);
+      _mulle_pointerarray_add( array, item);
       return;
    }
 
@@ -139,29 +139,29 @@ void  mulle_pointerarray_insert_at_index( struct mulle_pointerarray *array,
    if( insertion > sentinel)
       insertion = sentinel;
 
-   mulle_pointerarray_init( &tmp,
-                            count + 1,
-                            mulle_pointerarray_get_notakey( array),
-                            mulle_pointerarray_get_allocator( array));
+   _mulle_pointerarray_init( &tmp,
+                             count + 1,
+                             _mulle_pointerarray_get_notakey( array),
+                             _mulle_pointerarray_get_allocator( array));
    // copy old over including item of insertion
    while( curr < insertion)
    {
-      mulle_pointerarray_add( &tmp, *curr++);
+      _mulle_pointerarray_add( &tmp, *curr++);
       curr++;
    }
 
    // insert ours
-   mulle_pointerarray_add( &tmp, item);
+   _mulle_pointerarray_add( &tmp, item);
 
    // copy rest
    while( curr < sentinel)
    {
-      mulle_pointerarray_add( &tmp, *curr++);
+      _mulle_pointerarray_add( &tmp, *curr++);
       curr++;
    }
 
-   mulle_pointerarray_swap( array, &tmp);
-   mulle_pointerarray_done( &tmp);
+   _mulle_pointerarray_swap( array, &tmp);
+   _mulle_pointerarray_done( &tmp);
 }
 
 
@@ -336,7 +336,7 @@ void  mulle_pointerarray_move( struct mulle_pointerarray *array,
    UIView                                *candidate;
 
    rover = mulle_pointerarray_enumerate_nil( _subviews);
-   while( candidate = mulle_pointerarrayenumerator_next( &rover))
+   while( candidate = _mulle_pointerarrayenumerator_next( &rover))
    {
       if( view == candidate)
          return( YES);
@@ -344,7 +344,7 @@ void  mulle_pointerarray_move( struct mulle_pointerarray *array,
    mulle_pointerarrayenumerator_done( &rover);      
 
    rover = mulle_pointerarray_enumerate_nil( _subviews);
-   while( candidate = mulle_pointerarrayenumerator_next( &rover))
+   while( candidate = _mulle_pointerarrayenumerator_next( &rover))
    {
       if( [candidate _isSubviewOrDescendantview:view])
          return( YES);

@@ -3,6 +3,7 @@
 #import "UIImage.h"
 #import "CGContext.h"
 
+// #define RENDER_DEBUG
 
 @implementation UIImage( MulleImageLayer)
 
@@ -55,7 +56,12 @@
    CGSize       imageSize;
 
    if( ! [super drawInContext:context])
+   {
+#ifdef RENDER_DEBUG
+      fprintf( stderr, "%s drawInContext said NO\n", [self cStringDescription]);
+#endif   
       return( NO);
+   }
 
    if( ! _image)
       return( YES);
@@ -82,9 +88,6 @@
    nvgFillPaint( vg, imgPaint);
   // nvgFillColor( vg, getNVGColor( 0x402060FF));
    nvgFill( vg);
-
-   // if I delete the image here, the texture is gone from the picture
-   // nvgDeleteImage( vg, textureId);
 
    return( YES);
 }

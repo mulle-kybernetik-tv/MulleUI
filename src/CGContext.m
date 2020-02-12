@@ -69,6 +69,52 @@
    return( _vg);
 }
 
+- (void) _freeImages
+{
+   struct _mulle_pointermapenumerator  rover;
+   struct mulle_pointerpair            *pair;
+   UIImage                             *image;
+   int                                 textureId;
+
+   if( ! _images)
+      return;
+
+   rover = _mulle_pointermap_enumerate( _images);  
+   while( (pair = _mulle_pointermapenumerator_next( &rover)))
+   {
+      image     = pair->_key;
+      [image autorelease];
+      textureId = (int) (intptr_t) pair->_value;
+      nvgDeleteImage( _vg, textureId);
+   }
+   _mulle_pointermapenumerator_done( &rover);
+
+   _mulle_pointermap_destroy( _images, MulleObjCObjectGetAllocator( self));
+   _images = NULL;
+}
+
+- (void) _freeFramebufferImages
+{
+   struct mulle_pointerarrayenumerator  rover;
+   UIImage                             *image;
+
+   rover = mulle_pointerarray_enumerate_nil( _framebufferImages);  
+   while( (image = _mulle_pointerarrayenumerator_next( &rover)))
+      [image autorelease];
+   mulle_pointerarrayenumerator_done( &rover);
+
+   mulle_pointerarray_destroy( _framebufferImages);
+   _framebufferImages = NULL;
+}
+
+
+- (void) finalize
+{
+   [self _freeImages];
+   [self _freeFramebufferImages];
+   [super finalize];
+}
+
 
 - (void) dealloc
 {
@@ -133,6 +179,8 @@
                CGSizeCStringDescription( info->framebufferSize),
                CGSizeCStringDescription( info->windowSize));
             
+   _renderStartTimestamp = CAAbsoluteTimeNow();            
+   
    glViewport( 0, 0, info->frame.size.width, info->frame.size.height);
    nvgBeginFrame( _vg, info->frame.size.width, 
                        info->frame.size.height, 
@@ -142,6 +190,12 @@
    
    nvgResetTransform( _vg);
    nvgScissor( _vg, 0.0, 0.0, info->frame.size.width, info->frame.size.height);
+}
+
+
+- (CAAbsoluteTime) renderStartTimestamp
+{
+   return(_renderStartTimestamp);
 }
 
 
@@ -252,25 +306,65 @@
 
 
 // future, rasterize vector images to bitmaps here
-- (int) textureIDForImage:(UIImage *) image
+- (int) registeredTextureIDForImage:(UIImage *) image
 {
-   int              textureId;
-   mulle_int_size   size;
-
-   if( [image isKindOfClass:[MulleBitmapImage class]])
+   int                      textureId;
+   mulle_int_size           size;
+   void                     *value;
+   struct mulle_allocator   *allocator;
+  
+   if( _images)
    {
-      size      = [(MulleBitmapImage *) image intSize];
-      textureId = nvgCreateImageRGBA( _vg, size.width, size.height, 0, [(MulleBitmapImage *) image bytes]);
-      // fprintf( stderr, "textureid: %d\n", textureId);
-      return( textureId);
+      value = _mulle_pointermap_get( _images, image);
+      if( value)
+      {
+         textureId = (int) (intptr_t) value;
+   //      fprintf( stderr, "textureid: %d\n", textureId);
+         return( textureId);
+      } 
    }
-   abort();
-   return( -1);
+
+   if( ! [image isKindOfClass:[MulleBitmapImage class]])
+   {
+      abort();
+      return( -1);
+   }
+
+   allocator = MulleObjCObjectGetAllocator( self);
+   if( ! _images)
+      _images = _mulle_pointermap_create( 16, 0, allocator);
+
+   size      = [(MulleBitmapImage *) image intSize];
+   textureId = nvgCreateImageRGBA( _vg, size.width, size.height, 0, [(MulleBitmapImage *) image bytes]);
+//   fprintf( stderr, "textureid: %d\n", textureId);
+
+   [image retain];
+   _mulle_pointermap_set( _images, image, (void *) (intptr_t) textureId, allocator);
+   return( textureId);
 }
 
 
-- (MulleTextureImage *) textureImageWithSize:(CGSize) size 
-                                     options:(NSUInteger) options
+- (void) unregisterTextureIDForImage:(UIImage *) image
+{
+   void   *value;
+   int    textureId;
+
+   assert( _images);
+
+   value = _mulle_pointermap_get( _images, image);
+   if( ! value)
+      return;
+
+   textureId = (int) (intptr_t) value;
+   nvgDeleteImage( _vg, textureId);
+
+   [image autorelease];
+   _mulle_pointermap_remove( _images, image, MulleObjCObjectGetAllocator( self));
+}
+
+
+- (MulleTextureImage *) framebufferImageWithSize:(CGSize) size 
+                                         options:(NSUInteger) options
 {
    MulleTextureImage   *image;
 
@@ -282,23 +376,26 @@
 
    if( ! _framebufferImages)
       _framebufferImages = mulle_pointerarray_create_nil( NULL);
-   mulle_pointerarray_add( _framebufferImages, image);
+
+   [image retain];
+   _mulle_pointerarray_add( _framebufferImages, image);
    return( image);
 }
 
 
-- (void) removeTextureImage:(UIImage *) image 
+- (void) removeFramebufferImage:(UIImage *) image 
 {
    intptr_t   index;
 
    if( ! _framebufferImages)
       return;
 
-   index = mulle_pointerarray_find( _framebufferImages, image);
+   index = _mulle_pointerarray_find( _framebufferImages, image);
    if( index == -1)
       return;
 
-   mulle_pointerarray_set( _framebufferImages, index, NULL);
+   [image autorelease];
+   _mulle_pointerarray_set( _framebufferImages, index, NULL);
 }
    
 @end

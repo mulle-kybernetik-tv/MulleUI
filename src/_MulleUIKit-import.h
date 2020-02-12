@@ -13,12 +13,11 @@
 #define _mulle_ui_kit_import_h__
 
 // How to tweak the following Foundation #import
-//    remove:        `mulle-sourcetree mark Foundation no-header`
-//    rename:        `mulle-sourcetree mark Foundation set include whatever.h`
-//    make private:  `mulle-sourcetree mark Foundation no-public`
-//    make public:   `mulle-sourcetree mark Foundation public`
-//    make optional: `mulle-sourcetree mark Foundation no-require`
-//    remove for os: `mulle-sourcetree mark Foundation no-os-<osname>`
+//    remove:          `mulle-sourcetree mark Foundation no-header`
+//    rename:          `mulle-sourcetree mark Foundation set include whatever.h`
+//    toggle public:   `mulle-sourcetree mark Foundation [no-]public`
+//    toggle optional: `mulle-sourcetree mark Foundation [no-]require`
+//    remove for os:   `mulle-sourcetree mark Foundation no-os-<osname>`
 # import <Foundation/Foundation.h>   // Foundation
 
 #include "_MulleUIKit-include.h"

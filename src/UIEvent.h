@@ -1,8 +1,7 @@
 #import "import.h"
 
 #include "CGGeometry.h"
-
-#include <time.h>
+#include "CATime.h"
 
 @class UIWindow;
 @class UIView;
@@ -17,6 +16,7 @@ typedef enum
    UIEventTypeScroll  = 0x8   // Mouse Scrollwheel
 } UIEventType;
 
+
 @interface UIEvent : NSObject
 {
    UIWindow  *_window;   // assign  ??
@@ -25,8 +25,10 @@ typedef enum
 
 @property( assign, readonly) CGPoint   mousePosition;
 
-// cpu time of event not an NSTimeStamp
-@property( assign, readonly) clock_t   timestamp;
+// clock() vs clock_gettime() tests on linux show, that that clock
+// is 25% faster. That's IMO not enough to forego the convenience of 
+// CAAbsoluteTime here
+@property( assign, readonly) CAAbsoluteTime   timestamp;
 
 // current known state of modifier keys
 @property( assign, readonly) uint64_t  modifiers;

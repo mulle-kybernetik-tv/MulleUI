@@ -16,7 +16,7 @@
 #import "import.h"
 
 #include "CGGeometry.h"
-
+#include "CATime.h"
 #include "nanoperf.h"
 
 
@@ -159,6 +159,8 @@ struct MulleFrameInfo
    struct MulleNVGPerformance   _perf;
    struct MulleFrameInfo        _currentFrameInfo;
    struct mulle_pointerarray    *_framebufferImages;
+   struct _mulle_pointermap     *_images;
+   CAAbsoluteTime               _renderStartTimestamp;
    BOOL                         _isRendering;
 }
 
@@ -172,14 +174,20 @@ struct MulleFrameInfo
 
 - (CGFont *) fontWithName:(char *) s;
 - (CGFloat) fontScale;
-- (int) textureIDForImage:(UIImage *) image;
+- (CAAbsoluteTime) renderStartTimestamp;
+
+// this will retain the image to maintain an internal mapping of 
+// image to textureID
+- (int) registeredTextureIDForImage:(UIImage *) image;
+- (void) unregisterTextureIDForImage:(UIImage *) image;
+
 - (void) clearFramebuffer;
 - (void) getCurrentFrameInfo:(struct MulleFrameInfo *) info; 
 - (struct MulleFrameInfo *) currentFrameInfo;
 
-- (MulleTextureImage *) textureImageWithSize:(CGSize) size 
-                                     options:(NSUInteger) options;
-- (void) removeTextureImage:(UIImage *) image; 
+- (MulleTextureImage *) framebufferImageWithSize:(CGSize) size 
+                                         options:(NSUInteger) options;
+- (void) removeFramebufferImage:(UIImage *) image; 
 
 @end
 

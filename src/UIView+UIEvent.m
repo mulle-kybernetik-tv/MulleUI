@@ -18,6 +18,7 @@
 @end
 
 
+//#define EVENT_DEBUG
 //#define HITTEST_DEBUG
 
 @implementation UIView ( UIEvent)
@@ -180,13 +181,16 @@
       event = [self performSelector:sel
                          withObject:event];
    }
-
+#ifdef EVENT_DEBUG
    fprintf( stderr, "event %p\n", event);
+#endif
 
    if( [event key] == GLFW_KEY_ESCAPE &&
        [event action] == GLFW_PRESS)
    {
+#ifdef EVENT_DEBUG
       fprintf( stderr, "request close\n");
+#endif      
       [[self window] requestClose];
 
       return( nil);
@@ -203,7 +207,7 @@
    UIView                                *view;
 
    rover = mulle_pointerarray_reverseenumerate_nil( _subviews);
-   while( (view = mulle_pointerarrayenumerator_next( &rover)))
+   while( (view = _mulle_pointerarrayenumerator_next( &rover)))
       if( CGRectContainsPoint( [view frame], point))
          break;
    mulle_pointerarrayenumerator_done( &rover);
@@ -213,6 +217,14 @@
 
 - (UIEvent *) _handleEvent:(UIEvent *) event
 {
+   if( [self isUserInteractionEnabled] == NO)
+   {
+#ifdef EVENT_DEBUG
+       fprintf( stderr, "Disabled view %s ignores event\n", [self cStringDescription]);
+#endif      
+      return( event);
+   }
+
    switch( [event eventType])
    {
    case UIEventTypePresses :
@@ -243,24 +255,34 @@
    struct mulle_pointerarrayenumerator   rover;
    UIView                                *view;
 
-   if( [self isUserInteractionEnabled] == NO || [self isHidden] || [self alpha] < 0.01)
+   if( [self isHidden] || [self alpha] < 0.01)
+   {
+#ifdef EVENT_DEBUG
+       fprintf( stderr, "Invisible view %s ignores event\n", [self cStringDescription]);
+#endif      
       return( event);
+   }
+
    // from UIView+CGGeometry
    translated = [self translatedPoint:position];
 
-  // fprintf( stderr, "translated: %s %s -> %s\n",
-  //             [self cStringDescription],
-  //             CGPointCStringDescription( position),
-  //             CGPointCStringDescription( translated));
+#ifdef HITTEST_DEBUG
+  fprintf( stderr, "translated: %s %s -> %s\n",
+               [self cStringDescription],
+               CGPointCStringDescription( position),
+               CGPointCStringDescription( translated));
+#endif 
 
    if( ! [self hitTest:translated
              withEvent:event])
+   {
       return( event);
+   }
 
    if( _subviews)
    {
-      rover = mulle_pointerarray_reverseenumerate( _subviews);
-      while( (view = mulle_pointerarrayenumerator_next( &rover)))
+      rover = _mulle_pointerarray_reverseenumerate( _subviews);
+      while( (view = _mulle_pointerarrayenumerator_next( &rover)))
       {
          event = [view handleEvent:event
                         atPosition:translated];
@@ -283,7 +305,9 @@
 - (UIEvent *) responder:(id <UIResponder>) responder
             handleEvent:(UIEvent *) event
 {
-   // fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [responder cStringDescription]);
+#ifdef EVENT_DEBUG
+   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [responder cStringDescription]);
+#endif
 
    do
    {
@@ -291,7 +315,12 @@
       //       UIViewController could also be the responde here
       event = [(UIView *) responder _handleEvent:event];
       if( ! event)
+      {
+#ifdef EVENT_DEBUG
+         fprintf( stderr, "Responder %s consumed event\n", [responder cStringDescription]);
+#endif          
          break;
+      }
       responder = [responder nextResponder];
    }
    while( responder);
@@ -308,9 +337,11 @@
    CGPoint           position;
    id<UIResponder>   responder;
 
-//   fprintf( stderr, "Event start: %s %s\n",
-//                        [self cStringDescription],
-//                        CGPointCStringDescription( position));
+#ifdef EVENT_DEBUG
+   fprintf( stderr, "Event start: %s %s\n",
+                        [self cStringDescription],
+                        CGPointCStringDescription( [event mousePosition]));
+#endif
 
    assert( self == [self window]);
    responder = [(UIWindow *) self firstResponder];
@@ -319,7 +350,12 @@
       event = [self responder:responder
                   handleEvent:event];
       if( ! event)
+      {
+#ifdef EVENT_DEBUG
+         fprintf( stderr, "Windows first responder %s consumed event\n", [responder cStringDescription]);
+#endif 
          return( event);
+      }
    }
 
    position = [event mousePosition];

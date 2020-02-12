@@ -52,6 +52,7 @@ const CGPoint CGPointZero;
 const CGRect CGRectZero;
 const CGSize CGSizeZero;
 const CGRect CGRectNull;
+const CGVector CGVectorZero;  // compatible ?
 
 /**
 @Status Interoperable
@@ -68,6 +69,23 @@ static inline CGPoint CGPointMake(CGFloat x, CGFloat y) {
     CGPoint result = { x, y };
     return result;
 }
+
+
+
+static inline CGPoint  MulleCGPointClampToSize( CGPoint offset, CGSize size)
+{
+   if( offset.x < 0.0)
+      offset.x = 0.0;
+   if( offset.x >= size.width)
+      offset.x = size.width;
+
+   if( offset.y < 0.0)
+      offset.y = 0.0;
+   if( offset.y >= size.height)
+      offset.y = size.height;   
+   return( offset);
+}
+
 
 /**
 @Status Interoperable

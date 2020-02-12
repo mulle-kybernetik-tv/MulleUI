@@ -12,11 +12,12 @@
 {
    _window         = window;
    _mousePosition  = pos;
-   _timestamp      = clock();
+   _timestamp      = CAAbsoluteTimeNow();
    _modifiers      = mods;
    _point.x        = CGFLOAT_MIN;
    return( self);
 }
+
 
 - (CGPoint) mousePositionInView:(UIView *) view
 {
@@ -62,7 +63,6 @@
 {
    return( UIEventTypePresses);
 }
-
 
 @end
 

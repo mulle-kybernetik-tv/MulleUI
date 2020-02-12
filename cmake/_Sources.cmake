@@ -10,6 +10,7 @@ nanovg/src/nanovg.c
 src/CAAnimationGroup.m
 src/CAAnimation.m
 src/CALayer.m
+src/CATime.c
 src/CGAffineTransform.c
 src/CGContext.m
 src/CGFont.m
@@ -69,6 +70,7 @@ src/UIView+NSArray.m
 src/UIView+UIEvent.m
 src/UIView+UIResponder.m
 src/UIView.m
+src/UIWindow+CGGeometry.m
 src/UIWindow+UIResponder.m
 src/UIWindow.m
 src/YogaKit/UIView+Yoga.m

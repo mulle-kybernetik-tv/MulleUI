@@ -1,4 +1,4 @@
-#import "import.h"
+#include "include.h"
 
 #include <time.h>
 
@@ -80,6 +80,9 @@ static inline CAAbsoluteTime   CAAbsoluteTimeWithTimespec( struct timespec a)
 }
 
 
+CAAbsoluteTime  CAAbsoluteTimeNow( void);
+
+
 static inline CAAbsoluteTime   CAAbsoluteTimeWithSecondsAndNanoseconds( int tv_sec, long tv_nsec)
 {
    return( tv_sec + tv_nsec / (double) NS_IN_S);
@@ -91,12 +94,13 @@ static inline CARelativeTime   CARelativeTimeWithSecondsAndNanoseconds( int tv_s
 }
 
 
+// can produce absolute time or relative
 static inline double   CATimeAdd( double a, double b)
 {
    return( a + b);
 }
 
-
+// can produce absolute time or relative
 static inline double   CATimeSubtract( double a, double b)
 {
    return( a - b);

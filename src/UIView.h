@@ -42,11 +42,12 @@ struct MulleFrameInfo;
 
 @property( getter=isHidden)                 BOOL   hidden;
 @property( getter=isUserInteractionEnabled) BOOL   userInteractionEnabled;
-@property BOOL      clipsSubviews;
-@property BOOL      needsLayout;
-@property BOOL      needsCaching;
-@property BOOL      needsDisplay;  // a NOP for compatiblity
 
+@property BOOL   clipsSubviews;
+@property BOOL   needsLayout;
+@property BOOL   needsCaching;
+@property BOOL   needsDisplay;  // a NOP for compatiblity
+                 
 @property CGFloat   alpha;
 
 // - (void) setNeedsLayout;   // done by Yoga
@@ -59,6 +60,9 @@ struct MulleFrameInfo;
 
 // designated initializer
 - (instancetype) initWithLayer:(CALayer *) layer;
+
+- (void) mulleAddRetainedLayer:(CALayer *) layer;
+- (void) mulleAddRetainedSubview:(UIView *) layer;
 
 - (void) addLayer:(CALayer *) layer;
 - (void) addSubview:(UIView *) layer;
@@ -110,6 +114,10 @@ struct MulleFrameInfo;
 @interface UIView( CALayerForwarding)
 
 // methods forward to CALayer (mainLayer)
+//
+// bounds define the paint transformation for layers only
+// subviews are not affected
+//
 - (CGRect) bounds;
 - (void) setBounds:(CGRect) rect;
 - (CGRect) frame;

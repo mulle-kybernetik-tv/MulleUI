@@ -2,26 +2,21 @@
 #ifndef mulle_timespec_h__
 #define mulle_timespec_h__
 
-typedef enum 
-{
-   MulleTimeSpecAscending = -1,
-   MulleTimeSpecSame = 0,
-   MulleTimeSpecDescending = 1
-} mulle_timespec_comparison_t;
+#include "mulle-time.h"
 
 
-static inline mulle_timespec_comparison_t   timespec_compare( struct timespec a, 
-                                                              struct timespec b)
+static inline mulle_time_comparison_t   timespec_compare( struct timespec a,
+                                                          struct timespec b)
 {
    if( a.tv_sec > b.tv_sec)
-      return( MulleTimeSpecDescending);
+      return( MulleTimeDescending);
    if( a.tv_sec < b.tv_sec)
-      return( MulleTimeSpecAscending);
+      return( MulleTimeAscending);
    if( a.tv_nsec > b.tv_nsec)
-      return( MulleTimeSpecDescending);
+      return( MulleTimeDescending);
    if( a.tv_nsec < b.tv_nsec)
-      return( MulleTimeSpecAscending);
-   return( MulleTimeSpecSame);
+      return( MulleTimeAscending);
+   return( MulleTimeSame);
 }
 
 
@@ -29,7 +24,7 @@ static inline mulle_timespec_comparison_t   timespec_compare( struct timespec a,
 # define NS_IN_S (1000*1000*1000)
 #endif
 
-static inline struct timespec   timespec_add( struct timespec a, 
+static inline struct timespec   timespec_add( struct timespec a,
                                               struct timespec b)
 {
    struct timespec   result;
@@ -40,11 +35,11 @@ static inline struct timespec   timespec_add( struct timespec a,
    if( carry)
       result.tv_nsec -= NS_IN_S;
    result.tv_sec = a.tv_sec + b.tv_sec + carry;
-   return( result);  
-}   
+   return( result);
+}
 
 
-static inline struct timespec   timespec_sub( struct timespec a, 
+static inline struct timespec   timespec_sub( struct timespec a,
                                               struct timespec b)
 {
    struct timespec   result;
@@ -55,25 +50,7 @@ static inline struct timespec   timespec_sub( struct timespec a,
    if( carry)
       result.tv_nsec += NS_IN_S;
    result.tv_sec = a.tv_sec - b.tv_sec - carry;
-   return( result);  
-}                                              
-
-
-
-static inline struct timespec   timespec_diff( struct timespec start, struct timespec end)
-{
-   struct timespec temp;
-
-   if ((end.tv_nsec-start.tv_nsec) < 0)
-   {
-      temp.tv_sec  = end.tv_sec-start.tv_sec - 1;
-      temp.tv_nsec = 1000000000 + end.tv_nsec - start.tv_nsec;
-   } else
-   {
-      temp.tv_sec = end.tv_sec-start.tv_sec;
-      temp.tv_nsec = end.tv_nsec-start.tv_nsec;
-   }
-   return( temp);
+   return( result);
 }
 
 #endif

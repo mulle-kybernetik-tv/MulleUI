@@ -12,7 +12,8 @@
 #import "mulle-pointerarray+ObjC.h"
 
 
-//#define RENDER_DEBUG
+#define RENDER_DEBUG
+// #define RENDER_DEBUG_VERBOSE
 //#define HAVE_RENDER_CACHE
 
 @implementation UIView
@@ -76,14 +77,14 @@
 //
 //
 //
-- (void) addLayer:(CALayer *) layer
+- (void) mulleAddRetainedLayer:(CALayer *) layer
 {
    assert( layer);
    assert( [layer isKindOfClass:[CALayer class]]);
 
    if( ! _mainLayer)
    {
-      _mainLayer = [layer retain];
+      _mainLayer = layer;
       return;
    }
    assert(_mainLayer != layer);
@@ -91,9 +92,14 @@
    if( ! _layers)
       _layers = mulle_pointerarray_create_nil( NULL);
 
-   assert( mulle_pointerarray_find( _layers, layer) == -1);
-   [layer retain];
-   mulle_pointerarray_add( _layers, layer);
+   assert( _mulle_pointerarray_find( _layers, layer) == -1);
+   _mulle_pointerarray_add( _layers, layer);
+}
+
+
+- (void) addLayer:(CALayer *) layer
+{
+   [self mulleAddRetainedLayer:[layer retain]];
 }
 
 
@@ -105,12 +111,12 @@
    {
       allocator = MulleObjCObjectGetAllocator( self);
       _subviews = mulle_pointerarray_alloc( allocator);
-      mulle_pointerarray_init( _subviews, 4, nil, allocator);
+      _mulle_pointerarray_init( _subviews, 4, nil, allocator);
    }
    return( _subviews);
 }
 
-- (void) addSubview:(UIView *) view
+- (void) mulleAddRetainedSubview:(UIView *) view
 {
    struct mulle_pointerarray  *subviews;
    assert( view);
@@ -119,12 +125,17 @@
    assert( [view isKindOfClass:[UIView class]]);
    
    subviews = [self _subviews];
-   assert( mulle_pointerarray_find( subviews, view) == -1);
-   [view retain];
-   mulle_pointerarray_add( subviews, view);
+   assert( _mulle_pointerarray_find( subviews, view) == -1);
+   _mulle_pointerarray_add( subviews, view);
 
    view->_superview = self;
 }
+
+- (void) addSubview:(UIView *) view
+{
+   [self mulleAddRetainedSubview:[view retain]];
+}
+
 
 
 - (NSUInteger) subviewCount
@@ -352,7 +363,7 @@
    struct mulle_pointerarrayenumerator   rover;
    UIView                                *view;
 
-#ifdef RENDER_DEBUG
+#ifdef RENDER_DEBUG_VERBOSE
    fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
 #endif
 
@@ -378,7 +389,7 @@
    CGFloat                               oldAlpha;
    CGFloat                               alpha;
 
-#ifdef RENDER_DEBUG
+#ifdef RENDER_DEBUG_VERBOSE
    fprintf( stderr, "%s %s (f:%s b:%s)\n", 
                         __PRETTY_FUNCTION__, 
                         [self cStringDescription],
@@ -406,7 +417,7 @@
    [_mainLayer drawInContext:context];
 
    rover = mulle_pointerarray_enumerate_nil( _layers);
-   while( (layer = mulle_pointerarrayenumerator_next( &rover)))
+   while( (layer = _mulle_pointerarrayenumerator_next( &rover)))
    {
       [layer setTransform:transform
                   scissor:&scissor];
@@ -422,14 +433,29 @@
 {
    struct mulle_pointerarrayenumerator   rover;
    UIView                                *view;
+   CGRect                                bounds;
+   CGRect                                frame;
 
-#ifdef RENDER_DEBUG
+#ifdef RENDER_DEBUG_VERBOSE
    fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
 #endif
 
-   rover = mulle_pointerarray_enumerate_nil( _subviews);
-   while( (view = mulle_pointerarrayenumerator_next( &rover)))
-      [view renderWithContext:context];
+   bounds = [self bounds];
+   rover  = mulle_pointerarray_enumerate_nil( _subviews);
+   while( (view = _mulle_pointerarrayenumerator_next( &rover)))
+   {
+      frame = [view frame];
+      // TODO: this intersection code doesn't work for UIScrollView,
+      // because the UIScrollContentView uses bounds.origin to shift its
+      // contents. The intersection code will mistaken ly notice for larger 
+      // scrolls, that the contentView is displaying nothing and will cull it.
+      //
+      // TODO: REALLY figure out what to do with bounds and frame. Can bounds
+      //       be used in scrollview ?
+      
+    //  if( CGRectIntersectsRect( bounds, frame))
+         [view renderWithContext:context];
+   }
    mulle_pointerarrayenumerator_done( &rover);
 }
 
@@ -485,7 +511,14 @@
    // The masterLayer also sets up the scissors for the following renders
    //
    if( [self renderLayersWithContext:context])
+   {
+#ifdef RENDER_VERBOSE
+      fprintf( stderr, "%s: renderLayersWithContext preempts subview drawing\n",
+                     [self cStringDescription]);
+#endif
+
       return;
+   }
 
    //
    // transform for subview though, which are inside our bounds
@@ -565,7 +598,7 @@
    CGFloat  alpha;
    CGFloat  oldAlpha;
 
-#ifdef RENDER_DEBUG
+#ifdef RENDER_DEBUG_VERBOSE
    fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
 #endif
 
@@ -598,14 +631,14 @@
    struct mulle_pointerarrayenumerator   rover;
    CALayer                               *layer;
 
-#ifdef RENDER_DEBUG
+#ifdef RENDER_DEBUG_VERBOSE
    fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
 #endif
 
    [_mainLayer animateWithAbsoluteTime:renderTime];
    
    rover = mulle_pointerarray_enumerate_nil( _layers);
-   while( (layer = mulle_pointerarrayenumerator_next( &rover)))
+   while( (layer = _mulle_pointerarrayenumerator_next( &rover)))
       [layer animateWithAbsoluteTime:renderTime];
    mulle_pointerarrayenumerator_done( &rover);
 }
@@ -616,12 +649,12 @@
    struct mulle_pointerarrayenumerator   rover;
    UIView                                *view;
 
-#ifdef RENDER_DEBUG
+#ifdef RENDER_DEBUG_VERBOSE
    fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
 #endif
 
    rover = mulle_pointerarray_enumerate_nil( _subviews);
-   while( (view = mulle_pointerarrayenumerator_next( &rover)))
+   while( (view = _mulle_pointerarrayenumerator_next( &rover)))
       [view animateWithAbsoluteTime:renderTime];
    mulle_pointerarrayenumerator_done( &rover);
 }
@@ -682,8 +715,8 @@
    renderInfo.pixelRatio             = info->pixelRatio;
    renderInfo.isPerfEnabled          = NO;
 
-   image = [context textureImageWithSize:renderInfo.framebufferSize
-                                 options:options];
+   image = [context framebufferImageWithSize:renderInfo.framebufferSize
+                                     options:options];
    if( image)
    {
       // Draw some stuff to an FBO as a test
@@ -801,7 +834,7 @@
    [self layoutIfNeeded];
 
    rover = mulle_pointerarray_enumerate_nil( _subviews);
-   while( (view = mulle_pointerarrayenumerator_next( &rover)))
+   while( (view = _mulle_pointerarrayenumerator_next( &rover)))
       [view layoutSubviewsIfNeeded];
    mulle_pointerarrayenumerator_done( &rover);
 }

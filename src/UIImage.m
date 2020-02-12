@@ -13,7 +13,7 @@
 
 - (int) textureIDWithContext:(CGContext *) context
 {
-   return( context ? [context textureIDForImage:self] : -1);
+   return( context ? [context registeredTextureIDForImage:self] : -1);
 }
 
 @end

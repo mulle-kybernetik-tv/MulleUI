@@ -13,14 +13,14 @@
 {
    assert( p);
 
-   _rover = mulle_pointerarray_enumerate( p);
+   _rover = mulle_pointerarray_enumerate_nil( p);
    return( self);
 }
 
 
 - (id) nextObject
 {
-   return(  mulle_pointerarrayenumerator_next( &_rover));
+   return( _mulle_pointerarrayenumerator_next( &_rover));
 }
 
 @end
@@ -54,8 +54,8 @@
       struct mulle_pointerarrayenumerator   rover;
       id <NSObject>                         obj;
 
-      rover = mulle_pointerarray_enumerate( self->_pointerarray);
-      while( (obj = mulle_pointerarrayenumerator_next( &rover)))
+      rover = mulle_pointerarray_enumerate_nil( self->_pointerarray);
+      while( (obj = _mulle_pointerarrayenumerator_next( &rover)))
          [obj release];
       mulle_pointerarrayenumerator_done( &rover);
 
@@ -68,7 +68,7 @@
 - (id) objectAtIndex:(NSUInteger) i
 {
    // (ab)use assert of mulle_pointerarray
-   return( mulle_pointerarray_get( self->_pointerarray, i));
+   return( _mulle_pointerarray_get( self->_pointerarray, i));
 }
 
 
@@ -102,7 +102,7 @@ struct _MulleObjectArrayFastEnumerationState
    dstate = (struct _MulleObjectArrayFastEnumerationState *) rover->extra;
    if( ! rover->state)
    {
-      dstate->_rover = mulle_pointerarray_enumerate( self->_pointerarray);
+      dstate->_rover = mulle_pointerarray_enumerate_nil( self->_pointerarray);
       rover->state   = 1;
    }
 
@@ -111,7 +111,7 @@ struct _MulleObjectArrayFastEnumerationState
    sentinel = &buffer[ len];
    while( buffer < sentinel)
    {
-      obj = mulle_pointerarrayenumerator_next( &dstate->_rover);
+      obj = _mulle_pointerarrayenumerator_next( &dstate->_rover);
       if( ! obj)
       {
          rover->state = -1;
@@ -162,7 +162,7 @@ struct _MulleObjectArrayFastEnumerationState
 - (void) addObject:(id <NSObject>) obj
 {
    [obj retain];
-   mulle_pointerarray_add( self->_pointerarray, obj);
+   _mulle_pointerarray_add( self->_pointerarray, obj);
 } 
 
 
@@ -170,7 +170,7 @@ struct _MulleObjectArrayFastEnumerationState
 {
    id <NSObject>   obj;
 
-   obj = mulle_pointerarray_remove_last( self->_pointerarray);
+   obj = _mulle_pointerarray_remove_last( self->_pointerarray);
    [obj autorelease];
 } 
 
