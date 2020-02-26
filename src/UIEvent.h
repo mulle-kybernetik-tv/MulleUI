@@ -108,5 +108,10 @@ typedef enum
 
 @property( assign, readonly) CGPoint   scrollOffset;
 
++ (CGFloat) scrollWheelAcceleration;
++ (void) setScrollWheelAcceleration:(CGFloat) value;
+
+- (CGPoint) acceleratedScrollOffset;
+
 @end
 

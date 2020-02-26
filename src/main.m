@@ -141,11 +141,11 @@ int   main()
                                                   autorelease];
    fprintf( stderr, "sealieBitmapImage: %p\n", sealieBitmap);
 
-   turtleBitmap = [[[MulleBitmapImage alloc] initWithConstBytes:turtle_bitmap
-                                                     bitmapSize:turtle_bitmap_size]
-                                                  autorelease];
-   fprintf( stderr, "turtleBitmapImage: %p\n", turtleBitmap);
-
+//   turtleBitmap = [[[MulleBitmapImage alloc] initWithConstBytes:turtle_bitmap
+//                                                     bitmapSize:turtle_bitmap_size]
+//                                                  autorelease];
+//   fprintf( stderr, "turtleBitmapImage: %p\n", turtleBitmap);
+//
 
    viechLayer = [[[MulleImageLayer alloc] initWithImage:viechBitmap] autorelease];
    [viechLayer setCStringName:"viech"];
@@ -163,13 +163,15 @@ int   main()
    [sealieLayer setFrame:frame];
    fprintf( stderr, "layer: %p\n", sealieLayer);
 
-   turtleLayer = [[[MulleImageLayer alloc] initWithImage:turtleBitmap] autorelease];
-   [turtleLayer setCStringName:"turtle"];
-   frame.origin       = CGPointMake( -50.0, 10.0);
-   frame.size.width   = 100;
-   frame.size.height  = 117;
-   [turtleLayer setFrame:frame];
-   fprintf( stderr, "layer: %p\n", turtleLayer);
+   turtleBitmap = [[[MulleBitmapImage alloc] initWithContentsOfFileWithFileRepresentationString:"/home/src/srcO/MulleUIKit/bengal.jpg"] autorelease];
+
+//   turtleLayer = [[[MulleImageLayer alloc] initWithImage:turtleBitmap] autorelease];
+//   [turtleLayer setCStringName:"turtle"];
+//   frame.origin       = CGPointMake( -50.0, 10.0);
+//   frame.size.width   = 100;
+//   frame.size.height  = 117;
+//   [turtleLayer setFrame:frame];
+//   fprintf( stderr, "layer: %p\n", turtleLayer);
 
    /*
     * window and app 

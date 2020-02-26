@@ -1,6 +1,6 @@
 #import "UIEvent.h"
 
-#import "UIWindow.h"
+#import "UIWindow+UIEvent.h"
 #import "UIView+CGGeometry.h"
 
 
@@ -34,6 +34,20 @@
 {
    assert( point.x != CGFLOAT_MIN);
    _point = point;
+}
+
+
+- (char *) cStringDescription
+{
+   char   *s;
+
+   s = MulleObjC_asprintf( "<%p %s @%.1f %.1f t:%.6f>", 
+                  self, 
+                  class_getName( object_getClass( self)),
+                  _mousePosition.x,
+                  _mousePosition.y,
+                  _timestamp);
+   return( s);
 }
 
 @end
@@ -114,10 +128,35 @@
    return( UIEventTypeTouches);
 }
 
+
+- (char *) cStringDescription
+{
+   char   *s;
+
+   s = MulleObjC_asprintf( "<%p %s @%.1f %.1f t:%.6f b:%d a:%d>", 
+                  self, 
+                  class_getName( object_getClass( self)),
+                  _mousePosition.x,
+                  _mousePosition.y,
+                  _timestamp,
+                  _button,
+                  _action);
+   return( s);
+}
+
 @end
 
 
 @implementation UIMouseScrollEvent
+
+static struct
+{
+   CGFloat   _acceleration;
+} Self = 
+{ 
+   3.0
+};
+
 
 - (id) initWithWindow:(UIWindow *) window
         mousePosition:(CGPoint) pos
@@ -132,9 +171,33 @@
    return( self);
 }
 
+
 - (UIEventType) eventType
 {
    return( UIEventTypeScroll);
 }
+
+
++ (CGFloat) scrollWheelAcceleration
+{
+   return( Self._acceleration);
+}
+
+
++ (void) setScrollWheelAcceleration:(CGFloat) value
+{
+   Self._acceleration = value;
+}
+
+- (CGPoint) acceleratedScrollOffset
+{
+   CGPoint   offset;
+
+   offset.x = _scrollOffset.x * Self._acceleration;
+   offset.y = _scrollOffset.y * Self._acceleration;
+
+   return( offset);
+}
+
 
 @end

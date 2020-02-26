@@ -20,7 +20,7 @@
 #include "nanoperf.h"
 
 
-typedef enum 
+typedef enum
 {
 //  CG Drawing Bitfield   |STROKE|   |FILL  |   |EO    |
     kCGPathStroke =       (1 << 0),
@@ -135,7 +135,7 @@ struct MulleNVGPerformance
 };
 
 
-struct MulleFrameInfo 
+struct MulleFrameInfo
 {
    CGRect        frame;
    CGSize        windowSize;
@@ -149,17 +149,17 @@ struct MulleFrameInfo
 
 //
 // could make those variable public ?
-// for OpenGL we have one context per OpenGL, to keep fonts and 
-// other textures around. Each frame is encloded in a 
+// for OpenGL we have one context per OpenGL, to keep fonts and
+// other textures around. Each frame is encloded in a
 // startRender and an endRender. frames can't be nested.
 //
 @interface CGContext : NSObject
 {
-	struct NVGcontext            *_vg;	
+	struct NVGcontext            *_vg;
    struct MulleNVGPerformance   _perf;
    struct MulleFrameInfo        _currentFrameInfo;
    struct mulle_pointerarray    *_framebufferImages;
-   struct _mulle_pointermap     *_images;
+   struct mulle__pointermap     *_images;
    CAAbsoluteTime               _renderStartTimestamp;
    BOOL                         _isRendering;
 }
@@ -176,18 +176,18 @@ struct MulleFrameInfo
 - (CGFloat) fontScale;
 - (CAAbsoluteTime) renderStartTimestamp;
 
-// this will retain the image to maintain an internal mapping of 
+// this will retain the image to maintain an internal mapping of
 // image to textureID
-- (int) registeredTextureIDForImage:(UIImage *) image;
+- (int) registerTextureIDForImage:(UIImage *) image;
 - (void) unregisterTextureIDForImage:(UIImage *) image;
 
 - (void) clearFramebuffer;
-- (void) getCurrentFrameInfo:(struct MulleFrameInfo *) info; 
+- (void) getCurrentFrameInfo:(struct MulleFrameInfo *) info;
 - (struct MulleFrameInfo *) currentFrameInfo;
 
-- (MulleTextureImage *) framebufferImageWithSize:(CGSize) size 
+- (MulleTextureImage *) framebufferImageWithSize:(CGSize) size
                                          options:(NSUInteger) options;
-- (void) removeFramebufferImage:(UIImage *) image; 
+- (void) removeFramebufferImage:(UIImage *) image;
 
 @end
 

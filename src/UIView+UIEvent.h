@@ -49,4 +49,6 @@
 - (UIEvent *) mouseExited:(UIEvent *) event;
 - (UIEvent *) mouseMoved:(UIEvent *) event;
 
++ (CGFloat) mouseMotionSuppressionDelay;
+
 @end

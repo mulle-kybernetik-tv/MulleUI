@@ -3,7 +3,7 @@
 
 @interface NSIndexSet : NSObject <NSCopying>
 {
-   struct _mulle_rangeset   _set;
+   struct mulle__rangeset   _set;
    NSUInteger               _count;
 }
 

@@ -18,42 +18,90 @@
    return( [MulleScrollIndicatorLayer class]);
 }
 
+- (id) initWithLayer:(CALayer *) layer
+{
+   self = [super initWithLayer:layer];
+
+   //
+   if( self)
+   {
+      _clickOrDrag._mouseMotionSuppressionDelay = [[self class] mouseMotionSuppressionDelay];
+   }
+   return( self);
+}
+
+/*
+ * left mouse
+ */
 - (UIEvent *) mouseDown:(UIEvent *) event
 {
-   return( [[self superview] mouseDown:event]);
+   event = [[self superview] mouseDown:event];
+   if( event)
+      return( event);
+
+   // only if we consumed the event, do we want to become first responder
+   // for the subsequent mouseUp: or mouseDragged: events
+   [self becomeFirstResponder];
+   return( event);
 }
+
 
 - (UIEvent *) mouseDragged:(UIMouseMotionEvent *) event
 {
    return( [[self superview] mouseDragged:event]);
 }
 
+
 - (UIEvent *) mouseUp:(UIEvent *) event
 {
-   return( [[self superview] mouseUp:event]);
+   event = [[self superview] mouseUp:event];
+   if( event)
+      return( event);
+
+   // can only resign here, because UIScrollView still needs to figure out
+   // if event came from us
+   [self resignFirstResponder];
+   return( event);
 }
 
-
+/*
+ * right mouse
+ */
 - (UIEvent *) rightMouseDown:(UIEvent *) event
 {
-   return( [[self superview] mouseDown:event]);  // sic
+   event = [[self superview] rightMouseDown:event];
+   if( event)
+      return( event);
+
+   // only if we consumed the event, do we want to become first responder
+   // for the subsequent rightMouseDown: or rightMouseDragged: events
+   [self becomeFirstResponder];
+   return( event);
 }
+
 
 - (UIEvent *) rightMouseDragged:(UIMouseMotionEvent *) event
 {
-   return( [[self superview] mouseDragged:event]);
+   return( [[self superview] rightMouseDragged:event]);
 }
+
 
 - (UIEvent *) rightMouseUp:(UIEvent *) event
 {
-   return( [[self superview] mouseUp:event]);  // sic
+   event = [[self superview] rightMouseUp:event];
+   if( event)
+      return( event);
+
+   // can only resign here, because UIScrollView still needs to figure out
+   // if event came from us
+   [self resignFirstResponder];
+   return( event);
 }
 
 @end
 
 
 @implementation MulleScrollIndicatorLayer
-
 
 - (CGRect) bubbleFrameWithBounds:(CGRect) bounds
 {
@@ -135,42 +183,106 @@
 
 
 //
-// if point is in bubble, return bubble start
+// if point is in bubble, return -1
 // otherwise where the bubble would go
 //
-- (CGFloat) bubbleValueAtPoint:(CGPoint) point
+- (BOOL) isInsideBubbleAtPoint:(CGPoint) point
+                      offsetAt:(CGPoint *) offset
 {
    CGRect   bubbleFrame;
    CGRect   bounds;
    BOOL     isHorizontal;
 
-   bounds      = [self bounds];
-
    // the frame as actually drawn
-   bubbleFrame = [self bubbleFrameWithBounds:bounds];
+   bounds       = [self bounds];
+   bubbleFrame  = [self bubbleFrameWithBounds:bounds];
 
    isHorizontal = bounds.size.width > bounds.size.height;
    if( isHorizontal)
    {
-      if( CGRectContainsPoint( bubbleFrame, point))
+      fprintf( stderr, "P: %s F: %s B:%s:",
+            CGPointCStringDescription( point),
+            CGRectCStringDescription( bubbleFrame),
+            CGRectCStringDescription( bounds));
+      offset->y = 0.0; 
+      offset->x = point.x - CGRectGetMinX( bubbleFrame); 
+      return( point.x >= CGRectGetMinX( bubbleFrame) && 
+              point.x <= CGRectGetMaxX( bubbleFrame));
+   }
+
+   offset->x = 0.0; 
+   offset->y = point.y - CGRectGetMinY( bubbleFrame); 
+
+   return( point.y >= CGRectGetMinY( bubbleFrame) && 
+           point.y <= CGRectGetMaxY( bubbleFrame));
+}
+
+
+
+//
+// if point is in bubble, return -1
+// otherwise where the bubble would go
+//
+- (CGFloat) bubbleValueAtPoint:(CGPoint) point
+                isInsideBubble:(BOOL *) isInsideBubble
+{
+   CGRect         bubbleFrame;
+   CGRect         bounds;
+   BOOL           isHorizontal;
+   UIEdgeInsets   insets;
+   // the frame as actually drawn
+   bounds       = [self bounds];
+   bubbleFrame  = [self bubbleFrameWithBounds:bounds];
+
+   // actual limit of bubbleFrame
+   insets = UIEdgeInsetsMake( 1.0, 1.0, 1.0, 1.0);
+   bounds = UIEdgeInsetsInsetRect( bounds, insets);
+
+   isHorizontal = bounds.size.width > bounds.size.height;
+   if( isHorizontal)
+   {
+      fprintf( stderr, "P: %s F: %s B:%s:",
+            CGPointCStringDescription( point),
+            CGRectCStringDescription( bubbleFrame),
+            CGRectCStringDescription( bounds));
+
+      *isInsideBubble = point.x >= CGRectGetMinX( bubbleFrame) && 
+                        point.x <= CGRectGetMaxX( bubbleFrame);
+      if( *isInsideBubble)
+      {
+         fprintf( stderr, "stay put\n");
          return( bubbleFrame.origin.x);
-      if( point.x + bubbleFrame.size.width > bounds.size.width)
-         return( bounds.size.width - bubbleFrame.size.width);
-      // try to center point in bubble
-      point.x -= bubbleFrame.size.width / 2.0;
-      if( point.x < 0.0)
-         point.x = 0.0;
+      }
+
+      // center bubble around click
+      point.x -= bubbleFrame.size.width / 2.0; 
+
+      if( point.x < CGRectGetMinX( bounds))
+      {
+         fprintf( stderr, "left edge\n");
+         return( CGRectGetMinX( bounds));
+      }
+      if( point.x + bubbleFrame.size.width > CGRectGetMaxX( bounds))
+      {
+         fprintf( stderr, "right edge\n");
+         return( CGRectGetMaxX( bounds) - bubbleFrame.size.width);
+      }
+
+      fprintf( stderr, "%.2f\n", point.x);
       return( point.x);
    }
 
-   if( CGRectContainsPoint( bubbleFrame, point))
-      return( bubbleFrame.origin.y);
-   if( point.y + bubbleFrame.size.height > bounds.size.height)
-      return( bounds.size.height - bubbleFrame.size.height);
-   // try to center point in bubble
-   point.y -= bubbleFrame.size.height / 2.0;
-   if( point.y < 0.0)
-      point.y = 0.0;
+   *isInsideBubble = point.y >= CGRectGetMinY( bubbleFrame) && 
+                     point.y <= CGRectGetMaxY( bubbleFrame);
+      if( *isInsideBubble)
+         return( bubbleFrame.origin.x);   
+
+   point.y -= bubbleFrame.size.height / 2.0; 
+
+   if( point.y < CGRectGetMinY( bounds))
+      return( CGRectGetMinY( bounds));
+   if( point.y + bubbleFrame.size.height > CGRectGetMaxY( bounds))
+      return( CGRectGetMaxY( bounds) - bubbleFrame.size.height);
    return( point.y);
 }
 

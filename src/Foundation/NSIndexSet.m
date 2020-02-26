@@ -51,8 +51,8 @@
    struct mulle_allocator   *allocator;
 
    allocator = MulleObjCObjectGetAllocator( self);
-   _mulle_rangeset_init( &_set, n, allocator);
-   _mulle_rangeset_insert_ranges( &_set, ranges, n, allocator);
+   _mulle__rangeset_init( &_set, n, allocator);
+   _mulle__rangeset_insert_ranges( &_set, ranges, n, allocator);
    return( self);
 }
 
@@ -68,7 +68,7 @@
 
 - (BOOL) containsIndex:(NSUInteger) anIndex
 {
-   return( _mulle_rangeset_contains( &_set, NSMakeRange( anIndex, 1)));
+   return( _mulle__rangeset_contains( &_set, NSMakeRange( anIndex, 1)));
 }
 
 
@@ -78,12 +78,12 @@
    NSRange      *sentinel;
    NSUInteger   n;
 
-   n        = _mulle_rangeset_get_rangecount( &other->_set);
+   n        = _mulle__rangeset_get_rangecount( &other->_set);
    p        = other->_set._ranges;
    sentinel = &p[ n];
    while( p < sentinel)
    {
-      if( ! _mulle_rangeset_contains( &_set, *p))
+      if( ! _mulle__rangeset_contains( &_set, *p))
          return( NO);
       ++p;
    }
@@ -93,37 +93,37 @@
 
 - (BOOL) containsIndexesInRange:(NSRange) range
 {
-   return( _mulle_rangeset_contains( &_set, range));
+   return( _mulle__rangeset_contains( &_set, range));
 }
 
 
 - (BOOL) intersectsIndexesInRange:(NSRange) range
 {
-   return( _mulle_rangeset_intersects( &_set, range));
+   return( _mulle__rangeset_intersects( &_set, range));
 }
 
 
 - (NSUInteger) count
 {
-   return( _mulle_rangeset_sum_lengths( &_set));
+   return( _mulle__rangeset_sum_lengths( &_set));
 }
 
 
 - (NSUInteger) countOfIndexesInRange:(NSRange) range
 {
-   return( _mulle_rangeset_sum_lengths_range( &_set, range));
+   return( _mulle__rangeset_sum_lengths_range( &_set, range));
 }
 
 
 - (NSUInteger) firstIndex
 {
-   return( _mulle_rangeset_get_first( &_set));
+   return( _mulle__rangeset_get_first( &_set));
 }
 
 
 - (NSUInteger) lastIndex
 {
-   return( _mulle_rangeset_get_first( &_set));
+   return( _mulle__rangeset_get_first( &_set));
 }
 
 
@@ -152,8 +152,8 @@
    if( self == other)
       return YES;
 
-   length       = _mulle_rangeset_get_rangecount( &_set);
-   other_length = _mulle_rangeset_get_rangecount( &other->_set);
+   length       = _mulle__rangeset_get_rangecount( &_set);
+   other_length = _mulle__rangeset_get_rangecount( &other->_set);
    if( length != other_length)
       return( NO);
 
@@ -172,25 +172,25 @@
 
 - (NSUInteger) indexLessThanIndex:(NSUInteger) index
 {
-   return( _mulle_rangeset_search( &_set, index, _mulle_rangeset_less_than));
+   return( _mulle__rangeset_search( &_set, index, mulle_rangeset_less_than));
 }
 
 
 - (NSUInteger) indexLessThanOrEqualToIndex:(NSUInteger) index
 {
-   return( _mulle_rangeset_search( &_set, index, _mulle_rangeset_less_than_or_equal));
+   return( _mulle__rangeset_search( &_set, index, mulle_rangeset_less_than_or_equal));
 }
 
 
 - (NSUInteger) indexGreaterThanIndex:(NSUInteger) index
 {
-   return( _mulle_rangeset_search( &_set, index, _mulle_rangeset_greater_than));
+   return( _mulle__rangeset_search( &_set, index, mulle_rangeset_greater_than));
 }
 
 
 - (NSUInteger) indexGreaterThanOrEqualToIndex:(NSUInteger) index
 {
-   return( _mulle_rangeset_search( &_set, index, _mulle_rangeset_greater_than_or_equal));
+   return( _mulle__rangeset_search( &_set, index, mulle_rangeset_greater_than_or_equal));
 }
 
 

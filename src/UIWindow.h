@@ -41,17 +41,9 @@ struct MulleFrameInfo;
 @property void   (*drawWindowCallback)( UIWindow *window, 
                                         struct MulleFrameInfo *info);
 - (void) renderLoopWithContext:(CGContext *) context;
-- (void) waitForEvents:(double) hz;
 - (void) requestClose;
-+ (void) sendEmptyEvent;
 
-- (id) _firstResponder;
 
 + (CGFloat) primaryMonitorPPI;
-
-- (void) setupQuadtree;
-
-- (void) addTrackingView:(UIView *) view;
-- (void) removeTrackingView:(UIView *) view;
 
 @end

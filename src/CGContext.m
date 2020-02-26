@@ -27,34 +27,34 @@
 #include "entypo.inc"
 
 
-#define HAVE_MEM_GRAPH      
+#define HAVE_MEM_GRAPH
 
 #define RENDER_DEBUG
 
-@implementation CGContext 
+@implementation CGContext
 
-- (void) initPerformanceCounters 
+- (void) initPerformanceCounters
 {
 	initGraph( &_perf.fps,      GRAPH_RENDER_FPS, "Frame Time");
 	initGraph( &_perf.cpuGraph, GRAPH_RENDER_MS, "CPU Time");
 	initGraph( &_perf.gpuGraph, GRAPH_RENDER_MS, "GPU Time");
-#ifdef HAVE_MEM_GRAPH      
+#ifdef HAVE_MEM_GRAPH
    initGraph( &_perf.memGraph, GRAPH_RENDER_PERCENT, "GPU Memory");
-#endif   
+#endif
    _perf.cpuTime = -1.0;
 }
 
 
 - (id) init
 {
-#ifdef NANOVG_GL3_IMPLEMENTATION   
+#ifdef NANOVG_GL3_IMPLEMENTATION
 	_vg  = nvgCreateGL3( NVG_ANTIALIAS | NVG_STENCIL_STROKES);
-#endif   
-#ifdef NANOVG_GLES2_IMPLEMENTATION   
+#endif
+#ifdef NANOVG_GLES2_IMPLEMENTATION
 	_vg  = nvgCreateGLES2( NVG_ANTIALIAS | NVG_STENCIL_STROKES);
-#endif   
+#endif
    if( ! _vg)
-   {  
+   {
       [self release];
       return( nil);
    }
@@ -71,7 +71,7 @@
 
 - (void) _freeImages
 {
-   struct _mulle_pointermapenumerator  rover;
+   struct mulle__pointermapenumerator  rover;
    struct mulle_pointerpair            *pair;
    UIImage                             *image;
    int                                 textureId;
@@ -79,17 +79,17 @@
    if( ! _images)
       return;
 
-   rover = _mulle_pointermap_enumerate( _images);  
-   while( (pair = _mulle_pointermapenumerator_next( &rover)))
+   rover = mulle__pointermap_enumerate( _images);
+   while( (pair = _mulle__pointermapenumerator_next( &rover)))
    {
       image     = pair->_key;
       [image autorelease];
       textureId = (int) (intptr_t) pair->_value;
       nvgDeleteImage( _vg, textureId);
    }
-   _mulle_pointermapenumerator_done( &rover);
+   mulle__pointermapenumerator_done( &rover);
 
-   _mulle_pointermap_destroy( _images, MulleObjCObjectGetAllocator( self));
+   _mulle__pointermap_destroy( _images, MulleObjCObjectGetAllocator( self));
    _images = NULL;
 }
 
@@ -98,7 +98,7 @@
    struct mulle_pointerarrayenumerator  rover;
    UIImage                             *image;
 
-   rover = mulle_pointerarray_enumerate_nil( _framebufferImages);  
+   rover = mulle_pointerarray_enumerate_nil( _framebufferImages);
    while( (image = _mulle_pointerarrayenumerator_next( &rover)))
       [image autorelease];
    mulle_pointerarrayenumerator_done( &rover);
@@ -118,12 +118,12 @@
 
 - (void) dealloc
 {
-#ifdef NANOVG_GL3_IMPLEMENTATION   
+#ifdef NANOVG_GL3_IMPLEMENTATION
 	nvgDeleteGL3( _vg);
-#endif   
-#ifdef NANOVG_GLES2_IMPLEMENTATION   
+#endif
+#ifdef NANOVG_GLES2_IMPLEMENTATION
 	nvgDeleteGLES2(_vg);
-#endif   
+#endif
 
    [super dealloc];
 }
@@ -147,29 +147,29 @@
    assert( ! _isRendering);
 
    _currentFrameInfo = *info;
-   
+
    // > performance measurement
    if( _currentFrameInfo.isPerfEnabled)
    {
       if( _perf.cpuTime == -1.0)
       {
-         _perf.cpuTime = 0.0;    
+         _perf.cpuTime = 0.0;
 
          initGPUTimer( &_perf.gpuTimer);
    	   glfwSetTime( 0);
-   	   _perf.prevt = glfwGetTime();   
+   	   _perf.prevt = glfwGetTime();
 
          // render code want sans, so load it (now once)
-         [self fontWithName:"sans"];     
+         [self fontWithName:"sans"];
       }
-   
+
       t           = glfwGetTime();
       _perf.dt    = t - _perf.prevt;
       _perf.prevt = t;
 
       startGPUTimer( &_perf.gpuTimer);
    }
-   // < performance measurement  
+   // < performance measurement
 
    if( ! CGSizeEqualToSize( info->frame.size, info->framebufferSize) ||
        ! CGSizeEqualToSize( info->frame.size, info->windowSize) ||
@@ -178,16 +178,16 @@
                CGSizeCStringDescription( info->frame.size),
                CGSizeCStringDescription( info->framebufferSize),
                CGSizeCStringDescription( info->windowSize));
-            
-   _renderStartTimestamp = CAAbsoluteTimeNow();            
-   
+
+   _renderStartTimestamp = CAAbsoluteTimeNow();
+
    glViewport( 0, 0, info->frame.size.width, info->frame.size.height);
-   nvgBeginFrame( _vg, info->frame.size.width, 
-                       info->frame.size.height, 
+   nvgBeginFrame( _vg, info->frame.size.width,
+                       info->frame.size.height,
                        info->pixelRatio);
    _isRendering = YES;
    _alpha       = 1.0;
-   
+
    nvgResetTransform( _vg);
    nvgScissor( _vg, 0.0, 0.0, info->frame.size.width, info->frame.size.height);
 }
@@ -227,12 +227,12 @@
 - (void) endRender
 {
 	float   gpuTimes[3];
-   int     i;   
+   int     i;
    int     n;
    CGFont  *font;
    GLint   total;
    GLint   unused;
-   int     y;      
+   int     y;
    BOOL    perfEnabled;
 
    assert( _isRendering);
@@ -249,13 +249,13 @@
          y += 35 + 2;
          renderGraph( _vg, 5,y, &_perf.gpuGraph);
       }
-#ifdef HAVE_MEM_GRAPH      
+#ifdef HAVE_MEM_GRAPH
       y += 35 + 2;
       renderGraph( _vg, 5,y, &_perf.memGraph);
-#endif      
-      // < display performance values for previous frame   
+#endif
+      // < display performance values for previous frame
    }
-   
+
    _isRendering = NO;
    nvgEndFrame( _vg);
 
@@ -266,11 +266,11 @@
       updateGraph(&_perf.fps, _perf.dt);
       updateGraph(&_perf.cpuGraph, _perf.cpuTime);
 
-#ifdef HAVE_MEM_GRAPH      
+#ifdef HAVE_MEM_GRAPH
       total = 0;
-      glGetIntegerv(GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX, &total);   
+      glGetIntegerv(GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX, &total);
       unused = 0;
-      glGetIntegerv(GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX, &unused);   
+      glGetIntegerv(GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX, &unused);
       if( total)
          updateGraph(&_perf.memGraph, unused * 100.0 / total);
 #endif
@@ -306,22 +306,22 @@
 
 
 // future, rasterize vector images to bitmaps here
-- (int) registeredTextureIDForImage:(UIImage *) image
+- (int) registerTextureIDForImage:(UIImage *) image
 {
    int                      textureId;
    mulle_int_size           size;
    void                     *value;
    struct mulle_allocator   *allocator;
-  
+
    if( _images)
    {
-      value = _mulle_pointermap_get( _images, image);
+      value = _mulle__pointermap_get( _images, image);
       if( value)
       {
          textureId = (int) (intptr_t) value;
    //      fprintf( stderr, "textureid: %d\n", textureId);
          return( textureId);
-      } 
+      }
    }
 
    if( ! [image isKindOfClass:[MulleBitmapImage class]])
@@ -332,14 +332,14 @@
 
    allocator = MulleObjCObjectGetAllocator( self);
    if( ! _images)
-      _images = _mulle_pointermap_create( 16, 0, allocator);
+      _images = mulle__pointermap_create( 16, 0, allocator);
 
    size      = [(MulleBitmapImage *) image intSize];
    textureId = nvgCreateImageRGBA( _vg, size.width, size.height, 0, [(MulleBitmapImage *) image bytes]);
 //   fprintf( stderr, "textureid: %d\n", textureId);
 
    [image retain];
-   _mulle_pointermap_set( _images, image, (void *) (intptr_t) textureId, allocator);
+   _mulle__pointermap_set( _images, image, (void *) (intptr_t) textureId, allocator);
    return( textureId);
 }
 
@@ -351,7 +351,7 @@
 
    assert( _images);
 
-   value = _mulle_pointermap_get( _images, image);
+   value = _mulle__pointermap_get( _images, image);
    if( ! value)
       return;
 
@@ -359,18 +359,18 @@
    nvgDeleteImage( _vg, textureId);
 
    [image autorelease];
-   _mulle_pointermap_remove( _images, image, MulleObjCObjectGetAllocator( self));
+   _mulle__pointermap_remove( _images, image, MulleObjCObjectGetAllocator( self));
 }
 
 
-- (MulleTextureImage *) framebufferImageWithSize:(CGSize) size 
+- (MulleTextureImage *) framebufferImageWithSize:(CGSize) size
                                          options:(NSUInteger) options
 {
    MulleTextureImage   *image;
 
    image = [[[MulleTextureImage alloc] initWithSize:size
                                             options:options
-                                            context:self] autorelease]; 
+                                            context:self] autorelease];
    if( ! image)
       return( nil);
 
@@ -383,7 +383,7 @@
 }
 
 
-- (void) removeFramebufferImage:(UIImage *) image 
+- (void) removeFramebufferImage:(UIImage *) image
 {
    intptr_t   index;
 
@@ -397,5 +397,5 @@
    [image autorelease];
    _mulle_pointerarray_set( _framebufferImages, index, NULL);
 }
-   
+
 @end

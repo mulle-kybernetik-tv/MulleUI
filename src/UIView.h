@@ -23,6 +23,13 @@ struct MulleFrameInfo;
 // Then the subviews are drawn/composited on those (these are scaled and 
 // transformed)
 //
+struct MulleClickDragDifferentiator
+{
+   CARelativeTime   _mouseMotionSuppressionDelay;  // config value
+
+   CAAbsoluteTime   _suppressUntilTimestamp; 
+};
+
 @interface UIView : NSObject
 {
    UIView                      *_superview;
@@ -37,7 +44,9 @@ struct MulleFrameInfo;
    BOOL                             _isYogaEnabled;
    struct MulleTrackingAreaArray    _trackingAreas;
 
-   MulleImageLayer                  *_cacheLayer;  // same size as _mainLayer (contains all layers and subviews ?)
+   MulleImageLayer                  *_cacheLayer; 
+
+   struct MulleClickDragDifferentiator  _clickOrDrag;
 }
 
 @property( getter=isHidden)                 BOOL   hidden;

@@ -3,6 +3,10 @@
 #import "CGGeometry.h"
 
 
+//
+// A bitmap image is not yet a texture, when loaded. So you can use it 
+// without a NVG context
+//
 @interface MulleBitmapImage : UIImage
 {
    void                      *_image;

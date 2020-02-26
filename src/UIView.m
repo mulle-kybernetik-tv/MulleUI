@@ -3,6 +3,7 @@
 #import "UIView.h"
 #import "UIView+CAAnimation.h"
 #import "UIWindow.h"
+#import "UIWindow+UIEvent.h"
 #import "CALayer.h"
 #import "CGContext.h"
 #import "CGGeometry+CString.h"

@@ -18,10 +18,16 @@
 @end
 
 
-//#define EVENT_DEBUG
-//#define HITTEST_DEBUG
+// #define EVENT_DEBUG
+// #define HITTEST_DEBUG
 
 @implementation UIView ( UIEvent)
+
++ (CGFloat) mouseMotionSuppressionDelay
+{
+   return( 0.1);
+}
+
 
 //
 // checks if point is in the visible area
@@ -54,12 +60,20 @@
 - (UIEvent *) handleMouseButtonEvent:(UIMouseButtonEvent *) event
 {
    SEL   sel;
+   int   action;
+   int   button;
 
-   sel   = 0;
-   switch( [event button])
+   sel    = 0;
+   action = [event action];
+   button = [event button];
+
+   if( action == GLFW_PRESS)
+      _clickOrDrag._suppressUntilTimestamp = [event timestamp] + _clickOrDrag._mouseMotionSuppressionDelay;
+
+   switch( button)
    {
       case GLFW_MOUSE_BUTTON_LEFT   :
-         switch( [event action])
+         switch( action)
          {
          case GLFW_PRESS   :
             sel = @selector( mouseDown:);
@@ -71,7 +85,7 @@
          break;
 
       case GLFW_MOUSE_BUTTON_RIGHT  :
-         switch( [event action])
+         switch( action)
          {
          case GLFW_PRESS   :
             sel = @selector( rightMouseDown:);
@@ -83,7 +97,7 @@
          break;
 
       case GLFW_MOUSE_BUTTON_MIDDLE :
-         switch( [event action])
+         switch( action)
          {
          case GLFW_PRESS   :
             sel = @selector( otherMouseDown:);
@@ -103,13 +117,18 @@
 }
 
 
+// general idea: suppress mouseDragged events, until a certain amount of 
+//               time has passed.  
 - (UIEvent *) handleMouseMotionEvent:(UIMouseMotionEvent *) event
 {
    uint64_t   state;
    SEL        sel;
 
    assert( [event isKindOfClass:[UIMouseMotionEvent class]]);
-   
+
+   if( _clickOrDrag._suppressUntilTimestamp > [event timestamp])
+      return( nil);
+
    sel   = 0;
    state = [event buttonStates];
    if( state)
@@ -321,6 +340,9 @@
 #endif          
          break;
       }
+#ifdef EVENT_DEBUG
+      fprintf( stderr, "Responder %s did not consume event, try next\n", [responder cStringDescription]);
+#endif         
       responder = [responder nextResponder];
    }
    while( responder);
@@ -340,7 +362,7 @@
 #ifdef EVENT_DEBUG
    fprintf( stderr, "Event start: %s %s\n",
                         [self cStringDescription],
-                        CGPointCStringDescription( [event mousePosition]));
+                        [event cStringDescription]);
 #endif
 
    assert( self == [self window]);
@@ -350,12 +372,7 @@
       event = [self responder:responder
                   handleEvent:event];
       if( ! event)
-      {
-#ifdef EVENT_DEBUG
-         fprintf( stderr, "Windows first responder %s consumed event\n", [responder cStringDescription]);
-#endif 
          return( event);
-      }
    }
 
    position = [event mousePosition];

@@ -2,6 +2,8 @@
 
 #import "UIEdgeInsets.h"
 
+#import "CGGeometry+CString.h"
+
 
 /* 
  * a UIScrollView is a container for UIViews like a regular UIView
@@ -46,7 +48,7 @@ struct MullePointHistoryItem
 
 static inline void   MullePointHistoryItemPrintf( FILE *fp, struct MullePointHistoryItem *item)
 {
-   fprintf( fp, "{ timestamp=%.2f, point=%.2f,%2.f }\n", 
+   fprintf( fp, "{ timestamp=%.9f, point=%.2f,%2.f }\n", 
                   item->timestamp, item->point.x, item->point.y);
 }
 
@@ -58,13 +60,27 @@ struct MullePointHistory
 };
 
 
+static inline void   _MullePointHistoryAdd( struct MullePointHistory *p, 
+                                           CAAbsoluteTime timestamp,
+                                           CGPoint point)
+{
+   p->i                      = (p->i + 1) & 0x7;
+   p->items[ p->i].timestamp = timestamp;
+   p->items[ p->i].point     = point;
+}
+
+//
+// if previous timestamp is closer than xxx, then do what ?
+// drop old ? drop new (!) ? interpolate ?
+//
 static inline void   MullePointHistoryAdd( struct MullePointHistory *p, 
                                            CAAbsoluteTime timestamp,
                                            CGPoint point)
 {
-   p->i = (p->i + 1) & 0x7;
-   p->items[ p->i].timestamp = timestamp;
-   p->items[ p->i].point     = point;
+   // drop new, if its coming in too quicly
+   if( p->items[ p->i].timestamp + 0.01 > timestamp)
+      return;
+   _MullePointHistoryAdd( p, timestamp, point);
 }
 
 
@@ -77,10 +93,26 @@ static inline void   MullePointHistoryStart( struct MullePointHistory *p,
    p->i = 0;
    n    = 8;
    do
-      MullePointHistoryAdd( p, timestamp, point);
+      _MullePointHistoryAdd( p, timestamp, point);
    while( --n);
 }
 
+#ifdef DEBUG
+static inline void   MullePointHistoryPrint( FILE *fp,
+                                             struct MullePointHistory *p)
+{
+   unsigned int   n, i;
+
+   i = p->i;
+   n = 8;
+   do
+   {
+      MullePointHistoryItemPrintf( fp, &p->items[ i]);
+      i = (i - 1) & 0x7;
+   }
+   while( --n);
+}
+#endif
 
 
 //
@@ -119,6 +151,7 @@ static inline struct MullePointHistoryItem
 // Event handling state
    CGPoint                     _momentum;
    CGPoint                     _mousePosition;
+   CGPoint                     _bubbleDragOffset;
    CAAbsoluteTime              _scrollStartTime;
    CAAbsoluteTime              _momentumTimestamp;
    
@@ -131,6 +164,7 @@ static inline struct MullePointHistoryItem
 @property( assign, getter=isDragging) BOOL     dragging;
 
 - (void) setContentOffset:(CGPoint) offset;
+- (void) scrollContentOffsetBy:(CGPoint) diff;
 - (CGPoint) contentOffset;
 
 // move this into category
@@ -141,6 +175,8 @@ static inline struct MullePointHistoryItem
 - (UIScrollContentView *) contentView;  
 - (UIView *) horizontalScrollIndicatorView; 
 - (UIView *) verticalScrollIndicatorView;   
+
+- (CGPoint) clampedContentOffset:(CGPoint) offset;
 
 @end
 

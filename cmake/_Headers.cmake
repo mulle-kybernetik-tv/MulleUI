@@ -88,6 +88,7 @@ src/UIFont.h
 src/UIImage.h
 src/UILabel.h
 src/UIResponder.h
+src/UIScrollView+UIEvent.h
 src/UIScrollView.h
 src/UISegmentedControl.h
 src/UISlider.h
@@ -100,6 +101,7 @@ src/UIView+UIEvent.h
 src/UIView+UIResponder.h
 src/UIView.h
 src/UIWindow+CGGeometry.h
+src/UIWindow+UIEvent.h
 src/UIWindow+UIResponder.h
 src/UIWindow.h
 src/YogaKit/UIView+Yoga.h
