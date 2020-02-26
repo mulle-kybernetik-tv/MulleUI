@@ -511,8 +511,11 @@
    //
    // The masterLayer also sets up the scissors for the following renders
    //
+   // clip to our frame
+
    if( [self renderLayersWithContext:context])
    {
+
 #ifdef RENDER_VERBOSE
       fprintf( stderr, "%s: renderLayersWithContext preempts subview drawing\n",
                      [self cStringDescription]);

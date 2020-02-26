@@ -2,6 +2,7 @@
 
 #import "UIImage.h"
 #import "CALayer.h"
+#import "MulleTextLayer.h"
 #import "UIView+UIResponder.h"
 
 
@@ -15,6 +16,52 @@
 
 
 @implementation UIButton
+
+- (instancetype) initWithLayer:(CALayer *) layer 
+{
+   self = [super initWithLayer:layer];
+   if( self)
+   {
+      _titleLayer = [[[MulleTextLayer alloc] initWithFrame:[self frame]] autorelease];
+
+      //
+      // if we composite on top of an image and leave the background 
+      // transparent, then the cleartype font looks very ugly. It needs a
+      // solid background. (White on black seems best ?)
+      //
+      // Idea: text layer could shrink to minimum required size and then center
+      //       itself.
+      // 
+      //       Do not use cleartype font for UIButton, if the background is not
+      //       opaque ?
+      //
+
+      [self setTitleCString:"Title"];
+      [_titleLayer setFontName:"sans"];
+      [_titleLayer setFontPixelSize:14.0 * 2];
+      [_titleLayer setBackgroundColor:getNVGColor( 0x000000FF)];
+      [_titleLayer setTextColor:getNVGColor( 0xFFFFFFFFF)];
+
+      [self addLayer:_titleLayer];
+   }
+   return( self);
+}
+
+- (void) setTitleCString:(char *) s
+{
+   BOOL   visible;
+
+   visible = s && *s;
+   
+   [_titleLayer setHidden:! visible];
+   [_titleLayer setCString:visible ? s : ""];
+}
+
+- (char *) titleCString
+{
+   return( [_titleLayer CString]);
+}
+
 
 // use compatible code
 - (void) toggleState

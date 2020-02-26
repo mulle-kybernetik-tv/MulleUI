@@ -30,6 +30,7 @@ struct MulleFrameInfo;
 @property( observable) CGColorRef   backgroundColor;
 @property( observable) CGRect       frame;
 
+
 //
 // With Bounds origin + width you set the transform that is done
 // during the drawing. We don't have sublayers, so it doesn't affect them
@@ -39,6 +40,7 @@ struct MulleFrameInfo;
 @property( observable) CGRect       bounds;
 
 // non-observable
+@property BOOL       hidden;
 @property char       *cStringName;
 @property void       (*drawContentsCallback)( NVGcontext *vg, 
                                               CGRect frame, 
