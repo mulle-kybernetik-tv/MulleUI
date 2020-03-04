@@ -1,0 +1,2 @@
+# ignore .inc files that are counted as C++
+*.inc linguist-vendored
