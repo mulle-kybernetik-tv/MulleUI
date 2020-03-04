@@ -471,7 +471,7 @@
    CGRect          contextClipRect;
    CGRect          clipRect;
    CGFloat         alpha;
-  
+
    frame = [self frame];
    if( frame.size.width <= 0.0 || frame.size.height <= 0.0)
    {
@@ -492,6 +492,12 @@
    
    vg = [context nvgContext];
 
+// DEBUG CODE JUST TO SEE SOMETHING IN RENDERDOC
+   nvgBeginPath( vg);
+   nvgCircle(vg, CGRectGetMidX( frame), CGRectGetMidY( frame), 10.0);
+   nvgStrokeColor( vg, nvgRGBA(0, 32, 0, 32));
+   nvgStroke( vg);
+// 
    // remember for later
    nvgCurrentTransform( vg, transform);
    nvgGetScissor( vg, &scissor);
@@ -511,8 +517,11 @@
    //
    // The masterLayer also sets up the scissors for the following renders
    //
+   // clip to our frame
+
    if( [self renderLayersWithContext:context])
    {
+
 #ifdef RENDER_VERBOSE
       fprintf( stderr, "%s: renderLayersWithContext preempts subview drawing\n",
                      [self cStringDescription]);
@@ -608,6 +617,7 @@
       return;
    if( [self isHidden])
       return;
+     
    //
    // set alpha, if needed 
    // layers need to read this and multiply with their opacity and

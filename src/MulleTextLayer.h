@@ -1,6 +1,6 @@
 #import "CALayer.h"
 
-// not a string in MulleUIKit
+// not a string in MulleUI
 typedef enum CATextLayerAlignmentMode
 {
    kCAAlignmentLeft = 0,

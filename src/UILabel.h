@@ -31,6 +31,9 @@ typedef enum UITextAlignment
 
 - (void) setCStringName:(char *) s;
 - (char *) cStringName;
+
+// should probably rename to fontNameAsCString and setFontNameWithCString or
+// so
 - (char *) fontName;
 - (void) setFontName:(char *) s;
 - (CGFloat) fontPixelSize;

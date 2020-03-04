@@ -107,7 +107,6 @@
    _framebufferImages = NULL;
 }
 
-
 - (void) finalize
 {
    [self _freeImages];

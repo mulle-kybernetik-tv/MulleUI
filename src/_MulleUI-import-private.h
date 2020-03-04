@@ -12,7 +12,7 @@
 #ifndef _mulle_ui_kit_import_private_h__
 #define _mulle_ui_kit_import_private_h__
 
-#include "_MulleUIKit-include-private.h"
+#include "_MulleUI-include-private.h"
 
 /* no headers */
 

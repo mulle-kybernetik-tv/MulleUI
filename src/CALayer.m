@@ -74,18 +74,18 @@
 
 - (BOOL) drawInContext:(CGContext *) context
 {
-   CGPoint      scale;
-   CGRect       frame;
-   CGRect       bounds;
-   CGFloat      halfBorderWidth;
-   CGFloat      halfBorderHeight;
-   CGFloat      obscured;
-   CGFloat      borderHeight;
-   CGPoint      tl;
-   CGPoint      br;
-   CGSize       sz;
-   int          radius;
-   NVGcontext   *vg;
+   CGPoint           scale;
+   CGRect            frame;
+   CGRect            bounds;
+   CGFloat           halfBorderWidth;
+   CGFloat           halfBorderHeight;
+   CGFloat           obscured;
+   CGFloat           borderHeight;
+   CGPoint           tl;
+   CGPoint           br;
+   CGSize            sz;
+   int               radius;
+   NVGcontext        *vg;
    struct NVGpaint   paint; // todo convert to CG ??
 
 #ifdef RENDER_DEBUG
@@ -98,6 +98,9 @@
 
    frame  = [self frame];
    if( frame.size.width == 0.0 || frame.size.height == 0.0)
+      return( NO);
+
+   if( _opacity < 0.001 || _hidden == YES)
       return( NO);
 
    vg = [context nvgContext];
@@ -396,7 +399,6 @@
                  absoluteTime:renderTime];
    mulle_pointerarrayenumerator_done( &rover);   
 }
-
 
 
 - (void) animatePropertiesWithSnapshotlayer:(CALayer *) snapshot

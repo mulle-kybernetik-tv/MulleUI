@@ -6,7 +6,7 @@
 
 @implementation MulleTextLayer : CALayer
 
-- (void) setName:(char *) s
+- (void) setFontName:(char *) s
 {
    MulleObjCObjectSetDuplicatedCString( self, &_fontName, s);
 }
@@ -85,6 +85,7 @@
       fontPixelSize = (int) frame.size.height;
 
    vg = [context nvgContext];
+
    nvgFontSize( vg, fontPixelSize);
    nvgFontFace( vg, name);
    nvgTextColor( vg, [self textColor], [self backgroundColor]); // TODO: use textColor
@@ -95,6 +96,9 @@
 
    extents.width  = bounds[ 2] - bounds[ 0];
    extents.height = bounds[ 3] - bounds[ 1];
+
+   // don't render outside of myself
+   nvgIntersectScissor( vg, frame.origin.x, frame.origin.y, frame.size.width, frame.size.height);
 
    nvgText( vg, frame.origin.x + (frame.size.width - extents.width) / 2.0, frame.origin.y + frame.size.height * 0.5f, _cString, NULL);
 }

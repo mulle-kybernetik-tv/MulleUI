@@ -3,7 +3,7 @@
 
 
 @class UIImage;
-
+@class MulleTextLayer;
 
 //
 // here the compiler can't figure out that the informal protocol on
@@ -14,10 +14,15 @@
 {
    UIControlIvars;
 
-   UIImage   *_backgroundImage[ 4];
+   UIImage          *_backgroundImage[ 4];
+   MulleTextLayer   *_titleLayer;
+   char             *_title;
 }
 
 UIControlProperties;
+
+- (void) setTitleCString:(char *) s;
+- (char *) titleCString;
 
 // UIControlState can be:
 //
