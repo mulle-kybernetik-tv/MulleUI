@@ -1,6 +1,7 @@
 #import "UIScrollView+UIEvent.h"
 
 #import "CGGeometry+CString.h"
+#import "UIView+CGGeometry.h"
 #import "UIView+UIEvent.h"
 #import "UIView+UIResponder.h"
 #import "UIEvent.h"
@@ -9,7 +10,7 @@
 
 // #define LAYOUT_DEBUG    
 // #define EVENT_DEBUG
-// #define ZOOM_DEBUG
+#define ZOOM_DEBUG
 
 @implementation UIScrollView( UIEvent)
 
@@ -39,6 +40,28 @@
 }
 
 
+#define ZOOM_FACTOR  0.075
+
+- (CGPoint) zoomFactor
+{
+   CGRect   contentBounds;
+   CGSize   contentSize;
+   CGPoint  zoomFactor;
+
+   contentBounds = [_contentView bounds];
+
+   if( contentBounds.size.width <= 0.1 || contentBounds.size.height <= 0.1)
+      return( CGPointMake( 0.0, 0.0));
+
+   // the current scroll factor
+   contentSize  = [self contentSize];
+
+   zoomFactor.x = contentSize.width / contentBounds.size.width;
+   zoomFactor.y = contentSize.height / contentBounds.size.height;
+
+   return( zoomFactor);
+
+}
 //
 // event handling
 // In category ?
@@ -54,10 +77,11 @@
    CGPoint   newContentOffset;
    CGPoint   scale;
    CGPoint   zoomFactor;
-   CGRect    frame;
+   CGPoint   newZoomFactor;
    CGRect    bounds;
    CGRect    contentBounds;
    CGRect    newContentBounds;
+   CGSize    contentSize;
    UIView    *contentView;
 
    diff = [event scrollOffset];
@@ -67,38 +91,44 @@
 #endif
 
    contentOffset = [self contentOffset];
+   contentSize   = [self contentSize];
 
    // get unscaled position before zoom
    contentView   = [self contentView];
    contentBounds = [contentView bounds];
 
-   // the current scroll factor
-   frame        = [contentView frame];
-   zoomFactor.x = frame.size.width / contentBounds.size.width;
-   zoomFactor.y = frame.size.height / contentBounds.size.height;
+   zoomFactor    = [self zoomFactor];
+   if( zoomFactor.x <= 0.0)
+      return( nil);
 
+   //
+   // use zoom factor relative to current zoom, that makes the zoom
+   // smoother
+   //
    if( diff.y < 0)
    {
-      zoomFactor.x += 0.1;
-      zoomFactor.y += 0.1;
+      newZoomFactor.x = zoomFactor.x + (zoomFactor.x * ZOOM_FACTOR);
+      newZoomFactor.y = zoomFactor.y + (zoomFactor.y * ZOOM_FACTOR);
    }
    else
    {
-      zoomFactor.x -= 0.1;
-      zoomFactor.y -= 0.1;
+      newZoomFactor.x = zoomFactor.x - (zoomFactor.x * ZOOM_FACTOR);
+      newZoomFactor.y = zoomFactor.y - (zoomFactor.y * ZOOM_FACTOR);
    }
 
-   // scrollwheel is only Y
-   scale.x = (contentBounds.size.width + diff.y) / contentBounds.size.width;
-   scale.y = (contentBounds.size.height + diff.y) / contentBounds.size.height;
+#ifdef ZOOM_DEBUG
+   fprintf( stderr, "zoomFactor: %s -> %s\n", 
+                     CGPointCStringDescription( zoomFactor),
+                     CGPointCStringDescription( newZoomFactor));
+#endif                     
+   // make nicey and reproducable, zooming in and out
 
-   // use just one scale factor for both, choose the smaller one
-   if( scale.y > scale.x)
-      scale.y = scale.x;
-
+   newZoomFactor.x = round( newZoomFactor.x * 10) / 10;
+   newZoomFactor.y = round( newZoomFactor.y * 10) / 10;
+   
    newContentBounds.origin       = contentBounds.origin;
-   newContentBounds.size.width   = contentBounds.size.width * scale.y;
-   newContentBounds.size.height  = contentBounds.size.height * scale.y;
+   newContentBounds.size.width   = contentSize.width / newZoomFactor.x;
+   newContentBounds.size.height  = contentSize.height / newZoomFactor.y;
  
    newContentBounds = [self clampedContentViewBounds:newContentBounds];
 
@@ -118,10 +148,8 @@
    bounds        = [self bounds];
    mousePosition = [event mousePositionInView:self];
 
-
    factor.x = mousePosition.x / bounds.size.width;
    factor.y = mousePosition.y / bounds.size.height;
-
 
    // adjust contentOffset so the center remains stable
    newContentOffset    = contentOffset;
@@ -130,9 +158,13 @@
 
    newContentOffset = [self clampedContentOffset:newContentOffset];
   #ifdef ZOOM_DEBUG
-   fprintf( stderr, "scale: %f\n", scale.y);
+   // fprintf( stderr, "scale: %f\n", scale.y);
 
    fprintf( stderr, "factor: %s\n", CGPointCStringDescription( factor));
+
+   fprintf( stderr, "zoomFactor: %s -> %s\n", 
+                     CGPointCStringDescription( zoomFactor),
+                     CGPointCStringDescription( newZoomFactor));
 
    fprintf( stderr, "position: %s in %s\n", 
                      CGPointCStringDescription( mousePosition),
@@ -323,26 +355,44 @@
    return( nil);
 }
 
-
+//
+// we want the pixel we are dragging to stick to the mouse cursor 
+// if possible
+// 
 - (UIEvent *)  rightMouseDragged:(UIMouseMotionEvent *) event 
 {
    CGPoint   mousePosition;
    CGPoint   diff;
+   CGPoint   zoomFactor;
+   CGRect    bounds;
+   CGPoint   contentMousePosition;
+   CGPoint   oldContentMousePosition;
 
    [self setDragging:YES];
 
 #ifdef EVENT_DEBUG
    fprintf( stderr, "%s\n", __PRETTY_FUNCTION__);
 #endif
-   mousePosition = [event mousePosition];
+   mousePosition        = [event mousePosition];
+   contentMousePosition = [_contentView convertPoint:mousePosition 
+                                            fromView:nil];
+   oldContentMousePosition = [_contentView convertPoint:_mousePosition 
+                                               fromView:nil];
 
-   diff.x        = _mousePosition.x - mousePosition.x;
-   diff.y        = _mousePosition.y - mousePosition.y;
+   diff.x = oldContentMousePosition.x - contentMousePosition.x;
+   diff.y = oldContentMousePosition.y - contentMousePosition.y;
+
+//  zoomFactor = [self zoomFactor];
+//
+//   diff.x *= 1.0 / zoomFactor.x;
+//   diff.y *= 1.0 / zoomFactor.y;
+
    [self scrollContentOffsetBy:diff];
 
    MullePointHistoryAdd( &_mousePositionHistory, [event timestamp], mousePosition);
    fprintf( stderr, "{ timestamp=%.9f, point=%.2f,%2.f }\n", 
                   [event timestamp], mousePosition.x, mousePosition.y);
+
    _mousePosition = mousePosition;
 
    return( nil);
@@ -353,6 +403,10 @@
 #define SWIPEDURATION         0.05
 
 
+// TODO: fix momentum when zoomed in, probably by using _mousePosition
+//       and history like in the pan code, translated to the contentView
+//       which will implicitly pick up the bounds scaling
+//
 - (UIEvent *) rightMouseUp:(UIEvent *) event
 {
    CAAbsoluteTime                 scrollEndTime;

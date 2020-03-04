@@ -144,11 +144,12 @@
    CGSize    contentSize;
    CGSize    size;
    CGRect    frame;
+   CGRect    bounds;
 
    contentSize = [self contentSize];
-   frame       = [self frame];
-   size        = CGSizeMake( contentSize.width - frame.size.width,
-                             contentSize.height - frame.size.height);
+   bounds       = [_contentView bounds];
+   size        = CGSizeMake( contentSize.width - bounds.size.width,
+                             contentSize.height - bounds.size.height);
    newOffset = MulleCGPointClampToSize( offset, size);
    return( newOffset);
 }
@@ -231,6 +232,7 @@
 	CGPoint   offset;
 	CGSize    size;
    CGRect    frame;
+   CGRect    bounds;
   
 //	CGRect    contentViewFrame;
 //	CGRect    contentViewBounds;
@@ -238,14 +240,15 @@
    offset            = [self applyMomentumToContentOffset:context];
 	size              = [self contentSize];
 //	contentViewFrame  = [_contentView frame];
-	frame             = [self bounds]; // or should this be bounds ?
+	bounds            = [_contentView bounds]; // or should this be bounds ?
+   frame             = [self frame];
 
 	[_horIndicatorView setBubbleOffset:offset.x];
-	[_horIndicatorView setBubbleLength:frame.size.width];
+	[_horIndicatorView setBubbleLength:bounds.size.width];
 	[_horIndicatorView setContentLength:size.width];
 
 	[_verIndicatorView setBubbleOffset:offset.y];
-	[_verIndicatorView setBubbleLength:frame.size.height];
+	[_verIndicatorView setBubbleLength:bounds.size.height];
 	[_verIndicatorView setContentLength:size.height];
 
 	[super renderWithContext:context];

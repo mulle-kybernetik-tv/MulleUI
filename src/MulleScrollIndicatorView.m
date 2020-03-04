@@ -360,7 +360,7 @@
 											 	 4, // feather
 											 	 //nvgRGBA(220,120,120,255), 
 											 	 //nvgRGBA(128,28,28,255));
-											 	 nvgRGBA(156,156,156,160), 
+											 	 nvgRGBA(128,128,128,160), 
 											 	 nvgRGBA(64,64,64,160));
 
 	nvgBeginPath(vg);
