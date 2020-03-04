@@ -9,6 +9,7 @@
 
 // #define LAYOUT_DEBUG    
 // #define EVENT_DEBUG
+// #define ZOOM_DEBUG
 
 @implementation UIScrollView( UIEvent)
 
@@ -17,18 +18,140 @@
 // event handling
 // In category ?
 //
+
+
+//
+// point is within { { 0, 0}, contentSize }
+//
+- (void) centerViewOnPoint:(CGPoint) point
+{
+   CGPoint   contentOffset;
+   CGRect    bounds;
+
+   bounds = [self bounds];
+
+   // center mouse in the middle of the screen
+   contentOffset.x = point.x - bounds.size.width / 2.0;
+   contentOffset.y = point.y - bounds.size.height / 2.0;
+      
+   contentOffset = [self clampedContentOffset:contentOffset];
+   [self setContentOffset:contentOffset];
+}
+
+
+//
+// event handling
+// In category ?
+// Won't zoom out, so that UIScrollView is not filled anymore ?
+// Zooming in should stop at a certain magnifying factor, like what ?
+//
 - (UIEvent *) scrollWheel:(UIMouseScrollEvent *) event
 {
-	CGPoint   offset;
-	CGPoint   newOffset;
-	CGPoint   diff;
+   CGPoint   contentOffset;
+   CGPoint   diff;
+   CGPoint   factor;
+   CGPoint   mousePosition;
+   CGPoint   newContentOffset;
+   CGPoint   scale;
+   CGPoint   zoomFactor;
+   CGRect    frame;
+   CGRect    bounds;
+   CGRect    contentBounds;
+   CGRect    newContentBounds;
+   UIView    *contentView;
 
-	diff     = [event acceleratedScrollOffset];
-	fprintf( stderr, "scrollWheel: %s\n", CGPointCStringDescription( diff));
+   diff = [event scrollOffset];
 
-   [self scrollContentOffsetBy:diff];
+#ifdef EVENT_DEBUG
+   fprintf( stderr, "scrollWheel: %s\n", CGPointCStringDescription( diff));
+#endif
 
-	return( nil);
+   contentOffset = [self contentOffset];
+
+   // get unscaled position before zoom
+   contentView   = [self contentView];
+   contentBounds = [contentView bounds];
+
+   // the current scroll factor
+   frame        = [contentView frame];
+   zoomFactor.x = frame.size.width / contentBounds.size.width;
+   zoomFactor.y = frame.size.height / contentBounds.size.height;
+
+   if( diff.y < 0)
+   {
+      zoomFactor.x += 0.1;
+      zoomFactor.y += 0.1;
+   }
+   else
+   {
+      zoomFactor.x -= 0.1;
+      zoomFactor.y -= 0.1;
+   }
+
+   // scrollwheel is only Y
+   scale.x = (contentBounds.size.width + diff.y) / contentBounds.size.width;
+   scale.y = (contentBounds.size.height + diff.y) / contentBounds.size.height;
+
+   // use just one scale factor for both, choose the smaller one
+   if( scale.y > scale.x)
+      scale.y = scale.x;
+
+   newContentBounds.origin       = contentBounds.origin;
+   newContentBounds.size.width   = contentBounds.size.width * scale.y;
+   newContentBounds.size.height  = contentBounds.size.height * scale.y;
+ 
+   newContentBounds = [self clampedContentViewBounds:newContentBounds];
+
+   //
+   // look at the position of the mouse cursor, keep contents under it at 
+   // the same place zoomed or unzoomed
+   // 
+   // ...--------------------+ contentView
+   // scrollView             |
+   // +----------------+     |
+   // |   *            |     |  * mousePosition in contentView points
+   // |                |     |    
+   // +----------------+     |
+   //                        :
+   //
+
+   bounds        = [self bounds];
+   mousePosition = [event mousePositionInView:self];
+
+
+   factor.x = mousePosition.x / bounds.size.width;
+   factor.y = mousePosition.y / bounds.size.height;
+
+
+   // adjust contentOffset so the center remains stable
+   newContentOffset    = contentOffset;
+   newContentOffset.x -= (newContentBounds.size.width - contentBounds.size.width) * factor.x;
+   newContentOffset.y -= (newContentBounds.size.height - contentBounds.size.height) * factor.y;
+
+   newContentOffset = [self clampedContentOffset:newContentOffset];
+  #ifdef ZOOM_DEBUG
+   fprintf( stderr, "scale: %f\n", scale.y);
+
+   fprintf( stderr, "factor: %s\n", CGPointCStringDescription( factor));
+
+   fprintf( stderr, "position: %s in %s\n", 
+                     CGPointCStringDescription( mousePosition),
+                     CGRectCStringDescription( bounds));
+
+   fprintf( stderr, "bounds: %s -> %s\n", 
+                     CGRectCStringDescription( contentBounds), 
+                     CGRectCStringDescription( newContentBounds));
+
+   fprintf( stderr, "contentOffset: %s -> %s\n", 
+                     CGPointCStringDescription( contentOffset),
+                     CGPointCStringDescription( newContentOffset));
+#endif
+
+   [contentView setBounds:newContentBounds];
+
+   [self setContentOffset:newContentOffset];
+
+   return( nil);
 }
 
 
@@ -38,10 +161,10 @@
    MulleScrollIndicatorView    *view;
    CGRect                      bounds;
 
-	point = [event mousePositionInView:self];
-	view  = (MulleScrollIndicatorView *) [self subviewAtPoint:point];
+   point = [event mousePositionInView:self];
+   view  = (MulleScrollIndicatorView *) [self subviewAtPoint:point];
 
-	if( view == _horIndicatorView || view == _verIndicatorView)
+   if( view == _horIndicatorView || view == _verIndicatorView)
       return( view);
 
    //
@@ -80,7 +203,7 @@
    if( contentSize.width == 0.0 || contentSize.height == 0.0)
       return( nil);
 
-	point = [event mousePositionInView:indicatorView];
+   point = [event mousePositionInView:indicatorView];
 
    // if click is inside the bubble, then don't do anything visible
    // maybe store offset for positioning in a later drag
@@ -92,15 +215,15 @@
    contentOffset = [self contentOffset];
    bounds        = [indicatorView bounds];
    if( indicatorView == _horIndicatorView)
-	{
+   {
       newContentOffset.x = point.x * (contentSize.width / bounds.size.width); 
       newContentOffset.y = contentOffset.y;
-	}
+   }
    else
-	{
+   {
       newContentOffset.y = point.y * (contentSize.height / bounds.size.height); 
       newContentOffset.x = contentOffset.x;
-	}
+   }
 
    newContentOffset = [self clampedContentOffset:newContentOffset];
 
@@ -112,7 +235,7 @@
                         CGPointCStringDescription( newContentOffset));
 
    [self setContentOffset:newContentOffset];
-	return( nil);
+   return( nil);
 }
 
 
@@ -138,22 +261,22 @@
 
    contentOffset = [self contentOffset];
    bounds        = [indicatorView bounds];
-	point         = [event mousePositionInView:indicatorView];
+   point         = [event mousePositionInView:indicatorView];
 
    // are the viewspace pixels in the same domain ?
    point.x      -= _bubbleDragOffset.x;
    point.y      -= _bubbleDragOffset.y;
 
    if( indicatorView == _horIndicatorView)
-	{
+   {
       newContentOffset.x = point.x * (contentSize.width / bounds.size.width); 
       newContentOffset.y = contentOffset.y;
-	}
+   }
    else
-	{
+   {
       newContentOffset.y = point.y * (contentSize.height / bounds.size.height); 
       newContentOffset.x = contentOffset.x;
-	}
+   }
 
    newContentOffset = [self clampedContentOffset:newContentOffset];
 
@@ -165,7 +288,7 @@
                         CGPointCStringDescription( newContentOffset));
 
    [self setContentOffset:newContentOffset];
-	return( nil);
+   return( nil);
 }
 //
 // consume mouseUp events if they hit indicator views
@@ -179,7 +302,7 @@
       return( event);
 
    // consume
-	return( nil);
+   return( nil);
 }
 
 
@@ -197,7 +320,7 @@
 
    fprintf( stderr, "scrollStartTime: %.2f\n", _scrollStartTime);
 
-	return( nil);
+   return( nil);
 }
 
 
@@ -302,7 +425,7 @@
 
    fprintf( stderr, "momentum: %.2f,%.2f\n", _momentum.x, _momentum.y);
 
-	return( nil);
+   return( nil);
 }
 
 @end

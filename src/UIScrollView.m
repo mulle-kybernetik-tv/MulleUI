@@ -105,6 +105,39 @@
 	return( _verIndicatorView);
 }
 
+- (CGRect) clampedContentViewBounds:(CGRect) bounds 
+{
+   CGRect   frame;
+   CGRect   oldBounds;
+   CGPoint  zoomFactor;
+   CGPoint  minZoom;
+   CGSize   contentSize;
+
+   oldBounds = [_contentView bounds];
+   if( bounds.size.width <= 1.0 || bounds.size.height <= 1.0)
+      return( oldBounds);
+
+   frame        = [_contentView frame];
+   zoomFactor.x = frame.size.width / bounds.size.width;
+   zoomFactor.y = frame.size.height / bounds.size.height;
+
+   contentSize = [self contentSize];
+
+   minZoom.x    = frame.size.width / contentSize.width;
+   minZoom.y    = frame.size.height / contentSize.height;
+
+   fprintf( stderr, "zoomFactor: %s\n", CGPointCStringDescription( zoomFactor));
+   fprintf( stderr, "minZoom: %s\n", CGPointCStringDescription( minZoom));
+
+   if( zoomFactor.x <= minZoom.x || zoomFactor.y <= minZoom.y)
+      return( oldBounds);
+
+   if( zoomFactor.x >= 16.0 || zoomFactor.y >= 16.0)
+      return( oldBounds);
+
+   return( bounds);
+}
+
 - (CGPoint) clampedContentOffset:(CGPoint) offset 
 {
 	CGPoint   newOffset;

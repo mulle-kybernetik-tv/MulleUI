@@ -9,8 +9,8 @@
 *         set MULLE_SOURCETREE_TO_C_RUN DISABLE
 */
 
-#ifndef _mulle_ui_kit_import_h__
-#define _mulle_ui_kit_import_h__
+#ifndef _mulle_ui_import_h__
+#define _mulle_ui_import_h__
 
 // How to tweak the following Foundation #import
 //    remove:          `mulle-sourcetree mark Foundation no-header`

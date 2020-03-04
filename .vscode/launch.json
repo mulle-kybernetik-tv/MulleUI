@@ -3,19 +3,19 @@
     "configurations": [
         {
             "_comment": "All? It's often convenient in library projects too",
-            "name": "Debug MulleGLExample",
+            "name": "Debug MulleUI",
             "type": "cppdbg",
             "MIMode": "lldb",
             "request": "launch",
             "stopAtEntry": true,
-            "program": "${workspaceFolder}/kitchen/Debug/MulleGLExample",
+            "program": "${workspaceFolder}/kitchen/Debug/MulleUI",
             "args": [],
             "environment": [],
             "cwd": "${workspaceFolder}",
             "additionalSOLibSearchPath": "${workspaceFolder}/dependency/Debug/lib:${workspaceFolder}/dependency/lib",
             "windows": {
                 "miDebuggerPath": "C:\\mingw64\\bin\\mulle-lldb-mi.exe",
-                "program": "${workspaceFolder}/kitchen/Debug/MulleGLExample.exe"
+                "program": "${workspaceFolder}/kitchen/Debug/MulleUI.exe"
             },
             "osx": {
                 "miDebuggerPath": "/usr/local/bin/mulle-lldb-mi"

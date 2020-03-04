@@ -47,7 +47,7 @@
    [super dealloc];
 }
 
-
+// rename to drawWithContext: ?
 - (BOOL) drawInContext:(CGContext *) context
 {
    int          textureId;

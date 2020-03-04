@@ -493,10 +493,10 @@
    vg = [context nvgContext];
 
 // DEBUG CODE JUST TO SEE SOMETHING IN RENDERDOC
-   nvgBeginPath( vg);
-   nvgCircle(vg, CGRectGetMidX( frame), CGRectGetMidY( frame), 10.0);
-   nvgStrokeColor( vg, nvgRGBA(0, 32, 0, 32));
-   nvgStroke( vg);
+//   nvgBeginPath( vg);
+//   nvgCircle(vg, CGRectGetMidX( frame), CGRectGetMidY( frame), 10.0);
+//   nvgStrokeColor( vg, nvgRGBA(0, 32, 0, 32));
+//   nvgStroke( vg);
 // 
    // remember for later
    nvgCurrentTransform( vg, transform);

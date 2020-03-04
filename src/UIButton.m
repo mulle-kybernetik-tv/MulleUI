@@ -36,11 +36,12 @@
       //       opaque ?
       //
 
-      [self setTitleCString:"Title"];
+      // [self setTitleCString:"Title"];
       [_titleLayer setFontName:"sans"];
       [_titleLayer setFontPixelSize:14.0 * 2];
       [_titleLayer setBackgroundColor:getNVGColor( 0x000000FF)];
       [_titleLayer setTextColor:getNVGColor( 0xFFFFFFFFF)];
+      [_titleLayer setHidden:YES];
 
       [self addLayer:_titleLayer];
    }

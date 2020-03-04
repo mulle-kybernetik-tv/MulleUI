@@ -177,6 +177,7 @@ static inline struct MullePointHistoryItem
 - (UIView *) verticalScrollIndicatorView;   
 
 - (CGPoint) clampedContentOffset:(CGPoint) offset;
+- (CGRect) clampedContentViewBounds:(CGRect) bounds;
 
 @end
 

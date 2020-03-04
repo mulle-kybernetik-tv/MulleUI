@@ -9,8 +9,8 @@
 *         set MULLE_SOURCETREE_TO_C_RUN DISABLE
 */
 
-#ifndef _mulle_ui_kit_import_private_h__
-#define _mulle_ui_kit_import_private_h__
+#ifndef _mulle_ui_import_private_h__
+#define _mulle_ui_import_private_h__
 
 #include "_MulleUI-include-private.h"
 
