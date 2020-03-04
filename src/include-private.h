@@ -24,7 +24,7 @@
    sourcetree, then you don't need it.
  */
 
-#include "_MulleUIKit-include-private.h"
+#include "_MulleUI-include-private.h"
 
 /* You can add some more include statements here */
 

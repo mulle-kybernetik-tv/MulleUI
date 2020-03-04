@@ -20,7 +20,7 @@
 //    remove for os:   `mulle-sourcetree mark Foundation no-os-<osname>`
 # import <Foundation/Foundation.h>   // Foundation
 
-#include "_MulleUIKit-include.h"
+#include "_MulleUI-include.h"
 
 
 #endif
