@@ -19,7 +19,7 @@ if( NOT FREETYPED_LIBRARY)
    #
    if( FREETYPED_LIBRARY)
       #
-      # Add to FREETYPED_LIBRARY to DEPENDENCY_LIBRARIES list.
+      # Add FREETYPED_LIBRARY to DEPENDENCY_LIBRARIES list.
       # Disable with: `mulle-sourcetree mark freetype no-cmakeadd`
       #
       set( DEPENDENCY_LIBRARIES
@@ -87,7 +87,7 @@ if( NOT GLFW3_LIBRARY)
    #
    if( GLFW3_LIBRARY)
       #
-      # Add to GLFW3_LIBRARY to DEPENDENCY_LIBRARIES list.
+      # Add GLFW3_LIBRARY to DEPENDENCY_LIBRARIES list.
       # Disable with: `mulle-sourcetree mark glfw no-cmakeadd`
       #
       set( DEPENDENCY_LIBRARIES
@@ -155,7 +155,7 @@ if( NOT FOUNDATION_LIBRARY)
    #
    if( FOUNDATION_LIBRARY)
       #
-      # Add to FOUNDATION_LIBRARY to ALL_LOAD_DEPENDENCY_LIBRARIES list.
+      # Add FOUNDATION_LIBRARY to ALL_LOAD_DEPENDENCY_LIBRARIES list.
       # Disable with: `mulle-sourcetree mark Foundation no-cmakeadd`
       #
       set( ALL_LOAD_DEPENDENCY_LIBRARIES
@@ -240,7 +240,7 @@ if( NOT FOUNDATION_STARTUP_LIBRARY)
    #
    if( FOUNDATION_STARTUP_LIBRARY)
       #
-      # Add to FOUNDATION_STARTUP_LIBRARY to STARTUP_ALL_LOAD_DEPENDENCY_LIBRARIES list.
+      # Add FOUNDATION_STARTUP_LIBRARY to STARTUP_ALL_LOAD_DEPENDENCY_LIBRARIES list.
       # Disable with: `mulle-sourcetree mark Foundation-startup no-cmakeadd`
       #
       set( STARTUP_ALL_LOAD_DEPENDENCY_LIBRARIES

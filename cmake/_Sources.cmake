@@ -5,6 +5,11 @@ if( MULLE_TRACE_INCLUDE)
    MESSAGE( STATUS "# Include \"${CMAKE_CURRENT_LIST_FILE}\"" )
 endif()
 
+set( MAIN_SOURCES
+src/main-buttons.m
+src/main-layer.m
+)
+
 set( SOURCES
 nanovg/src/nanovg.c
 src/CAAnimationGroup.m
@@ -21,6 +26,7 @@ src/Foundation/NSIndexSet.m
 src/Foundation/NSMutableIndexSet.m
 src/MulleBitmapImage.m
 src/MulleCheckboxLayer.m
+src/MulleControlBackgroundImage.m
 src/MulleImageLayer.m
 src/MulleObjectArray.m
 src/MulleSVGImage.m
@@ -78,7 +84,6 @@ src/UIWindow.m
 src/YogaKit/UIView+Yoga.m
 src/YogaKit/YGLayout.m
 src/bmp-writer.c
-src/main.m
 src/mulle-pointerarray+ObjC.m
 src/mulle-quadtree.m
 src/nanoperf.m

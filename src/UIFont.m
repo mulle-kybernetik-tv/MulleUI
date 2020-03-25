@@ -29,7 +29,7 @@
 {
    struct mulle_allocator  *allocator;
 
-   allocator = MulleObjCObjectGetAllocator( self);
+   allocator = MulleObjCInstanceGetAllocator( self);
    mulle_allocator_free( allocator, _fontName);
    [super dealloc];
 }

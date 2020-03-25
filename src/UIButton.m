@@ -4,7 +4,7 @@
 #import "CALayer.h"
 #import "MulleTextLayer.h"
 #import "UIView+UIResponder.h"
-
+#import "UIEdgeInsets.h"
 
 // implemented by UIResponder protocol class, but mulle-clang can't figure
 // it out (yet)
@@ -17,34 +17,66 @@
 
 @implementation UIButton
 
+#define BORDER_WIDTH    3.0
+#define TEXT_MARGIN     1.0
+#define CORNER_RADIUS   8
+
+                
+
 - (instancetype) initWithLayer:(CALayer *) layer 
 {
+   CGRect         frame;
+   CGRect         textLayerFrame;
+   UIEdgeInsets   insets;
+
    self = [super initWithLayer:layer];
-   if( self)
-   {
-      _titleLayer = [[[MulleTextLayer alloc] initWithFrame:[self frame]] autorelease];
+   if( ! self)
+      return( self);
 
-      //
-      // if we composite on top of an image and leave the background 
-      // transparent, then the cleartype font looks very ugly. It needs a
-      // solid background. (White on black seems best ?)
-      //
-      // Idea: text layer could shrink to minimum required size and then center
-      //       itself.
-      // 
-      //       Do not use cleartype font for UIButton, if the background is not
-      //       opaque ?
-      //
+   frame          = [self frame];
+   insets         = UIEdgeInsetsMake( BORDER_WIDTH + TEXT_MARGIN, 
+                                      BORDER_WIDTH + TEXT_MARGIN, 
+                                      BORDER_WIDTH + TEXT_MARGIN,
+                                      BORDER_WIDTH + TEXT_MARGIN);
+   textLayerFrame = UIEdgeInsetsInsetRect( frame, insets);
+ 
+   _titleLayer = [[[MulleTextLayer alloc] initWithFrame:textLayerFrame] autorelease];
 
-      // [self setTitleCString:"Title"];
-      [_titleLayer setFontName:"sans"];
-      [_titleLayer setFontPixelSize:14.0 * 2];
-      [_titleLayer setBackgroundColor:getNVGColor( 0x000000FF)];
-      [_titleLayer setTextColor:getNVGColor( 0xFFFFFFFFF)];
-      [_titleLayer setHidden:YES];
+   //
+   // if we composite on top of an image and leave the background 
+   // transparent, then the cleartype font looks very ugly. It needs a
+   // solid background. (White on black seems best ?)
+   //
+   // Idea: text layer could shrink to minimum required size and then center
+   //       itself.
+   // 
+   //       Do not use cleartype font for UIButton, if the background is not
+   //       opaque ?
+   //
 
-      [self addLayer:_titleLayer];
-   }
+   // [self setTitleCString:"Title"];
+   [_titleLayer setFontName:"sans"];
+   //
+   // Even with pixel size full frame, we won't cover the button. I suspect
+   // because the font leaves vertical room for a previous row of text
+   // Fontsize is probably usefully set by the user anyway 
+   [_titleLayer setFontPixelSize:frame.size.height / 2];
+   [_titleLayer setBackgroundColor:getNVGColor( 0x4000000)];
+   [_titleLayer setTextColor:getNVGColor( 0x000000FF)];
+   // set this as we are transparent
+   [_titleLayer setTextBackgroundColor:getNVGColor( 0xFFFF00FF)];
+   [_titleLayer setHidden:YES];
+
+   _backgroundLayer = [[[CALayer alloc] initWithFrame:frame] autorelease];
+   [_backgroundLayer setBackgroundColor:getNVGColor( 0xFFFF00FF)];
+   // this ensures that the background fill does not antialias into the
+   // outside
+   [_backgroundLayer setBorderWidth:1.5];
+   [_backgroundLayer setBorderColor:getNVGColor( 0x7F7FFFFF)];
+   [_backgroundLayer setCornerRadius:CORNER_RADIUS];
+   [self addLayer:_backgroundLayer];
+   [self addLayer:_titleLayer];
+
    return( self);
 }
 
@@ -64,32 +96,53 @@
 }
 
 
+- (void) getBackgroundImageIVar:(UIImage ***) ivar
+{
+  *ivar = _backgroundImage;
+}
+
+- (void) reflectState
+{
+   UIControlState   state;
+   UIControlState   fallbackState;
+   CGRect           frame;
+   UIImage          *image;
+   
+   state = [self state];
+
+   if( state & UIControlStateSelected)
+   {
+      [_backgroundLayer setBackgroundColor:getNVGColor( 0xD0D0D0FF)];
+      [_titleLayer setTextBackgroundColor:getNVGColor( 0xD0D0D0FF)];
+   }
+   else
+   {
+      [_backgroundLayer setBackgroundColor:getNVGColor( 0xFFFFFFFF)];
+      [_titleLayer setTextBackgroundColor:getNVGColor( 0xFFFFFFFF)];
+   }
+
+   image         = [self backgroundImageForState:state];
+   fallbackState = state & ~UIControlStateDisabled;
+   if( ! image)
+   {
+      image = [self backgroundImageForState:fallbackState];
+      fallbackState &=~UIControlStateSelected;
+   }
+   if( ! image)
+      image = [self backgroundImageForState:fallbackState];
+   [self setBackgroundImage:image];
+}
+
 // use compatible code
 - (void) toggleState
 {
-	UIControlState   state;
-	CGRect           frame;
-	UIImage          *image;
-
    //
-	// target/action has been called already by UIControl
-	//
+   // target/action has been called already by UIControl
+   //
    [super toggleState];
-
-   state = [self state];
-	image = [self backgroundImageForState:state];
-	if( ! image)
-	{
-		state &=~UIControlStateDisabled;
-		image = [self backgroundImageForState:state];
-	}
-	if( ! image)
-	{
-		state &=~UIControlStateSelected;
-		image = [self backgroundImageForState:state];
-	}
-	[self setBackgroundImage:image];
+   [self reflectState];
 }
+
 
 - (BOOL) becomeFirstResponder
 {
@@ -112,66 +165,6 @@
       return( YES);
    }
    return( NO);
-}
-
-
-static NSUInteger   imageIndexForControlState( UIControlState state)
-{
-	switch( state)
-	{
-	case UIControlStateNormal                          : return( 0);
-	case UIControlStateSelected                        : return( 1);
-	case UIControlStateNormal|UIControlStateDisabled   : return( 2);
-	case UIControlStateSelected|UIControlStateDisabled : return( 3);
-	}
-	abort();
-}
-
-
-- (UIImage *) backgroundImageForState:(UIControlState) state
-{
-	NSUInteger   index;
-
-	if( state & UIControlStateHighlighted)
-		state ^= UIControlStateSelected;
-
-	state &= UIControlStateSelected|UIControlStateDisabled;
-	index = imageIndexForControlState( state);
-	return( self->_backgroundImage[ index]);
-}
-
-
-- (void) setBackgroundImage:(UIImage *) image
-                   forState:(UIControlState) state
-{
-	NSUInteger    index;
-
-	index = imageIndexForControlState( state);
-
-	[self->_backgroundImage[ index] autorelease];
-	self->_backgroundImage[ index] = [image retain];
-}
-
-
-- (void) setBackgroundImage:(UIImage *) image
-{
-	CALayer   *layer;
-	Class     preferredLayerClass;
-	Class     layerClass;
-
-	assert( ! image || [image isKindOfClass:[UIImage class]]);
-
-	if( ! image)
-		return;
-
-	layer               = _mainLayer;
-	layerClass          = [layer class];
-	preferredLayerClass = [image preferredLayerClass];
-
-	if( [layerClass isSubclassOfClass:preferredLayerClass])
-		[(CALayer<CAImageLayer> *) layer setImage:image];
-	else
-		abort();
 }
 
 @end

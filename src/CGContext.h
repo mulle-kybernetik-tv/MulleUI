@@ -16,9 +16,9 @@
 #import "import.h"
 
 #include "CGGeometry.h"
+#include "CGColor.h"
 #include "CATime.h"
 #include "nanoperf.h"
-
 
 typedef enum
 {
@@ -164,7 +164,10 @@ struct MulleFrameInfo
    BOOL                         _isRendering;
 }
 
-@property CGFloat    alpha;
+@property CGFloat      alpha;
+
+// not animatable though, better use windows ?
+@property CGColorRef   backgroundColor;
 
 - (struct NVGcontext *) nvgContext;
 

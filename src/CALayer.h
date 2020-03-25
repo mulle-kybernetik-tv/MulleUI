@@ -42,7 +42,8 @@ struct MulleFrameInfo;
 // non-observable
 @property BOOL       hidden;
 @property char       *cStringName;
-@property void       (*drawContentsCallback)( NVGcontext *vg, 
+@property void       (*drawContentsCallback)( void *layer, 
+                                              NVGcontext *vg, 
                                               CGRect frame, 
                                               struct MulleFrameInfo *info);
 
@@ -60,6 +61,8 @@ struct MulleFrameInfo;
 // frame coordinates.
 //
 - (void) drawContentsInContext:(CGContext *) ctx;
+- (void) drawBackgroundInContext:(CGContext *) context;
+- (void) drawBorderInContext:(CGContext *) context;
 
 
 - (void) setTransform:(_NVGtransform) transform

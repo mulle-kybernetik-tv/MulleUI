@@ -47,7 +47,8 @@
  * `fons__tt_getPixelHeightScale` for example is defined as ` size / (font->font->ascender - font->font->descender)`
  * so basically `size / 2048`.
  *
- * The texture you get from freetype is upside down. So a d actually looks like a q (sort of).
+ * The texture you get from freetype is upside down. So a d actually looks
+ * like a q (sort of).
  *
  * The pipe glyph has a vertical overshoot of one pixel for Anonymous Pro.
  *
@@ -71,6 +72,7 @@
    char                *name;
    float               bounds[ 4];
    CGSize              extents;
+   CGColorRef          color;
 
    // nothing to draw ? then bail
    if( ! _cString || ! *_cString)
@@ -88,7 +90,11 @@
 
    nvgFontSize( vg, fontPixelSize);
    nvgFontFace( vg, name);
-   nvgTextColor( vg, [self textColor], [self backgroundColor]); // TODO: use textColor
+
+   color = [self backgroundColor];
+   if( CGColorGetAlpha( color) < 1.0)
+      color = [self textBackgroundColor];
+   nvgTextColor( vg, [self textColor], color); // TODO: use textColor
 
    // TODO: use textalign property
    nvgTextAlign( vg, NVG_ALIGN_LEFT|NVG_ALIGN_MIDDLE);

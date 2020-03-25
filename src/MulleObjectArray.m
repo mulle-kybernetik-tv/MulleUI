@@ -40,7 +40,7 @@
 
 - (instancetype) init
 {
-   self->_pointerarray = mulle_pointerarray_create_nil( MulleObjCObjectGetAllocator( self));
+   self->_pointerarray = mulle_pointerarray_create_nil( MulleObjCInstanceGetAllocator( self));
    self->_freeWhenDone = YES;
    return( self);
 }

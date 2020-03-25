@@ -110,7 +110,7 @@
 
    if( ! _subviews)
    {
-      allocator = MulleObjCObjectGetAllocator( self);
+      allocator = MulleObjCInstanceGetAllocator( self);
       _subviews = mulle_pointerarray_alloc( allocator);
       _mulle_pointerarray_init( _subviews, 4, nil, allocator);
    }

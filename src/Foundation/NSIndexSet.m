@@ -50,7 +50,7 @@
 {
    struct mulle_allocator   *allocator;
 
-   allocator = MulleObjCObjectGetAllocator( self);
+   allocator = MulleObjCInstanceGetAllocator( self);
    _mulle__rangeset_init( &_set, n, allocator);
    _mulle__rangeset_insert_ranges( &_set, ranges, n, allocator);
    return( self);

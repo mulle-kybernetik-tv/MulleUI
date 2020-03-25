@@ -44,11 +44,14 @@ selected image when deselected.
 
 typedef NSUInteger    UIControlState;
 
+// put these into your UIControl adopting class interface ivars
 #define UIControlIvars              \
    UIControlState           _state;	\
    UIControlClickHandler   *_click;	\
    id                      _target;	\
    SEL                     _action
+
+// put these into your UIControl adopting class property block
 
 #define UIControlProperties                         \
    @property( assign) UIControlState  state;        \

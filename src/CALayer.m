@@ -7,6 +7,8 @@
 #import "CGContext.h"
 #import "nanovg+CString.h"
 #import "UIView+CAAnimation.h"
+#import "UIEdgeInsets.h"
+
 
 #pragma clang diagnostic ignored "-Wparentheses"
 // #define RENDER_DEBUG
@@ -41,7 +43,7 @@
    struct mulle_pointerarrayenumerator   rover;
    CAAnimation                           *animation;
 
-   allocator = MulleObjCObjectGetAllocator( self);
+   allocator = MulleObjCInstanceGetAllocator( self);
    mulle_allocator_free( allocator, _cStringName);
 
    rover = mulle_pointerarray_enumerate_nil( &_animations);
@@ -68,8 +70,122 @@
 - (void) drawContentsInContext:(CGContext *) context
 {
    if( _drawContentsCallback)
-      (*_drawContentsCallback)( [context nvgContext], [self frame], [context currentFrameInfo]);
+      (*_drawContentsCallback)( self, [context nvgContext], [self frame], [context currentFrameInfo]);
 }
+
+
+- (void) drawBackgroundInContext:(CGContext *) context 
+{
+   NVGcontext     *vg;
+   CGPoint        tl;
+   CGPoint        br;
+   CGRect         frame;
+   CGFloat        borderWidth;
+   UIEdgeInsets   insets;
+
+
+   // if there is a border to be drawn, then we use antialias
+   // otherwise we don't and only draw to the middle of the border
+
+   vg = [context nvgContext];
+
+   //
+   // fill and border are drawn as frame
+   // contents in bounds of superview
+   //
+   frame  = [self frame];
+
+
+   borderWidth = [self borderWidth];
+   if( borderWidth > 0.1)
+   {
+      insets = UIEdgeInsetsMake( borderWidth / 2, borderWidth / 2,  borderWidth / 2, borderWidth / 2);
+      frame  = UIEdgeInsetsInsetRect( frame, insets);
+      nvgShapeAntiAlias( vg, 0);  
+   }
+
+   //
+   // if the stroke is alpha, it will have to render over pixels
+   // otherwise reduce the size of the shape we draw
+   //
+   tl.x = frame.origin.x;
+   tl.y = frame.origin.y;
+   br.x = tl.x + frame.size.width;
+   br.y = tl.y + frame.size.height;
+
+   if( tl.x <= br.x || tl.y <= br.y)
+   {
+      // fill 
+      nvgBeginPath( vg);
+      nvgRoundedRect( vg, frame.origin.x, 
+                          frame.origin.y, 
+                          frame.size.width, 
+                          frame.size.height, 
+                          _cornerRadius);
+      nvgFillColor(vg, _backgroundColor);
+      nvgFill( vg);
+   } 
+   nvgShapeAntiAlias( vg, 1);  
+}
+
+
+- (void) drawBorderInContext:(CGContext *) context
+{
+   NVGcontext  *vg;
+   CGRect      frame;
+   CGFloat     halfBorderWidth;
+   CGPoint     tl;
+   CGPoint     br;   
+   //
+   // the strokeWidth isn't scaled in nvg, so we do this now ourselves
+   //
+   if( _borderWidth <= 0.1)
+      return;
+
+   vg = [context nvgContext];
+
+   //
+   // fill and border are drawn as frame
+   // contents in bounds of superview
+   //
+
+   frame  = [self frame];
+
+   //
+   // if the stroke is alpha, it will have to render over pixels
+   // otherwise reduce the size of the shape we draw
+   //
+
+   halfBorderWidth = _borderWidth / 2.0;
+
+   tl.x = halfBorderWidth + frame.origin.x ;
+   tl.y = halfBorderWidth + frame.origin.y;
+   br.x = tl.x + frame.size.width - halfBorderWidth * 2;
+   br.y = tl.y + frame.size.height - halfBorderWidth * 2;
+
+   if( ! (tl.x <= br.x || tl.y <= br.y))
+      return;
+   //
+   // the _cornerRadius is computed for a stroke of width 1 (or 0 ?)
+   // the strokeWidth is just scaling it out
+   //
+   nvgBeginPath( vg);
+   nvgRoundedRect( vg, tl.x, 
+                       tl.y, 
+                       br.x - tl.x, 
+                       br.y - tl.y, 
+                       _cornerRadius);
+   nvgStrokeWidth( vg, (int) _borderWidth);
+   nvgStrokeWidth( vg, (int) _borderWidth);
+   nvgStrokeColor( vg, _borderColor);
+   nvgStroke( vg);
+
+//      nvgMoveTo( vg, tl.x, tl.y);
+//      nvgLineTo( vg, br.x, tl.y);
+//      nvgLineTo( vg, br.x, br.y);
+//      nvgLineTo( vg, tl.x, br.y);
+//      nvgLineTo( vg, tl.x, tl.y);
+} 
 
 
 - (BOOL) drawInContext:(CGContext *) context
@@ -131,77 +247,11 @@
                      NVGscissorCStringDescription( &_scissor));
 #endif
 
-   //
-   // fill and border are drawn as frame
-   // contents in bounds of superview
-   //
-
-   //
-   // if the stroke is alpha, it will have to render over pixels
-   // otherwise reduce the size of the shape we draw
-   //
-   tl.x = frame.origin.x;
-   tl.y = frame.origin.y;
-   br.x = tl.x + frame.size.width;
-   br.y = tl.y + frame.size.height;
-
-   if( tl.x <= br.x || tl.y <= br.y)
-   {
-      // fill 
-      nvgBeginPath( vg);
-      nvgRoundedRect( vg, frame.origin.x, 
-                          frame.origin.y, 
-                          frame.size.width, 
-                          frame.size.height, 
-                          _cornerRadius);
-
-   //   nvgMoveTo( vg, tl.x, tl.y);
-   //   nvgLineTo( vg, br.x, tl.y);
-   //   nvgLineTo( vg, br.x, br.y);
-   //   nvgLineTo( vg, tl.x, br.y);
-   //   nvgLineTo( vg, tl.x, tl.y);
-      nvgFillColor(vg, _backgroundColor);
-      nvgFill( vg);
-   }
+   [self drawBackgroundInContext:context];
 
    [self drawContentsInContext:context];
 
-   //
-   // the strokeWidth isn't scaled in nvg, so we do this now ourselves
-   //
-   if( _borderWidth)
-   {
-      halfBorderWidth = _borderWidth / 2.0;
-
-      tl.x = halfBorderWidth + frame.origin.x ;
-      tl.y = halfBorderWidth + frame.origin.y;
-      br.x = tl.x + frame.size.width - halfBorderWidth * 2;
-      br.y = tl.y + frame.size.height - halfBorderWidth * 2;
-
-      if( tl.x <= br.x || tl.y <= br.y)
-      {
-         //
-         // the _cornerRadius is computed for a stroke of width 1 (or 0 ?)
-         // the strokeWidth is just scaling it out
-         //
-         nvgBeginPath( vg);
-         nvgStrokeWidth( vg, (int) _borderWidth);
-         nvgRoundedRect( vg, tl.x, 
-                             tl.y, 
-                             br.x - tl.x, 
-                             br.y - tl.y, 
-                             _cornerRadius / _borderWidth);
-
-         nvgStrokeColor( vg, _borderColor);
-         nvgStroke( vg);
-
-//      nvgMoveTo( vg, tl.x, tl.y);
-//      nvgLineTo( vg, br.x, tl.y);
-//      nvgLineTo( vg, br.x, br.y);
-//      nvgLineTo( vg, tl.x, br.y);
-//      nvgLineTo( vg, tl.x, tl.y);
-      }
-   }
+   [self drawBorderInContext:context];
 
    bounds = [self bounds];
    if( bounds.size.width <= 0.0 || bounds.size.height <= 0.0)
@@ -315,7 +365,7 @@
 {
    struct mulle_allocator  *allocator;
 
-   allocator = MulleObjCObjectGetAllocator( self);
+   allocator = MulleObjCInstanceGetAllocator( self);
    if( s)
       s = mulle_allocator_strdup( allocator, s);
    

@@ -9,7 +9,7 @@
 {
    struct mulle_allocator   *allocator;
 
-   allocator = MulleObjCObjectGetAllocator( self);
+   allocator = MulleObjCInstanceGetAllocator( self);
    mulle_array_init( &_windows,
                      2,
                      &NSObjectMapKeyCallBacks,

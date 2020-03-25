@@ -47,6 +47,7 @@ src/Foundation/NSMutableIndexSet.h
 src/Ghostscript_Tiger-svg.inc
 src/MulleBitmapImage.h
 src/MulleCheckboxLayer.h
+src/MulleControlBackgroundImage.h
 src/MulleImageLayer.h
 src/MulleObjectArray.h
 src/MulleSVGImage.h

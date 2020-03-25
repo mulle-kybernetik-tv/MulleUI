@@ -12,4 +12,6 @@
 
 @property( assign, setter=setContinuous:) BOOL   isContinuous;
 
+UIControlProperties;
+
 @end

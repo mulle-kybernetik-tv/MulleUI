@@ -43,7 +43,7 @@
 }
 
 
-- (void) setFontSize:(CGFloat) points
+- (void) setFontPixelSize:(CGFloat) points
 {
    MulleTextLayer  *layer;
    CGFloat         ppi;

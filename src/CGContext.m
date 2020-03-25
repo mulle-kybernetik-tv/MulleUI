@@ -89,7 +89,7 @@
    }
    mulle__pointermapenumerator_done( &rover);
 
-   _mulle__pointermap_destroy( _images, MulleObjCObjectGetAllocator( self));
+   _mulle__pointermap_destroy( _images, MulleObjCInstanceGetAllocator( self));
    _images = NULL;
 }
 
@@ -129,7 +129,10 @@
 
 - (void) clearFramebuffer
 {
-   glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
+   CGFloat   rgba[ 4];
+
+   MulleColorGetComponents( _backgroundColor, rgba);
+   glClearColor( rgba[ 0], rgba[ 1], rgba[ 2], rgba[ 3]);
    glClear( GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
 }
 
@@ -329,7 +332,7 @@
       return( -1);
    }
 
-   allocator = MulleObjCObjectGetAllocator( self);
+   allocator = MulleObjCInstanceGetAllocator( self);
    if( ! _images)
       _images = mulle__pointermap_create( 16, 0, allocator);
 
@@ -358,7 +361,7 @@
    nvgDeleteImage( _vg, textureId);
 
    [image autorelease];
-   _mulle__pointermap_remove( _images, image, MulleObjCObjectGetAllocator( self));
+   _mulle__pointermap_remove( _images, image, MulleObjCInstanceGetAllocator( self));
 }
 
 

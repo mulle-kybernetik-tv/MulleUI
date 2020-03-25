@@ -10,6 +10,8 @@
    UIControlIvars;
 }
 
+UIControlProperties;
+
 // not part of the stepper
 // as its not displaying anything 
 @property(assign) float  value;

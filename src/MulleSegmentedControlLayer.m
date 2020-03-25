@@ -2,6 +2,8 @@
 
 #import "CGContext.h"
 #import "CGFont.h"
+#import "CGGeometry+CString.h"
+#import "UIEdgeInsets.h"
 
 
 @implementation MulleSegmentedControlLayer : CALayer
@@ -19,11 +21,14 @@
 
    MulleObjCObjectDeallocateMemory( self, &_fontName);
 
-   allocator = MulleObjCObjectGetAllocator( self);
+   allocator = MulleObjCInstanceGetAllocator( self);
 
    for( i = _n; i;)
-      mulle_allocator_free( allocator, self->_titles[ --i]);
-   mulle_allocator_free( allocator, self->_titles);
+   {
+      --i;
+      mulle_allocator_free( allocator, self->_segments[ i].title);
+   }
+   mulle_allocator_free( allocator, self->_segments);
    [super dealloc];
 }
 
@@ -40,7 +45,7 @@
    NSUInteger               size;
    struct mulle_allocator   *allocator;
 
-   allocator = MulleObjCObjectGetAllocator( self);
+   allocator = MulleObjCInstanceGetAllocator( self);
    if( segment > _n)
       segment = _n;
 
@@ -51,19 +56,71 @@
       if( size < 4)
          size = 4;
 
-      self->_titles = mulle_allocator_realloc( allocator,
-                                               self->_titles,
-                                               size * sizeof( char *));
+      self->_segments = mulle_allocator_realloc( allocator,
+                                                 self->_segments,
+                                                 size * sizeof( struct MulleUISegment));
       self->_size = size;
    }
 
-   memmove( &self->_titles[ segment + 1], 
-            &self->_titles[ segment], 
-            (self->_n - segment) * sizeof( char *));
+   memmove( &self->_segments[ segment + 1], 
+            &self->_segments[ segment], 
+            (self->_n - segment) * sizeof( struct MulleUISegment));
 
-   self->_titles[ segment] = mulle_allocator_strdup( allocator, title); 
+   self->_segments[ segment].title   = mulle_allocator_strdup( allocator, title);
+   self->_segments[ segment].offset =  segment ? self->_segments[ segment - 1].offset
+                                               : CGSizeMake( 0, 0);
+   self->_segments[ segment].backgroundColor = [self backgroundColor];
    self->_n++;
 }                         
+
+- (void) setContentOffset:(CGSize) offset 
+        forSegmentAtIndex:(NSUInteger) segment
+{
+   if( segment >= self->_n)
+      abort();
+
+   self->_segments[ segment].offset = offset;
+}
+
+- (void) setBackgroundColor:(CGColorRef) color 
+          forSegmentAtIndex:(NSUInteger) segment
+{
+   if( segment >= self->_n)
+      abort();
+
+   self->_segments[ segment].backgroundColor = color;
+}
+
+- (void) drawBackgroundInContext:(CGContext *) context
+{
+}
+
+- (void) drawBorderInContext:(CGContext *) context
+{
+}
+
+
+static inline int   is_first_segment( NSUInteger i, NSUInteger n)
+{
+   return( i == 0);
+}
+
+static inline int   is_last_segment( NSUInteger i, NSUInteger n)
+{
+   return( i == n - 1);
+}
+
+
+static inline int   is_middle_segment( NSUInteger i, NSUInteger n)
+{
+   return( n > 2 && ! is_first_segment( i, n) && ! is_last_segment( i, n));
+}
+
+
+static inline int   is_only_segment( NSUInteger i, NSUInteger n)
+{
+   return( n == 1);
+}
 
 
 - (void) drawContentsInContext:(CGContext *) context
@@ -79,41 +136,119 @@
    char                *name;
    struct NVGcontext   *vg;
    NSUInteger          i;
+   CGColorRef          color;
+   UIEdgeInsets        insets;
+   
+   if( ! _n)
+      return;
 
    vg    = [context nvgContext];
    frame = [self frame];
 
-   strokeWidth = 2.0;
+   strokeWidth = 1.5;
 
-   // calculate inner frames without surrounding box/border/divider
-   innerFrame.origin.x    = frame.origin.x + strokeWidth;
-   innerFrame.origin.y    = frame.origin.y + strokeWidth;
-   innerFrame.size.height = frame.size.height - strokeWidth * 2;;
-   if( _n >= 2 )
-      innerFrame.size.width  = (frame.size.width - strokeWidth * (_n - 1)) / _n - strokeWidth;
-   else
-      innerFrame.size.width  = frame.size.width - strokeWidth * 2;
-                                       
-   // draw surrounding box and the dividers
+   segmentFrame             = frame;
+   segmentFrame.origin.x    = frame.origin.x + strokeWidth / 2.0;
+   segmentFrame.origin.y    = frame.origin.y + strokeWidth / 2.0;
+   segmentFrame.size.width  = frame.size.width / _n - strokeWidth;
+   segmentFrame.size.height = frame.size.height - strokeWidth;
+
+   for( i = 0; i < _n; i++)
+   {
+      _segments[ i].frame    = segmentFrame;
+      segmentFrame.origin.x += segmentFrame.size.width + strokeWidth;
+   }
+
+   // fill inner colors, use clipping to cut off at neighbor
+
+   for( i = 0; i < _n; i++)
+   {
+      color = _segments[ i].backgroundColor;
+      nvgFillColor( vg, color);
+
+      if( is_middle_segment( i, _n))
+      {      
+         nvgShapeAntiAlias( vg, 0);      
+
+         nvgBeginPath( vg);
+         nvgRect( vg, _segments[ i].frame.origin.x, 
+                      _segments[ i].frame.origin.y, 
+                      _segments[ i].frame.size.width, 
+                      _segments[ i].frame.size.height);
+         nvgFill( vg);
+         nvgShapeAntiAlias( vg, 1);  
+         continue;    
+      }
+
+      if( is_first_segment( i, _n))
+      {
+         nvgShapeAntiAlias( vg, 0);
+         nvgBeginPath( vg);
+         // fill top/right and bottom/right corner
+         nvgRect( vg, _segments[ i].frame.origin.x + _segments[ i].frame.size.width - _cornerRadius, 
+                      _segments[ i].frame.origin.y, 
+                      _cornerRadius, 
+                      _cornerRadius);    
+         nvgRect( vg, _segments[ i].frame.origin.x + _segments[ i].frame.size.width - _cornerRadius, 
+                      _segments[ i].frame.origin.y + _segments[ i].frame.size.height - _cornerRadius,
+                      _cornerRadius, 
+                      _cornerRadius);                                     
+         nvgFill( vg);
+         nvgShapeAntiAlias( vg, 1);  
+      }
+      else
+         if( is_last_segment( i, _n))
+         {
+            // fill top/left and bottom/left corner
+            nvgShapeAntiAlias( vg, 0);
+            nvgBeginPath( vg);
+
+            nvgRect( vg, _segments[ i].frame.origin.x, 
+                         _segments[ i].frame.origin.y, 
+                         _cornerRadius, 
+                         _cornerRadius);    
+            nvgRect( vg, _segments[ i].frame.origin.x, 
+                         _segments[ i].frame.origin.y + _segments[ i].frame.size.height - _cornerRadius,
+                         _cornerRadius, 
+                         _cornerRadius);                
+            nvgFill( vg);
+            nvgShapeAntiAlias( vg, 1);  
+         }
+   
+      nvgBeginPath( vg);
+      nvgRoundedRect( vg, _segments[ i].frame.origin.x, 
+                          _segments[ i].frame.origin.y, 
+                          _segments[ i].frame.size.width, 
+                          _segments[ i].frame.size.height, 
+                          _cornerRadius);
+      nvgFill( vg);
+   }
+
+
+   // draw surrounding box , antialias again
+
    nvgBeginPath( vg);
    nvgRoundedRect( vg, frame.origin.x, 
                        frame.origin.y, 
-                       frame.size.width - strokeWidth, 
-                       frame.size.height - strokeWidth, 
-                       2.0);
+                       frame.size.width, 
+                       frame.size.height, 
+                        _cornerRadius);
 
+   // draw dividers
+   // calculate inner frame without surrounding border
    for( i = 1; i < _n; i++)
    {
-      midX  = innerFrame.origin.x;
-      midX += innerFrame.size.width + strokeWidth / 2.0;
-      midX += (innerFrame.size.width + strokeWidth) * (i - 1);
-      nvgMoveTo( vg, midX, frame.origin.y);
-      nvgLineTo( vg, midX, frame.origin.y + frame.size.height - 1.0);
+      midX  = CGRectGetMaxX( _segments[ i - 1].frame);
+      midX += strokeWidth / 2.0;
+
+      nvgMoveTo( vg, midX, _segments[i].frame.origin.y);
+      nvgLineTo( vg, midX, CGRectGetMaxY( _segments[i].frame));
    }
    nvgStrokeColor( vg, nvgRGBA(127,127,255,255));
    nvgStrokeWidth( vg, (int) strokeWidth);
    nvgStroke( vg);
  
+
    // draw text labels in each segment
 
    font = [context fontWithName:_fontName ? _fontName : "sans"];
@@ -121,26 +256,23 @@
 
    fontPixelSize = [self fontPixelSize];
    if( fontPixelSize == 0.0)
-      fontPixelSize = innerFrame.size.height;
+      fontPixelSize = frame.size.height - strokeWidth;
 
 	nvgFontSize( vg, fontPixelSize);
 	nvgFontFace( vg, name);
-   nvgTextColor( vg, nvgRGBA(255,255,255,255), [self backgroundColor]); // TODO: use textColor
    nvgTextAlign( vg,NVG_ALIGN_CENTER|NVG_ALIGN_MIDDLE);
 
-   segmentFrame = innerFrame;
    for( i = 0; i < _n; i++)
    {
-      segmentFrame.origin.x  = innerFrame.origin.x;
-      if( i >= 1)
-      {
-         segmentFrame.origin.x += innerFrame.size.width + strokeWidth / 2.0;
-         segmentFrame.origin.x += (innerFrame.size.width + strokeWidth) * (i - 1);
-      }
+      color = _segments[ i].backgroundColor;
+      if( CGColorGetAlpha( color) < 1.0)
+         color = [self textBackgroundColor];
+      nvgTextColor( vg, [self textColor], color); // TODO: use textColor
 
-   	nvgText( vg, segmentFrame.origin.x + segmentFrame.size.width / 2.0, 
-                   segmentFrame.origin.y + segmentFrame.size.height *0.5f, 
-                   _titles[ i], NULL);
+      // center screen in the middle, for that we specify the center point
+   	nvgText( vg, _segments[i].frame.origin.x + (_segments[ i].offset.width * 2)  + _segments[i].frame.size.width / 2.0, 
+                   _segments[i].frame.origin.y + (_segments[ i].offset.height * 2) + _segments[i].frame.size.height / 2.0, 
+                   _segments[ i].title, NULL);
    }
 }
 
