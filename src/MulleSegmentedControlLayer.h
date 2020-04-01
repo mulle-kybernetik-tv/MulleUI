@@ -6,9 +6,11 @@ struct MulleUISegment
    UIImage    *image;
    CGSize      offset;
    CGColorRef  backgroundColor;
+   CGColorRef  selectionBackgroundColor;
    CGRect      frame;  // this value is ephemeral and used during rendering
    // these are values for UIView
-   char        isSelected;
+   char        isSelected; 
+   char        wasSelected;  // memo for click code
 };
 
 //
@@ -17,10 +19,6 @@ struct MulleUISegment
 // At any time there is either a title or an image for a valid index, but
 // not both.
 //
-enum
-{
-   UISegmentedControlNoSegment = -1
-};
 
 @interface MulleSegmentedControlLayer : CALayer 
 {
@@ -37,6 +35,9 @@ enum
 // the correct color to use
 @property CGColorRef        textBackgroundColor;
 
+// not really a tint, just a different backgroundColor for the segment
+@property CGColorRef        selectedSegmentTintColor;
+
 - (NSUInteger) numberOfSegments;
 
 
@@ -51,5 +52,13 @@ enum
         forSegmentAtIndex:(NSUInteger) segment;
 - (void) setBackgroundColor:(CGColorRef) color 
           forSegmentAtIndex:(NSUInteger) segment;
+
+- (NSUInteger) segmentIndexAtPoint:(CGPoint) point;
+
+- (NSUInteger) selectedSegmentIndex;
+- (void) setSelectedSegmentIndex:(NSUInteger) index;
+
+// private
+- (void) temporaryInvertSegmentIndex:(NSUInteger) index;
 
 @end

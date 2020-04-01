@@ -15,6 +15,7 @@
 #import "UIStepper.h"
 #import "UISwitch.h"
 #import "UIWindow.h"
+#import "UIColor.h"
 #import <string.h>
 
 
@@ -40,6 +41,15 @@ static char   svginput[] = \
 static UIEvent   *button_callback( UIButton *button, UIEvent *event)
 {
    fprintf( stderr, "button_callback: %s\n", [button cStringDescription]);
+   return( nil);
+}
+
+
+static UIEvent   *segmented_callback( UISegmentedControl *control, UIEvent *event)
+{
+   fprintf( stderr, "segmented_callback: %s (%ld)\n", 
+                        [control cStringDescription],
+                        (long) [control selectedSegmentIndex]);
    return( nil);
 }
 
@@ -94,165 +104,59 @@ int   main()
    UIApplication        *application;
    UISwitch             *checkbox;
    UISlider             *slider;
+   UIView               *contentView;
 
-   tigerSVGImage = [[[MulleSVGImage alloc] initWithBytes:svginput
-                                          length:strlen( svginput) + 1] autorelease];
-   fprintf( stderr, "tigerSVGImage: %p\n", tigerSVGImage);
-
-   tigerLayer = [[[MulleSVGLayer alloc] initWithSVGImage:tigerSVGImage] autorelease];
-   [tigerLayer setCStringName:"tiger"];
-   fprintf( stderr, "layer: %p\n", tigerLayer);
-
-
-   // layer = [[[CALayer alloc] init] autorelease];
-
-   frame.origin       = CGPointMake( 0.0 * SCALE, 0.0 * SCALE);
-   frame.size.width   = 160 * SCALE;
-   frame.size.height  = 100 * SCALE;
-
-   [tigerLayer setFrame:frame];
- //  [layer setBounds:CGRectMake( 0.0, 0.0, 200, 30)];
-   [tigerLayer setBackgroundColor:getNVGColor( 0xFFE0D0D0)];
-   [tigerLayer setBorderColor:getNVGColor( 0xFF30FF80)];
-   [tigerLayer setBorderWidth:32.0f];
-   [tigerLayer setCornerRadius:16.0f];
-
-   viechBitmap = [[[MulleBitmapImage alloc] initWithConstBytes:viech_bitmap
-                                                    bitmapSize:viech_bitmap_size]
-                                                       autorelease];
-   fprintf( stderr, "viechBitmap: %p\n", viechBitmap);
-
-   turtleBitmap = [[[MulleBitmapImage alloc] initWithConstBytes:turtle_bitmap
-                                                     bitmapSize:turtle_bitmap_size]
-                                                  autorelease];
-   fprintf( stderr, "turtleBitmapImage: %p\n", turtleBitmap);
-
-   turtleLayer = [[[MulleImageLayer alloc] initWithImage:turtleBitmap] autorelease];
-   [turtleLayer setCStringName:"turtle"];
-   frame.origin = CGPointMake( 0.0 * SCALE, 100.0  * SCALE);
-   frame.size.width  = turtle_bitmap_size.size.width;
-   frame.size.height = turtle_bitmap_size.size.height;
-   [turtleLayer setFrame:frame];
-   fprintf( stderr, "layer: %p\n", turtleLayer);
-
-   /*
+    /*
     * window and app 
     */
    window  = [[[UIWindow alloc] initWithFrame:CGRectMake( 0.0, 0.0, 400.0 * SCALE, 300.0 * SCALE)] autorelease];
    assert( window);
+
+   contentView = [[[UIView alloc] initWithFrame:CGRectMake( 0.0, 0.0, 400.0 * SCALE, 300.0 * SCALE)] autorelease];
+   [contentView setBackgroundColor:[UIColor whiteColor]];
+   [window addSubview:contentView];
 
    [[UIApplication sharedInstance] addWindow:window];
 
    context = [CGContext new];
    [context setBackgroundColor:CGColorCreateGenericRGB( 1.0, 1.0, 1.0, 1.0)];
 
-#if 0
-   /*
-    * view placement in window 
-    */
-   view = [[[UIView alloc] initWithLayer:tigerLayer] autorelease];
-   [window addSubview:view];
-#endif
-
-#if 0
-   nestedButton = [[[UIButton alloc] initWithLayer:turtleLayer] autorelease];
-   [nestedButton setBackgroundImage:turtleBitmap
-                           forState:UIControlStateNormal];
-   [nestedButton setBackgroundImage:viechBitmap
-                           forState:UIControlStateSelected];
-
-   // [insideButton setClipsSubviews:YES];
-   [nestedButton setClick:button_callback];
-   [window addSubview:nestedButton];
-#endif
-   frame.origin      = CGPointMake( turtle_bitmap_size.size.width * SCALE, 100.0 * SCALE);
-   frame.size.width  = 140;
-   frame.size.height = 100;
-
-#if 0
-   label = [[[UILabel alloc] initWithFrame:frame] autorelease];
-
-   // [insideButton setClipsSubviews:YES];
-   [label setCString:"UILabel"];
-   [label setFontName:"sans"];
-   [label setFontPixelSize:14.0 * SCALE];
-   [label setBackgroundColor:getNVGColor( 0x1F1F1FFF)];
-   [label setTextColor:getNVGColor( 0xFEFEFEFF)];
-
-   [window addSubview:label];
-#endif
-
-   frame.origin      = CGPointMake( 160.0 * SCALE , 0 * SCALE);
-   frame.size.width  = 200;
-   frame.size.height = 100;
-
-#if 0
-   checkbox = [[[UISwitch alloc] initWithFrame:frame] autorelease];
-
-   // [insideButton setClipsSubviews:YES];
-   [checkbox setCString:"UISwitch"];
-   [checkbox setFontName:"sans"];
-   [checkbox setFontPixelSize:14.0 * SCALE];
-   [checkbox setBackgroundColor:getNVGColor( 0x112141FF)];
-   [checkbox setTextColor:getNVGColor( 0xFE00FEFF)];
-
-   [window addSubview:checkbox];
-#endif
-
-   frame.origin      = CGPointMake( 160.0 * SCALE , 100.0 * SCALE);
-   frame.size.width  = 200;
-   frame.size.height = 100;
-
-#if 0
-   slider = [[[UISlider alloc] initWithFrame:frame] autorelease];
-
-   // [insideButton setClipsSubviews:YES];
-   [slider setBackgroundColor:getNVGColor( 0x114111FF)];
-
-   [window addSubview:slider];
-   frame           = [label frame];
-#endif
-   frame.origin.y += frame.size.height;
-#if 0
-   stepper = [[[UIStepper alloc] initWithFrame:frame] autorelease];
-
-   // [insideButton setClipsSubviews:YES];
-   [window addSubview:stepper];
-#endif
-
-   frame.origin.y += frame.size.height;
+   frame = CGRectMake( 240.0, 340.0, 200.0 * SCALE, 44);
 
    segmentedControl = [[[UISegmentedControl alloc] initWithFrame:frame] autorelease];
    [segmentedControl setBackgroundColor:getNVGColor( 0xFF00FFFF)]; 
-   [segmentedControl insertSegmentWithCString:"1" 
-                                     atIndex:0 
-                                    animated:NO];  
-   [segmentedControl insertSegmentWithCString:"0" 
-                                     atIndex:0 
-                                    animated:NO];  
-   [segmentedControl insertSegmentWithCString:"2" 
-                                     atIndex:2 
-                                    animated:NO];  
-   [segmentedControl insertSegmentWithCString:"3" 
-                                     atIndex:3 
-                                    animated:NO];  
+   [segmentedControl setSelectedSegmentTintColor:getNVGColor( 0x80FF80FF)]; 
+   [segmentedControl insertSegmentWithTitleCString:"Bochum" 
+                                           atIndex:0 
+                                          animated:NO];  
+   [segmentedControl insertSegmentWithTitleCString:"VfL" 
+                                           atIndex:0 
+                                          animated:NO];  
+   [segmentedControl insertSegmentWithTitleCString:"1848" 
+                                           atIndex:2 
+                                          animated:NO];  
+
 /*                                    
    [segmentedControl insertSegmentWithCString:"2" 
                                      atIndex:2
                                     animated:NO];  
 */                                    
    [segmentedControl setContentOffset:CGSizeMake( 0, 0) 
-                    forSegmentAtIndex:1];     
+                    forSegmentAtIndex:1]; 
+/*                        
    [segmentedControl setBackgroundColor:getNVGColor( 0x00FF00FF) 
                     forSegmentAtIndex:1]; 
    [segmentedControl setBackgroundColor:getNVGColor( 0xFFFF00FF) 
                     forSegmentAtIndex:2];  
    [segmentedControl setBackgroundColor:getNVGColor( 0x00FFFFFF) 
                     forSegmentAtIndex:3];                                           
-                                                                                      
+*/                                                                                      
    [segmentedControl setTextColor:getNVGColor( 0x000000FF)]; 
    [segmentedControl setCornerRadius:8];
-   [window addSubview:segmentedControl];
+   [segmentedControl setSelectedSegmentIndex:2];
+   [segmentedControl setClick:segmented_callback];
+   [contentView addSubview:segmentedControl];
+   [segmentedControl setFontPixelSize:frame.size.height / 2];
 
    frame.origin.x   += frame.size.width + 20;
    frame.size.width  = 120;
@@ -262,7 +166,7 @@ int   main()
    [uiButton setTitleCString:"Button"];
 
    // [insideButton setClipsSubviews:YES];
-   [window addSubview:uiButton];
+   [contentView addSubview:uiButton];
 
    [window dump];
    [window renderLoopWithContext:context];

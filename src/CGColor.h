@@ -19,6 +19,11 @@ static inline NVGcolor getNVGColor( uint32_t color)
 		(color >> 0) & 0xff);
 }
 
+static inline CGColorRef   MulleColorCreate( uint32_t color)
+{
+   return( getNVGColor( color));
+}
+
 
 static inline CGColorRef CGColorCreateGenericRGB( CGFloat red, CGFloat green, CGFloat blue, CGFloat alpha)
 {

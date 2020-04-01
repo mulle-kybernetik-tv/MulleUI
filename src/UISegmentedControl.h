@@ -5,6 +5,10 @@
 #import "MulleSegmentedControlLayer.h"  // expose methods for fowarding
 #import "CALayer.h"
 
+enum
+{
+   UISegmentedControlNoSegment = -1
+};
 
 @interface UISegmentedControl : UIView < MulleControlBackgroundImage, UIControl>
 {

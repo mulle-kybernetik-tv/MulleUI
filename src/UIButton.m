@@ -20,9 +20,7 @@
 #define BORDER_WIDTH    3.0
 #define TEXT_MARGIN     1.0
 #define CORNER_RADIUS   8
-
-                
-
+              
 - (instancetype) initWithLayer:(CALayer *) layer 
 {
    CGRect         frame;
@@ -61,38 +59,51 @@
    // because the font leaves vertical room for a previous row of text
    // Fontsize is probably usefully set by the user anyway 
    [_titleLayer setFontPixelSize:frame.size.height / 2];
-   [_titleLayer setBackgroundColor:getNVGColor( 0x4000000)];
+   [_titleLayer setBackgroundColor:getNVGColor( 0x0000000)];
    [_titleLayer setTextColor:getNVGColor( 0x000000FF)];
    // set this as we are transparent
    [_titleLayer setTextBackgroundColor:getNVGColor( 0xFFFF00FF)];
    [_titleLayer setHidden:YES];
 
-   _backgroundLayer = [[[CALayer alloc] initWithFrame:frame] autorelease];
-   [_backgroundLayer setBackgroundColor:getNVGColor( 0xFFFF00FF)];
+   _titleBackgroundLayer = [[[CALayer alloc] initWithFrame:frame] autorelease];
+   [_titleBackgroundLayer setBackgroundColor:getNVGColor( 0x00FFFFFF)];
    // this ensures that the background fill does not antialias into the
    // outside
-   [_backgroundLayer setBorderWidth:1.5];
-   [_backgroundLayer setBorderColor:getNVGColor( 0x7F7FFFFF)];
-   [_backgroundLayer setCornerRadius:CORNER_RADIUS];
-   [self addLayer:_backgroundLayer];
+   [_titleBackgroundLayer setBorderWidth:1.5];
+   [_titleBackgroundLayer setBorderColor:getNVGColor( 0x7F7FFFFF)];
+   [_titleBackgroundLayer setCornerRadius:CORNER_RADIUS];
+   [self addLayer:_titleBackgroundLayer];
    [self addLayer:_titleLayer];
+
+   [self hideUnhideTitleLayers];
 
    return( self);
 }
 
-- (void) setTitleCString:(char *) s
+- (void) hideUnhideTitleLayers
 {
+   char  *s;
    BOOL   visible;
+
+   s = [_titleLayer cString];
 
    visible = s && *s;
    
    [_titleLayer setHidden:! visible];
+   [_titleBackgroundLayer setHidden:! visible];
    [_titleLayer setCString:visible ? s : ""];
+}
+
+
+- (void) setTitleCString:(char *) s
+{
+   [_titleLayer setCString:s];
+   [self hideUnhideTitleLayers];
 }
 
 - (char *) titleCString
 {
-   return( [_titleLayer CString]);
+   return( [_titleLayer cString]);
 }
 
 
@@ -100,6 +111,29 @@
 {
   *ivar = _backgroundImage;
 }
+
+- (void) setBackgroundImage:(UIImage *) image
+{
+   CALayer   *layer;
+   Class     preferredLayerClass;
+   Class     layerClass;
+
+   assert( ! image || [image isKindOfClass:[UIImage class]]);
+
+   if( ! image)
+      return;
+
+   // hackish cast, fix later
+   layer               = [self mainLayer];
+   layerClass          = [layer class];
+   preferredLayerClass = [image preferredLayerClass];
+
+   if( [layerClass isSubclassOfClass:preferredLayerClass])
+      [(CALayer<CAImageLayer> *) layer setImage:image];
+   else
+      abort();
+}
+
 
 - (void) reflectState
 {
@@ -112,12 +146,12 @@
 
    if( state & UIControlStateSelected)
    {
-      [_backgroundLayer setBackgroundColor:getNVGColor( 0xD0D0D0FF)];
+      [_titleBackgroundLayer setBackgroundColor:getNVGColor( 0xD0D0D0FF)];
       [_titleLayer setTextBackgroundColor:getNVGColor( 0xD0D0D0FF)];
    }
    else
    {
-      [_backgroundLayer setBackgroundColor:getNVGColor( 0xFFFFFFFF)];
+      [_titleBackgroundLayer setBackgroundColor:getNVGColor( 0xFFFFFFFF)];
       [_titleLayer setTextBackgroundColor:getNVGColor( 0xFFFFFFFF)];
    }
 

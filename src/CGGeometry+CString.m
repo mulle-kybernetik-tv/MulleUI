@@ -23,8 +23,9 @@ char   *CGPointCStringDescription( CGPoint point)
             point.y);
    }
    else
+   {
       s = mulle_strdup( buf);
-
+   }
    MulleObjCAutoreleaseAllocation( s, NULL);
    return( s);
 }

@@ -11,7 +11,7 @@ endif()
 # Disable with: `mulle-sourcetree mark freetype no-link`
 #
 if( NOT FREETYPED_LIBRARY)
-   find_library( FREETYPED_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}freetyped${CMAKE_STATIC_LIBRARY_SUFFIX} freetyped ${CMAKE_STATIC_LIBRARY_PREFIX}freetype${CMAKE_STATIC_LIBRARY_SUFFIX} freetype NO_CMAKE_SYSTEM_PATH)
+   find_library( FREETYPED_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}freetyped${CMAKE_STATIC_LIBRARY_SUFFIX} freetyped ${CMAKE_STATIC_LIBRARY_PREFIX}freetype${CMAKE_STATIC_LIBRARY_SUFFIX} freetype NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
    message( STATUS "FREETYPED_LIBRARY is ${FREETYPED_LIBRARY}")
    #
    # The order looks ascending, but due to the way this file is read
@@ -79,7 +79,7 @@ endif()
 # Disable with: `mulle-sourcetree mark glfw no-link`
 #
 if( NOT GLFW3_LIBRARY)
-   find_library( GLFW3_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}glfw3${CMAKE_STATIC_LIBRARY_SUFFIX} glfw3 NO_CMAKE_SYSTEM_PATH)
+   find_library( GLFW3_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}glfw3${CMAKE_STATIC_LIBRARY_SUFFIX} glfw3 NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
    message( STATUS "GLFW3_LIBRARY is ${GLFW3_LIBRARY}")
    #
    # The order looks ascending, but due to the way this file is read
@@ -147,7 +147,7 @@ endif()
 # Disable with: `mulle-sourcetree mark Foundation no-link`
 #
 if( NOT FOUNDATION_LIBRARY)
-   find_library( FOUNDATION_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}Foundation${CMAKE_STATIC_LIBRARY_SUFFIX} Foundation NO_CMAKE_SYSTEM_PATH)
+   find_library( FOUNDATION_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}Foundation${CMAKE_STATIC_LIBRARY_SUFFIX} Foundation NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
    message( STATUS "FOUNDATION_LIBRARY is ${FOUNDATION_LIBRARY}")
    #
    # The order looks ascending, but due to the way this file is read
@@ -232,7 +232,7 @@ endif()
 # Disable with: `mulle-sourcetree mark Foundation-startup no-link`
 #
 if( NOT FOUNDATION_STARTUP_LIBRARY)
-   find_library( FOUNDATION_STARTUP_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}Foundation-startup${CMAKE_STATIC_LIBRARY_SUFFIX} Foundation-startup NO_CMAKE_SYSTEM_PATH)
+   find_library( FOUNDATION_STARTUP_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}Foundation-startup${CMAKE_STATIC_LIBRARY_SUFFIX} Foundation-startup NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
    message( STATUS "FOUNDATION_STARTUP_LIBRARY is ${FOUNDATION_STARTUP_LIBRARY}")
    #
    # The order looks ascending, but due to the way this file is read

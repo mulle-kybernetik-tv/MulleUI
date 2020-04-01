@@ -38,9 +38,9 @@
    return( self->_n);
 }
 
-- (void) insertSegmentWithCString:(char *) title 
-                          atIndex:(NSUInteger) segment 
-                         animated:(BOOL )animated
+- (void) insertSegmentWithTitleCString:(char *) title 
+                               atIndex:(NSUInteger) segment 
+                              animated:(BOOL )animated
 {
    NSUInteger               size;
    struct mulle_allocator   *allocator;
@@ -70,6 +70,7 @@
    self->_segments[ segment].offset =  segment ? self->_segments[ segment - 1].offset
                                                : CGSizeMake( 0, 0);
    self->_segments[ segment].backgroundColor = [self backgroundColor];
+   self->_segments[ segment].selectionBackgroundColor = [self selectedSegmentTintColor];
    self->_n++;
 }                         
 
@@ -100,6 +101,61 @@
 }
 
 
+- (NSUInteger) selectedSegmentIndex
+{
+   NSUInteger   i;
+
+   for( i = 0; i < _n; i++)
+      if( _segments[ i].isSelected)
+         return( i);
+   return( NSNotFound);
+}
+
+
+// segment:   0 0 0   (non selected)
+//            2 0 0   tmp select first
+//            1 0 0   first seleczed
+//            3 2 0   tmp select two, tmp deselect 1
+- (void) memorizeSelectedSegments
+{
+   NSUInteger   i;
+
+   for( i = 0; i < _n; i++)
+      _segments[ i].wasSelected = _segments[ i].isSelected;
+}
+
+- (void) recallSelectedSegments
+{
+   NSUInteger   i;
+
+   for( i = 0; i < _n; i++)
+      _segments[ i].isSelected = _segments[ i].wasSelected;
+}
+
+
+- (void) setSelectedSegmentIndex:(NSUInteger) index
+{
+   NSUInteger   i;
+
+   for( i = 0; i < _n; i++)
+      _segments[ i].isSelected = (i == index);
+}
+
+
+- (NSUInteger) segmentIndexAtPoint:(CGPoint) point 
+{
+   NSUInteger   i;
+
+   for( i = 0; i < _n; i++)
+   {
+      fprintf( stderr, "segment #%ld: %s\n", (long) i, CGRectCStringDescription( _segments[ i].frame));
+
+      if( CGRectContainsPoint( _segments[ i].frame, point))
+         return( i);
+   }
+   return( NSNotFound);
+}
+
 static inline int   is_first_segment( NSUInteger i, NSUInteger n)
 {
    return( i == 0);
@@ -128,6 +184,10 @@ static inline int   is_only_segment( NSUInteger i, NSUInteger n)
    CGFloat             fontPixelSize;
    CGFloat             midX;
    CGFloat             strokeWidth;
+   CGFloat             topLeftRadius;
+   CGFloat             topRightRadius;
+   CGFloat             bottomRightRadius;
+   CGFloat             bottomLeftRadius;
    CGFont              *font;
    CGRect              frame;
    CGRect              segmentFrame;
@@ -145,7 +205,7 @@ static inline int   is_only_segment( NSUInteger i, NSUInteger n)
    vg    = [context nvgContext];
    frame = [self frame];
 
-   strokeWidth = 1.5;
+   strokeWidth              = [self borderWidth];
 
    segmentFrame             = frame;
    segmentFrame.origin.x    = frame.origin.x + strokeWidth / 2.0;
@@ -159,120 +219,105 @@ static inline int   is_only_segment( NSUInteger i, NSUInteger n)
       segmentFrame.origin.x += segmentFrame.size.width + strokeWidth;
    }
 
-   // fill inner colors, use clipping to cut off at neighbor
-
-   for( i = 0; i < _n; i++)
+   //
+   // fill inner colors
+   //
    {
-      color = _segments[ i].backgroundColor;
-      nvgFillColor( vg, color);
+      for( i = 0; i < _n; i++)
+      {
+         if( _segments[ i].isSelected)
+            color = _segments[ i].selectionBackgroundColor;
+         else
+            color = _segments[ i].backgroundColor;
 
-      if( is_middle_segment( i, _n))
-      {      
-         nvgShapeAntiAlias( vg, 0);      
+         nvgFillColor( vg, color);
 
+         topLeftRadius     = 
+         topRightRadius    =
+         bottomRightRadius = 
+         bottomLeftRadius  = 0.0;
+
+         if( is_first_segment( i, _n))
+            topLeftRadius = bottomLeftRadius = _cornerRadius;
+         else
+            if( is_last_segment( i, _n))
+               topRightRadius = bottomRightRadius = _cornerRadius;
+      
          nvgBeginPath( vg);
-         nvgRect( vg, _segments[ i].frame.origin.x, 
+         nvgRoundedRectVarying( vg, _segments[ i].frame.origin.x, 
                       _segments[ i].frame.origin.y, 
                       _segments[ i].frame.size.width, 
-                      _segments[ i].frame.size.height);
+                      _segments[ i].frame.size.height,
+                      topLeftRadius,
+                      topRightRadius,
+                      bottomRightRadius,
+                      bottomLeftRadius);
          nvgFill( vg);
-         nvgShapeAntiAlias( vg, 1);  
-         continue;    
       }
-
-      if( is_first_segment( i, _n))
-      {
-         nvgShapeAntiAlias( vg, 0);
-         nvgBeginPath( vg);
-         // fill top/right and bottom/right corner
-         nvgRect( vg, _segments[ i].frame.origin.x + _segments[ i].frame.size.width - _cornerRadius, 
-                      _segments[ i].frame.origin.y, 
-                      _cornerRadius, 
-                      _cornerRadius);    
-         nvgRect( vg, _segments[ i].frame.origin.x + _segments[ i].frame.size.width - _cornerRadius, 
-                      _segments[ i].frame.origin.y + _segments[ i].frame.size.height - _cornerRadius,
-                      _cornerRadius, 
-                      _cornerRadius);                                     
-         nvgFill( vg);
-         nvgShapeAntiAlias( vg, 1);  
-      }
-      else
-         if( is_last_segment( i, _n))
-         {
-            // fill top/left and bottom/left corner
-            nvgShapeAntiAlias( vg, 0);
-            nvgBeginPath( vg);
-
-            nvgRect( vg, _segments[ i].frame.origin.x, 
-                         _segments[ i].frame.origin.y, 
-                         _cornerRadius, 
-                         _cornerRadius);    
-            nvgRect( vg, _segments[ i].frame.origin.x, 
-                         _segments[ i].frame.origin.y + _segments[ i].frame.size.height - _cornerRadius,
-                         _cornerRadius, 
-                         _cornerRadius);                
-            nvgFill( vg);
-            nvgShapeAntiAlias( vg, 1);  
-         }
-   
-      nvgBeginPath( vg);
-      nvgRoundedRect( vg, _segments[ i].frame.origin.x, 
-                          _segments[ i].frame.origin.y, 
-                          _segments[ i].frame.size.width, 
-                          _segments[ i].frame.size.height, 
-                          _cornerRadius);
-      nvgFill( vg);
    }
 
+   //
+   // draw surrounding box, back to antialiasing
+   //
+   {
+      nvgBeginPath( vg);
+      nvgRoundedRect( vg, frame.origin.x, 
+                          frame.origin.y, 
+                          frame.size.width, 
+                          frame.size.height, 
+                           _cornerRadius);
+   }
 
-   // draw surrounding box , antialias again
-
-   nvgBeginPath( vg);
-   nvgRoundedRect( vg, frame.origin.x, 
-                       frame.origin.y, 
-                       frame.size.width, 
-                       frame.size.height, 
-                        _cornerRadius);
-
+   //
    // draw dividers
    // calculate inner frame without surrounding border
-   for( i = 1; i < _n; i++)
    {
-      midX  = CGRectGetMaxX( _segments[ i - 1].frame);
-      midX += strokeWidth / 2.0;
+      nvgStrokeColor( vg, [self borderColor]);
+      nvgStrokeWidth( vg, [self borderWidth]);
 
-      nvgMoveTo( vg, midX, _segments[i].frame.origin.y);
-      nvgLineTo( vg, midX, CGRectGetMaxY( _segments[i].frame));
+      for( i = 1; i < _n; i++)
+      {
+         midX  = CGRectGetMaxX( _segments[ i - 1].frame);
+         midX += strokeWidth / 2.0;
+
+         nvgMoveTo( vg, midX, _segments[i].frame.origin.y);
+         nvgLineTo( vg, midX, CGRectGetMaxY( _segments[i].frame));
+      }
+      nvgStroke( vg);
    }
-   nvgStrokeColor( vg, nvgRGBA(127,127,255,255));
-   nvgStrokeWidth( vg, (int) strokeWidth);
-   nvgStroke( vg);
- 
 
+   //
    // draw text labels in each segment
-
-   font = [context fontWithName:_fontName ? _fontName : "sans"];
-   name = [font name];  // get actual name, which could have different address
-
-   fontPixelSize = [self fontPixelSize];
-   if( fontPixelSize == 0.0)
-      fontPixelSize = frame.size.height - strokeWidth;
-
-	nvgFontSize( vg, fontPixelSize);
-	nvgFontFace( vg, name);
-   nvgTextAlign( vg,NVG_ALIGN_CENTER|NVG_ALIGN_MIDDLE);
-
-   for( i = 0; i < _n; i++)
+   //
    {
-      color = _segments[ i].backgroundColor;
-      if( CGColorGetAlpha( color) < 1.0)
-         color = [self textBackgroundColor];
-      nvgTextColor( vg, [self textColor], color); // TODO: use textColor
+      font = [context fontWithName:_fontName ? _fontName : "sans"];
+      name = [font name];  // get actual name, which could have different address
 
-      // center screen in the middle, for that we specify the center point
-   	nvgText( vg, _segments[i].frame.origin.x + (_segments[ i].offset.width * 2)  + _segments[i].frame.size.width / 2.0, 
-                   _segments[i].frame.origin.y + (_segments[ i].offset.height * 2) + _segments[i].frame.size.height / 2.0, 
-                   _segments[ i].title, NULL);
+      fontPixelSize = [self fontPixelSize];
+      if( fontPixelSize == 0.0)
+         fontPixelSize = frame.size.height - strokeWidth;
+
+   	nvgFontSize( vg, fontPixelSize);
+   	nvgFontFace( vg, name);
+      nvgTextAlign( vg, NVG_ALIGN_CENTER|NVG_ALIGN_MIDDLE);
+
+      for( i = 0; i < _n; i++)
+      {
+         if( _segments[ i].isSelected)
+            color = _segments[ i].selectionBackgroundColor;
+         else
+            color = _segments[ i].backgroundColor;
+
+         // hmm
+         if( CGColorGetAlpha( color) < 1.0)
+            color = [self textBackgroundColor];
+         nvgTextColor( vg, [self textColor], color); // TODO: use textColor
+
+         // center screen in the middle, for that we specify the center point
+      	nvgText( vg, _segments[i].frame.origin.x + (_segments[ i].offset.width * 2)  + _segments[i].frame.size.width / 2.0, 
+                      _segments[i].frame.origin.y + (_segments[ i].offset.height * 2) + _segments[i].frame.size.height / 2.0, 
+                      _segments[ i].title, NULL);
+      }
    }
 }
 

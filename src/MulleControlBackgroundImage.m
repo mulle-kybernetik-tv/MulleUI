@@ -55,28 +55,5 @@ static NSUInteger   imageIndexForControlState( UIControlState state)
    ivar[ index] = [image retain];
 }
 
-
-- (void) setBackgroundImage:(UIImage *) image
-{
-   CALayer   *layer;
-   Class     preferredLayerClass;
-   Class     layerClass;
-
-   assert( ! image || [image isKindOfClass:[UIImage class]]);
-
-   if( ! image)
-      return;
-
-   // hackish cast, fix later
-   layer               = [(UIView *) self mainLayer];
-   layerClass          = [layer class];
-   preferredLayerClass = [image preferredLayerClass];
-
-   if( [layerClass isSubclassOfClass:preferredLayerClass])
-      [(CALayer<CAImageLayer> *) layer setImage:image];
-   else
-      abort();
-}
-
 PROTOCOLCLASS_END();
 

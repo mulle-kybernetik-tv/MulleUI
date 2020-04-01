@@ -7,7 +7,9 @@ endif()
 
 set( MAIN_SOURCES
 src/main-buttons.m
+src/main-draw.m
 src/main-layer.m
+src/main-scrollview.m
 )
 
 set( SOURCES

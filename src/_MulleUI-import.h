@@ -15,6 +15,7 @@
 // How to tweak the following Foundation #import
 //    remove:          `mulle-sourcetree mark Foundation no-header`
 //    rename:          `mulle-sourcetree mark Foundation set include whatever.h`
+//    toggle #import:  `mulle-sourcetree mark Foundation [no-]import`
 //    toggle public:   `mulle-sourcetree mark Foundation [no-]public`
 //    toggle optional: `mulle-sourcetree mark Foundation [no-]require`
 //    remove for os:   `mulle-sourcetree mark Foundation no-os-<osname>`

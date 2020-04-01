@@ -15,6 +15,7 @@
 // How to tweak the following glfw #include
 //    remove:          `mulle-sourcetree mark glfw no-header`
 //    rename:          `mulle-sourcetree mark glfw set include whatever.h`
+//    toggle #import:  `mulle-sourcetree mark glfw [no-]import`
 //    toggle public:   `mulle-sourcetree mark glfw [no-]public`
 //    toggle optional: `mulle-sourcetree mark glfw [no-]require`
 //    remove for os:   `mulle-sourcetree mark glfw no-os-<osname>`

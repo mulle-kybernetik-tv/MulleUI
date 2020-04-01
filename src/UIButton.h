@@ -18,8 +18,7 @@
    MulleControlBackgroundImageIvars;
 
    MulleTextLayer   *_titleLayer;
-   CALayer          *_backgroundLayer;
-   char             *_title;
+   CALayer          *_titleBackgroundLayer;
 }
 
 UIControlProperties;

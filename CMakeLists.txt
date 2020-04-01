@@ -14,7 +14,7 @@ include( Environment)
 include( Files)
 include( Dependencies)
 
-### Executable
+### Executables
 
 set( MEMO_SOURCES ${SOURCES})
 
