@@ -21,5 +21,7 @@ MulleControlBackgroundImageProperties;
 
 @property( assign, setter=setContinuous:) BOOL   isContinuous;
 @property( assign, setter=setMomentary:)  BOOL   isMomentary;
+@property( assign, setter=setAllowsMultipleSelection:)  BOOL  allowsMultipleSelection;
+@property( assign, setter=setAllowsEmptySelection:)     BOOL  allowsEmptySelection;
 
 @end

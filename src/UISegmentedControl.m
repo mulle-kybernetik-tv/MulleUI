@@ -18,6 +18,7 @@
    return( [self initWithLayer:segmentedControlLayer]);
 }
 
+// move this to + UIEvent ?
 - (UIEvent *) consumeMouseDown:(UIEvent *) event
 {
    // figure our which segment the click, was in
@@ -42,8 +43,23 @@
       return( nil);
 
    [self becomeFirstResponder];
-   [self memorizeSelectedSegments];      
-   [self setSelectedSegmentIndex:index];
+   [self memorizeSelectedSegments];   
+   if( [self allowsMultipleSelection])
+   {
+      if( [self isSelectedSegmentAtIndex:index])
+      {
+         if( [self allowsEmptySelection] || [_mainLayer numberOfSelectedSegments] > 1)
+            [self deselectSegmentAtIndex:index];
+      }
+      else
+         [self selectSegmentAtIndex:index];
+   }
+   else
+   {
+      if( [self selectedSegmentIndex] == index && [self allowsEmptySelection])
+         index = -1;  
+      [self setSelectedSegmentIndex:index];
+   }
 
    return( [super consumeMouseDown:event]);
 }

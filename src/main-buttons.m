@@ -155,6 +155,8 @@ int   main()
    [segmentedControl setCornerRadius:8];
    [segmentedControl setSelectedSegmentIndex:2];
    [segmentedControl setClick:segmented_callback];
+   [segmentedControl setAllowsMultipleSelection:YES];
+   [segmentedControl setAllowsEmptySelection:YES];
    [contentView addSubview:segmentedControl];
    [segmentedControl setFontPixelSize:frame.size.height / 2];
 

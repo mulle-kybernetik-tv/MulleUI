@@ -132,11 +132,49 @@
       _segments[ i].isSelected = _segments[ i].wasSelected;
 }
 
+- (BOOL) isSelectedSegmentAtIndex:(NSUInteger) index
+{
+   if( index >= self->_n)
+      abort();
+
+   return( _segments[ index].isSelected);
+}
+
+
+- (void) selectSegmentAtIndex:(NSUInteger) index
+{
+   if( index >= self->_n)
+      abort();
+   _segments[ index].isSelected = YES;
+}
+
+
+- (void) deselectSegmentAtIndex:(NSUInteger) index
+{
+   if( index >= self->_n)
+      abort();   
+   _segments[ index].isSelected = NO;
+}
+
+
+- (NSUInteger) numberOfSelectedSegments
+{
+   NSUInteger   i;
+   NSUInteger   count;
+
+   count = 0;
+   for( i = 0; i < _n; i++)
+      count += _segments[ i].isSelected;
+   return( count);
+}
+
 
 - (void) setSelectedSegmentIndex:(NSUInteger) index
 {
    NSUInteger   i;
 
+   if( index >= self->_n)
+      abort();
    for( i = 0; i < _n; i++)
       _segments[ i].isSelected = (i == index);
 }
@@ -201,6 +239,8 @@ static inline int   is_only_segment( NSUInteger i, NSUInteger n)
    
    if( ! _n)
       return;
+
+   assert( [self allowsEmptySelection]|| [self numberOfSelectedSegments] > 0);
 
    vg    = [context nvgContext];
    frame = [self frame];

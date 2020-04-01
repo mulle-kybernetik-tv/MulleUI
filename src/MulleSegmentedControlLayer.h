@@ -54,6 +54,11 @@ struct MulleUISegment
           forSegmentAtIndex:(NSUInteger) segment;
 
 - (NSUInteger) segmentIndexAtPoint:(CGPoint) point;
+- (void) selectSegmentAtIndex:(NSUInteger) index;
+- (void) deselectSegmentAtIndex:(NSUInteger) index;
+- (BOOL) isSelectedSegmentAtIndex:(NSUInteger) index;
+- (NSUInteger) numberOfSelectedSegments;
+
 
 - (NSUInteger) selectedSegmentIndex;
 - (void) setSelectedSegmentIndex:(NSUInteger) index;
