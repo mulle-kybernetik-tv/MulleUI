@@ -63,7 +63,8 @@ struct MulleUISegment
 - (NSUInteger) selectedSegmentIndex;
 - (void) setSelectedSegmentIndex:(NSUInteger) index;
 
-// private
-- (void) temporaryInvertSegmentIndex:(NSUInteger) index;
+// private: used during events only
+- (void) memorizeSelectedSegments;
+- (void) recallSelectedSegments;
 
 @end

@@ -3,6 +3,9 @@
 #include <string.h>
 
 
+// typedef this off something like CGEdgeInsets, so we can use this
+// in layers...
+
 typedef struct 
 {
 	CGFloat   top;

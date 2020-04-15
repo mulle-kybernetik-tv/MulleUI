@@ -1,3 +1,5 @@
+#ifndef CA_TIME_H__
+#define CA_TIME_H__
 #include "include.h"
 
 #include <time.h>
@@ -105,3 +107,5 @@ static inline double   CATimeSubtract( double a, double b)
 {
    return( a - b);
 }
+
+#endif 

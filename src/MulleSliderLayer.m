@@ -2,6 +2,9 @@
 
 #import "CGContext.h"
 #import "CGFont.h"
+#import "CGColor.h"
+#import "UIEdgeInsets.h"
+
 
 @implementation MulleSliderLayer : CALayer
 
@@ -10,6 +13,7 @@
    self = [super initWithFrame:frame];
    if( self)
       self->_maximumValue = 1.0;
+   [self setControlColor:MulleColorCreate( 0x000000FF)];
    return( self);      
 }
 
@@ -47,16 +51,56 @@
 }
 
 
+// border around knob, drawn once per radius so to speak
+#define KNOB_OUTLINE  4.0
+#define SLOT_WIDTH    4.0
+
+- (CGFloat) knobRadiusWithFrame:(CGRect) frame 
+{
+   if( frame.size.width >= frame.size.height)
+      return( (int)(frame.size.height * 0.5f - KNOB_OUTLINE / 2));
+   else
+      return( (int)(frame.size.width * 0.5f - KNOB_OUTLINE / 2));
+}
+
+
+- (CGRect) controlRectWithFrame:(CGRect) frame 
+{
+   CGRect    rect;
+   CGFloat   kr;
+
+   kr   = [self knobRadiusWithFrame:frame];
+
+   rect = UIEdgeInsetsInsetRect( frame, _controlInsets);
+
+   if( frame.size.width >= frame.size.height)
+   {
+      rect.origin.x    += kr + KNOB_OUTLINE / 2;
+      rect.size.width  -= kr * 2 + KNOB_OUTLINE;
+   }
+   else
+   {
+      rect.origin.y     += kr + KNOB_OUTLINE / 2;
+      rect.size.height  -= kr * 2 + KNOB_OUTLINE;
+   }
+
+   return( rect);
+}
+
+
 - (void) drawContentsInContext:(CGContext *) context
 {
    CGRect              frame;
+   CGRect              rect;
    NVGpaint            bg;
 	NVGpaint            knob;
    struct NVGcontext   *vg;
    float               normalized;
-	float               cy;   // relative vertical position (0.25 is first quarter, 0.5 is center)
+	float               centerX;   // relative vertical position (0.25 is first quarter, 0.5 is center)
+	float               centerY;   // relative vertical position (0.25 is first quarter, 0.5 is center)
 	float               kr;   // knob radius 
    float               pos;  // knob position from 0.0 to 1.0 
+   BOOL                isHorizontal;
 
    pos        = 0.0;
    normalized = [self maximumValue] - [self minimumValue];
@@ -69,45 +113,55 @@
    vg    = [context nvgContext];
    frame = [self frame];
 
-	cy = frame.origin.y+(int)(frame.size.height*0.5f);
    // knob radius 
-	kr = (int)(frame.size.height*0.15f);
+   kr    = [self knobRadiusWithFrame:frame];
    // slider position from 0.0 to 1.0 
 
-	nvgSave(vg);
-//	nvgClearState(vg);
+   // Slot rect
+   rect    = [self controlRectWithFrame:frame];
+ 	centerX = CGRectGetMidX( frame);
+ 	centerY = CGRectGetMidY( frame);
 
-	// Slot
-	bg = nvgBoxGradient(vg, frame.origin.x,cy-2+1, frame.size.width,4, 2,2, nvgRGBA(0,0,0,32), nvgRGBA(0,0,0,128));
 	nvgBeginPath(vg);
-	nvgRoundedRect(vg, frame.origin.x,cy-2, frame.size.width,4, 2);
-	nvgFillPaint(vg, bg);
+
+   isHorizontal = frame.size.width >= frame.size.height;
+   if(isHorizontal)
+   	nvgRoundedRect(vg, rect.origin.x , centerY - SLOT_WIDTH / 2, rect.size.width, SLOT_WIDTH, 3);
+   else
+   	nvgRoundedRect(vg, centerX - SLOT_WIDTH / 2, rect.origin.y, SLOT_WIDTH, rect.size.height,  3);
+   
+	nvgFillColor(vg, [self controlColor]);
 	nvgFill(vg);
 
-	// Knob Shadow
-	bg = nvgRadialGradient(vg, frame.origin.x+(int)(pos*frame.size.width),cy+1, kr-3,kr+3, nvgRGBA(0,0,0,64), nvgRGBA(0,0,0,0));
-	nvgBeginPath(vg);
-	nvgRect(vg, frame.origin.x+(int)(pos*frame.size.width)-kr-5,cy-kr-5,kr*2+5+5,kr*2+5+5+3);
-	nvgCircle(vg, frame.origin.x+(int)(pos*frame.size.width),cy, kr);
-	nvgPathWinding(vg, NVG_HOLE);
-	nvgFillPaint(vg, bg);
-	nvgFill(vg);
+
+//	// Knob Shadow
+//	bg = nvgRadialGradient(vg, frame.origin.x+(int)(pos*frame.size.width),centerY+1, kr-3,kr+3, nvgRGBA(0,0,0,64), nvgRGBA(0,0,0,0));
+//	nvgBeginPath(vg);
+//	nvgRect(vg, frame.origin.x+(int)(pos*frame.size.width)-kr-5,centerY-kr-5,kr*2+5+5,kr*2+5+5+3);
+//	nvgCircle(vg, frame.origin.x+(int)(pos*frame.size.width),centerY, kr);
+//	nvgPathWinding(vg, NVG_HOLE);
+//	nvgFillPaint(vg, bg);
+//	nvgFill(vg);
 
 	// Knob
-	knob = nvgLinearGradient(vg, frame.origin.x,cy-kr,frame.origin.x,cy+kr, nvgRGBA(255,255,255,16), nvgRGBA(0,0,0,16));
 	nvgBeginPath(vg);
-	nvgCircle(vg, frame.origin.x+(int)(pos*frame.size.width),cy, kr-1);
-	nvgFillColor(vg, nvgRGBA(40,43,48,255));
+   if( isHorizontal)
+   	nvgCircle(vg, rect.origin.x+(int)(pos*rect.size.width),centerY, kr-KNOB_OUTLINE/2);
+   else
+   	nvgCircle(vg, centerX, rect.origin.y+(int)(pos*rect.size.height), kr-KNOB_OUTLINE/2);
+	nvgFillColor(vg, [self controlColor]);
 	nvgFill(vg);
-	nvgFillPaint(vg, knob);
-	nvgFill(vg);
+//	nvgFillPaint(vg, knob);
+//	nvgFill(vg);
 
 	nvgBeginPath(vg);
-	nvgCircle(vg, frame.origin.x+(int)(pos*frame.size.width),cy, kr-0.5f);
-	nvgStrokeColor(vg, nvgRGBA(0,0,0,92));
+   if( isHorizontal)
+   	nvgCircle(vg, rect.origin.x+(int)(pos*rect.size.width),centerY, kr-KNOB_OUTLINE/2);
+   else
+   	nvgCircle(vg, centerX, rect.origin.y+(int)(pos*rect.size.height), kr-KNOB_OUTLINE/2);
+	nvgStrokeColor(vg, [self backgroundColor]);
+   nvgStrokeWidth( vg, KNOB_OUTLINE);
 	nvgStroke(vg);
-
-	nvgRestore(vg);
 }
 
 @end

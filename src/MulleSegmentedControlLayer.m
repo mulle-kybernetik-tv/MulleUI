@@ -240,8 +240,6 @@ static inline int   is_only_segment( NSUInteger i, NSUInteger n)
    if( ! _n)
       return;
 
-   assert( [self allowsEmptySelection]|| [self numberOfSelectedSegments] > 0);
-
    vg    = [context nvgContext];
    frame = [self frame];
 

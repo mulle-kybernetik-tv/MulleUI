@@ -12,7 +12,7 @@ typedef float   _NVGtransform[ 6];
 @class MulleAnimationDelegate;
 
 struct MulleFrameInfo;
-
+struct CAAnimationOptions;
 
 @interface CALayer : NSObject < NSCopying>
 {
@@ -68,20 +68,6 @@ struct MulleFrameInfo;
 - (void) setTransform:(_NVGtransform) transform
               scissor:(NVGscissor *) scissor;
 
-
-- (void) addAnimation:(CAAnimation *) animation;
-- (void) removeAllAnimations;
-- (NSUInteger) numberOfAnimations;
-
-- (void) animateWithAbsoluteTime:(CAAbsoluteTime) time;
-
-//
-// called by UIView to create implicit animations from snapshotted values
-// the snapshot will be gone afterwards. Also cancels all other 
-// animations. (?)
-//
-- (void) commitImplicitAnimationsWithAnimationID:(char *) animationsID
-                               animationDelegate:(MulleAnimationDelegate *) animationDelegate;
 
 @end
 

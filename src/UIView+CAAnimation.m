@@ -65,7 +65,6 @@ static inline void   SelfUnlock()
                  context:(void *) context
 {
    assert( _mulle_atomic_pointer_read( &Self._animationState) == NULL);
-   assert( ! animationID);
    
    SelfLock();
    {

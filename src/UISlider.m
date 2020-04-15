@@ -19,11 +19,32 @@
 {
    CGPoint  point;
    float    value;
+   CGRect   rect;
 
 	point = [event mousePositionInView:self];
    // fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, CGPointCStringDescription( point));
 
-   value = point.x / [self bounds].size.width;
+   rect = [_mainLayer controlRectWithFrame:[self bounds]];
+   if( rect.size.width >= rect.size.height)
+   {
+      if( point.x >= rect.origin.x)
+         point.x -= rect.origin.x;
+      else 
+         point.x = 0;
+      if( point.x >= CGRectGetMaxX( rect))
+         point.x = CGRectGetMaxX( rect);
+      value = point.x / rect.size.width;
+   }
+   else
+   {
+      if( point.y >= rect.origin.y)
+         point.y -= rect.origin.y;
+      else 
+         point.y = 0;
+      if( point.y >= CGRectGetMaxY( rect))
+         point.y = CGRectGetMaxY( rect);
+      value = point.y / rect.size.height;
+   }
    [(MulleSliderLayer *) self setValue:value];
 }
 

@@ -65,6 +65,38 @@
                                 options:options]);
 }                      
 
+- (id) initWithPropertySetter:(SEL) propertySetter
+                    startSize:(CGSize) start
+                      endSize:(CGSize) end
+                      options:(struct CAAnimationOptions *) options
+{
+   struct CAAnimationValueRange  range;
+
+   range.start.size = start;
+   range.end.size   = end;
+   return( [self initWithPropertySetter:propertySetter
+                              valueType:CAAnimationValueCGSize
+                             valueRange:&range
+                            repeatStart:range.start
+                                options:options]);
+}                      
+
+
+- (id) initWithPropertySetter:(SEL) propertySetter
+                   startPoint:(CGPoint) start
+                     endPoint:(CGPoint) end
+                      options:(struct CAAnimationOptions *) options
+{
+   struct CAAnimationValueRange  range;
+
+   range.start.point = start;
+   range.end.point   = end;
+   return( [self initWithPropertySetter:propertySetter
+                              valueType:CAAnimationValueCGPoint
+                             valueRange:&range
+                            repeatStart:range.start
+                                options:options]);
+}                      
 
 - (id) initWithPropertySetter:(SEL) propertySetter
               startFloatValue:(CGFloat) start
@@ -77,6 +109,39 @@
    range.end.floatValue   = end;
    return( [self initWithPropertySetter:propertySetter
                               valueType:CAAnimationValueCGFloat
+                             valueRange:&range
+                            repeatStart:range.start
+                                options:options]);
+}                      
+
+
+- (id) initWithPropertySetter:(SEL) propertySetter
+            startIntegerValue:(NSInteger) start
+              endIntegerValue:(NSInteger) end
+                      options:(struct CAAnimationOptions *) options;
+{
+   struct CAAnimationValueRange  range;
+
+   range.start.integerValue = start;
+   range.end.integerValue   = end;
+   return( [self initWithPropertySetter:propertySetter
+                              valueType:CAAnimationValueNSInteger
+                             valueRange:&range
+                            repeatStart:range.start
+                                options:options]);
+}                      
+
+- (id) initWithPropertySetter:(SEL) propertySetter
+               startBOOLValue:(BOOL) start
+                 endBOOLValue:(BOOL) end
+                      options:(struct CAAnimationOptions *) options;
+{
+   struct CAAnimationValueRange  range;
+
+   range.start.boolValue = start;
+   range.end.boolValue   = end;
+   return( [self initWithPropertySetter:propertySetter
+                              valueType:CAAnimationValueBOOL
                              valueRange:&range
                             repeatStart:range.start
                                 options:options]);

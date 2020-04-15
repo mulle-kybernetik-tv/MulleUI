@@ -28,6 +28,8 @@
    NSUInteger    index;
    char          *s;
 
+   assert( [self allowsEmptySelection]|| [self numberOfSelectedSegments] > 0);
+
    mousePosition        = [event mousePosition];
  //  contentMousePosition = [self convertPoint:mousePosition 
  //                                   fromView:nil];

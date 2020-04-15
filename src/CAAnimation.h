@@ -134,7 +134,7 @@ struct CAAnimationOptions
 // TODO: interpolating RGB is easy, but not necessarily very nice looking.
 //       Possibly implement http://labs.adamluptak.com/javascript-color-blending/
 //       though it is costly
-//
+//       HSV seems like a cheaper and probably more gainly alternative
 @interface CAAnimation : NSObject
 {
    struct CARelativeTimeRange   _relative;  // delay, copied from initialRenderdelay
@@ -174,9 +174,30 @@ struct CAAnimationOptions
                       options:(struct CAAnimationOptions *) options;
 
 - (id) initWithPropertySetter:(SEL) propertySetter
+                    startSize:(CGSize) start
+                      endSize:(CGSize) end
+                      options:(struct CAAnimationOptions *) options;
+
+- (id) initWithPropertySetter:(SEL) propertySetter
+                   startPoint:(CGPoint) start
+                     endPoint:(CGPoint) end
+                      options:(struct CAAnimationOptions *) options;                      
+
+- (id) initWithPropertySetter:(SEL) propertySetter
               startFloatValue:(CGFloat) start
                 endFloatValue:(CGFloat) end
                       options:(struct CAAnimationOptions *) options;
+
+- (id) initWithPropertySetter:(SEL) propertySetter
+            startIntegerValue:(NSInteger) start
+              endIntegerValue:(NSInteger) end
+                      options:(struct CAAnimationOptions *) options;
+
+- (id) initWithPropertySetter:(SEL) propertySetter
+               startBOOLValue:(BOOL) start
+                 endBOOLValue:(BOOL) end
+                      options:(struct CAAnimationOptions *) options;
+
 
 // called by the renderloop
 - (void) animateLayer:(CALayer *) layer
