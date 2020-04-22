@@ -65,6 +65,24 @@
                                 options:options]);
 }                      
 
+
+- (id) initWithPropertySetter:(SEL) propertySetter
+              startEdgeInsets:(MulleEdgeInsets) start
+                endEdgeInsets:(MulleEdgeInsets) end
+                      options:(struct CAAnimationOptions *) options
+{
+   struct CAAnimationValueRange  range;
+
+   range.start.insets = start;
+   range.end.insets   = end;
+   return( [self initWithPropertySetter:propertySetter
+                              valueType:CAAnimationValueEdgeInsets
+                             valueRange:&range
+                            repeatStart:range.start
+                                options:options]);
+}                      
+
+
 - (id) initWithPropertySetter:(SEL) propertySetter
                     startSize:(CGSize) start
                       endSize:(CGSize) end
@@ -248,6 +266,22 @@ normalizedRelativeTime:(double) x
         mulle_objc_object_call( layer, self->_propertySetter, &param);          
       }
       break;
+
+   case CAAnimationValueEdgeInsets :
+      value.insets.top    = (self->_end.insets.top    - self->_start.insets.top)    * x + self->_start.insets.top;
+      value.insets.left   = (self->_end.insets.left   - self->_start.insets.left )  * x + self->_start.insets.left ;
+      value.insets.bottom = (self->_end.insets.bottom - self->_start.insets.bottom) * x + self->_start.insets.bottom;
+      value.insets.right  = (self->_end.insets.right  - self->_start.insets.right)  * x + self->_start.insets.right;
+      {
+        mulle_objc_metaabi_param_block_void_return( MulleEdgeInsets)   param;  
+
+        param.p = value.insets;
+        mulle_objc_object_call( layer, self->_propertySetter, &param);          
+      }
+      break;   
+
+   default :
+      abort();
    }
 }
 

@@ -142,3 +142,12 @@ struct MulleClickDragDifferentiator
 - (CGFloat) cornerRadius;
 
 @end
+
+
+// didn't want those exposed I guess.
+@interface UIView( Internals)
+
+- (struct mulle_pointerarray *) _layers;
+- (struct mulle_pointerarray *) _subviews; 
+
+@end

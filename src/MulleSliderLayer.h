@@ -1,5 +1,5 @@
 #import "CALayer.h"
-#import "UIEdgeInsets.h"
+#import "MulleEdgeInsets.h"
 
 
 @interface MulleSliderLayer : CALayer
@@ -8,8 +8,8 @@
 @property(assign) float  minimumValue;
 @property(assign) float  maximumValue;
 
-@property( observable) CGColorRef     controlColor;
-@property( observable) UIEdgeInsets   controlInsets;
+@property( observable) CGColorRef        controlColor;
+@property( observable) MulleEdgeInsets   controlInsets;
 
 
 // the visible rect for control value, the knob

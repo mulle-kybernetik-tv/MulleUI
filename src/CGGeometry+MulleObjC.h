@@ -1,6 +1,6 @@
 #include "CGGeometry.h"
 
-
+// TODO: move this stuff to CGBase+MulleObjC.h until CGRect
 static inline void   MulleObjectSetBOOL( id obj, SEL sel, BOOL value)
 {
    mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, (id) value);

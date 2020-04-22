@@ -10,6 +10,7 @@ src/main-animate-circles.m
 src/main-buttons.m
 src/main-draw.m
 src/main-layer.m
+src/main-many-rectangles.m
 src/main-scrollview.m
 src/main-slider.m
 )
@@ -32,6 +33,8 @@ src/Foundation/NSMutableIndexSet.m
 src/MulleBitmapImage.m
 src/MulleCheckboxLayer.m
 src/MulleControlBackgroundImage.m
+src/MulleEdgeInsets+CString.m
+src/MulleEdgeInsets.c
 src/MulleImageLayer.m
 src/MulleObjectArray.m
 src/MulleSVGImage.m
@@ -63,8 +66,6 @@ src/UIApplication.m
 src/UIButton.m
 src/UIColor.m
 src/UIControl.m
-src/UIEdgeInsets+CString.m
-src/UIEdgeInsets.c
 src/UIEvent.m
 src/UIFont.m
 src/UIImage.m

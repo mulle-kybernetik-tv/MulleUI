@@ -1,12 +1,17 @@
-#include "UIEdgeInsets+CString.h"
+//
+// Copyright (c) 2020 Nat!, Mulle kybernetiK
+//
+#import "MulleEdgeInsets+CString.h"
+
+#import "import-private.h"
+
 #include <stdio.h>
 #include <mulle-allocator/mulle-allocator.h>
-#include <MulleObjC/mulle-objc.h>
 
 
 
 // cast this to CGRect as the code is identical ?
-char   *UIEdgeInsetsCStringDescription( UIEdgeInsets insets)
+char   *MulleEdgeInsetsCStringDescription( MulleEdgeInsets insets)
 {
    auto char   buf[ 256];
    char       *s;

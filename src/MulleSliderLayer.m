@@ -3,7 +3,7 @@
 #import "CGContext.h"
 #import "CGFont.h"
 #import "CGColor.h"
-#import "UIEdgeInsets.h"
+#import "MulleEdgeInsets.h"
 
 
 @implementation MulleSliderLayer : CALayer
@@ -71,7 +71,7 @@
 
    kr   = [self knobRadiusWithFrame:frame];
 
-   rect = UIEdgeInsetsInsetRect( frame, _controlInsets);
+   rect = MulleEdgeInsetsInsetRect( frame, _controlInsets);
 
    if( frame.size.width >= frame.size.height)
    {

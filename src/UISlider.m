@@ -24,7 +24,7 @@
 	point = [event mousePositionInView:self];
    // fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, CGPointCStringDescription( point));
 
-   rect = [_mainLayer controlRectWithFrame:[self bounds]];
+   rect = [(MulleSliderLayer *) _mainLayer controlRectWithFrame:[self bounds]];
    if( rect.size.width >= rect.size.height)
    {
       if( point.x >= rect.origin.x)

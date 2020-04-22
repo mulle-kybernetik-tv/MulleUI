@@ -5,6 +5,7 @@
 #import "CAAnimation.h"
 #import "CGGeometry+MulleObjC.h"
 #import "CGColor+MulleObjC.h"
+#import "MulleEdgeInsets+MulleObjC.h"
 #import "UIView+CAAnimation.h"
 
 struct property_animation_context
@@ -205,6 +206,38 @@ static void   animate_rect_property( struct _mulle_objc_property *property,
 }
 
 
+static void   animate_insets_property( struct _mulle_objc_property *property,
+                                        struct property_animation_context  *ctx)
+{
+   CAAnimation      *animation;
+   MulleEdgeInsets   startInsets;
+   MulleEdgeInsets   endInsets;
+   SEL               getter;
+   SEL               setter;
+
+   getter     = mulle_objc_property_get_getter( property);
+   startInsets = MulleObjectGetEdgeInsets( ctx->snapshot, getter);
+   endInsets   = MulleObjectGetEdgeInsets( ctx->self, getter);    
+   if( ! MulleEdgeInsetsEqualToEdgeInsets( startInsets, endInsets))
+   {
+      setter    = mulle_objc_property_get_setter( property);
+      animation = [[[CAAnimation alloc] initWithPropertySetter:setter 
+                                               startEdgeInsets:startInsets
+                                                 endEdgeInsets:endInsets
+                                                       options:ctx->animationOptions] autorelease];
+      [animation setAnimationDelegate:ctx->animationDelegate];
+      [ctx->self addAnimation:animation];
+
+      // reset to start position 
+      // this should work and not trigger another willChange action, as willChange
+      // will see the existing snapshot in the layer and do nothing
+      // STILL it would be nicer to do this more stealthily by setting the ivar
+      // directly
+      MulleObjectSetEdgeInsets( ctx->self, setter, startInsets);
+   }  
+}
+
+
 static void   animate_color_property( struct _mulle_objc_property *property,
                                       struct property_animation_context  *ctx)
 {
@@ -254,9 +287,9 @@ static mulle_objc_walkcommand_t
    signature = mulle_objc_property_get_signature( property);
 
 
-   printf( "%s @property %s = %s\n", _mulle_objc_infraclass_get_name( infra),
-                                      mulle_objc_property_get_name( property),
-                                      signature);
+//   printf( "%s @property %s = %s\n", _mulle_objc_infraclass_get_name( infra),
+//                                      mulle_objc_property_get_name( property),
+//                                      signature);
 
    switch( *signature)
    {
@@ -287,7 +320,7 @@ static mulle_objc_walkcommand_t
    assert( name_e && strchr( name_b, ',') > name_e);
    name_len = name_e - name_b;
 
-   // CGRect, NVGColor, CGSize, CGPoint
+   // CGRect, NVGColor, CGSize, CGPoint, MulleEdgeInsets
    if( name_len < 6)
       return( mulle_objc_walk_ok);
 
@@ -301,6 +334,9 @@ static mulle_objc_walkcommand_t
               return( mulle_objc_walk_ok);
    case 'S' : if( ! string_matcher( "CGSize", name_b, name_len))
                   animate_size_property( property, ctx);
+              return( mulle_objc_walk_ok);
+   case 'l' : if( ! string_matcher( "MulleEdgeInsets", name_b, name_len))
+                  animate_insets_property( property, ctx);
               return( mulle_objc_walk_ok);
    case 'R' : if( ! string_matcher( "CGRect", name_b, name_len))
                   animate_rect_property( property, ctx);
@@ -349,7 +385,7 @@ static mulle_objc_walkcommand_t
    CAAnimation                           *animation;
 
    rover = mulle_pointerarray_enumerate_nil( &_animations);
-   while( animation = _mulle_pointerarrayenumerator_next( &rover))
+   while( (animation = _mulle_pointerarrayenumerator_next( &rover)))
       [animation autorelease];
    mulle_pointerarrayenumerator_done( &rover); 
 
@@ -374,7 +410,7 @@ static mulle_objc_walkcommand_t
 #endif
 
    rover = mulle_pointerarray_enumerate_nil( &_animations);
-   while( animation = _mulle_pointerarrayenumerator_next( &rover))
+   while( (animation = _mulle_pointerarrayenumerator_next( &rover)))
       [animation animateLayer:self
                  absoluteTime:renderTime];
    mulle_pointerarrayenumerator_done( &rover);   

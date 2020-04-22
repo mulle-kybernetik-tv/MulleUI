@@ -40,7 +40,7 @@
    s = CGPointCStringDescription( contentMousePosition);
    fprintf( stderr, "mouse view : %s\n", s);
 
-   index = [_mainLayer segmentIndexAtPoint:contentMousePosition];
+   index = [self segmentIndexAtPoint:contentMousePosition];
    if( index == NSNotFound)
       return( nil);
 
@@ -50,7 +50,7 @@
    {
       if( [self isSelectedSegmentAtIndex:index])
       {
-         if( [self allowsEmptySelection] || [_mainLayer numberOfSelectedSegments] > 1)
+         if( [self allowsEmptySelection] || [self numberOfSelectedSegments] > 1)
             [self deselectSegmentAtIndex:index];
       }
       else
@@ -80,7 +80,7 @@
 //
    contentMousePosition = mousePosition;
 
-   index = [_mainLayer segmentIndexAtPoint:contentMousePosition];
+   index = [self segmentIndexAtPoint:contentMousePosition];
    if( index == NSNotFound)
    {
       [self recallSelectedSegments];      

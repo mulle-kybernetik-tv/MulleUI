@@ -7,6 +7,9 @@
 #import "UISlider.h"
 #import "UIWindow.h"
 #import "UIColor.h"
+#import "UIView+CAAnimation.h"
+#import "MulleSliderLayer.h"
+#import "CAAnimation.h"
 #import <string.h>
 
 
@@ -22,11 +25,12 @@ static UIEvent   *slider_callback( UISlider *slider, UIEvent *event)
 
 int   main()
 {
-   CGRect      frame;
-   CGContext   *context;
-   UIWindow    *window;
-   UISlider    *slider;
-   UIView      *contentView;
+   CGRect            frame;
+   CGContext         *context;
+   UIWindow          *window;
+   UISlider          *slider;
+   UIView            *contentView;
+   MulleSliderLayer  *layer;
 
     /*
     * window and app 
@@ -61,6 +65,17 @@ int   main()
    [slider setControlInsets:UIEdgeInsetsMake( 20, 0, 20, 0)];
    [contentView addSubview:slider];
 
+   // UIView -> CAAnimation
+   [UIView beginAnimations:"animation" 
+                    context:NULL];
+   [UIView setAnimationCurve:UIViewAnimationCurveEaseInOut];
+   [UIView setAnimationDelay:0];        
+   [UIView setAnimationDuration:4];        
+
+   layer = (MulleSliderLayer *) [slider layer];
+   assert( layer);
+   [layer setControlInsets:MulleEdgeInsetsMake( 60, 10, 60, 10)];
+   [UIView commitAnimations];
 
    [window dump];
    [window renderLoopWithContext:context];

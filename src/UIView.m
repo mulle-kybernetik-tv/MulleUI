@@ -104,6 +104,20 @@
 }
 
 
+- (struct mulle_pointerarray *) _layers
+{
+   struct mulle_allocator   *allocator;
+
+   if( ! _layers)
+   {
+      allocator = MulleObjCInstanceGetAllocator( self);
+      _layers = mulle_pointerarray_alloc( allocator);
+      _mulle_pointerarray_init( _layers, 4, nil, allocator);
+   }
+   return( _layers);
+}
+
+
 - (struct mulle_pointerarray *) _subviews 
 {
    struct mulle_allocator   *allocator;

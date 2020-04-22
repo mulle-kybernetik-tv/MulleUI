@@ -57,3 +57,5 @@ enum UIViewAnimationCurve
 + (float) animationRepeatCount;
 
 @end
+
+BOOL   UIViewAreAnimationsEnabled( void);

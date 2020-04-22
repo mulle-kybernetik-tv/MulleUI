@@ -4,7 +4,7 @@
 #import "CGGeometry.h"
 #import "CGColor.h"
 #import "CATime.h"
-
+#import "MulleEdgeInsets.h"
 
 enum CAAnimationBits
 {
@@ -26,13 +26,14 @@ enum CAAnimationBits
 
 union CAAnimationValue
 {
-   BOOL         boolValue;
-   NSInteger    integerValue;
-   CGFloat      floatValue;
-   CGColorRef   color;
-   CGPoint      point;
-   CGSize       size;
-   CGRect       rect;
+   BOOL              boolValue;
+   NSInteger         integerValue;
+   CGFloat           floatValue;
+   CGColorRef        color;
+   CGPoint           point;
+   CGSize            size;
+   CGRect            rect;
+   MulleEdgeInsets   insets;
 };
 
 
@@ -92,7 +93,8 @@ enum CAAnimationValueType
    CAAnimationValueCGColorRef,
    CAAnimationValueCGPoint,
    CAAnimationValueCGSize,
-   CAAnimationValueCGRect
+   CAAnimationValueCGRect,
+   CAAnimationValueEdgeInsets
 };
 
 
@@ -171,6 +173,11 @@ struct CAAnimationOptions
 - (id) initWithPropertySetter:(SEL) propertySetter
                     startRect:(CGRect) start
                       endRect:(CGRect) end
+                      options:(struct CAAnimationOptions *) options;
+
+- (id) initWithPropertySetter:(SEL) propertySetter
+              startEdgeInsets:(MulleEdgeInsets) start
+                endEdgeInsets:(MulleEdgeInsets) end
                       options:(struct CAAnimationOptions *) options;
 
 - (id) initWithPropertySetter:(SEL) propertySetter

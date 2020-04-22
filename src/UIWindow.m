@@ -8,6 +8,7 @@
 
 #import "CAAnimation.h"
 #import "CALayer.h"  // for color
+#import "CALayer+CAAnimation.h"  // for color
 #import "CGContext.h"
 #import "CGGeometry+CString.h"
 #import "UIEvent.h"
@@ -344,7 +345,7 @@ static void   error_callback(int code, const char* description)
          [self updateRenderCachesWithContext:context 
                                    frameInfo:&info];
 
-//         info.isPerfEnabled = YES;
+         info.isPerfEnabled = YES;
          [context startRenderWithFrameInfo:&info];
          [self renderWithContext:context];
          [context endRender];

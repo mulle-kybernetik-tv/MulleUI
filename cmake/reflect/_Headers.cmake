@@ -62,6 +62,9 @@ src/Ghostscript_Tiger-svg.inc
 src/MulleBitmapImage.h
 src/MulleCheckboxLayer.h
 src/MulleControlBackgroundImage.h
+src/MulleEdgeInsets+CString.h
+src/MulleEdgeInsets+MulleObjC.h
+src/MulleEdgeInsets.h
 src/MulleImageLayer.h
 src/MulleObjectArray.h
 src/MulleSVGImage.h

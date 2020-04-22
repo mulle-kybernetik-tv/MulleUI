@@ -3,7 +3,7 @@
 #import "CGContext.h"
 #import "CGFont.h"
 #import "CGGeometry+CString.h"
-#import "UIEdgeInsets.h"
+#import "MulleEdgeInsets.h"
 
 
 @implementation MulleSegmentedControlLayer : CALayer
@@ -235,7 +235,7 @@ static inline int   is_only_segment( NSUInteger i, NSUInteger n)
    struct NVGcontext   *vg;
    NSUInteger          i;
    CGColorRef          color;
-   UIEdgeInsets        insets;
+   MulleEdgeInsets        insets;
    
    if( ! _n)
       return;

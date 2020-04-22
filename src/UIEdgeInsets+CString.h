@@ -1,3 +1,8 @@
 #include "UIEdgeInsets.h"
+#include "MulleUIEdgeInsets+CString.h"
 
-char   *UIEdgeInsetsCStringDescription( UIEdgeInsets insets);
+static inline char   *UIEdgeInsetsCStringDescription( UIEdgeInsets insets)
+{
+   return( MulleEdgeInsetsCStringDescription( insets));
+}
+

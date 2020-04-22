@@ -158,13 +158,18 @@ static inline void   SelfUnlock()
                                (void *) (intptr_t)  UIViewAnimationIdle);
 }                 
 
-
-+ (BOOL) areAnimationsEnabled
+BOOL   UIViewAreAnimationsEnabled( void)
 {
    void  *state;
 
    state = _mulle_atomic_pointer_read( &Self._animationState);
-   return( state != NULL);
+   return( state != NULL);   
+}
+
+
++ (BOOL) areAnimationsEnabled
+{
+   return( UIViewAreAnimationsEnabled());
 }
 
 //

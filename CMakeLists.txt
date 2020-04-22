@@ -17,7 +17,7 @@ include( Dependencies)
 
 ### Executables
 
-set( MEMO_SOURCES ${SOURCES})
+add_library( MulleUI OBJECT ${SOURCES})
 
 foreach( MAIN_SOURCE ${MAIN_SOURCES})
    # get rid off src/main- prefix and .m suffix
@@ -26,7 +26,9 @@ foreach( MAIN_SOURCE ${MAIN_SOURCES})
    math( EXPR MAIN_SOURCE_LENGTH "${MAIN_SOURCE_LENGTH} - 11")
    string( SUBSTRING "${MAIN_SOURCE}" 9 ${MAIN_SOURCE_LENGTH} EXECUTABLE_NAME)
    
-   set( SOURCES ${MEMO_SOURCES} ${MAIN_SOURCE})
+   set( SOURCES ${MAIN_SOURCE})
+   set( OTHER_EXECUTABLE_OBJECT_FILES $<TARGET_OBJECTS:MulleUI>)
+  
    include( Executable)
    include( InstallExecutable)
    include( FinalOutput OPTIONAL)

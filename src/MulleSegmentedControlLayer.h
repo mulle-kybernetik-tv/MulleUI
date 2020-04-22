@@ -44,9 +44,9 @@ struct MulleUISegment
 - (void) insertSegmentWithTitleCString:(char *) title 
                                atIndex:(NSUInteger) segment 
                               animated:(BOOL) animated;
-- (void) insertSegmentWithImage:(UIImage *) image 
-                        atIndex:(NSUInteger) segment 
-                       animated:(BOOL) animated;
+// - (void) insertSegmentWithImage:(UIImage *) image 
+//                        atIndex:(NSUInteger) segment 
+//                       animated:(BOOL) animated;
 
 - (void) setContentOffset:(CGSize) offset 
         forSegmentAtIndex:(NSUInteger) segment;

@@ -25,6 +25,22 @@ static inline CGColorRef   MulleColorCreate( uint32_t color)
 }
 
 
+static inline CGColorRef   MulleColorCreateRandom( uint32_t color, uint32_t mask)
+{
+   uint32_t  value;
+
+   color &= ~mask;
+   color |= ((uint32_t) rand()) & mask;
+   return( getNVGColor( color));
+}
+
+static inline CGColorRef   MulleColorCreateRandomOpaque()
+{
+   return( MulleColorCreateRandom( 0xFF, 0xFFFFF00));
+}
+
+
+
 static inline CGColorRef CGColorCreateGenericRGB( CGFloat red, CGFloat green, CGFloat blue, CGFloat alpha)
 {
       return( nvgRGBA( (uint32_t) round( 0xff * red),

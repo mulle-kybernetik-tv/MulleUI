@@ -7,7 +7,7 @@
 #import "CGContext.h"
 #import "nanovg+CString.h"
 #import "UIView+CAAnimation.h"
-#import "UIEdgeInsets.h"
+#import "MulleEdgeInsets.h"
 
 
 #pragma clang diagnostic ignored "-Wparentheses"
@@ -47,7 +47,7 @@
    mulle_allocator_free( allocator, _cStringName);
 
    rover = mulle_pointerarray_enumerate_nil( &_animations);
-   while( animation = _mulle_pointerarrayenumerator_next( &rover))
+   while( (animation = _mulle_pointerarrayenumerator_next( &rover)))
       [animation release];
    mulle_pointerarrayenumerator_done( &rover); 
 
@@ -81,7 +81,7 @@
    CGPoint        br;
    CGRect         frame;
    CGFloat        borderWidth;
-   UIEdgeInsets   insets;
+   MulleEdgeInsets   insets;
 
 
    // if there is a border to be drawn, then we use antialias
@@ -95,12 +95,11 @@
    //
    frame  = [self frame];
 
-
    borderWidth = [self borderWidth];
    if( borderWidth > 0.1)
    {
-      insets = UIEdgeInsetsMake( borderWidth / 2, borderWidth / 2,  borderWidth / 2, borderWidth / 2);
-      frame  = UIEdgeInsetsInsetRect( frame, insets);
+      insets = MulleEdgeInsetsMake( borderWidth / 2, borderWidth / 2,  borderWidth / 2, borderWidth / 2);
+      frame  = MulleEdgeInsetsInsetRect( frame, insets);
       nvgShapeAntiAlias( vg, 0);  
    }
 
@@ -319,14 +318,19 @@
 
 
 
-// possibly rename to layerWillChange
+//
+// This is called very often during animation, it would be good if the
+// animation code could use a different setter that does not call
+// will change..
+//
 - (void) willChange
 {
-   if( ! [UIView areAnimationsEnabled])
+   // this is called frequently so use C
+   if( ! UIViewAreAnimationsEnabled())
       return;
    if( _snapshot)
       return;
-  
+ 
    [UIView addAnimatedLayer:self];
    _snapshot = [self copy];
 }
