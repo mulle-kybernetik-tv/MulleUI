@@ -169,15 +169,17 @@ static const YGNode gYGNodeDefaults = {
 
     .style =
         {
-            .flex = YGUndefined,
-            .flexGrow = YGUndefined,
-            .flexShrink = YGUndefined,
+            .flex = 0.0,
+            .flexGrow = 0.0,
+            .flexShrink = 1.0,
             .flexBasis = YG_AUTO_VALUES,
             .justifyContent = YGJustifyFlexStart,
             .alignItems = YGAlignStretch,
             .alignContent = YGAlignFlexStart,
-            .direction = YGDirectionInherit,
-            .flexDirection = YGFlexDirectionColumn,
+            .alignSelf = YGAlignAuto,
+            .direction = YGDirectionLTR,
+            .flexDirection = YGFlexDirectionRow,
+            .flexWrap = YGWrapNoWrap,
             .overflow = YGOverflowVisible,
             .display = YGDisplayFlex,
             .dimensions = YG_DEFAULT_DIMENSION_VALUES_AUTO_UNIT,
