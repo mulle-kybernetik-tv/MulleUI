@@ -8,6 +8,7 @@ endif()
 set( MAIN_SOURCES
 src/main-animate-circles.m
 src/main-buttons.m
+src/main-calculator.m
 src/main-draw.m
 src/main-layer.m
 src/main-many-rectangles.m
