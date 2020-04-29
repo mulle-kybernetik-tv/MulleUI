@@ -12,9 +12,10 @@
 #include "YGNodeList.h"
 #include "Yoga-internal.h"
 #include "Yoga.h"
+// (nat) moved out of _MSC_VER for FLT_MAX
+#include <float.h>
 
 #ifdef _MSC_VER
-#include <float.h>
 #ifndef isnan
 #define isnan _isnan
 #endif
@@ -192,7 +193,7 @@ static const YGNode gYGNodeDefaults = {
     .layout =
         {
             .dimensions = YG_DEFAULT_DIMENSION_VALUES,
-            .lastParentDirection = (YGDirection) -1,
+            .lastParentDirection = YGDirectionInherit,
             .nextCachedMeasurementsIndex = 0,
             .computedFlexBasis = YGUndefined,
             .hadOverflow = false,
@@ -200,8 +201,8 @@ static const YGNode gYGNodeDefaults = {
 
             .cachedLayout =
                 {
-                    .widthMeasureMode = (YGMeasureMode) -1,
-                    .heightMeasureMode = (YGMeasureMode) -1,
+                    .widthMeasureMode = YGMeasureModeUndefined,
+                    .heightMeasureMode = YGMeasureModeUndefined,
                     .computedWidth = -1,
                     .computedHeight = -1,
                 },
@@ -1883,15 +1884,22 @@ static void YGNodeAbsoluteLayoutChild(const YGNodeRef node,
 }
 
 static void YGNodeWithMeasureFuncSetMeasuredDimensions(const YGNodeRef node,
-                                                       const float availableWidth,
-                                                       const float availableHeight,
+                                                       float availableWidth,
+                                                       float availableHeight,
                                                        const YGMeasureMode widthMeasureMode,
                                                        const YGMeasureMode heightMeasureMode,
                                                        const float parentWidth,
                                                        const float parentHeight) {
   YGAssertWithNode(node, node->measure != NULL, "Expected node to have custom measure function");
 
-  const float paddingAndBorderAxisRow =
+  if (widthMeasureMode == YGMeasureModeUndefined) {
+    availableWidth = YGUndefined;
+  }
+  if (heightMeasureMode == YGMeasureModeUndefined) {
+    availableHeight = YGUndefined;
+  }
+
+ const float paddingAndBorderAxisRow =
       YGNodePaddingAndBorderForAxis(node, YGFlexDirectionRow, availableWidth);
   const float paddingAndBorderAxisColumn =
       YGNodePaddingAndBorderForAxis(node, YGFlexDirectionColumn, availableWidth);
@@ -2024,6 +2032,43 @@ static void YGZeroOutLayoutRecursivly(const YGNodeRef node) {
     YGZeroOutLayoutRecursivly(child);
   }
 }
+
+
+static float YGNodeCalculateAvailableInnerDim(
+    const YGNodeRef node,
+    YGFlexDirection axis,
+    float availableDim,
+    float ownerDim,
+    float ownerDimForMarginPadding) {
+  YGFlexDirection direction =
+      YGFlexDirectionIsRow(axis) ? YGFlexDirectionRow : YGFlexDirectionColumn;
+  YGDimension dimension =
+      YGFlexDirectionIsRow(axis) ? YGDimensionWidth : YGDimensionHeight;
+
+  const float margin = YGNodeMarginForAxis(node, direction, ownerDimForMarginPadding);
+  const float paddingAndBorder =
+      YGNodePaddingAndBorderForAxis(node, direction, ownerDimForMarginPadding);
+
+  float availableInnerDim = availableDim - margin - paddingAndBorder;
+  // Max dimension overrides predefined dimension value; Min dimension in turn
+  // overrides both of the above
+  if (!YGFloatIsUndefined(availableInnerDim)) {
+    // We want to make sure our available height does not violate min and max
+    // constraints
+    const float minInnerDim = node->style.minDimensions[dimension].unit == YGUnitUndefined 
+        ? 0.0f
+        : YGResolveValue(&node->style.minDimensions[dimension], ownerDim) - paddingAndBorder;
+
+     const float maxInnerDim = node->style.maxDimensions[dimension].unit == YGUnitUndefined 
+        ? FLT_MAX
+        : YGResolveValue(&node->style.maxDimensions[dimension], ownerDim) - paddingAndBorder;
+    availableInnerDim =
+        fmaxf(fminf(availableInnerDim, maxInnerDim), minInnerDim);
+  }
+
+  return availableInnerDim;
+}
+
 
 //
 // This is the main routine that implements a subset of the flexbox layout
@@ -2227,7 +2272,6 @@ static void YGNodelayoutImpl(const YGNodeRef node,
   const float marginAxisRow = YGNodeMarginForAxis(node, YGFlexDirectionRow, parentWidth);
   const float marginAxisColumn = YGNodeMarginForAxis(node, YGFlexDirectionColumn, parentWidth);
 
-  // STEP 2: DETERMINE AVAILABLE SIZE IN MAIN AND CROSS DIRECTIONS
   const float minInnerWidth =
       YGResolveValue(&node->style.minDimensions[YGDimensionWidth], parentWidth) -
       paddingAndBorderAxisRow;
@@ -2243,19 +2287,13 @@ static void YGNodelayoutImpl(const YGNodeRef node,
   const float minInnerMainDim = isMainAxisRow ? minInnerWidth : minInnerHeight;
   const float maxInnerMainDim = isMainAxisRow ? maxInnerWidth : maxInnerHeight;
 
-  // Max dimension overrides predefined dimension value; Min dimension in turn overrides both of the
-  // above
-  float availableInnerWidth = availableWidth - marginAxisRow - paddingAndBorderAxisRow;
-  if (!YGFloatIsUndefined(availableInnerWidth)) {
-    // We want to make sure our available width does not violate min and max constraints
-    availableInnerWidth = fmaxf(fminf(availableInnerWidth, maxInnerWidth), minInnerWidth);
-  }
+  // STEP 2: DETERMINE AVAILABLE SIZE IN MAIN AND CROSS DIRECTIONS
 
-  float availableInnerHeight = availableHeight - marginAxisColumn - paddingAndBorderAxisColumn;
-  if (!YGFloatIsUndefined(availableInnerHeight)) {
-    // We want to make sure our available height does not violate min and max constraints
-    availableInnerHeight = fmaxf(fminf(availableInnerHeight, maxInnerHeight), minInnerHeight);
-  }
+
+  float availableInnerWidth = YGNodeCalculateAvailableInnerDim(
+      node, YGFlexDirectionRow, availableWidth, parentHeight, parentWidth);
+  float availableInnerHeight = YGNodeCalculateAvailableInnerDim(
+      node, YGFlexDirectionColumn, availableHeight, parentHeight, parentWidth);
 
   float availableInnerMainDim = isMainAxisRow ? availableInnerWidth : availableInnerHeight;
   const float availableInnerCrossDim = isMainAxisRow ? availableInnerHeight : availableInnerWidth;
@@ -2969,10 +3007,23 @@ static void YGNodelayoutImpl(const YGNodeRef node,
               const float childWidth = isMainAxisRow ? childMainSize : childCrossSize;
               const float childHeight = !isMainAxisRow ? childMainSize : childCrossSize;
 
+              // (nat) picked https://github.com/facebook/yoga/blame/master/yoga/Yoga.cpp
+              // https://github.com/facebook/yoga/commit/bc7e504b29620ec458a22b21a22eb5e9656c7bac
+              // >=>
+              YGAlign alignContent = node->style.alignContent;
+              int crossAxisDoesNotGrow =
+                  alignContent != YGAlignStretch && isNodeFlexWrap;
               const YGMeasureMode childWidthMeasureMode =
-                  YGFloatIsUndefined(childWidth) ? YGMeasureModeUndefined : YGMeasureModeExactly;
+                  YGFloatIsUndefined(childWidth) ||
+                      (!isMainAxisRow && crossAxisDoesNotGrow)
+                  ? YGMeasureModeUndefined
+                  : YGMeasureModeExactly;
               const YGMeasureMode childHeightMeasureMode =
-                  YGFloatIsUndefined(childHeight) ? YGMeasureModeUndefined : YGMeasureModeExactly;
+                  YGFloatIsUndefined(childHeight) ||
+                      (isMainAxisRow && crossAxisDoesNotGrow)
+                  ? YGMeasureModeUndefined
+                  : YGMeasureModeExactly;
+              // <=<
 
               YGLayoutNodeInternal(child,
                                    childWidth,
@@ -3016,45 +3067,50 @@ static void YGNodelayoutImpl(const YGNodeRef node,
   }
 
   // STEP 8: MULTI-LINE CONTENT ALIGNMENT
-  if (performLayout && (lineCount > 1 || YGIsBaselineLayout(node)) &&
-      !YGFloatIsUndefined(availableInnerCrossDim)) {
-    const float remainingAlignContentDim = availableInnerCrossDim - totalLineCrossDim;
-
+  //
+  // (nat) handtranslated https://github.com/facebook/yoga/commit/8309cfc9764f7ba7e1fed4cec4596d8c7d740a07#diff-ab0a8feca75a70714d852e7d282e60d9R3421
+  // line 3154
+  // >=>
+  float currentLead = leadingPaddingAndBorderCross;
+  if (performLayout && (isNodeFlexWrap || YGIsBaselineLayout(node))) {
     float crossDimLead = 0;
-    float currentLead = leadingPaddingAndBorderCross;
-
-    switch (node->style.alignContent) {
-      case YGAlignFlexEnd:
-        currentLead += remainingAlignContentDim;
-        break;
-      case YGAlignCenter:
-        currentLead += remainingAlignContentDim / 2;
-        break;
-      case YGAlignStretch:
-        if (availableInnerCrossDim > totalLineCrossDim) {
-          crossDimLead = remainingAlignContentDim / lineCount;
-        }
-        break;
-      case YGAlignSpaceAround:
-        if (availableInnerCrossDim > totalLineCrossDim) {
-          currentLead += remainingAlignContentDim / (2 * lineCount);
-          if (lineCount > 1) {
+    if (!YGFloatIsUndefined(availableInnerCrossDim)) {
+      const float remainingAlignContentDim =
+          availableInnerCrossDim - totalLineCrossDim;
+      switch (node->style.alignContent) {
+        case YGAlignFlexEnd:
+          currentLead += remainingAlignContentDim;
+          break;
+        case YGAlignCenter:
+          currentLead += remainingAlignContentDim / 2;
+          break;
+        case YGAlignStretch:
+          if (availableInnerCrossDim > totalLineCrossDim) {
             crossDimLead = remainingAlignContentDim / lineCount;
           }
-        } else {
-          currentLead += remainingAlignContentDim / 2;
-        }
-        break;
-      case YGAlignSpaceBetween:
-        if (availableInnerCrossDim > totalLineCrossDim && lineCount > 1) {
-          crossDimLead = remainingAlignContentDim / (lineCount - 1);
-        }
-        break;
-      case YGAlignAuto:
-      case YGAlignFlexStart:
-      case YGAlignBaseline:
-        break;
+          break;
+        case YGAlignSpaceAround:
+          if (availableInnerCrossDim > totalLineCrossDim) {
+            currentLead += remainingAlignContentDim / (2 * lineCount);
+            if (lineCount > 1) {
+              crossDimLead = remainingAlignContentDim / lineCount;
+            }
+          } else {
+            currentLead += remainingAlignContentDim / 2;
+          }
+          break;
+        case YGAlignSpaceBetween:
+          if (availableInnerCrossDim > totalLineCrossDim && lineCount > 1) {
+            crossDimLead = remainingAlignContentDim / (lineCount - 1);
+          }
+          break;
+        case YGAlignAuto:
+        case YGAlignFlexStart:
+        case YGAlignBaseline:
+          break;
+      }
     }
+    // (nat) <=<
 
     uint32_t endIndex = 0;
     for (uint32_t i = 0; i < lineCount; i++) {
@@ -3219,6 +3275,7 @@ static void YGNodelayoutImpl(const YGNodeRef node,
               paddingAndBorderAxisCross);
   }
 
+
   // As we only wrapped in normal direction yet, we need to reverse the positions on wrap-reverse.
   if (performLayout && node->style.flexWrap == YGWrapWrapReverse) {
     for (uint32_t i = 0; i < childCount; i++) {
@@ -3326,7 +3383,10 @@ float YGRoundValueToPixelGrid(const float value,
                               const float pointScaleFactor,
                               const bool forceCeil,
                               const bool forceFloor) {
-  float scaledValue = value * pointScaleFactor;
+  // (nat) https://github.com/facebook/yoga/commit/4d16ee4ed48ca2607be0b5a1e68562ba5f53bcc8
+  // >=>
+  double scaledValue = (double) value * pointScaleFactor;
+  // <=<
   float fractial = fmodf(scaledValue, 1.0);
   if (YGFloatsEqual(fractial, 0)) {
     // First we check if the value is already rounded
