@@ -36,7 +36,7 @@ static inline CGColorRef   MulleColorCreateRandom( uint32_t color, uint32_t mask
 
 static inline CGColorRef   MulleColorCreateRandomOpaque()
 {
-   return( MulleColorCreateRandom( 0xFF, 0xFFFFF00));
+   return( MulleColorCreateRandom( 0xFF, 0xFFFFFF00));
 }
 
 

@@ -298,6 +298,7 @@ static void   error_callback(int code, const char* description)
    fprintf( stderr, "GLFW Error #%d: \"%s\"\n", code, description);
 }
 
+
 - (void) renderLoopWithContext:(CGContext *) context
 {
    struct timespec         start;
@@ -436,12 +437,12 @@ static void   error_callback(int code, const char* description)
                                                 (uint32_t) frame.size.height * 0xFF) |
                                                 0xFF)];
 */                                                
-/*   yoga = [contentView yoga];
+
+   yoga = [contentView yoga];
    [yoga setWidth:YGPointValue( frame.size.width)];
    [yoga setHeight:YGPointValue( frame.size.height)];   
 
    [contentView setNeedsLayout];
-   */
 }
 
 

@@ -30,7 +30,8 @@ struct MulleClickDragDifferentiator
    CAAbsoluteTime   _suppressUntilTimestamp; 
 };
 
-@interface UIView : NSObject
+
+@interface UIView : NSObject < Yoga>
 {
    UIView                      *_superview;
    CALayer                     *_mainLayer;
@@ -42,6 +43,7 @@ struct MulleClickDragDifferentiator
    id <NSArray,NSFastEnumeration>   _subviewsArrayProxy;
    YGLayout                         *_yoga;
    BOOL                             _isYogaEnabled;
+   
    struct MulleTrackingAreaArray    _trackingAreas;
 
    MulleImageLayer                  *_cacheLayer; 
