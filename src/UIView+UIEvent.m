@@ -18,7 +18,7 @@
 @end
 
 
-// #define EVENT_DEBUG
+#define EVENT_DEBUG
 // #define HITTEST_DEBUG
 
 @implementation UIView ( UIEvent)
@@ -325,7 +325,7 @@
             handleEvent:(UIEvent *) event
 {
 #ifdef EVENT_DEBUG
-   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [responder cStringDescription]);
+   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, (char *) [responder cStringDescription]);
 #endif
 
    do
@@ -336,7 +336,7 @@
       if( ! event)
       {
 #ifdef EVENT_DEBUG
-         fprintf( stderr, "Responder %s consumed event\n", [responder cStringDescription]);
+         fprintf( stderr, "Responder %s consumed event\n", (char *) [responder cStringDescription]);
 #endif          
          break;
       }

@@ -47,8 +47,8 @@ static char  *cpToUTF8(int cp, char* str)
 
 - (void) dealloc 
 {
-   MulleObjCObjectDeallocateMemory( self, &_fontName);
-   MulleObjCObjectDeallocateMemory( self, &_cString);
+   MulleObjCObjectDeallocateMemory( self, _fontName);
+   MulleObjCObjectDeallocateMemory( self, _cString);
    [super dealloc];
 }
 

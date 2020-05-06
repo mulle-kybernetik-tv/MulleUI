@@ -43,7 +43,7 @@ static UIEvent   *button_callback( UIButton *button, UIEvent *event)
 #define SCALE     2.0
 
 
-static void   setupSceneInWindow( UIWindow *window)
+static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
 {
    UIView     *rootView;
    UIView     *rowView;
@@ -51,26 +51,40 @@ static void   setupSceneInWindow( UIWindow *window)
    CGRect     frame;
    YGLayout   *yoga;
 
-   frame = [window bounds];
+   frame = [contentPlane bounds];
    assert( frame.size.width > 0.0);
    assert( frame.size.width  > 0.0);
 
    frame = UIEdgeInsetsInsetRect( frame, UIEdgeInsetsMake( 20, 20, 20, 20));
 
    rootView  = [[[UIView alloc] initWithFrame:frame] autorelease];
-   [rootView setBackgroundColor:getNVGColor( 0x0000FFFF)]; // red
+   [rootView setBackgroundColor:getNVGColor( 0x0000FFFF)]; // blue
    [rootView setCStringName:"root"];
 
    yoga = [rootView yoga];
    [yoga setEnabled:YES];
+
+   // Flex
+//   [yoga setDirection:YGDirectionLTR];
+   [yoga setFlexDirection:YGFlexDirectionColumn];
+//   [yoga setFlexBasis:YGValueAuto];
+//   [yoga setFlexGrow:0.0];
+//   [yoga setFlexShrink:1.0];
+//   [yoga setFlexWrap:YGWrapNoWrap];
+
+   // Alignment
+//   [yoga setJustifyContent:YGJustifyCenter];
+//   [yoga setAlignItems:YGAlignStretch];
+//   [yoga setAlignSelf:YGAlignAuto];
+//   [yoga setAlignContent:YGAlignStretch];
+
+   // Layout
    [yoga setPosition:YGPositionTypeAbsolute];
    [yoga setLeft:YGPointValue(frame.origin.x)];
    [yoga setTop:YGPointValue(frame.origin.y)];
    [yoga setWidth:YGPointValue(frame.size.width)];
    [yoga setHeight:YGPointValue(frame.size.height)];
-   [yoga setAlignItems:YGAlignCenter];
-   [yoga setJustifyContent:YGJustifyCenter];
-   [yoga setFlexDirection:YGFlexDirectionColumn];
+
 
 #define N_ROWS 5
 #define N_COLS 4
@@ -90,41 +104,70 @@ static void   setupSceneInWindow( UIWindow *window)
  
       yoga = [rowView yoga];
       [yoga setEnabled:YES];
+
+      // Flex
+//      [yoga setDirection:YGDirectionLTR];
+//      [yoga setFlexDirection:YGFlexDirectionRow];
+//      [yoga setFlexBasis:YGValueAuto];
+      [yoga setFlexGrow:1.0];
+//      [yoga setFlexShrink:1.0];
+//      [yoga setFlexWrap:YGWrapNoWrap];
+
+      // Alignment
+//      [yoga setJustifyContent:YGJustifyFlexStart];
+//      [yoga setAlignItems:YGAlignStretch];
+//      [yoga setAlignSelf:YGAlignAuto];
+//      [yoga setAlignContent:YGAlignStretch];
+
+      // Layout
       [yoga setPosition:YGPositionTypeRelative];
       [yoga setWidth:YGValueAuto];
-      [yoga setHeight:YGPercentValue( 100.0 / N_ROWS )];
-      [yoga setFlexDirection:YGFlexDirectionRow];
+      [yoga setHeight:YGValueAuto]; // YGPercentValue( 100.0 / N_ROWS )];
+      [yoga setMargin:YGPointValue(10.0)];
 
-      // if our view is invisible padding and border is the same
-      // but additive
-
-//      [yoga setPaddingLeft:YGPointValue( 10.0)];
-      [yoga setPaddingTop:YGPointValue( 10.0)];
-//      [yoga setPaddingRight:YGPointValue( 10.0)];
-      [yoga setPaddingBottom:YGPointValue( 10.0)];
+//      [yoga setPaddingLeft:YGPointValue( 0.0)];
+//      [yoga setPaddingTop:YGPointValue( 10.0)];
+//      [yoga setPaddingRight:YGPointValue( 0.0)];
+//      [yoga setPaddingBottom:YGPointValue( 10.0)];
 
 //      // used for insetting children apparently
-      [yoga setBorderLeftWidth:( 10.0)];
-//      [yoga setBorderTopWidth:( 20.0)];
-      [yoga setBorderRightWidth:( 10.0)];
-//      [yoga setBorderBottomWidth:( 20.0)];
+//      [yoga setBorderLeftWidth:( 10.0)];
+//      [yoga setBorderTopWidth:( 0.0)];
+//      [yoga setBorderRightWidth:( 10.0)];
+//      [yoga setBorderBottomWidth:( 0.0)];
 
       for( j = 0; j < N_COLS; j++)
       {
          // create actual views
          frame = CGRectMake( 0, 0, 0, 0);
-         view  = [[[UIView alloc] initWithFrame:frame] autorelease];
-         [view setBackgroundColor:MulleColorCreateRandom( 0x00FF00FF, 0xFF00FF00)];
-         sprintf( name, "view %ld,%ld", j, i);
-         [view setCStringName:name];
+         view  = [[[UIButton alloc] initWithFrame:frame] autorelease];
+         // [view setBackgroundColor:MulleColorCreateRandom( 0x00FF00FF, 0xFF00FF00)];
+         sprintf( name, "%ld,%ld", j, i);
+         [(UIButton *) view setTitleCString:name];
 
          yoga = [view yoga];
          [yoga setEnabled:YES];
-         [yoga setPosition:YGPositionTypeRelative];
-         [yoga setWidth:YGPercentValue( 100.0 / N_COLS)];
-         [yoga setHeight:YGValueAuto];
 
-         // no difference seen, not sure what this is for
+         // Flex
+//         [yoga setDirection:YGDirectionLTR];
+//         [yoga setFlexDirection:YGFlexDirectionRow];
+//         [yoga setFlexBasis:YGValueAuto];
+         [yoga setFlexGrow:1.0];
+//         [yoga setFlexShrink:1.0];
+//         [yoga setFlexWrap:YGWrapNoWrap];
+
+         // Alignment
+//         [yoga setJustifyContent:YGJustifyFlexStart];
+//         [yoga setAlignItems:YGAlignStretch];
+//         [yoga setAlignSelf:YGAlignAuto];
+//         [yoga setAlignContent:YGAlignStretch];
+
+         // Layout
+         [yoga setPosition:YGPositionTypeRelative];
+         [yoga setWidth:YGValueAuto];
+         [yoga setHeight:YGValueAuto]; // YGPercentValue( 100.0 / N_ROWS )];
+         [yoga setMarginHorizontal:YGPointValue(20.0)];
+            // no difference seen, not sure what this is for
 
 
 //
@@ -132,20 +175,20 @@ static void   setupSceneInWindow( UIWindow *window)
 //        [yoga setMarginTop:YGPointValue( 10.0)];
 //        [yoga setMarginRight:YGPointValue( 10.0)];
 //        [yoga setMarginBottom:YGPointValue( 10.0)];
-
+//
 //         [yoga setMarginStart:YGPointValue(10.0)];
 //         [yoga setMarginEnd:YGPointValue(10.0)];
-         [yoga setMarginHorizontal:YGPointValue(10.0)];
+//         [yoga setMarginHorizontal:YGPointValue(10.0)];
 //         [yoga setMarginVertical:YGPointValue(10.0)];       
 
          [rowView addSubview:view];
       }
+
       [rootView addSubview:rowView];
    }
-
    [rootView setNeedsLayout];
  
-   [window addSubview:rootView];
+   [contentPlane addSubview:rootView];
 }
 
 
@@ -155,21 +198,39 @@ int  main()
    UIWindow        *window;
    UIApplication   *application;
 
+      /*
+       * window and app 
+       */
+   mulle_testallocator_initialize();
+   mulle_default_allocator = mulle_testallocator;
+
+   @autoreleasepool
+   {
+      window  = [[[UIWindow alloc] initWithFrame:CGRectMake( 0.0, 0.0, 640.0 * SCALE, 400.0 * SCALE)] autorelease];
+      assert( window);
+
+      [[UIApplication sharedInstance] addWindow:window];
+
+      setupSceneInContentPlane( [window contentPlane]);
+
+      [window dump];
+
+      context = [[CGContext new] autorelease];
+      [window renderLoopWithContext:context];
+
+      [[UIApplication sharedInstance] terminate];
+   }
+
    /*
-    * window and app 
-    */
-   window  = [[[UIWindow alloc] initWithFrame:CGRectMake( 0.0, 0.0, 640.0 * SCALE, 400.0 * SCALE)] autorelease];
-   assert( window);
+      Hunt for leaks:
 
-   [[UIApplication sharedInstance] addWindow:window];
+      MULLE_OBJC_EPHEMERAL_SINGLETON=YES \
+      MULLE_OBJC_TRACE_INSTANCE=YES \
+      MULLE_OBJC_TRACE_METHOD_CALL=YES \
+      MULLE_TESTALLOCATOR_TRACE=2 \
+         ./kitchen/Debug/calculator
+   */
 
-   setupSceneInWindow( window);
-
-   [window dump];
-
-   context = [CGContext new];
-   [window renderLoopWithContext:context];
-
-   [[UIApplication sharedInstance] terminate];
-}
+   mulle_testallocator_reset();   
+  }
 

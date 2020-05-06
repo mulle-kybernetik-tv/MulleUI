@@ -11,8 +11,8 @@
 
 YG_EXTERN_C_BEGIN
 
-WIN_EXPORT float YGRoundValueToPixelGrid(const float value,
-                                         const float pointScaleFactor,
+WIN_EXPORT float YGRoundValueToPixelGrid(const double value,
+                                         const double pointScaleFactor,
                                          const bool forceCeil,
                                          const bool forceFloor);
 

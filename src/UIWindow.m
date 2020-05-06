@@ -116,14 +116,22 @@ static void   framebufferResizeCallback( GLFWwindow* window, int width, int heig
 {
    GLFWmonitor      *monitor;
    GLFWvidmode      *mode;
-   int              w, h;
+   int              h;
    CGFloat          ppi;
 
    //
    monitor = glfwGetPrimaryMonitor();
-   glfwGetMonitorPhysicalSize( monitor, &w, &h);
+   if( ! monitor)
+      return( 0.0);
+
+   h = 0; // for valgrind
+   glfwGetMonitorPhysicalSize( monitor, NULL, &h);
+   if( ! h)
+       return( 0.0); 
 
    mode = (GLFWvidmode *) glfwGetVideoMode( monitor);
+   if( ! mode)
+       return( 0.0); 
 
    // need to convert h in mm to inches
    ppi = mode->height / (h * 0.03937007874);
@@ -155,6 +163,14 @@ static void   framebufferResizeCallback( GLFWwindow* window, int width, int heig
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 0);
 	glfwWindowHint( GLFW_RESIZABLE, GL_TRUE);
 
+   _primaryMonitorPPI = [UIWindow primaryMonitorPPI];
+   if( _primaryMonitorPPI == 0.0)
+   {
+      // no monitor connected, so lets just bail
+      [self release];
+      return( nil);
+   }
+
    _window = glfwCreateWindow( frame.size.width,
                                frame.size.height,
                                "Demo",
@@ -178,13 +194,34 @@ static void   framebufferResizeCallback( GLFWwindow* window, int width, int heig
 
    [self _initEvent];
 
-   _primaryMonitorPPI = [UIWindow primaryMonitorPPI];
-
    glfwSetWindowSizeCallback( _window, windowResizeCallback);
    glfwSetWindowPosCallback( _window, windowMoveCallback);
    glfwSetFramebufferSizeCallback( _window, framebufferResizeCallback);
    glfwSetWindowRefreshCallback( _window, windowRefreshCallback);
 
+   // initialize various plane for the future, currently only 
+   // _contentPlane can be used
+   frame.origin = CGPointZero;
+
+   _contentPlane = [[[UIView alloc] initWithFrame:frame] autorelease];
+   [self addSubview:_contentPlane];
+
+   _toolTipPlane = [[[UIView alloc] initWithFrame:frame] autorelease];
+   [self addSubview:_toolTipPlane];
+   [_toolTipPlane setHidden:YES];
+
+   _menuPlane = [[[UIView alloc] initWithFrame:frame] autorelease];
+   [self addSubview:_menuPlane];
+   [_menuPlane setHidden:YES];
+
+   _dragAndDropPlane = [[[UIView alloc] initWithFrame:frame] autorelease];
+   [self addSubview:_dragAndDropPlane];
+   [_dragAndDropPlane setHidden:YES];
+
+   _alertPlane = [[[UIView alloc] initWithFrame:frame] autorelease];
+   [_alertPlane setHidden:YES];
+   [self addSubview:_alertPlane];
+  
    _scrollWheelSensitivity = 20.0;
    
    return( self);
@@ -337,7 +374,7 @@ static void   error_callback(int code, const char* description)
 
    while( ! glfwWindowShouldClose( _window))
    {
-      if( 1)
+      @autoreleasepool
       {
          // nvgGlobalCompositeOperation( ctxt->vg, NVG_ATOP);
          clock_gettime( CLOCK_REALTIME, &start);
@@ -383,23 +420,28 @@ static void   error_callback(int code, const char* description)
          [context clearFramebuffer];
       }
 
-      // do this before the animation step, as this will generate animations
-#if LAYOUT_ANIMATIONS      
-      [self startLayoutWithFrameInfo:&info];
-#endif      
-      [self layoutSubviewsIfNeeded];
-#if LAYOUT_ANIMATIONS      
-      [self endLayout];
-#endif
+      @autoreleasepool
       {
-         CAAbsoluteTime   renderTime;
+         // do this before the animation step, as this will generate animations
+#if LAYOUT_ANIMATIONS      
+         [self startLayoutWithFrameInfo:&info];
+#endif      
+         [self layoutSubviewsIfNeeded];
+#if LAYOUT_ANIMATIONS      
+         [self endLayout];
+#endif
+         {
+            CAAbsoluteTime   renderTime;
 
-         renderTime = CAAbsoluteTimeWithTimespec( start);
-         [self animateWithAbsoluteTime:renderTime];
+            renderTime = CAAbsoluteTimeWithTimespec( start);
+            [self animateWithAbsoluteTime:renderTime];
+         }
       }
 
-      [self setupQuadtree];
-
+      @autoreleasepool
+      {
+         [self setupQuadtree];
+      }
 #ifdef PRINTF_PROFILE_EVENTS
       clock_gettime( CLOCK_REALTIME, &start);
       printf( "@%ld:%09ld events start\n", start.tv_sec, start.tv_nsec);
@@ -419,30 +461,20 @@ static void   error_callback(int code, const char* description)
 }
 
 
-- (void) frameDidChange
+- (void) layoutSubviews
 {
-   UIView     *contentView;
-   YGLayout   *yoga;
    CGRect     frame;
 
-   contentView = [[self subviews] objectAtIndex:0];
-   assert( contentView);
+   assert( [_contentPlane layer]);
 
    frame        = _frame;
    frame.origin = CGPointZero;
-   [contentView setFrame:frame];
-   assert( [contentView layer]);
-/*   
-   [[contentView layer] setBackgroundColor:getNVGColor( ((uint32_t) frame.size.width * 0xFFFF +
-                                                (uint32_t) frame.size.height * 0xFF) |
-                                                0xFF)];
-*/                                                
 
-   yoga = [contentView yoga];
-   [yoga setWidth:YGPointValue( frame.size.width)];
-   [yoga setHeight:YGPointValue( frame.size.height)];   
-
-   [contentView setNeedsLayout];
+   [_contentPlane setFrame:frame];
+   [_menuPlane setFrame:frame];
+   [_dragAndDropPlane setFrame:frame];
+   [_toolTipPlane setFrame:frame];
+   [_alertPlane setFrame:frame];
 }
 
 
@@ -452,7 +484,7 @@ static void   error_callback(int code, const char* description)
       return;
 
    _frame = frame;
-   [self frameDidChange];
+   [self setNeedsLayout:YES];
 }
 
 

@@ -20,8 +20,8 @@
 
 - (void) dealloc 
 {
-   MulleObjCObjectDeallocateMemory( self, &_fontName);
-   MulleObjCObjectDeallocateMemory( self, &_cString);
+   MulleObjCObjectDeallocateMemory( self, _fontName);
+   MulleObjCObjectDeallocateMemory( self, _cString);
 
    [super dealloc]; 
 }

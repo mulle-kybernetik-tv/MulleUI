@@ -19,7 +19,7 @@
    struct mulle_allocator   *allocator;
    NSUInteger               i;
 
-   MulleObjCObjectDeallocateMemory( self, &_fontName);
+   MulleObjCObjectDeallocateMemory( self, _fontName);
 
    allocator = MulleObjCInstanceGetAllocator( self);
 

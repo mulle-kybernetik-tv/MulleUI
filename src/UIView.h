@@ -105,7 +105,7 @@ struct MulleClickDragDifferentiator
 
 - (void) startLayoutWithFrameInfo:(struct MulleFrameInfo *) info;
 - (void) layoutSubviewsIfNeeded;
-- (void) layoutIfNeeded;
+- (BOOL) layoutIfNeeded;
 - (void) endLayout;
 
 - (void) updateRenderCachesWithContext:(CGContext *) context

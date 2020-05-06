@@ -1,14 +1,15 @@
 {
     "version": "0.2.0",
     "configurations": [
+
         {
             "_comment": "All? It's often convenient in library projects too",
             "name": "Debug MulleUI",
             "type": "cppdbg",
-            "MIMode": "lldb",
+            "MIMode": "gdb",
             "request": "launch",
             "stopAtEntry": true,
-            "program": "${workspaceFolder}/kitchen/Debug/MulleUI",
+            "program": "${workspaceFolder}/kitchen/Debug/calculator",
             "args": [],
             "environment": [],
             "cwd": "${workspaceFolder}",
@@ -21,7 +22,7 @@
                 "miDebuggerPath": "/usr/local/bin/mulle-lldb-mi"
             },
             "linux": {
-                "miDebuggerPath": "/home/src/srcL/mulle-lldb-90/bin/lldb-mi"
+                "miDebuggerPath": "/usr/local/bin/mulle-gdb"
              },
             "preLaunchTask": "Debug"
         }

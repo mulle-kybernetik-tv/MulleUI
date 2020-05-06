@@ -59,8 +59,6 @@
 }
 
 
-
-
 - (void) setContentOffset:(CGPoint) offset
 {
 	CGRect   bounds;

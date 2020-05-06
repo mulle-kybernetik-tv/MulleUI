@@ -4,6 +4,8 @@
 
 struct MulleFrameInfo;
 
+typedef UIView   MulleWindowPlane;
+
 
 @interface UIWindow : UIView
 {
@@ -43,6 +45,11 @@ struct MulleFrameInfo;
 - (void) renderLoopWithContext:(CGContext *) context;
 - (void) requestClose;
 
+@property( readonly, assign) MulleWindowPlane   *alertPlane;
+@property( readonly, assign) MulleWindowPlane   *dragAndDropPlane;
+@property( readonly, assign) MulleWindowPlane   *menuPlane;
+@property( readonly, assign) MulleWindowPlane   *toolTipPlane;
+@property( readonly, assign) MulleWindowPlane   *contentPlane;
 
 + (CGFloat) primaryMonitorPPI;
 

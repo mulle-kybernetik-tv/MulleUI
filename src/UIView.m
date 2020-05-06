@@ -5,6 +5,7 @@
 #import "UIWindow.h"
 #import "UIWindow+UIEvent.h"
 #import "CALayer.h"
+#import "CALayer+CAAnimation.h"
 #import "CGContext.h"
 #import "CGGeometry+CString.h"
 #import "MulleTextureImage.h"
@@ -62,6 +63,8 @@
 
    mulle_pointerarray_release_all( _layers);
    mulle_pointerarray_destroy( _layers);
+
+   [_mainLayer release];
 
    [_subviewsArrayProxy release];
    [_yoga release];
@@ -256,6 +259,7 @@
 
 - (void *) forward:(void *) param
 {
+   assert( _mainLayer); // window should not forward...
    return( mulle_objc_object_inlinecall_variablemethodid( _mainLayer,
                                                           (mulle_objc_methodid_t) _cmd,
                                                           param));
@@ -694,7 +698,6 @@
 
 - (void) layoutSubviews
 {
-   // does nothing or will it ?
 }
 
 
@@ -839,24 +842,42 @@
    [UIView commitAnimations];
 }
 
-- (void) layoutIfNeeded 
+
+- (BOOL) layoutIfNeeded 
 {
+   CGRect     bounds;
+   BOOL       flag;
+   id <Yoga>  yoga;
+
    // run layout if necessary (right place here ?)
-   if( [self needsLayout])
+   if( ! [self needsLayout])
+      return( YES);
+   [self setNeedsLayout:NO];
+
+   if( [self isYogaEnabled])
    {
-      [self setNeedsLayout:NO];
-      [self layoutSubviews];
-      assert( ! [self needsLayout]);
+      bounds        = [self bounds];
+      bounds.origin = CGPointZero;
+
+      yoga  = [self yoga];
+      [yoga setWidth:YGPointValue( bounds.size.width)];
+      [yoga setHeight:YGPointValue( bounds.size.height)];   
+      flag = NO;
    }
+
+   [self layoutSubviews];
+   assert( ! [self needsLayout]);
+   return( flag);
 }
 
-
+// bad name, as it layouts itself and also
 - (void) layoutSubviewsIfNeeded
 {
    struct mulle_pointerarrayenumerator   rover;
    UIView                                *view;
 
-   [self layoutIfNeeded];
+   if( ! [self layoutIfNeeded])
+      return;
 
    rover = mulle_pointerarray_enumerate_nil( _subviews);
    while( (view = _mulle_pointerarrayenumerator_next( &rover)))

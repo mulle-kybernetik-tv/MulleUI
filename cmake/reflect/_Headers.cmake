@@ -96,6 +96,7 @@ src/PSTCollectionView/PSTGridLayoutSection.h
 src/PSTCollectionView/UIViewController.h
 src/Roboto-Regular.inc
 src/UIApplication.h
+src/UIButton+UIResponder.h
 src/UIButton.h
 src/UIColor.h
 src/UIControl.h

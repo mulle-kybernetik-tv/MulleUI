@@ -114,6 +114,8 @@ PROTOCOLCLASS_IMPLEMENTATION( UIControl)
 
 - (UIEvent *) mouseUp:(UIEvent *) event
 {
+   BOOL   flag;
+
 #ifdef LOG_EVENTS   
    fprintf( stderr, "%s: %s\n", __PRETTY_FUNCTION__, [(UIView *) self cStringDescription]);
 #endif
@@ -126,9 +128,9 @@ PROTOCOLCLASS_IMPLEMENTATION( UIControl)
 	   return( event);
    }
 
-   [self resignFirstResponder];
+   flag  = [self resignFirstResponder];
    event = [self consumeMouseUp:event];
-   return( event);
+   return( flag ? nil : event);  // or swallow always ?
 }
 
 
@@ -162,7 +164,7 @@ static void   setStateBit( UIControl *self, enum UIControlStateBit bit, BOOL fla
 	if( flag)
 		newState = state | bit;
 	else
-		newState = state | ~bit;
+		newState = state & ~bit;
       
 	if( newState != state)
 	{
@@ -202,6 +204,8 @@ static void   setStateBit( UIControl *self, enum UIControlStateBit bit, BOOL fla
 {
 	return( getStateBit( self, UIControlStateHighlighted));
 }
+
+
 - (void) setHighlighted:(BOOL) flag
 {
 	setStateBit( self, UIControlStateHighlighted, flag);
@@ -212,6 +216,8 @@ static void   setStateBit( UIControl *self, enum UIControlStateBit bit, BOOL fla
 {
 	return( getStateBit( self, UIControlStateDisabled));
 }
+
+
 - (void) setDisabled:(BOOL) flag;
 {
 	setStateBit( self, UIControlStateDisabled, flag);

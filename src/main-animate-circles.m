@@ -113,7 +113,7 @@ int   main()
 
    [[UIApplication sharedInstance] addWindow:window];
 
-   context = [CGContext new];
+   context = [[CGContext new] autorelease];
    [context setBackgroundColor:CGColorCreateGenericRGB( 1.0, 1.0, 1.0, 1.0)];
 
    setupScene( window, context);

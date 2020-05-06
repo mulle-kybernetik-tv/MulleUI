@@ -26,6 +26,7 @@
    return( self);
 }
 
+
 + (instancetype) fontWithName:(char *) name
                         bytes:(void *) bytes
                        length:(NSUInteger) length
@@ -46,7 +47,7 @@
 
 - (void) dealloc 
 {
-   MulleObjCObjectDeallocateMemory( self, &_name);
+   MulleObjCObjectDeallocateMemory( self, _name);
    [super dealloc];
 }
 

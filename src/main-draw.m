@@ -10,8 +10,6 @@
 #import "UIEdgeInsets.h"
 
 
-
-
 void   _drawStuff( NVGcontext *vg, 
                    CGRect rect,
                    int antialias)
@@ -89,7 +87,7 @@ void   setupScene( UIWindow *window, CGContext *context)
    frame  = UIEdgeInsetsInsetRect( frame, insets);
 
    view  = [[[UIView alloc] initWithFrame:frame] autorelease];
-   layer = [view mainLayer];
+   layer = [view layer];
    [layer setDrawContentsCallback:drawStuff];
    [window addSubview:view];
 }
@@ -103,19 +101,26 @@ int   main()
    /*
     * window and app 
     */
-   window  = [[[UIWindow alloc] initWithFrame:CGRectMake( 0.0, 0.0, 400.0 * SCALE, 300.0 * SCALE)] autorelease];
-   assert( window);
+   mulle_testallocator_initialize();
+   mulle_default_allocator = mulle_testallocator;
 
-   [[UIApplication sharedInstance] addWindow:window];
+   @autoreleasepool
+   {
+      window  = [[[UIWindow alloc] initWithFrame:CGRectMake( 0.0, 0.0, 400.0 * SCALE, 300.0 * SCALE)] autorelease];
+      assert( window);
 
-   context = [CGContext new];
-   [context setBackgroundColor:CGColorCreateGenericRGB( 1.0, 1.0, 1.0, 1.0)];
+      [[UIApplication sharedInstance] addWindow:window];
 
-   setupScene( window, context);
+      context = [[CGContext new] autorelease];
+      [context setBackgroundColor:CGColorCreateGenericRGB( 1.0, 1.0, 1.0, 1.0)];
 
-   [window dump];
-   [window renderLoopWithContext:context];
+      setupScene( window, context);
 
-   [[UIApplication sharedInstance] terminate];
+      [window dump];
+
+      [window renderLoopWithContext:context];
+      [[UIApplication sharedInstance] terminate];
+   }
+   mulle_testallocator_reset();
 }
 

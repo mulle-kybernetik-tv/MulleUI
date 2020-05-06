@@ -3381,8 +3381,8 @@ static inline bool YGMeasureModeNewMeasureSizeIsStricterAndStillValid(YGMeasureM
          lastSize > size && (lastComputedSize <= size || YGFloatsEqual(size, lastComputedSize));
 }
 
-float YGRoundValueToPixelGrid(const float value,
-                              const float pointScaleFactor,
+float YGRoundValueToPixelGrid(double value,
+                              double pointScaleFactor,
                               const bool forceCeil,
                               const bool forceFloor) {
   // (nat) https://github.com/facebook/yoga/commit/4d16ee4ed48ca2607be0b5a1e68562ba5f53bcc8
@@ -3688,24 +3688,24 @@ void YGConfigSetPointScaleFactor(const YGConfigRef config, const float pixelsInP
 }
 
 static void YGRoundToPixelGrid(const YGNodeRef node,
-                               const float pointScaleFactor,
-                               const float absoluteLeft,
-                               const float absoluteTop) {
+                               const double pointScaleFactor,
+                               const double absoluteLeft,
+                               const double absoluteTop) {
   if (pointScaleFactor == 0.0f) {
     return;
   }
 
-  const float nodeLeft = node->layout.position[YGEdgeLeft];
-  const float nodeTop = node->layout.position[YGEdgeTop];
+  const double nodeLeft = node->layout.position[YGEdgeLeft];
+  const double nodeTop = node->layout.position[YGEdgeTop];
 
-  const float nodeWidth = node->layout.dimensions[YGDimensionWidth];
-  const float nodeHeight = node->layout.dimensions[YGDimensionHeight];
+  const double nodeWidth = node->layout.dimensions[YGDimensionWidth];
+  const double nodeHeight = node->layout.dimensions[YGDimensionHeight];
 
-  const float absoluteNodeLeft = absoluteLeft + nodeLeft;
-  const float absoluteNodeTop = absoluteTop + nodeTop;
+  const double absoluteNodeLeft = absoluteLeft + nodeLeft;
+  const double absoluteNodeTop = absoluteTop + nodeTop;
 
-  const float absoluteNodeRight = absoluteNodeLeft + nodeWidth;
-  const float absoluteNodeBottom = absoluteNodeTop + nodeHeight;
+  const double absoluteNodeRight = absoluteNodeLeft + nodeWidth;
+  const double absoluteNodeBottom = absoluteNodeTop + nodeHeight;
 
   // If a node has a custom measure function we never want to round down its size as this could
   // lead to unwanted text truncation.

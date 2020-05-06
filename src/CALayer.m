@@ -83,6 +83,9 @@
    CGFloat        borderWidth;
    MulleEdgeInsets   insets;
 
+   // if transparent, just don't draw anything
+   if( _backgroundColor.a <= 0.0)
+      return;
 
    // if there is a border to be drawn, then we use antialias
    // otherwise we don't and only draw to the middle of the border
@@ -135,12 +138,17 @@
    CGFloat     halfBorderWidth;
    CGPoint     tl;
    CGPoint     br;   
+
    //
    // the strokeWidth isn't scaled in nvg, so we do this now ourselves
    //
    if( _borderWidth <= 0.1)
       return;
 
+   // if transparent, just don't draw anything
+   if( _backgroundColor.a <= 0.0)
+      return;
+ 
    vg = [context nvgContext];
 
    //
@@ -211,7 +219,7 @@
                         CGRectCStringDescription( [self bounds]));
 #endif
 
-   frame  = [self frame];
+   frame = [self frame];
    if( frame.size.width == 0.0 || frame.size.height == 0.0)
       return( NO);
 

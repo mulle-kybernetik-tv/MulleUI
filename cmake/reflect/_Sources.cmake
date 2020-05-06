@@ -64,6 +64,7 @@ src/PSTCollectionView/PSTGridLayoutRow.m
 src/PSTCollectionView/PSTGridLayoutSection.m
 src/PSTCollectionView/UIViewController.m
 src/UIApplication.m
+src/UIButton+UIResponder.m
 src/UIButton.m
 src/UIColor.m
 src/UIControl.m

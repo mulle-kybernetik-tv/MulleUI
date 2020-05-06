@@ -31,7 +31,20 @@
 
 #define RENDER_DEBUG
 
+
 @implementation CGContext
+
+static struct mulle_container_keyvaluecallback   c_string_to_object_callback;
+
++ (void) initialize
+{
+   c_string_to_object_callback = (struct mulle_container_keyvaluecallback)
+   {
+      .keycallback   = mulle_container_keycallback_copied_cstring,
+      .valuecallback = *MulleObjCContainerValueRetainCallback
+   };
+}
+
 
 - (void) initPerformanceCounters
 {
@@ -60,6 +73,10 @@
    }
 
    [self initPerformanceCounters];
+   mulle_map_init( &_fontMap, 
+                   8,                        
+                   &c_string_to_object_callback,
+                   MulleObjCInstanceGetAllocator( self));
    return( self);
 }
 
@@ -93,6 +110,7 @@
    _images = NULL;
 }
 
+
 - (void) _freeFramebufferImages
 {
    struct mulle_pointerarrayenumerator  rover;
@@ -107,8 +125,11 @@
    _framebufferImages = NULL;
 }
 
+
 - (void) finalize
 {
+   mulle_map_done( &_fontMap);
+  
    [self _freeImages];
    [self _freeFramebufferImages];
    [super finalize];
@@ -293,18 +314,31 @@
 //
 - (CGFont *) fontWithName:(char *) s
 {
+   CGFont   *font;
+
+   font = mulle_map_get( &_fontMap, s);
+   if( font)
+      return( font);
+   
    if( ! strcmp( s, "sans"))
-      return( [CGFont fontWithName:s
-                             bytes:FONT_DATA
-                            length:sizeof( FONT_DATA)
-                           context:self]);
-   if( ! strcmp( s, "icons"))
-      return( [CGFont fontWithName:s
-                             bytes:entypo_ttf
-                            length:sizeof( entypo_ttf)
-                           context:self]);
-   abort();
+      font = [CGFont fontWithName:s
+                            bytes:FONT_DATA
+                           length:sizeof( FONT_DATA)
+                          context:self];
+   else
+      if( ! strcmp( s, "icons"))
+         font = [CGFont fontWithName:s
+                               bytes:entypo_ttf
+                              length:sizeof( entypo_ttf)
+                              context:self];
+      else
+         abort();
+   assert( font);
+
+   mulle_map_insert( &_fontMap, s, font);
+   return( font);
 }
+
 
 
 // future, rasterize vector images to bitmaps here

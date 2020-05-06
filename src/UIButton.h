@@ -37,5 +37,6 @@ MulleControlBackgroundImageProperties;
 // Highlighting will use the inverse of the current selection state
 //
 
+- (void) layoutLayersWithFrame:(CGRect) frame;
 
 @end

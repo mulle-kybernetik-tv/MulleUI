@@ -31,14 +31,9 @@
    if( ! self)
       return( self);
 
-   frame          = [self frame];
-   insets         = UIEdgeInsetsMake( BORDER_WIDTH + TEXT_MARGIN, 
-                                      BORDER_WIDTH + TEXT_MARGIN, 
-                                      BORDER_WIDTH + TEXT_MARGIN,
-                                      BORDER_WIDTH + TEXT_MARGIN);
-   textLayerFrame = UIEdgeInsetsInsetRect( frame, insets);
- 
-   _titleLayer = [[[MulleTextLayer alloc] initWithFrame:textLayerFrame] autorelease];
+   // layout later
+   frame       = [layer frame];
+   _titleLayer = [[[MulleTextLayer alloc] initWithFrame:frame] autorelease];
 
    //
    // if we composite on top of an image and leave the background 
@@ -64,21 +59,34 @@
    // set this as we are transparent
    [_titleLayer setTextBackgroundColor:getNVGColor( 0xFFFF00FF)];
    [_titleLayer setHidden:YES];
+   [_titleLayer setCStringName:"UIButton titleLayer"];
 
    _titleBackgroundLayer = [[[CALayer alloc] initWithFrame:frame] autorelease];
-   [_titleBackgroundLayer setBackgroundColor:getNVGColor( 0x00FFFFFF)];
+   [_titleBackgroundLayer setBackgroundColor:getNVGColor( 0xFFFFFFFF)];
    // this ensures that the background fill does not antialias into the
    // outside
    [_titleBackgroundLayer setBorderWidth:1.5];
    [_titleBackgroundLayer setBorderColor:getNVGColor( 0x7F7FFFFF)];
    [_titleBackgroundLayer setCornerRadius:CORNER_RADIUS];
+   [_titleBackgroundLayer setCStringName:"UIButton titleBackgroundLayer"];
+
    [self addLayer:_titleBackgroundLayer];
    [self addLayer:_titleLayer];
 
+   [self layoutLayersWithFrame:frame];
    [self hideUnhideTitleLayers];
 
    return( self);
 }
+
+
+#if DEBUG
+- (void) renderWithContext:(CGContext *) context
+{
+   [super renderWithContext:context];
+}
+#endif
+
 
 - (void) hideUnhideTitleLayers
 {
@@ -124,7 +132,7 @@
       return;
 
    // hackish cast, fix later
-   layer               = [self mainLayer];
+   layer               = [self layer];
    layerClass          = [layer class];
    preferredLayerClass = [image preferredLayerClass];
 
@@ -135,70 +143,37 @@
 }
 
 
-- (void) reflectState
+
+//
+// When using Yoga to do the layout. It will change the frame of the
+// UIButton. This frame is identical to the frame of the mainLayer.
+// But the other layers are not affected.
+// One could mark the button as needing a layout, but we are doing this
+// immediately. Note that Yoga is the layouting step and doing another
+// layouting is kinda weird.
+//
+- (void) layoutLayersWithFrame:(CGRect) frame
 {
-   UIControlState   state;
-   UIControlState   fallbackState;
-   CGRect           frame;
-   UIImage          *image;
-   
-   state = [self state];
+   CGRect         textLayerFrame;
+   UIEdgeInsets   insets;
+  
+   insets = UIEdgeInsetsMake( BORDER_WIDTH + TEXT_MARGIN, 
+                              BORDER_WIDTH + TEXT_MARGIN, 
+                              BORDER_WIDTH + TEXT_MARGIN,
+                              BORDER_WIDTH + TEXT_MARGIN);
 
-   if( state & UIControlStateSelected)
-   {
-      [_titleBackgroundLayer setBackgroundColor:getNVGColor( 0xD0D0D0FF)];
-      [_titleLayer setTextBackgroundColor:getNVGColor( 0xD0D0D0FF)];
-   }
-   else
-   {
-      [_titleBackgroundLayer setBackgroundColor:getNVGColor( 0xFFFFFFFF)];
-      [_titleLayer setTextBackgroundColor:getNVGColor( 0xFFFFFFFF)];
-   }
+   textLayerFrame = UIEdgeInsetsInsetRect( frame, insets);
 
-   image         = [self backgroundImageForState:state];
-   fallbackState = state & ~UIControlStateDisabled;
-   if( ! image)
-   {
-      image = [self backgroundImageForState:fallbackState];
-      fallbackState &=~UIControlStateSelected;
-   }
-   if( ! image)
-      image = [self backgroundImageForState:fallbackState];
-   [self setBackgroundImage:image];
-}
-
-// use compatible code
-- (void) toggleState
-{
-   //
-   // target/action has been called already by UIControl
-   //
-   [super toggleState];
-   [self reflectState];
+   [_titleLayer setFrame:textLayerFrame];
+   [_titleBackgroundLayer setFrame:frame];
 }
 
 
-- (BOOL) becomeFirstResponder
+- (void) setFrame:(CGRect) frame
 {
-   if( [super becomeFirstResponder])
-   {
-      fprintf( stderr, "become\n");
-      [self toggleState];
-      return( YES);
-   }
-   return( NO);
-}
-
-
-- (BOOL) resignFirstResponder
-{
-   if( [super resignFirstResponder])
-   {
-      fprintf( stderr, "resign\n");
-      [self toggleState];
-      return( YES);
-   }
-   return( NO);
+   [super setFrame:frame];
+   assert( CGRectEqualToRect( [[self layer] frame], frame));
+   [self layoutLayersWithFrame:frame];
 }
 
 @end

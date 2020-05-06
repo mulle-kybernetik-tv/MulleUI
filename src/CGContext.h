@@ -160,6 +160,7 @@ struct MulleFrameInfo
    struct MulleFrameInfo        _currentFrameInfo;
    struct mulle_pointerarray    *_framebufferImages;
    struct mulle__pointermap     *_images;
+   struct mulle_map             _fontMap;
    CAAbsoluteTime               _renderStartTimestamp;
    BOOL                         _isRendering;
 }

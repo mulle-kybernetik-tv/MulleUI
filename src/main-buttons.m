@@ -106,73 +106,85 @@ int   main()
    UISlider             *slider;
    UIView               *contentView;
 
-    /*
+   /*
     * window and app 
     */
-   window  = [[[UIWindow alloc] initWithFrame:CGRectMake( 0.0, 0.0, 400.0 * SCALE, 300.0 * SCALE)] autorelease];
-   assert( window);
+   mulle_testallocator_initialize();
+   mulle_default_allocator = mulle_testallocator;
 
-   contentView = [[[UIView alloc] initWithFrame:CGRectMake( 0.0, 0.0, 400.0 * SCALE, 300.0 * SCALE)] autorelease];
-   [contentView setBackgroundColor:[UIColor whiteColor]];
-   [window addSubview:contentView];
+   @autoreleasepool
+   {
+       /*
+       * window and app 
+       */
+      window  = [[[UIWindow alloc] initWithFrame:CGRectMake( 0.0, 0.0, 400.0 * SCALE, 300.0 * SCALE)] autorelease];
+      assert( window);
 
-   [[UIApplication sharedInstance] addWindow:window];
+      contentView = [[[UIView alloc] initWithFrame:CGRectMake( 0.0, 0.0, 400.0 * SCALE, 300.0 * SCALE)] autorelease];
+      [contentView setBackgroundColor:[UIColor whiteColor]];
+      [window addSubview:contentView];
 
-   context = [CGContext new];
-   [context setBackgroundColor:CGColorCreateGenericRGB( 1.0, 1.0, 1.0, 1.0)];
+      [[UIApplication sharedInstance] addWindow:window];
 
-   frame = CGRectMake( 240.0, 340.0, 200.0 * SCALE, 44);
+      context = [[CGContext new] autorelease];
+      [context setBackgroundColor:CGColorCreateGenericRGB( 1.0, 1.0, 1.0, 1.0)];
 
-   segmentedControl = [[[UISegmentedControl alloc] initWithFrame:frame] autorelease];
-   [segmentedControl setBackgroundColor:getNVGColor( 0xFF00FFFF)]; 
-   [segmentedControl setSelectedSegmentTintColor:getNVGColor( 0x80FF80FF)]; 
-   [segmentedControl insertSegmentWithTitleCString:"Bochum" 
-                                           atIndex:0 
-                                          animated:NO];  
-   [segmentedControl insertSegmentWithTitleCString:"VfL" 
-                                           atIndex:0 
-                                          animated:NO];  
-   [segmentedControl insertSegmentWithTitleCString:"1848" 
-                                           atIndex:2 
-                                          animated:NO];  
+      frame = CGRectMake( 240.0, 340.0, 200.0 * SCALE, 44);
 
-/*                                    
-   [segmentedControl insertSegmentWithCString:"2" 
-                                     atIndex:2
-                                    animated:NO];  
-*/                                    
-   [segmentedControl setContentOffset:CGSizeMake( 0, 0) 
-                    forSegmentAtIndex:1]; 
-/*                        
-   [segmentedControl setBackgroundColor:getNVGColor( 0x00FF00FF) 
-                    forSegmentAtIndex:1]; 
-   [segmentedControl setBackgroundColor:getNVGColor( 0xFFFF00FF) 
-                    forSegmentAtIndex:2];  
-   [segmentedControl setBackgroundColor:getNVGColor( 0x00FFFFFF) 
-                    forSegmentAtIndex:3];                                           
-*/                                                                                      
-   [segmentedControl setTextColor:getNVGColor( 0x000000FF)]; 
-   [segmentedControl setCornerRadius:8];
-   [segmentedControl setSelectedSegmentIndex:2];
-   [segmentedControl setClick:segmented_callback];
-   [segmentedControl setAllowsMultipleSelection:YES];
-   [segmentedControl setAllowsEmptySelection:YES];
-   [contentView addSubview:segmentedControl];
-   [segmentedControl setFontPixelSize:frame.size.height / 2];
+#if 0
+      segmentedControl = [[[UISegmentedControl alloc] initWithFrame:frame] autorelease];
+      [segmentedControl setBackgroundColor:getNVGColor( 0xFF00FFFF)]; 
+      [segmentedControl setSelectedSegmentTintColor:getNVGColor( 0x80FF80FF)]; 
+      [segmentedControl insertSegmentWithTitleCString:"Bochum" 
+                                              atIndex:0 
+                                             animated:NO];  
+      [segmentedControl insertSegmentWithTitleCString:"VfL" 
+                                              atIndex:0 
+                                             animated:NO];  
+      [segmentedControl insertSegmentWithTitleCString:"1848" 
+                                              atIndex:2 
+                                             animated:NO];  
 
-   frame.origin.x   += frame.size.width + 20;
-   frame.size.width  = 120;
-   frame.size.height = 44;
+   /*                                    
+      [segmentedControl insertSegmentWithCString:"2" 
+                                        atIndex:2
+                                       animated:NO];  
+   */                                    
+      [segmentedControl setContentOffset:CGSizeMake( 0, 0) 
+                       forSegmentAtIndex:1]; 
+   /*                        
+      [segmentedControl setBackgroundColor:getNVGColor( 0x00FF00FF) 
+                       forSegmentAtIndex:1]; 
+      [segmentedControl setBackgroundColor:getNVGColor( 0xFFFF00FF) 
+                       forSegmentAtIndex:2];  
+      [segmentedControl setBackgroundColor:getNVGColor( 0x00FFFFFF) 
+                       forSegmentAtIndex:3];                                           
+   */                                                                                      
+      [segmentedControl setTextColor:getNVGColor( 0x000000FF)]; 
+      [segmentedControl setCornerRadius:8];
+      [segmentedControl setSelectedSegmentIndex:2];
+      [segmentedControl setClick:segmented_callback];
+      [segmentedControl setAllowsMultipleSelection:YES];
+      [segmentedControl setAllowsEmptySelection:YES];
+      [contentView addSubview:segmentedControl];
+      [segmentedControl setFontPixelSize:frame.size.height / 2];
+#endif
 
-   uiButton = [[[UIButton alloc] initWithFrame:frame] autorelease];
-   [uiButton setTitleCString:"Button"];
+      frame.origin.x   += frame.size.width + 20;
+      frame.size.width  = 120;
+      frame.size.height = 44;
 
-   // [insideButton setClipsSubviews:YES];
-   [contentView addSubview:uiButton];
+      uiButton = [[[UIButton alloc] initWithFrame:frame] autorelease];
+      [uiButton setTitleCString:"Button"];
 
-   [window dump];
-   [window renderLoopWithContext:context];
+      // [insideButton setClipsSubviews:YES];
+      [contentView addSubview:uiButton];
 
-   [[UIApplication sharedInstance] terminate];
+      [window dump];
+      [window renderLoopWithContext:context];
+
+      [[UIApplication sharedInstance] terminate];
+   }
+   mulle_testallocator_reset();   
 }
 
