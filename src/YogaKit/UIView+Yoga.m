@@ -16,25 +16,18 @@
 - (void) setNeedsLayout
 {
    [_yoga markDirty];
-   [self setNeedsLayout:YES];
+   [self _setNeedsLayout];
 }
 
 
-- (void) layoutSubviews
+- (enum UILayoutStrategy) layoutStrategy
 {
    if( ! _yoga)
-   {
-      // [super layoutSubviews];
-      return;
-   }
+      return( UILayoutStrategyDefault);
 
    [_yoga applyLayoutPreservingOrigin:NO];
+   return( UILayoutStrategyStop);
 }
 
-
-- (void) setAutoresizingMask:(NSUInteger) mask
-{
-   // TODO:   
-}
 
 @end

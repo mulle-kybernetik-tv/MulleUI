@@ -15,10 +15,5 @@
  */
 - (YGLayout *) yoga;
 
-/**
- Indicates whether or not Yoga is enabled
- */
-@property(nonatomic, readonly, assign) BOOL isYogaEnabled;
-
 @end
 

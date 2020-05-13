@@ -311,7 +311,7 @@ static void   collect_hit_views( CGRect rect, void *payload, void *userinfo)
 
       keyEvent = (UIKeyboardEvent *) event;
 
-      // shift-F1 on my keyboard
+      // left-shift on my keyboard apparently
       if( [keyEvent scanCode] == 50 && [keyEvent key] == 340)
       {
          [self dump];

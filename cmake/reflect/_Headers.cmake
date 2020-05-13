@@ -111,6 +111,7 @@ src/UIScrollView+UIEvent.h
 src/UIScrollView.h
 src/UISegmentedControl.h
 src/UISlider.h
+src/UIStackView.h
 src/UIStepper.h
 src/UISwitch.h
 src/UIView+CAAnimation.h
@@ -131,7 +132,6 @@ src/bmp-writer.h
 src/entypo.inc
 src/import.h
 src/include.h
-src/main-svg.h
 src/mulle-pointerarray+ObjC.h
 src/mulle-quadtree.h
 src/mulle-time.h

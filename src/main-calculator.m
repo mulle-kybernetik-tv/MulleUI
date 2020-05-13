@@ -8,6 +8,7 @@
 #import "UIApplication.h"
 #import "UIButton.h"
 #import "UIView+Yoga.h"
+#import "UIStackView.h"
 #import "UIScrollView.h"
 #import "UIEvent.h"
 #import <string.h>
@@ -46,45 +47,57 @@ static UIEvent   *button_callback( UIButton *button, UIEvent *event)
 static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
 {
    UIView     *rootView;
+   UIView     *displayView;
+   UIView     *keyboardView;
    UIView     *rowView;
    UIView     *view;
-   CGRect     frame;
    YGLayout   *yoga;
+   CGRect     frame;
 
    frame = [contentPlane bounds];
    assert( frame.size.width > 0.0);
    assert( frame.size.width  > 0.0);
 
-   frame = UIEdgeInsetsInsetRect( frame, UIEdgeInsetsMake( 20, 20, 20, 20));
-
-   rootView  = [[[UIView alloc] initWithFrame:frame] autorelease];
-   [rootView setBackgroundColor:getNVGColor( 0x0000FFFF)]; // blue
-   [rootView setCStringName:"root"];
-
+   rootView  = [[[UIView alloc] initWithFrame:CGRectZero] autorelease];
+   [rootView setCStringName:"RootView"];
+   [rootView setBackgroundColor:getNVGColor( 0xFFFF00FF)]; 
    yoga = [rootView yoga];
    [yoga setEnabled:YES];
-
-   // Flex
-//   [yoga setDirection:YGDirectionLTR];
+   [yoga setWidth:YGPercentValue(100.0)];
+   [yoga setHeight:YGPercentValue(100.0)];
    [yoga setFlexDirection:YGFlexDirectionColumn];
-//   [yoga setFlexBasis:YGValueAuto];
-//   [yoga setFlexGrow:0.0];
-//   [yoga setFlexShrink:1.0];
-//   [yoga setFlexWrap:YGWrapNoWrap];
 
-   // Alignment
-//   [yoga setJustifyContent:YGJustifyCenter];
-//   [yoga setAlignItems:YGAlignStretch];
-//   [yoga setAlignSelf:YGAlignAuto];
-//   [yoga setAlignContent:YGAlignStretch];
+   // LCD Display container
+   displayView  = [[[UIView alloc] initWithFrame:CGRectZero] autorelease];
+   [displayView setBackgroundColor:getNVGColor( 0xFF7F7FFF)]; 
+   [displayView setCStringName:"DisplayView"];
+   yoga = [displayView yoga];
+   [yoga setEnabled:YES];
+   [yoga setWidth:YGValueAuto];
+   [yoga setHeight:YGPointValue(100.0)];
+   [yoga setMarginLeft:YGPointValue( 10.0)];
+   [yoga setMarginTop:YGPointValue( 10.0)];
+   [yoga setMarginRight:YGPointValue( 10.0)];
+   [yoga setMarginBottom:YGPointValue( 0.0)];   
+  
+   [rootView addSubview:displayView];
 
-   // Layout
-   [yoga setPosition:YGPositionTypeAbsolute];
-   [yoga setLeft:YGPointValue(frame.origin.x)];
-   [yoga setTop:YGPointValue(frame.origin.y)];
-   [yoga setWidth:YGPointValue(frame.size.width)];
-   [yoga setHeight:YGPointValue(frame.size.height)];
+   // Keyboard container
+   keyboardView = [[[UIView alloc] initWithFrame:CGRectZero] autorelease];
+   [keyboardView setBackgroundColor:getNVGColor( 0x0000FFFF)]; // blue
+   [keyboardView setCStringName:"KeyboardView"];
 
+   yoga = [keyboardView yoga];
+   [yoga setEnabled:YES];
+   [yoga setWidth:YGValueAuto];
+   [yoga setHeight:YGValueAuto];
+   [yoga setMarginLeft:YGPointValue( 10.0)];
+   [yoga setMarginTop:YGPointValue( 10.0)];
+   [yoga setMarginRight:YGPointValue( 10.0)];
+   [yoga setMarginBottom:YGPointValue( 10.0)];   
+   [yoga setFlexGrow:1.0];  // for this container
+   [yoga setFlexDirection:YGFlexDirectionColumn]; // for kids
+   [rootView addSubview:keyboardView];
 
 #define N_ROWS 5
 #define N_COLS 4
@@ -184,11 +197,16 @@ static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
          [rowView addSubview:view];
       }
 
-      [rootView addSubview:rowView];
+      [keyboardView addSubview:rowView];
    }
-   [rootView setNeedsLayout];
- 
+
+   [displayView setNeedsLayout];
+   [keyboardView setNeedsLayout];
+
    [contentPlane addSubview:rootView];
+
+   yoga = [contentPlane yoga];
+   [yoga setEnabled:YES];
 }
 
 
@@ -201,6 +219,10 @@ int  main()
       /*
        * window and app 
        */
+
+   /* move singleton outside of test allocator code */
+   application = [UIApplication sharedInstance];
+
    mulle_testallocator_initialize();
    mulle_default_allocator = mulle_testallocator;
 
@@ -209,7 +231,7 @@ int  main()
       window  = [[[UIWindow alloc] initWithFrame:CGRectMake( 0.0, 0.0, 640.0 * SCALE, 400.0 * SCALE)] autorelease];
       assert( window);
 
-      [[UIApplication sharedInstance] addWindow:window];
+      [application addWindow:window];
 
       setupSceneInContentPlane( [window contentPlane]);
 
@@ -218,7 +240,7 @@ int  main()
       context = [[CGContext new] autorelease];
       [window renderLoopWithContext:context];
 
-      [[UIApplication sharedInstance] terminate];
+      [application terminate];
    }
 
    /*

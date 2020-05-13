@@ -78,6 +78,7 @@ src/UIScrollView+UIEvent.m
 src/UIScrollView.m
 src/UISegmentedControl.m
 src/UISlider.m
+src/UIStackView.m
 src/UIStepper.m
 src/UISwitch.m
 src/UIView+CAAnimation.m

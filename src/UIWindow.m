@@ -433,7 +433,7 @@ static void   error_callback(int code, const char* description)
 #if LAYOUT_ANIMATIONS      
          [self startLayoutWithFrameInfo:&info];
 #endif      
-         [self layoutSubviewsIfNeeded];
+         [self layoutIfNeeded];
 #if LAYOUT_ANIMATIONS      
          [self endLayout];
 #endif
@@ -483,11 +483,12 @@ static void   error_callback(int code, const char* description)
    [_toolTipPlane setFrame:frame];
    [_alertPlane setFrame:frame];
 
-   [_contentPlane layoutSubviews];
-   [_menuPlane layoutSubviews];
-   [_dragAndDropPlane layoutSubviews];
-   [_toolTipPlane layoutSubviews];
-   [_alertPlane layoutSubviews];
+   // don't use setNeedsLayout as we are inside a layout already
+   [_contentPlane setNeedsLayout:YES];
+   [_menuPlane setNeedsLayout:YES];
+   [_dragAndDropPlane setNeedsLayout:YES];
+   [_toolTipPlane setNeedsLayout:YES];
+   [_alertPlane setNeedsLayout:YES];
 }
 
 

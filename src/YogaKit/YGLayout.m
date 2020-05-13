@@ -319,8 +319,10 @@ YG_PROPERTY(CGFloat, aspectRatio, AspectRatio)
   // (nat) use the superview as the parentSize it makes more sense
   // to me (ATM) and the result is better
   //
+#if 1
   superview = [view superview];
   if( ! superview)
+#endif  
    superview = view;
   size = [superview bounds].size;
 

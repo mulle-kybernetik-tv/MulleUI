@@ -30,6 +30,25 @@ struct MulleClickDragDifferentiator
    CAAbsoluteTime   _suppressUntilTimestamp; 
 };
 
+typedef enum UIViewAutoresizing
+{   
+   UIViewAutoresizingNone                 = 0x00,
+   UIViewAutoresizingFlexibleTopMargin    = 0x01,
+   UIViewAutoresizingFlexibleBottomMargin = 0x02,
+   UIViewAutoresizingFlexibleLeftMargin   = 0x04,
+   UIViewAutoresizingFlexibleRightMargin  = 0x08,
+   UIViewAutoresizingFlexibleWidth        = 0x10,
+   UIViewAutoresizingFlexibleHeight       = 0x20
+} UIViewAutoresizing;
+
+
+enum UILayoutStrategy
+{
+   UILayoutStrategyDefault,
+   UILayoutStrategyContinue,
+   UILayoutStrategyStop
+};
+
 
 @interface UIView : NSObject < Yoga>
 {
@@ -42,7 +61,6 @@ struct MulleClickDragDifferentiator
    // ivars for Yoga
    id <NSArray,NSFastEnumeration>   _subviewsArrayProxy;
    YGLayout                         *_yoga;
-   BOOL                             _isYogaEnabled;
    
    struct MulleTrackingAreaArray    _trackingAreas;
 
@@ -55,15 +73,18 @@ struct MulleClickDragDifferentiator
 @property( getter=isUserInteractionEnabled) BOOL   userInteractionEnabled;
 
 @property BOOL   clipsSubviews;
-@property BOOL   needsLayout;
+@property BOOL   needsLayout;   // use setNeedsLayout for marking
 @property BOOL   needsCaching;
 @property BOOL   needsDisplay;  // a NOP for compatiblity
                  
 @property CGFloat   alpha;
+@property enum UIViewAutoresizing   autoresizingMask; 
 
-// - (void) setNeedsLayout;   // done by Yoga
+- (void) setNeedsLayout;    // use this to touch up all hierarchy
 - (void) setNeedsDisplay;
 - (void) setNeedsCaching;  // wipes the _cacheLayer and asks for a new one to be drawn
+
+- (void) _setNeedsLayout; 
 
 + (Class) layerClass;
 
@@ -104,9 +125,12 @@ struct MulleClickDragDifferentiator
 //- (void) layoutSubviews;
 
 - (void) startLayoutWithFrameInfo:(struct MulleFrameInfo *) info;
-- (void) layoutSubviewsIfNeeded;
-- (BOOL) layoutIfNeeded;
+- (void) layout;
+- (void) layoutIfNeeded;
 - (void) endLayout;
+
+// yoga uses this to its layout
+- (enum UILayoutStrategy) layoutStrategy;
 
 - (void) updateRenderCachesWithContext:(CGContext *) context
                              frameInfo:(struct MulleFrameInfo *) info;
@@ -142,6 +166,8 @@ struct MulleClickDragDifferentiator
 - (CGColorRef) borderColor;
 - (CGFloat) borderWidth;
 - (CGFloat) cornerRadius;
+- (char *) cStringName;
+- (void) setCStringName:(char *) s;
 
 @end
 

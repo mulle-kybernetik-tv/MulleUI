@@ -15,7 +15,7 @@
 #import "mulle-pointerarray+ObjC.h"
 
 
-#define RENDER_DEBUG
+//#define RENDER_DEBUG
 // #define RENDER_DEBUG_VERBOSE
 //#define HAVE_RENDER_CACHE
 
@@ -840,52 +840,155 @@
 
 #pragma mark - layout
 
-- (void) layoutSubviews
+
+//
+// propagate up, but stop if already marked
+//
+- (void) _setNeedsLayout
 {
-   // overridden by Yoga
+   UIView   *view;
+
+   view = self;
+   do
+   {
+      if( view->_needsLayout)
+         break;
+      view->_needsLayout = YES;
+   }
+   while( (view = view->_superview));
 }
 
 
-- (BOOL) layoutIfNeeded 
+- (void) setNeedsLayout
+{
+   [self _setNeedsLayout]; // patch point
+}
+
+
+- (void) layoutSubviews
+{
+   // no hard coded layout
+}
+
+- (void) layoutAutoresizingMask 
 {
    CGRect     bounds;
    BOOL       flag;
    YGLayout   *yoga;
+   UIView     *superview;
+   YGValue    yogaWidth;
+   YGValue    yogaHeight;
+   CGRect     frame;
+   CGRect     newFrame;
+   CGFloat    margin;
 
-   // run layout if necessary (right place here ?)
-   if( ! [self needsLayout])
-      return( YES);
-   [self setNeedsLayout:NO];
+   if( _autoresizingMask == UIViewAutoresizingNone)
+      return;
 
-   if( [self isYogaEnabled])
+   superview = [self superview];
+   if(  ! superview)
+      return;
+
+   bounds   = [superview bounds];
+   frame    = [self frame];
+   newFrame = frame;
+
+   if( _autoresizingMask & UIViewAutoresizingFlexibleWidth)
    {
-      bounds        = [self bounds];
-      bounds.origin = CGPointZero;
-
-      yoga  = [self yoga];
-      [yoga setWidth:YGPointValue( bounds.size.width)];
-      [yoga setHeight:YGPointValue( bounds.size.height)];   
-      flag = NO;
+      newFrame.size.width = bounds.size.width;
+      if( ! (_autoresizingMask & UIViewAutoresizingFlexibleLeftMargin))
+      {
+         margin               = CGRectGetMinX( frame) - CGRectGetMinX( bounds);
+         newFrame.size.width -= margin;
+      }
+      if( ! (_autoresizingMask & UIViewAutoresizingFlexibleRightMargin))
+      {
+         margin               = CGRectGetMaxX( bounds) - CGRectGetMaxX( frame);
+         newFrame.size.width -= margin;
+      }               
    }
+  
+   if( _autoresizingMask & UIViewAutoresizingFlexibleHeight)
+   {
+      newFrame.size.height = bounds.size.height;
+      if( ! (_autoresizingMask & UIViewAutoresizingFlexibleTopMargin))
+      {
+         margin                = CGRectGetMinY( frame) - CGRectGetMinY( bounds);
+         newFrame.size.height -= margin;
+      }
+      if( ! (_autoresizingMask & UIViewAutoresizingFlexibleBottomMargin))
+      {
+         margin                = CGRectGetMaxY( bounds) - CGRectGetMaxY( frame);
+         newFrame.size.height -= margin;
+      }               
+   }   
 
-   [self layoutSubviews];
-   assert( ! [self needsLayout]);
-   return( flag);
+   // if too small now, remove from drawing
+   if( newFrame.size.width < 0.9 || newFrame.size.height < 0.9)
+      newFrame.size = CGSizeZero;
+
+   if( ! CGRectEqualToRect( frame, newFrame))   
+      [self setFrame:frame];      
 }
 
-// bad name, as it layouts itself and also
-- (void) layoutSubviewsIfNeeded
+
+- (enum UILayoutStrategy) layoutStrategy
+{
+   return( UILayoutStrategyDefault);
+}
+
+
+//
+// return YES, if it has layouted and subview should layout as well
+//
+
+
+- (BOOL) layoutSelf 
+{
+   [self setNeedsLayout:NO];
+   switch( [self layoutStrategy])
+   {
+   case UILayoutStrategyDefault:
+      [self layoutAutoresizingMask];
+      // fallthrough
+   case UILayoutStrategyContinue :
+      return( YES);
+
+   case UILayoutStrategyStop:
+      break;
+   }
+   return( NO);
+}
+
+
+- (void) layout
 {
    struct mulle_pointerarrayenumerator   rover;
    UIView                                *view;
 
-   if( ! [self layoutIfNeeded])
+   // autoresize self, or start Yoga
+   if( ! [self layoutSelf])
       return;
 
+   // this is the flat possibly hardcoded code, that layouts each subview
+   [self layoutSubviews];
+
+   //
+   // this is recursive code, triggering possibly more autoresizes
+   // or yogas..
+   //
    rover = mulle_pointerarray_enumerate_nil( _subviews);
    while( (view = _mulle_pointerarrayenumerator_next( &rover)))
-      [view layoutSubviewsIfNeeded];
+      [view layout];
    mulle_pointerarrayenumerator_done( &rover);
+}
+
+
+
+- (void) layoutIfNeeded 
+{
+   if( [self needsLayout])
+      [self layout];
 }
 
 
