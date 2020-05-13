@@ -14,6 +14,7 @@ src/main-layer.m
 src/main-many-rectangles.m
 src/main-scrollview.m
 src/main-slider.m
+src/main-svg.m
 )
 
 set( SOURCES

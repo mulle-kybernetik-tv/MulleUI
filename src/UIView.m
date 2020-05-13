@@ -2,6 +2,7 @@
 
 #import "UIView.h"
 #import "UIView+CAAnimation.h"
+#import "UIView+Yoga.h"  // move elsewhere ?
 #import "UIWindow.h"
 #import "UIWindow+UIEvent.h"
 #import "CALayer.h"
@@ -696,11 +697,6 @@
 }
 
 
-- (void) layoutSubviews
-{
-}
-
-
 - (UIView *) superview
 {
    return( _superview);
@@ -842,12 +838,19 @@
    [UIView commitAnimations];
 }
 
+#pragma mark - layout
+
+- (void) layoutSubviews
+{
+   // overridden by Yoga
+}
+
 
 - (BOOL) layoutIfNeeded 
 {
    CGRect     bounds;
    BOOL       flag;
-   id <Yoga>  yoga;
+   YGLayout   *yoga;
 
    // run layout if necessary (right place here ?)
    if( ! [self needsLayout])

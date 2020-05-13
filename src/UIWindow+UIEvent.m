@@ -304,6 +304,22 @@ static void   collect_hit_views( CGRect rect, void *payload, void *userinfo)
    unsigned int                          n;
    BOOL                                  isDrag;
 
+#if DEBUG
+   if( [event eventType] == UIEventTypePresses)
+   {
+      UIKeyboardEvent   *keyEvent;
+
+      keyEvent = (UIKeyboardEvent *) event;
+
+      // shift-F1 on my keyboard
+      if( [keyEvent scanCode] == 50 && [keyEvent key] == 340)
+      {
+         [self dump];
+         return( nil);
+      }
+   }
+#endif
+
    if( [event eventType] == UIEventTypeMotion)
    {
       _mulle_pointerarray_init( &views, 16, 0, NULL);

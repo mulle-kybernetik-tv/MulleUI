@@ -204,26 +204,33 @@ static void   framebufferResizeCallback( GLFWwindow* window, int width, int heig
    frame.origin = CGPointZero;
 
    _contentPlane = [[[UIView alloc] initWithFrame:frame] autorelease];
+   [_contentPlane setCStringName:"Window/ContentPlane"];
    [self addSubview:_contentPlane];
 
    _toolTipPlane = [[[UIView alloc] initWithFrame:frame] autorelease];
+   [_toolTipPlane setCStringName:"Window/ToolTipPlane"];
    [self addSubview:_toolTipPlane];
    [_toolTipPlane setHidden:YES];
 
    _menuPlane = [[[UIView alloc] initWithFrame:frame] autorelease];
+   [_menuPlane setCStringName:"Window/MenuPlane"];
    [self addSubview:_menuPlane];
    [_menuPlane setHidden:YES];
 
    _dragAndDropPlane = [[[UIView alloc] initWithFrame:frame] autorelease];
+   [_dragAndDropPlane setCStringName:"Window/DragAndDropPlane"];
    [self addSubview:_dragAndDropPlane];
    [_dragAndDropPlane setHidden:YES];
 
    _alertPlane = [[[UIView alloc] initWithFrame:frame] autorelease];
+   [_alertPlane setCStringName:"Window/AlertPlane"];
    [_alertPlane setHidden:YES];
    [self addSubview:_alertPlane];
   
    _scrollWheelSensitivity = 20.0;
    
+   [self setNeedsLayout:YES];
+
    return( self);
 }
 
@@ -467,14 +474,20 @@ static void   error_callback(int code, const char* description)
 
    assert( [_contentPlane layer]);
 
-   frame        = _frame;
    frame.origin = CGPointZero;
+   frame.size   = _frame.size;
 
    [_contentPlane setFrame:frame];
    [_menuPlane setFrame:frame];
    [_dragAndDropPlane setFrame:frame];
    [_toolTipPlane setFrame:frame];
    [_alertPlane setFrame:frame];
+
+   [_contentPlane layoutSubviews];
+   [_menuPlane layoutSubviews];
+   [_dragAndDropPlane layoutSubviews];
+   [_toolTipPlane layoutSubviews];
+   [_alertPlane layoutSubviews];
 }
 
 

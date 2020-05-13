@@ -131,6 +131,7 @@ src/bmp-writer.h
 src/entypo.inc
 src/import.h
 src/include.h
+src/main-svg.h
 src/mulle-pointerarray+ObjC.h
 src/mulle-quadtree.h
 src/mulle-time.h

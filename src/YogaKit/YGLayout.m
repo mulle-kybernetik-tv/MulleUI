@@ -308,14 +308,29 @@ YG_PROPERTY(CGFloat, aspectRatio, AspectRatio)
 - (void)applyLayoutPreservingOrigin:(BOOL)preserveOrigin
 {
   UIView  *view;
+  UIView  *superview;
   CGSize  size;
+  CGSize  layoutedSize;
 
   view = [self view];
   assert( view);
-  size = [view bounds].size;
-  fprintf( stderr, "Layout starts with: %s\n", [view cStringDescription]);
 
-  [self calculateLayoutWithSize:size];
+  //
+  // (nat) use the superview as the parentSize it makes more sense
+  // to me (ATM) and the result is better
+  //
+  superview = [view superview];
+  if( ! superview)
+   superview = view;
+  size = [superview bounds].size;
+
+  layoutedSize = [self calculateLayoutWithSize:size];
+#if DEBUG  
+  fprintf( stderr, "Layout starts with: %s (parent: %.1f,%.1f, layouted: %.1f,%.1f)\n", 
+                           [view cStringDescription],
+                           size.width, size.height,
+                           layoutedSize.width, layoutedSize.height);
+#endif
   YGApplyLayoutToViewHierarchy( view, preserveOrigin);
 }
 

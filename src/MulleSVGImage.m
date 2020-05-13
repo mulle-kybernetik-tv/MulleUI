@@ -77,9 +77,12 @@
    size.width  = _NSVGImage->width;
    size.height = _NSVGImage->height;
 
-   fprintf( stderr, "size= %.1f,%.1f\n", 
+#if DEBUG
+   fprintf( stderr, "%s size= %.1f,%.1f\n", 
+                     __PRETTY_FUNCTION__,
                      size.width,
-                     size.height);   
+                     size.height);
+#endif                        
    return( size);  
 }
 
