@@ -14,34 +14,12 @@
 #import <string.h>
 
 
-//	stolen from catgl ©2015,2018 Yuichiro Nakada
-#define W  200
-#define H  100
-
-#include "Ghostscript_Tiger-svg.inc"
-#include "sealie-bitmap.inc"
-#include "turtle-bitmap.inc"
-#include "viech-bitmap.inc"
-
-#if 0
-static char   svginput[] = \
-"<svg version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\">\n"
-"   <rect x=\"100\" y=\"50\" width=\"200\" height=\"100\" stroke=\"#c04949\" stroke-linejoin=\"round\" stroke-width=\"5.265\"/>\n"
-"</svg>\n"
-"\n"
-;
-#endif
-
-
 static UIEvent   *button_callback( UIButton *button, UIEvent *event)
 {
    fprintf( stderr, "button_callback: %s\n", [button cStringDescription]);
    return( nil);
 }
 
-
-// scale stuff for stream
-#define SCALE     2.0
 
 
 static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
@@ -96,11 +74,13 @@ static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
    [yoga setMarginRight:YGPointValue( 10.0)];
    [yoga setMarginBottom:YGPointValue( 10.0)];   
    [yoga setFlexGrow:1.0];  // for this container
+
+   // kids are layed out vertically,
    [yoga setFlexDirection:YGFlexDirectionColumn]; // for kids
    [rootView addSubview:keyboardView];
 
-#define N_ROWS 5
-#define N_COLS 4
+#define N_ROWS 3
+#define N_COLS 0 //
 
    NSUInteger   i;
    NSUInteger   j;
@@ -123,6 +103,8 @@ static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
 //      [yoga setFlexDirection:YGFlexDirectionRow];
 //      [yoga setFlexBasis:YGValueAuto];
       [yoga setFlexGrow:1.0];
+      if( i == 0)  // marker for debug
+         [yoga setAlignContent:YGAlignSpaceBetween];  // for this container
 //      [yoga setFlexShrink:1.0];
 //      [yoga setFlexWrap:YGWrapNoWrap];
 
@@ -228,7 +210,7 @@ int  main()
 
    @autoreleasepool
    {
-      window  = [[[UIWindow alloc] initWithFrame:CGRectMake( 0.0, 0.0, 640.0 * SCALE, 400.0 * SCALE)] autorelease];
+      window  = [[[UIWindow alloc] initWithFrame:CGRectMake( 0.0, 0.0, 729.00, 449.00)] autorelease];
       assert( window);
 
       [application addWindow:window];

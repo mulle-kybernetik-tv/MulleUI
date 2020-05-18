@@ -15,6 +15,7 @@
 #import "UIView+CGGeometry.h"
 #import "UIView+NSArray.h"
 #import "UIView+UIEvent.h"
+#import "UIView+Layout.h"
 #import "UIView+Yoga.h"
 #import "mulle-pointerarray+ObjC.h"
 #include <time.h>
@@ -49,6 +50,7 @@ static void   windowMoveCallback( GLFWwindow* window, int xpos, int ypos)
    frame        = [self frame];
    frame.origin = CGPointMake( xpos, ypos);
    [self setFrame:frame];
+   [self setNeedsLayout:YES]; 
 }
 
 
@@ -97,7 +99,8 @@ static void   framebufferResizeCallback( GLFWwindow* window, int width, int heig
    frame       = [self frame];
    frame.size  = CGSizeMake( width, height);;
    [self setFrame:frame];
-   self->_resizing   = YES;
+   [self setNeedsLayout:YES];
+   self->_resizing = YES;
 }
 
 
@@ -353,6 +356,7 @@ static void   error_callback(int code, const char* description)
    GLFWvidmode             *mode;
    long                    nsperframe;
    struct MulleFrameInfo   info;
+   CGRect                  oldFrame;
 
 //   _discardEvents = UIEventTypeMotion;
 
@@ -379,6 +383,7 @@ static void   error_callback(int code, const char* description)
    glfwSwapBuffers( _window);
    [context clearFramebuffer];
 
+   oldFrame = _frame;
    while( ! glfwWindowShouldClose( _window))
    {
       @autoreleasepool
@@ -434,6 +439,11 @@ static void   error_callback(int code, const char* description)
          [self startLayoutWithFrameInfo:&info];
 #endif      
          [self layoutIfNeeded];
+         if( ! CGRectEqualToRect( _frame, oldFrame))
+         {
+            [self dump];
+            oldFrame = _frame;
+         }
 #if LAYOUT_ANIMATIONS      
          [self endLayout];
 #endif
@@ -498,7 +508,6 @@ static void   error_callback(int code, const char* description)
       return;
 
    _frame = frame;
-   [self setNeedsLayout:YES];
 }
 
 

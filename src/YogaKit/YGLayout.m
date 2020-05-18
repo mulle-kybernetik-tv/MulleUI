@@ -10,6 +10,7 @@
 #import "YGLayout.h"
 #import "UIView+Yoga.h"
 #import "UIView+NSArray.h"
+#import "UIView+Layout.h"
 
 
 #define YG_PROPERTY(type, lowercased_name, capitalized_name)      \
@@ -537,6 +538,139 @@ static void YGApplyLayoutToViewHierarchy(UIView *view, BOOL preserveOrigin)
       YGApplyLayoutToViewHierarchy( subview, NO);
     }
   }
+}
+
+
+- (NSString *) debugDescription
+{
+   NSMutableString   *s;
+
+   s = [NSMutableString string];
+   [s appendFormat:@""
+                   "isIncludedInLayout : %s\n"
+                   "isEnabled          : %s\n"
+                   "direction          : %s\n"
+                   "flexDirection      : %s\n"
+                   "justifyContent     : %s\n"
+                   "alignContent       : %s\n"
+                   "alignItems         : %s\n"
+                   "alignSelf          : %s\n"
+                   "position           : %s\n"
+                   "flexWrap           : %s\n"
+                   "overflow           : %s\n"
+                   "display            : %s\n",
+                   _isIncludedInLayout ? "YES" : "NO",
+                   _isEnabled ? "YES" : "NO",
+                   YGDirectionToString( _direction),
+                   YGFlexDirectionToString( _flexDirection),
+                   YGJustifyToString( _justifyContent),
+                   YGAlignToString( _alignContent),
+                   YGAlignToString( _alignItems),
+                   YGAlignToString( _alignSelf),
+                   YGPositionTypeToString( _position),
+                   YGWrapToString( _flexWrap),
+                   YGOverflowToString( _overflow),
+                   YGDisplayToString( _display)];
+
+   [s appendFormat:@""
+                   "flex               : %.2f\n"
+                   "flexGrow           : %.2f\n"
+                   "flexShrink         : %.2f\n",
+                   _flex,
+                   _flexGrow,
+                   _flexShrink];
+
+   [s appendFormat:@""
+                   "flexBasis          : %.2f %s\n",
+                      _flexBasis.value, YGUnitToString( _flexBasis.unit)];
+
+   [s appendFormat:@""
+                   "left               : %.2f %s\n"
+                   "top                : %.2f %s\n"
+                   "right              : %.2f %s\n"
+                   "bottom             : %.2f %s\n"
+                   "start              : %.2f %s\n"
+                   "end                : %.2f %s\n",
+                      _left.value, YGUnitToString( _left.unit),
+                      _top.value, YGUnitToString( _top.unit),
+                      _right.value, YGUnitToString( _right.unit),
+                      _bottom.value, YGUnitToString( _bottom.unit),
+                      _start.value, YGUnitToString( _start.unit),
+                      _end.value, YGUnitToString( _end.unit)];
+
+   [s appendFormat:@""
+                   "marginLeft         : %.2f %s\n"
+                   "marginTop          : %.2f %s\n"
+                   "marginRight        : %.2f %s\n"
+                   "marginBottom       : %.2f %s\n"
+                   "marginStart        : %.2f %s\n"
+                   "marginEnd          : %.2f %s\n"
+                   "marginHorizontal   : %.2f %s\n"
+                   "marginVertical     : %.2f %s\n"
+                   "margin             : %.2f %s\n",
+                      _marginLeft.value, YGUnitToString( _marginLeft.unit),
+                      _marginTop.value, YGUnitToString( _marginTop.unit),
+                      _marginRight.value, YGUnitToString( _marginRight.unit),
+                      _marginBottom.value, YGUnitToString( _marginBottom.unit),
+                      _marginStart.value, YGUnitToString( _marginStart.unit),
+                      _marginEnd.value, YGUnitToString( _marginEnd.unit),
+                      _marginHorizontal.value, YGUnitToString( _marginHorizontal.unit),
+                      _marginVertical.value, YGUnitToString( _marginVertical.unit),
+                      _margin.value, YGUnitToString( _margin.unit)];
+
+   [s appendFormat:@""
+                   "paddingLeft        : %.2f %s\n"
+                   "paddingTop         : %.2f %s\n"
+                   "paddingRight       : %.2f %s\n"
+                   "paddingBottom      : %.2f %s\n"
+                   "paddingStart       : %.2f %s\n"
+                   "paddingEnd         : %.2f %s\n"
+                   "paddingHorizontal  : %.2f %s\n"
+                   "paddingVertical    : %.2f %s\n"
+                   "padding            : %.2f %s\n",
+                      _paddingLeft.value, YGUnitToString( _paddingLeft.unit),
+                      _paddingTop.value, YGUnitToString( _paddingTop.unit),
+                      _paddingRight.value, YGUnitToString( _paddingRight.unit),
+                      _paddingBottom.value, YGUnitToString( _paddingBottom.unit),
+                      _paddingStart.value, YGUnitToString( _paddingStart.unit),
+                      _paddingEnd.value, YGUnitToString( _paddingEnd.unit),
+                      _paddingHorizontal.value, YGUnitToString( _paddingHorizontal.unit),
+                      _paddingVertical.value, YGUnitToString( _paddingVertical.unit),
+                      _padding.value, YGUnitToString( _padding.unit)];
+
+   [s appendFormat:@""
+                   "borderLeftWidth    : %.2f\n"
+                   "borderTopWidth     : %.2f\n"
+                   "borderRightWidth   : %.2f\n"
+                   "borderBottomWidth  : %.2f\n"
+                   "borderStartWidth   : %.2f\n"
+                   "borderEndWidth     : %.2f\n"
+                   "borderWidth        : %.2f\n",
+                   _borderLeftWidth,
+                   _borderTopWidth,
+                   _borderRightWidth,
+                   _borderBottomWidth,
+                   _borderStartWidth,
+                   _borderEndWidth,
+                   _borderWidth];
+
+   [s appendFormat:@""
+                   "width              : %.2f %s\n"
+                   "height             : %.2f %s\n"
+                   "minWidth           : %.2f %s\n"
+                   "minHeight          : %.2f %s\n"
+                   "maxWidth           : %.2f %s\n"
+                   "maxHeight          : %.2f %s\n",
+                      _width.value, YGUnitToString( _width.unit),
+                      _height.value, YGUnitToString( _height.unit),
+                      _minWidth.value, YGUnitToString( _minWidth.unit),
+                      _minHeight.value, YGUnitToString( _minHeight.unit),
+                      _maxWidth.value, YGUnitToString( _maxWidth.unit),
+                      _maxHeight.value, YGUnitToString( _maxHeight.unit)];
+
+   [s appendFormat:@""
+                   "aspectRatio        : %.2f\n", _aspectRatio];
+   return( s);
 }
 
 @end

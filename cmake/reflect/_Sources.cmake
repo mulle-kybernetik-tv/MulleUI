@@ -14,6 +14,7 @@ src/main-layer.m
 src/main-many-rectangles.m
 src/main-scrollview.m
 src/main-slider.m
+src/main-struts-and-springs.m
 src/main-svg.m
 )
 
@@ -83,6 +84,7 @@ src/UIStepper.m
 src/UISwitch.m
 src/UIView+CAAnimation.m
 src/UIView+CGGeometry.m
+src/UIView+Layout.m
 src/UIView+NSArray.m
 src/UIView+UIEvent.m
 src/UIView+UIResponder.m

@@ -6,6 +6,7 @@
 #import "CATime.h"
 #import "CGColor.h"
 #import "MulleTrackingArea.h"
+#import "UIEdgeInsets.h"
 
 
 @class CALayer;
@@ -30,16 +31,20 @@ struct MulleClickDragDifferentiator
    CAAbsoluteTime   _suppressUntilTimestamp; 
 };
 
-typedef enum UIViewAutoresizing
+//
+// This is restricted to h/v resizing to indicate flexibility
+// The MulleUIViewAutoresizingStop preempts recursive autoresize by 
+// the layouter.
+// 
+enum UIViewAutoresizing
 {   
-   UIViewAutoresizingNone                 = 0x00,
-   UIViewAutoresizingFlexibleTopMargin    = 0x01,
-   UIViewAutoresizingFlexibleBottomMargin = 0x02,
-   UIViewAutoresizingFlexibleLeftMargin   = 0x04,
-   UIViewAutoresizingFlexibleRightMargin  = 0x08,
-   UIViewAutoresizingFlexibleWidth        = 0x10,
-   UIViewAutoresizingFlexibleHeight       = 0x20
-} UIViewAutoresizing;
+   UIViewAutoresizingNone            = 0x00,
+   UIViewAutoresizingFlexibleWidth   = 0x10,
+   UIViewAutoresizingFlexibleHeight  = 0x20,
+   UIViewAutoresizingFlexibleMargins = 0x40   
+};
+
+typedef NSUInteger   UIViewAutoresizing;
 
 
 enum UILayoutStrategy
@@ -78,13 +83,11 @@ enum UILayoutStrategy
 @property BOOL   needsDisplay;  // a NOP for compatiblity
                  
 @property CGFloat   alpha;
-@property enum UIViewAutoresizing   autoresizingMask; 
+@property UIViewAutoresizing        autoresizingMask; 
+@property UIEdgeInsets              margins; 
 
-- (void) setNeedsLayout;    // use this to touch up all hierarchy
 - (void) setNeedsDisplay;
 - (void) setNeedsCaching;  // wipes the _cacheLayer and asks for a new one to be drawn
-
-- (void) _setNeedsLayout; 
 
 + (Class) layerClass;
 
@@ -116,22 +119,6 @@ enum UILayoutStrategy
 
 // - (CALayer *) mainLayer;  // mainlayer is an internal thing
 
-- (CGSize) sizeThatFits:(CGSize) size;
-
-//
-// You do not need not to call super in UIView subclasses, if you manually
-// layout everything
-// 
-//- (void) layoutSubviews;
-
-- (void) startLayoutWithFrameInfo:(struct MulleFrameInfo *) info;
-- (void) layout;
-- (void) layoutIfNeeded;
-- (void) endLayout;
-
-// yoga uses this to its layout
-- (enum UILayoutStrategy) layoutStrategy;
-
 - (void) updateRenderCachesWithContext:(CGContext *) context
                              frameInfo:(struct MulleFrameInfo *) info;
                              
@@ -156,6 +143,9 @@ enum UILayoutStrategy
 - (CGRect) bounds;
 - (void) setBounds:(CGRect) rect;
 - (CGRect) frame;
+
+// resist the temptation to call [self setNeedsLayout:YES] in setFrame: 
+// as this will lead to unwanted recursion
 - (void) setFrame:(CGRect) rect;
 
 - (void) setBackgroundColor:(CGColorRef) color;

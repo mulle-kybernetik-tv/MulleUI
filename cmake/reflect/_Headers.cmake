@@ -116,6 +116,7 @@ src/UIStepper.h
 src/UISwitch.h
 src/UIView+CAAnimation.h
 src/UIView+CGGeometry.h
+src/UIView+Layout.h
 src/UIView+NSArray.h
 src/UIView+UIEvent.h
 src/UIView+UIResponder.h

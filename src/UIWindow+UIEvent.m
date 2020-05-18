@@ -162,7 +162,6 @@ static void   mouseScrollCallback( GLFWwindow *window,
 }
 
 
-
 - (void) _initEvent
 {
    glfwSetMouseButtonCallback( _window, mouseButtonCallback);

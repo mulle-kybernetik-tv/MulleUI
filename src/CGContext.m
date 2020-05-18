@@ -29,7 +29,7 @@
 
 #define HAVE_MEM_GRAPH
 
-#define RENDER_DEBUG
+// #define RENDER_DEBUG
 
 
 @implementation CGContext
@@ -193,7 +193,7 @@ static struct mulle_container_keyvaluecallback   c_string_to_object_callback;
       startGPUTimer( &_perf.gpuTimer);
    }
    // < performance measurement
-
+#if RENDER_DEBUG
    if( ! CGSizeEqualToSize( info->frame.size, info->framebufferSize) ||
        ! CGSizeEqualToSize( info->frame.size, info->windowSize) ||
        ! CGSizeEqualToSize( info->framebufferSize, info->windowSize))
@@ -201,7 +201,7 @@ static struct mulle_container_keyvaluecallback   c_string_to_object_callback;
                CGSizeCStringDescription( info->frame.size),
                CGSizeCStringDescription( info->framebufferSize),
                CGSizeCStringDescription( info->windowSize));
-
+#endif
    _renderStartTimestamp = CAAbsoluteTimeNow();
 
    glViewport( 0, 0, info->frame.size.width, info->frame.size.height);

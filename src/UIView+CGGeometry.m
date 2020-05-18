@@ -198,6 +198,10 @@
                [self cStringDescription],
                CGRectCStringDescription( [self frame]),
                CGRectCStringDescription( [self bounds]));
+//   if( _yoga)
+//   {
+//      fprintf( stderr, "%s\n", [[_yoga debugDescription] cStringDescription]);
+//   }
    [self dumpSubviewsWithIndent:indent + 3];
 }
 

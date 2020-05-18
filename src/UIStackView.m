@@ -3,6 +3,8 @@
 //
 #import "UIStackView.h"
 
+#import "UIView+Layout.h"
+
 #import "import-private.h"
 
 
@@ -12,30 +14,42 @@
 - (void) layoutSubviews
 {
    struct  mulle_pointerarrayenumerator   rover;
-   NSUInteger                             i;
+   NSUInteger                             n_views;
    UIView                                 *view;
-   CGRect                                 rect;
-   CGRect                                 frame;
+   CGRect                                 bounds;
 
    // calculate area, where we can layout
-   rect = [self bounds];
-   rect = UIEdgeInsetsInsetRect( rect, _contentInsets);
+   bounds = [self bounds];
+   bounds = UIEdgeInsetsInsetRect( bounds, _contentInsets);
 
-   rover = mulle_pointerarray_enumerate_nil( self->_subviews);
-   while( view = _mulle_pointerarrayenumerator_next( &rover))   
+   n_views = mulle_pointerarray_get_count( self->_subviews);
+   if( n_views == 0)
+      return;
+
+   if( _axis == UILayoutConstraintAxisVertical)
    {
-      // is view resizable ?
-      frame = [view frame];
-
-      frame.origin = rect.origin;
-      [view setFrame:frame];
-
-      if( _axis == UILayoutConstraintAxisHorizontal)
-         rect.origin.x += frame.size.width;
-      else
-         rect.origin.y += frame.size.height;
+      bounds.size.height = bounds.size.height / n_views;
+      rover = mulle_pointerarray_enumerate_nil( self->_subviews);
+      while( view = _mulle_pointerarrayenumerator_next( &rover))   
+      {
+         // each view autoresizes in the bounds we divided
+         [view layoutSelfInBounds:bounds];
+         bounds.origin.y += bounds.size.height;
+      }
+      mulle_pointerarrayenumerator_done( &rover);
    }
-   mulle_pointerarrayenumerator_done( &rover);
+   else
+   {
+      bounds.size.width = bounds.size.width / n_views;
+      rover = mulle_pointerarray_enumerate_nil( self->_subviews);
+      while( view = _mulle_pointerarrayenumerator_next( &rover))   
+      {
+         // each view autoresizes in the bounds we divided
+         [view layoutSelfInBounds:bounds];
+         bounds.origin.x += bounds.size.width;
+      }
+      mulle_pointerarrayenumerator_done( &rover);
+   }
 }
 
 @end
