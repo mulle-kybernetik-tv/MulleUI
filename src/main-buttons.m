@@ -131,7 +131,7 @@ int   main()
 
       frame = CGRectMake( 240.0, 340.0, 200.0 * SCALE, 44);
 
-#if 0
+#if 1
       segmentedControl = [[[UISegmentedControl alloc] initWithFrame:frame] autorelease];
       [segmentedControl setBackgroundColor:getNVGColor( 0xFF00FFFF)]; 
       [segmentedControl setSelectedSegmentTintColor:getNVGColor( 0x80FF80FF)]; 

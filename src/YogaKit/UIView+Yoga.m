@@ -5,6 +5,8 @@
 
 @implementation UIView( Yoga)
 
+MULLE_OBJC_DEPENDS_ON_CATEGORY( UIView, Layout);
+
 - (YGLayout *) yoga
 {
    if( ! _yoga)

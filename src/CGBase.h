@@ -24,27 +24,55 @@ typedef float CGFloat;
 #define CGFLOAT_IS_DOUBLE 0
 
 
+enum
+{
+   MulleHorizontalIndex = 0,
+   MulleVerticalIndex   = 1
+};
+
 typedef struct CGPoint {
-    CGFloat x;
-    CGFloat y;
+	union 
+   {
+		CGFloat     value[2];
+		struct 
+      {
+			CGFloat  x;
+			CGFloat  y;
+		};
+	};
 } CGPoint;
 
 
 typedef struct CGSize {
-    CGFloat width;
-    CGFloat height;
+	union 
+   {
+		CGFloat     value[2];
+		struct 
+      {
+			CGFloat  width;
+			CGFloat  height;
+		};
+	};
 } CGSize;
 
 
-typedef struct {
-    CGFloat dx;
-    CGFloat dy;
+typedef struct CGVector {
+	union 
+   {
+		CGFloat     value[2];
+		struct 
+      {
+			CGFloat  dx;
+			CGFloat  dy;
+		};
+	};
 } CGVector;
 
 
+
 typedef struct CGRect {
-    CGPoint origin;
-    CGSize size;
+    CGPoint  origin;
+    CGSize   size;
 } CGRect;
 
 

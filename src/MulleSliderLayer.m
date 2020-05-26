@@ -71,7 +71,7 @@
 
    kr   = [self knobRadiusWithFrame:frame];
 
-   rect = MulleEdgeInsetsInsetRect( frame, _controlInsets);
+   rect = MulleEdgeInsetsInsetRect( _controlInsets, frame);
 
    if( frame.size.width >= frame.size.height)
    {

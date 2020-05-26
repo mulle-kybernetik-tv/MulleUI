@@ -87,6 +87,7 @@ static inline CGPoint  MulleCGPointClampToSize( CGPoint offset, CGSize size)
 }
 
 
+
 /**
 @Status Interoperable
 */
@@ -322,5 +323,20 @@ static inline void   MulleQuadraticBezierInit( MulleQuadraticBezier *b,
 CGPoint   MulleQuadraticBezierGetPointForNormalizedDistance( MulleQuadraticBezier *b, 
                                                              CGFloat t);
 
+
+
+
+static inline CGRect   MulleCGRectCenterInRect( CGRect rect, CGRect bounds) 
+{  
+   CGPoint   center;
+
+   center.x = CGRectGetMidX( bounds);
+   center.y = CGRectGetMidY( bounds);
+
+   rect.origin.x = center.x - rect.size.width / 2.0;
+   rect.origin.y = center.y - rect.size.height / 2.0;
+
+   return( rect);
+}
 
 #endif

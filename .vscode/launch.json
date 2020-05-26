@@ -9,7 +9,7 @@
             "MIMode": "gdb",
             "request": "launch",
             "stopAtEntry": false,
-            "program": "${workspaceFolder}/kitchen/Debug/struts-and-springs",
+            "program": "${workspaceFolder}/kitchen/Debug/calculator",
             "args": [],
             "environment": [],
             "cwd": "${workspaceFolder}",

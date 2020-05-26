@@ -65,42 +65,73 @@
 }
 
 
-- (void) layoutSelfInBounds:(CGRect) bounds
+- (void) layoutSubview:(UIView *) view
+              inBounds:(CGRect) bounds
+      autoresizingMask:(UIViewAutoresizing) autoresizingMask
 {
    CGRect   frame;
    CGRect   newFrame;
 
-   if( _autoresizingMask == UIViewAutoresizingNone)
+   if( ! autoresizingMask)
       return;
 
-   frame    = [self frame];
+   frame    = [view frame];
    newFrame = frame;
 
-   if( ! (_autoresizingMask & UIViewAutoresizingFlexibleMargins))
+   if( ! (autoresizingMask & MulleUIViewAutoresizingIgnoreMargins))
    {
-      bounds          = UIEdgeInsetsInsetRect( bounds, _margins);
+      bounds          = UIEdgeInsetsInsetRect( bounds, [view margins]);
       newFrame.origin = bounds.origin;
    }
 
    // if too small now, remove from drawing
    // as the drawing code does it too, what's really the point though ?
 
-   if( _autoresizingMask & UIViewAutoresizingFlexibleWidth)
+   if( autoresizingMask & UIViewAutoresizingFlexibleWidth)
    {
       newFrame.size.width = bounds.size.width;
       if( newFrame.size.width < 0.9)
         newFrame.size.width = 0.0;
    }
 
-   if( _autoresizingMask & UIViewAutoresizingFlexibleHeight)
+   if( autoresizingMask & UIViewAutoresizingFlexibleHeight)
    {
       newFrame.size.height = bounds.size.height;
       if( newFrame.size.height < 0.9)
         newFrame.size.height = 0.0;
    }
 
+   if( autoresizingMask & MulleUIViewAutoresizingStickToCenter)
+   {
+      // probably too obscure ?
+      if( (autoresizingMask & MulleUIViewAutoresizingStickToCenter) == MulleUIViewAutoresizingStickToCenter)
+         newFrame = MulleCGRectCenterInRect( newFrame, bounds);
+      else
+      {
+         if( autoresizingMask & MulleUIViewAutoresizingStickToTop)
+         {
+            newFrame.origin.y = bounds.origin.y;
+         }
+         else   
+            if( autoresizingMask & MulleUIViewAutoresizingStickToBottom)
+            {
+               newFrame.origin.y = CGRectGetMaxY( bounds) - newFrame.size.height;
+            }
+
+         if( autoresizingMask & MulleUIViewAutoresizingStickToLeft)
+         {
+            newFrame.origin.x = bounds.origin.x;
+         }
+         else   
+            if( autoresizingMask & MulleUIViewAutoresizingStickToRight)
+            {
+               newFrame.origin.x = CGRectGetMaxX( bounds) - newFrame.size.width;
+            }
+      }
+   }
+
    if( ! CGRectEqualToRect( frame, newFrame))   
-      [self setFrame:newFrame];      
+      [view setFrame:newFrame];      
 }
 
 
@@ -119,7 +150,9 @@
    bounds = [self bounds];
    rover = mulle_pointerarray_enumerate_nil( _subviews);
    while( (view = _mulle_pointerarrayenumerator_next( &rover)))
-      [view layoutSelfInBounds:bounds];
+      [view layoutSubview:view 
+                inBounds:bounds
+        autoresizingMask:[view autoresizingMask]];
    mulle_pointerarrayenumerator_done( &rover);   
 }
 

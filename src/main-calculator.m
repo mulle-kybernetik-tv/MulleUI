@@ -49,6 +49,7 @@ static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
    displayView  = [[[UIView alloc] initWithFrame:CGRectZero] autorelease];
    [displayView setBackgroundColor:getNVGColor( 0xFF7F7FFF)]; 
    [displayView setCStringName:"DisplayView"];
+
    yoga = [displayView yoga];
    [yoga setEnabled:YES];
    [yoga setWidth:YGValueAuto];
@@ -79,8 +80,8 @@ static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
    [yoga setFlexDirection:YGFlexDirectionColumn]; // for kids
    [rootView addSubview:keyboardView];
 
-#define N_ROWS 3
-#define N_COLS 0 //
+#define N_ROWS 5
+#define N_COLS 5 //
 
    NSUInteger   i;
    NSUInteger   j;

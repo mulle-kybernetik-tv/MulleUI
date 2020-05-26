@@ -27,13 +27,13 @@ static inline MulleEdgeInsets   MulleEdgeInsetsMake( CGFloat top, CGFloat left, 
 }
 
 
-static inline BOOL   MulleEdgeInsetsEqualToEdgeInsets(MulleEdgeInsets insets1, MulleEdgeInsets insets2)
+static inline BOOL   MulleEdgeInsetsEqualToEdgeInsets( MulleEdgeInsets insets1, MulleEdgeInsets insets2)
 {
 	return( ! memcmp( &insets1, &insets2, sizeof( MulleEdgeInsets)));
 }
 
 
-static inline CGRect   MulleEdgeInsetsInsetRect( CGRect rect, MulleEdgeInsets insets)
+static inline CGRect   MulleEdgeInsetsInsetRect( MulleEdgeInsets insets, CGRect rect)
 {
 	rect.origin.x    += insets.left;
 	rect.origin.y    += insets.top;
@@ -41,6 +41,17 @@ static inline CGRect   MulleEdgeInsetsInsetRect( CGRect rect, MulleEdgeInsets in
 	rect.size.height -= insets.top + insets.bottom;
 	return( rect);
 }
+
+
+static inline CGRect   MulleEdgeInsetsExtrudeRect( MulleEdgeInsets insets, CGRect rect)
+{
+	rect.origin.x    -= insets.left;
+	rect.origin.y    -= insets.top;
+	rect.size.width  += insets.right + insets.left;
+	rect.size.height += insets.top + insets.bottom;
+	return( rect);
+}
+
 
 extern const MulleEdgeInsets   MulleEdgeInsetsZero;
 

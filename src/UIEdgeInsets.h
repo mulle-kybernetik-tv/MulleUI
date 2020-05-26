@@ -19,8 +19,15 @@ static inline BOOL   UIEdgeInsetsEqualToEdgeInsets( UIEdgeInsets insets1, UIEdge
 
 static inline CGRect   UIEdgeInsetsInsetRect( CGRect rect, UIEdgeInsets insets)
 {
-	return( MulleEdgeInsetsInsetRect( rect, insets));
+	return( MulleEdgeInsetsInsetRect( insets, rect));
 }
+
+
+static inline CGRect   UIEdgeInsetsExtrudeRect( CGRect rect, UIEdgeInsets insets)
+{
+	return( MulleEdgeInsetsExtrudeRect( insets, rect));
+}
+
 
 #define UIEdgeInsetsZero   MulleEdgeInsetsZero
 

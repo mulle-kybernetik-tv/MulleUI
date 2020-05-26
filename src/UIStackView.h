@@ -8,8 +8,8 @@
 
 typedef enum 
 {
-   UILayoutConstraintAxisVertical   = 0,  
-   UILayoutConstraintAxisHorizontal
+   UILayoutConstraintAxisVertical   = MulleVerticalIndex,  
+   UILayoutConstraintAxisHorizontal = MulleHorizontalIndex
 } UILayoutConstraintAxis;
 
 typedef enum 
@@ -17,20 +17,18 @@ typedef enum
    UIStackViewDistributionFill      = 0,  
    UIStackViewDistributionFillEqually,
    UIStackViewDistributionFillProportionally,
-   UIStackViewDistributionEqualSpacing, // probably not
+   UIStackViewDistributionEqualSpacing, 
    UIStackViewDistributionEqualCentering 
 } UIStackViewDistribution;
 
 
 typedef enum 
 {
-   UIStackViewAlignmentFill = 0,  
+   UIStackViewAlignmentCenter = 0,     // center is the new default!  
    UIStackViewAlignmentLeading,
    UIStackViewAlignmentTop,   
-   UIStackViewAlignmentFirstBaseline,  // probably not
-   UIStackViewAlignmentCenter,
    UIStackViewAlignmentTrailing,
-   UIStackViewAlignmentLastBaseline    // probably not
+   MulleUIStackViewAlignmentBottom   
 } UIStackViewAlignment;
 
 
@@ -39,8 +37,10 @@ typedef enum
 
 @property UILayoutConstraintAxis    axis;
 @property UIStackViewDistribution   distribution;
-@property UIStackViewAlignment      alignment;
 
 @property UIEdgeInsets              contentInsets;
+
+// the alignment is not used if the subview has a autoresizingMask set
+@property UIStackViewAlignment      alignment;
 
 @end

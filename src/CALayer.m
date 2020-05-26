@@ -102,7 +102,7 @@
    if( borderWidth > 0.1)
    {
       insets = MulleEdgeInsetsMake( borderWidth / 2, borderWidth / 2,  borderWidth / 2, borderWidth / 2);
-      frame  = MulleEdgeInsetsInsetRect( frame, insets);
+      frame  = MulleEdgeInsetsInsetRect( insets, frame);
       nvgShapeAntiAlias( vg, 0);  
    }
 

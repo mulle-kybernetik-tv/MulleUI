@@ -38,10 +38,15 @@ struct MulleClickDragDifferentiator
 // 
 enum UIViewAutoresizing
 {   
-   UIViewAutoresizingNone            = 0x00,
-   UIViewAutoresizingFlexibleWidth   = 0x10,
-   UIViewAutoresizingFlexibleHeight  = 0x20,
-   UIViewAutoresizingFlexibleMargins = 0x40   
+   UIViewAutoresizingNone                 = 0x00,
+   UIViewAutoresizingFlexibleWidth        = 0x10,
+   UIViewAutoresizingFlexibleHeight       = 0x20,
+   MulleUIViewAutoresizingIgnoreMargins   = 0x40,
+   MulleUIViewAutoresizingStickToTop      = 0x100,   
+   MulleUIViewAutoresizingStickToBottom   = 0x200,  
+   MulleUIViewAutoresizingStickToLeft     = 0x400,  
+   MulleUIViewAutoresizingStickToRight    = 0x800,  
+   MulleUIViewAutoresizingStickToCenter   = 0xF00  
 };
 
 typedef NSUInteger   UIViewAutoresizing;
@@ -82,9 +87,14 @@ enum UILayoutStrategy
 @property BOOL   needsCaching;
 @property BOOL   needsDisplay;  // a NOP for compatiblity
                  
-@property CGFloat   alpha;
-@property UIViewAutoresizing        autoresizingMask; 
-@property UIEdgeInsets              margins; 
+@property CGFloat              alpha;
+@property UIViewAutoresizing   autoresizingMask; 
+@property UIEdgeInsets         margins; 
+
+// possibly UIStackView should store this in an array of its own,
+// but then it has to sync with removeFromSubviews: but here the view
+// should clear itself, if added to a superview...
+@property CGSize               mulleLayoutSize; // used by UIStackView and other layouters to remember the original size 
 
 - (void) setNeedsDisplay;
 - (void) setNeedsCaching;  // wipes the _cacheLayer and asks for a new one to be drawn

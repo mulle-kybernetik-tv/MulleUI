@@ -21,7 +21,7 @@
 {    
    NSMutableArray * _sections;
    CGRect _visibleBounds;
-   CGSize _layoutSize;
+   CGSize _mulleLayoutSize;
    BOOL _isValid;
 }
 
