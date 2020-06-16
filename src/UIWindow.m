@@ -161,6 +161,9 @@ static void   framebufferResizeCallback( GLFWwindow* window, int width, int heig
 {
    GLFWmonitor      *monitor;
    CGFloat          ppi;
+   CGRect           contentRect;
+   int              w;
+   int              h;
 
    glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 2);
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 0);
@@ -174,8 +177,8 @@ static void   framebufferResizeCallback( GLFWwindow* window, int width, int heig
       return( nil);
    }
 
-   _window = glfwCreateWindow( frame.size.width,
-                               frame.size.height,
+   _window = glfwCreateWindow( (int) frame.size.width,
+                               (int) frame.size.height,
                                "Demo",
                                0,
                                0);
@@ -187,6 +190,12 @@ static void   framebufferResizeCallback( GLFWwindow* window, int width, int heig
 //		glfwTerminate();
 //		return( -1);
    }
+
+   // assume window has a title bar for contentRect calculation
+   // (No difference to frame for me here on Linux)
+   glfwGetWindowSize( _window, &w, &h);
+   assert( (int) frame.size.height == h);
+   assert( (int) frame.size.width == w);
 
    [self syncFrameWithWindow];
 

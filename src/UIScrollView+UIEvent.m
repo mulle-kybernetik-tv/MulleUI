@@ -426,8 +426,9 @@
    [self setDragging:NO];
 
    scrollEndTime  = [event timestamp];
+#ifdef SCROLLVIEW_DEBUG
    fprintf( stderr, "scrollEndTime: %.2f\n", scrollEndTime);
-
+#endif
    mousePosition = [event mousePosition];
 
    _momentum          = CGPointZero;

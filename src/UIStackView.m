@@ -20,14 +20,16 @@ struct UIStackViewLayoutContext
 
 @implementation UIStackView
 
-
 - (instancetype) initWithLayer:(CALayer *) layer
 {
    [super initWithLayer:layer];
-   _axis = UILayoutConstraintAxisVertical;
+
+   _axis                    = UILayoutConstraintAxisVertical;
+   _minimumInteritemSpacing = 10.0;
+   _minimumLineSpacing      = 10.0;   
+
    return( self);
 }
-
 
 
 - (void) setSubviewLayoutSizeIfNeeded
@@ -320,6 +322,72 @@ struct UIStackViewLayoutContext
 }
 
 
+//
+// layout in row, column fashion. The views need to be fixed size currently
+// 
+- (void) layoutSubviewsFillRowColumn
+{
+   CGRect                                 bounds;
+   struct  mulle_pointerarrayenumerator   rover;
+   UIView                                 *view;
+   CGRect                                 rect;
+   CGRect                                 rowBounds;
+   CGRect                                 frame;
+   CGFloat                                rowHeight;
+   CGFloat                                value;
+   CGSize                                 spacing;
+   NSUInteger                             column;
+   int                                    axis;
+   int                                    otherAxis;
+
+   axis      = [self axis];
+   otherAxis = ! axis;
+
+   spacing.value[ axis]      = [self minimumInteritemSpacing];
+   spacing.value[ otherAxis] = [self minimumLineSpacing];
+
+   bounds        = [self bounds];
+   bounds        = UIEdgeInsetsInsetRect( bounds, [self contentInsets]);
+   rowBounds     = bounds;
+   column        = 0;
+
+   rover  = mulle_pointerarray_enumerate_nil( self->_subviews);
+   while( view = _mulle_pointerarrayenumerator_next( &rover))   
+   {
+      frame = [view frame];
+      if( frame.size.value[ axis] > rowBounds.size.value[ axis] - (column ? spacing.value[ axis] : 0))
+      {
+         // start a new row
+         column                             = 0;
+         rowBounds.size.value[ axis]        = bounds.size.value[ axis];
+         rowBounds.origin.value[ axis]      = bounds.origin.value[ axis];
+         rowBounds.origin.value[ otherAxis] = rowBounds.origin.value[ otherAxis] \
+                                              + rowHeight \
+                                              + spacing.value[ otherAxis];
+         rowBounds.size.value[ otherAxis]   = bounds.size.value[ otherAxis] \
+                                              - rowBounds.origin.value[ otherAxis];
+         rowHeight = frame.size.value[ otherAxis];
+      }
+      rect.origin = rowBounds.origin;
+      if( frame.size.value[ otherAxis] > rowBounds.size.value[ otherAxis])
+         rect.size = CGSizeZero;
+      else
+         rect.size = frame.size;
+
+      [self layoutSubview:view
+                 inBounds:rect
+         autoresizingMask:MulleUIViewAutoresizingStickToTop|MulleUIViewAutoresizingStickToLeft];
+
+      // advance preshrunk remaining row 
+      rowBounds.origin.value[ axis] += frame.size.value[ axis] + spacing.value[ axis];
+      rowBounds.size.value[ axis]   -= frame.size.value[ axis] + spacing.value[ axis];
+      rowHeight                      = frame.size.value[ otherAxis] > rowHeight ? frame.size.value[ otherAxis] : rowHeight;
+      ++column;
+   }
+   mulle_pointerarrayenumerator_done( &rover);
+}
+
+
 - (void) layoutSubviews
 {
    switch( _distribution)
@@ -329,9 +397,9 @@ struct UIStackViewLayoutContext
    case UIStackViewDistributionFillProportionally : [self layoutSubviewsFillProportionally:YES]; break;
    case UIStackViewDistributionEqualSpacing       : [self layoutSubviewsEquallySpaced:0]; break;
    case UIStackViewDistributionEqualCentering     : [self layoutSubviewsEquallyCentered]; break;
+   case MulleStackViewDistributionFillRowColumn   : [self layoutSubviewsFillRowColumn]; break;
    default                                        : abort();
    }
 }
-
 
 @end

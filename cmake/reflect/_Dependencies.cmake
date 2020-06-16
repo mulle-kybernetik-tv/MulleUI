@@ -378,3 +378,71 @@ if( NOT MULLE_TESTALLOCATOR_LIBRARY)
       message( FATAL_ERROR "MULLE_TESTALLOCATOR_LIBRARY was not found")
    endif()
 endif()
+
+
+#
+# Generated from sourcetree: mujs;no-all-load,no-import;
+# Disable with: `mulle-sourcetree mark mujs no-link`
+#
+if( NOT MUJS_LIBRARY)
+   find_library( MUJS_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}mujs${CMAKE_STATIC_LIBRARY_SUFFIX} mujs NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
+   message( STATUS "MUJS_LIBRARY is ${MUJS_LIBRARY}")
+   #
+   # The order looks ascending, but due to the way this file is read
+   # it ends up being descending, which is what we need.
+   #
+   if( MUJS_LIBRARY)
+      #
+      # Add MUJS_LIBRARY to DEPENDENCY_LIBRARIES list.
+      # Disable with: `mulle-sourcetree mark mujs no-cmakeadd`
+      #
+      set( DEPENDENCY_LIBRARIES
+         ${DEPENDENCY_LIBRARIES}
+         ${MUJS_LIBRARY}
+         CACHE INTERNAL "need to cache this"
+      )
+      #
+      # Inherit ObjC loader and link dependency info.
+      # Disable with: `mulle-sourcetree mark mujs no-cmakeinherit`
+      #
+      # // temporarily expand CMAKE_MODULE_PATH
+      get_filename_component( _TMP_MUJS_ROOT "${MUJS_LIBRARY}" DIRECTORY)
+      get_filename_component( _TMP_MUJS_ROOT "${_TMP_MUJS_ROOT}" DIRECTORY)
+      #
+      #
+      # Search for "DependenciesAndLibraries.cmake" to include.
+      # Disable with: `mulle-sourcetree mark mujs no-cmakedependency`
+      #
+      foreach( _TMP_MUJS_NAME "mujs")
+         set( _TMP_MUJS_DIR "${_TMP_MUJS_ROOT}/include/${_TMP_MUJS_NAME}/cmake")
+         # use explicit path to avoid "surprises"
+         if( EXISTS "${_TMP_MUJS_DIR}/DependenciesAndLibraries.cmake")
+            unset( MUJS_DEFINITIONS)
+            list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_MUJS_DIR}")
+            # we only want top level INHERIT_OBJC_LOADERS, so disable them
+            if( NOT NO_INHERIT_OBJC_LOADERS)
+               set( NO_INHERIT_OBJC_LOADERS OFF)
+            endif()
+            list( APPEND _TMP_INHERIT_OBJC_LOADERS ${NO_INHERIT_OBJC_LOADERS})
+            set( NO_INHERIT_OBJC_LOADERS ON)
+            #
+            include( "${_TMP_MUJS_DIR}/DependenciesAndLibraries.cmake")
+            #
+            list( GET _TMP_INHERIT_OBJC_LOADERS -1 NO_INHERIT_OBJC_LOADERS)
+            list( REMOVE_AT _TMP_INHERIT_OBJC_LOADERS -1)
+            #
+            list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_MUJS_DIR}")
+            set( INHERITED_DEFINITIONS
+               ${INHERITED_DEFINITIONS}
+               ${MUJS_DEFINITIONS}
+               CACHE INTERNAL "need to cache this"
+            )
+            break()
+         else()
+            message( STATUS "${_TMP_MUJS_DIR}/DependenciesAndLibraries.cmake not found")
+         endif()
+      endforeach()
+   else()
+      message( FATAL_ERROR "MUJS_LIBRARY was not found")
+   endif()
+endif()

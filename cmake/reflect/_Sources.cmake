@@ -9,13 +9,17 @@ set( MAIN_SOURCES
 src/main-animate-circles.m
 src/main-buttons.m
 src/main-calculator.m
+src/main-collectionview.m
 src/main-draw.m
+src/main-jspiechart.m
 src/main-layer.m
 src/main-many-rectangles.m
+src/main-remove-from-area.m
+src/main-rowcolumn.m
 src/main-scrollview.m
 src/main-slider.m
+src/main-springs-and-struts.m
 src/main-stackview.m
-src/main-struts-and-springs.m
 src/main-svg.m
 )
 
@@ -27,6 +31,7 @@ src/CALayer+CAAnimation.m
 src/CALayer.m
 src/CATime.c
 src/CGAffineTransform.c
+src/CGColor.c
 src/CGContext.m
 src/CGFont.m
 src/CGGeometry+CString.m
@@ -40,6 +45,7 @@ src/MulleControlBackgroundImage.m
 src/MulleEdgeInsets+CString.m
 src/MulleEdgeInsets.c
 src/MulleImageLayer.m
+src/MulleJS.m
 src/MulleObjectArray.m
 src/MulleSVGImage.m
 src/MulleSVGLayer.m
@@ -50,9 +56,9 @@ src/MulleStepperLayer.m
 src/MulleTextLayer.m
 src/MulleTextureImage.m
 src/MulleTrackingArea.m
+src/NSValue+CGGeometry.m
 src/PSTCollectionView/NSIndexPath+PSTCollectionViewAdditions.m
 src/PSTCollectionView/NSString+CGGeometry.m
-src/PSTCollectionView/NSValue+CGGeometry.m
 src/PSTCollectionView/PSTCollectionViewCell.m
 src/PSTCollectionView/PSTCollectionViewController.m
 src/PSTCollectionView/PSTCollectionViewData.m
@@ -69,6 +75,7 @@ src/PSTCollectionView/UIViewController.m
 src/UIApplication.m
 src/UIButton+UIResponder.m
 src/UIButton.m
+src/UICollectionView.m
 src/UIColor.m
 src/UIControl.m
 src/UIEvent.m

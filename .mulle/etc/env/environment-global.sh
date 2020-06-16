@@ -22,3 +22,9 @@ export MULLE_SDE_CRAFT_FAIL="paplay --volume=30000 --device=alsa_output.usb-E-MU
 export MULLE_SOURCETREE_FETCH_MULLE_OBJC_CURL_FOUNDATION="NO"
 
 
+#
+#
+#
+export MULLE_CRAFT_USE_SCRIPT="YES"
+
+

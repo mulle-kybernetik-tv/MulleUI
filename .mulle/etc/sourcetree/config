@@ -1,3 +1,4 @@
+craftinfo/mujs-craftinfo;local;no-delete,no-header,no-link,no-share,no-subproject,no-update;4669a0a7-8cf3-485f-b40a-d687998d78fb;;;;;
 craftinfo/freetype;local;no-delete,no-header,no-link,no-share,no-subproject,no-update;c91152c9-4141-46d1-8d36-6b06db079252;;${CRAFTINFO_FREETYPE_BRANCH};;;
 freetype;${FREETYPE_NODETYPE:-tar};no-all-load,no-header,no-import,no-inplace,only-liftheaders;e670491e-d104-45c1-a5e0-798bd854f01f;${FREETYPE_URL:-https://github.com/mulle-kybernetik-tv/freetype2/archive/2.10.1-mulle.tar.gz};${FREETYPE_BRANCH};;;aliases=freetyped,freetype
 glfw;${GLFW_NODETYPE:-tar};no-all-load,no-import;83270b01-d35c-4b2e-8b74-7b87855d7c30;${GLFW_URL:-https://github.com/glfw/glfw/archive/${MULLE_BRANCH}.3.tar.gz};${GLFW_BRANCH:-3};;;base64:YWxpYXNlcz1nbGZ3MwppbmNsdWRlPUdMRlcvZ2xmdzMuaAo=
@@ -20,3 +21,4 @@ harfbuzz;none;no-all-load,no-build,no-cmakeinherit,no-delete,no-dependency,no-fs
 Foundation;${FOUNDATION_NODETYPE:-tar};no-singlephase;7c641bed-99fa-4942-a438-2776d47692fb;${FOUNDATION_URL:-https://github.com/MulleFoundation/Foundation/archive/${MULLE_BRANCH}.tar.gz};${FOUNDATION_BRANCH:-latest};;;
 Foundation-startup;${FOUNDATION_STARTUP_NODETYPE:-tar};no-dynamic-link,no-header,no-intermediate-link;95aadb81-0457-482f-946a-c7c3a71daa34;${FOUNDATION_STARTUP_URL:-https://github.com/MulleFoundation/Foundation-startup/archive/${MULLE_BRANCH}.tar.gz};${FOUNDATION_STARTUP_BRANCH:-latest};;;
 mulle-testallocator;${MULLE_TESTALLOCATOR_NODETYPE:-tar};no-all-load,no-import,no-singlephase;6a75997e-281d-4d5a-88d7-096548c2ab59;${MULLE_TESTALLOCATOR_URL:-https://github.com/mulle-core/mulle-testallocator/archive/${MULLE_TAG}.tar.gz};${MULLE_TESTALLOCATOR_BRANCH};${MULLE_TESTALLOCATOR_TAG:-latest};;
+mujs;${MUJS_NODETYPE:-tar};no-all-load,no-import;1c8fc77c-dcc4-4b27-8406-96a30482748a;${MUJS_URL:-https://github.com/ccxvii/mujs/archive/${MULLE_TAG}.tar.gz};${MUJS_BRANCH};${MUJS_TAG:-1.0.7};;include=mujs.h

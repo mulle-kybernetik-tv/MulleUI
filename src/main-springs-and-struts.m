@@ -1,15 +1,14 @@
 #import "import-private.h"
 
-#import "MulleSVGImage.h"
-#import "MulleSVGLayer.h"
-#import "MulleBitmapImage.h"
 #import "CGContext.h"
 #import "UIWindow.h"
 #import "UIApplication.h"
 #import "UIButton.h"
 #import "UIStackView.h"
 #import "UIScrollView.h"
+#import "MulleJS.h"
 #import "UIView+Layout.h"
+#import "NSValue+CGGeometry.h"
 #import "UIEvent.h"
 #import <string.h>
 
@@ -19,6 +18,41 @@ static UIEvent   *button_callback( UIButton *button, UIEvent *event)
    fprintf( stderr, "button_callback: %s\n", [button cStringDescription]);
    return( nil);
 }
+
+
+void  drawStuff( void *layer, 
+                 NVGcontext *vg, 
+                 CGRect frame, 
+                 struct MulleFrameInfo *info)
+{
+   CGRect  rect;
+   MulleJS  *js;
+
+   js = [MulleJS object];
+   [js setObject:[NSValue valueWithPointer:vg]
+          forKey:@"nvgContext"];
+   [js setObject:@(frame.size.width)
+          forKey:@"width"];
+   [js setObject:@(frame.size.height)
+          forKey:@"height"];
+
+   nvgTranslate( vg, 0, 10);
+
+   [js runScriptCString:"" 
+"print( 'PI=' + Math.cos( Math.PI).toString());"
+   ];
+/*
+   [js runScriptFileCString:"/home/src/srcO/MulleUI/src/ken_sheriff_calculator_display.js"];
+   [js runScriptCString:""
+"var width=$('width'); \n"
+"var height=$('height'); \n"
+"var nvgContext=$('nvgContext'); \n"
+"var x = new Display( nvgContext, width, height); \n"
+"x.write( '1849', 1); \n"
+];
+*/
+}
+
 
 #define N_ROWS 5
 #define N_COLS 5 //
@@ -30,6 +64,7 @@ static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
    UIStackView   *keyboardView;
    UIStackView   *rowView;
    UIView        *view;
+   CALayer       *layer;
    CGRect        frame;
    NSUInteger    i;
    NSUInteger    j;
@@ -54,6 +89,9 @@ static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
    [displayView setCStringName:"DisplayView"];
    [displayView setMargins:UIEdgeInsetsMake( 10, 10, 0, 10)];
    [displayView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
+
+   layer = [displayView layer];
+   [displayView setDrawContentsCallback:drawStuff];   
    [rootView addSubview:displayView];
 
    // Keyboard container
@@ -62,7 +100,7 @@ static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
    frame = CGRectMake( 0, 0, 0, 0);
    keyboardView = [[[UIStackView alloc] initWithFrame:CGRectZero] autorelease];
    [keyboardView setBackgroundColor:getNVGColor( 0x0000FFFF)]; // blue
-
+   [keyboardView setDistribution:UIStackViewDistributionFillEqually];
    // determine own geometry, take up all space that is given
    [keyboardView setAutoresizingMask:UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth];
    // move below displayView and have 10 distance to root view
@@ -84,7 +122,10 @@ static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
       // create a row view (transparent though)
       frame = CGRectMake( 0, 0, 0, 0);
       rowView  = [[[UIStackView alloc] initWithFrame:frame] autorelease];
+      sprintf( name, "rowView %ld", i);
+      [rootView setCStringName:name];
       [rowView setBackgroundColor:MulleColorCreateRandom( 0xFF0000FF, 0x00FFFF00)];
+      [rowView setDistribution:UIStackViewDistributionFillEqually];
 
       // determine own geometry, take up all space that is given
       [rowView setAutoresizingMask:UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth];
@@ -127,7 +168,7 @@ int  main()
    CGContext       *context;
    UIWindow        *window;
    UIApplication   *application;
-
+   MulleJS         *js;
       /*
        * window and app 
        */

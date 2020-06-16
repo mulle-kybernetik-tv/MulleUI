@@ -54,3 +54,10 @@ typedef UIView   MulleWindowPlane;
 + (CGFloat) primaryMonitorPPI;
 
 @end
+
+
+@interface UIWindow( Dump)
+
+- (void) dump;
+
+@end

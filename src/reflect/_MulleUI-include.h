@@ -14,7 +14,7 @@
 
 // How to tweak the following glfw #include
 //    remove:          `mulle-sourcetree mark glfw no-header`
-//    rename:          `mulle-sourcetree mark glfw set include whatever.h`
+//    rename:          `mulle-sde dependency|library set glfw include whatever.h`
 //    toggle #import:  `mulle-sourcetree mark glfw [no-]import`
 //    toggle public:   `mulle-sourcetree mark glfw [no-]public`
 //    toggle optional: `mulle-sourcetree mark glfw [no-]require`
@@ -23,11 +23,20 @@
 
 // How to tweak the following mulle-testallocator #include
 //    remove:          `mulle-sourcetree mark mulle-testallocator no-header`
-//    rename:          `mulle-sourcetree mark mulle-testallocator set include whatever.h`
+//    rename:          `mulle-sde dependency|library set mulle-testallocator include whatever.h`
 //    toggle #import:  `mulle-sourcetree mark mulle-testallocator [no-]import`
 //    toggle public:   `mulle-sourcetree mark mulle-testallocator [no-]public`
 //    toggle optional: `mulle-sourcetree mark mulle-testallocator [no-]require`
 //    remove for os:   `mulle-sourcetree mark mulle-testallocator no-os-<osname>`
 # include <mulle-testallocator/mulle-testallocator.h>   // mulle-testallocator
+
+// How to tweak the following mujs #include
+//    remove:          `mulle-sourcetree mark mujs no-header`
+//    rename:          `mulle-sde dependency|library set mujs include whatever.h`
+//    toggle #import:  `mulle-sourcetree mark mujs [no-]import`
+//    toggle public:   `mulle-sourcetree mark mujs [no-]public`
+//    toggle optional: `mulle-sourcetree mark mujs [no-]require`
+//    remove for os:   `mulle-sourcetree mark mujs no-os-<osname>`
+# include <mujs.h>   // mujs
 
 #endif

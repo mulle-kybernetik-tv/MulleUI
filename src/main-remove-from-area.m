@@ -37,8 +37,7 @@
 
 @end
 
-// memo: this actually draws outside of the layer somewhat, should fix this
-//       as noticed when reusing the code in the collection view demo
+
 void  drawStuff( void *aLayer, 
                  NVGcontext *vg, 
                  CGRect frame, 
@@ -87,60 +86,36 @@ void   setupScene( UIWindow *window, CGContext *context)
    CGFloat        translate;
    NSInteger      i;
    struct mulle_pointerarrayenumerator   rover;
+   struct mulle_pointerarray             array;
 
-   frame        = [window frame];
-   frame.origin = CGPointZero;
-
-   insets = UIEdgeInsetsMake( 8, 8, 8, 8);
-   frame  = UIEdgeInsetsInsetRect( frame, insets);
-
-   layer = [[[CircleLayer alloc] initWithFrame:frame] autorelease];
-   view  = [[[UIView alloc] initWithLayer:layer] autorelease];
-   [layer setDrawContentsCallback:drawStuff];
-   [window addSubview:view];
-
-   [layer setColor:MulleColorCreate( 0xFF0000FF)];
+   frame = [window frame];
 
    for( i = 0; i < 1000; i++)
    {
-      rect  = frame;
-      scale = (rand() % 750 + 250) / 1000.0;
-      assert( scale <= 1.0);
-      rect.size.width   = rect.size.width * scale;
-      rect.size.height  = rect.size.height * scale;
-
-      translate         = (rand() % 1000) / 1000.0;
-      assert( translate <= 1.0);
-      rect.origin.x    += (frame.size.width - rect.size.width) * translate;
-      translate         = (rand() % 1000) / 1000.0;
-      assert( translate <= 1.0);
-      rect.origin.y    += (frame.size.height - rect.size.height) * translate;
-
-      // fprintf( stderr, "%s", CGRectCStringDescription( rect));
+      rect.origin.x = rand() % ((int) frame.size.width - 16);
+      rect.origin.y = rand() % ((int) frame.size.height - 16);
+      rect.size     = CGSizeMake( 32 ,32);
       layer = [[[CircleLayer alloc] initWithFrame:rect] autorelease];
+      view  = [[[UIView alloc] initWithLayer:layer] autorelease];
       [layer setDrawContentsCallback:drawStuff];
-      [layer setColor:MulleColorCreate( 0x00FF00FF)];
-      [view addLayer:layer];
+      [layer setColor:MulleColorCreateRandom( 0x00FF00FF, 0xFF00FF00)];
+      [window addSubview:view];
    }
 
-   // UIView -> CAAnimation
-   [UIView beginAnimations:"animation" 
-                    context:NULL];
-   [UIView setAnimationCurve:UIViewAnimationCurveEaseInOut];
-   [UIView setAnimationDelay:0];        
-   [UIView setAnimationDuration:10];        
-   [UIView setAnimationRepeatCount:20]; 
+   _mulle_pointerarray_init( &array, 0, 0, NULL);
+   [window addSubviewsIntersectingRect:CGRectMake( frame.size.width / 4,
+                                                   frame.size.height / 4,
+                                                   frame.size.width / 2,
+                                                   frame.size.height / 2)
+                      toPointerArray:&array
+              invertIntersectionTest:YES];
 
-   rover = mulle_pointerarray_enumerate_nil( [view _layers]);
-   while( (layer = _mulle_pointerarrayenumerator_next( &rover)))
-   {
-      [layer setScale:-1.0];
-      [layer setColor:MulleColorCreateRandom( 0x000000FF, 0x00FF0000)];
-   }
+   rover = mulle_pointerarray_enumerate_nil( &array);
+   while( view = _mulle_pointerarrayenumerator_next( &rover))
+      [view setColor:MulleColorCreateRandom( 0xFF0000FF, 0x00FFFF00)];
    mulle_pointerarrayenumerator_done( &rover);
-         
-
-   [UIView commitAnimations];
+  
+   mulle_pointerarray_done( &array);
 }
 
 

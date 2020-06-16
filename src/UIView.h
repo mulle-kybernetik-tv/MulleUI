@@ -111,8 +111,13 @@ enum UILayoutStrategy
 
 - (void) addLayer:(CALayer *) layer;
 - (void) addSubview:(UIView *) layer;
+- (void) setSubviews:(struct mulle_pointerarray *) array;
 
 - (CALayer *) layer;
+
+- (void) addSubviewsIntersectingRect:(CGRect) rect 
+                      toPointerArray:(struct mulle_pointerarray *) views
+              invertIntersectionTest:(BOOL) flag;
 
 - (void) renderWithContext:(CGContext *) context;
 - (void) animateWithAbsoluteTime:(CAAbsoluteTime) renderTime;

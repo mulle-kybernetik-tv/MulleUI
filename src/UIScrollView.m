@@ -38,6 +38,7 @@
    frame.size   = [layer frame].size;
 
    _contentView = [[UIScrollContentView alloc] initWithFrame:frame];
+   [_contentView setCStringName:"ScrollViewContentView"];
 	[self mulleAddRetainedSubview:_contentView];
 
    // hide, and show after relayout
@@ -145,7 +146,7 @@
    CGRect    bounds;
 
    contentSize = [self contentSize];
-   bounds       = [_contentView bounds];
+   bounds      = [_contentView bounds];
    size        = CGSizeMake( contentSize.width - bounds.size.width,
                              contentSize.height - bounds.size.height);
    newOffset = MulleCGPointClampToSize( offset, size);

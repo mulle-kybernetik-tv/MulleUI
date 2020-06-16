@@ -71,6 +71,7 @@
 {
    CGRect   frame;
    CGRect   newFrame;
+   CGRect   marginalBounds;
 
    if( ! autoresizingMask)
       return;
@@ -78,10 +79,11 @@
    frame    = [view frame];
    newFrame = frame;
 
+   marginalBounds = bounds;
    if( ! (autoresizingMask & MulleUIViewAutoresizingIgnoreMargins))
    {
-      bounds          = UIEdgeInsetsInsetRect( bounds, [view margins]);
-      newFrame.origin = bounds.origin;
+      marginalBounds  = UIEdgeInsetsInsetRect( bounds, [view margins]);
+      newFrame.origin = marginalBounds.origin;
    }
 
    // if too small now, remove from drawing
@@ -89,14 +91,14 @@
 
    if( autoresizingMask & UIViewAutoresizingFlexibleWidth)
    {
-      newFrame.size.width = bounds.size.width;
+      newFrame.size.width = marginalBounds.size.width;
       if( newFrame.size.width < 0.9)
         newFrame.size.width = 0.0;
    }
 
    if( autoresizingMask & UIViewAutoresizingFlexibleHeight)
    {
-      newFrame.size.height = bounds.size.height;
+      newFrame.size.height = marginalBounds.size.height;
       if( newFrame.size.height < 0.9)
         newFrame.size.height = 0.0;
    }
@@ -105,30 +107,34 @@
    {
       // probably too obscure ?
       if( (autoresizingMask & MulleUIViewAutoresizingStickToCenter) == MulleUIViewAutoresizingStickToCenter)
-         newFrame = MulleCGRectCenterInRect( newFrame, bounds);
+         newFrame = MulleCGRectCenterInRect( newFrame, marginalBounds);
       else
       {
          if( autoresizingMask & MulleUIViewAutoresizingStickToTop)
          {
-            newFrame.origin.y = bounds.origin.y;
+            newFrame.origin.y = marginalBounds.origin.y;
          }
          else   
             if( autoresizingMask & MulleUIViewAutoresizingStickToBottom)
             {
-               newFrame.origin.y = CGRectGetMaxY( bounds) - newFrame.size.height;
+               newFrame.origin.y = CGRectGetMaxY( marginalBounds) - newFrame.size.height;
             }
 
          if( autoresizingMask & MulleUIViewAutoresizingStickToLeft)
          {
-            newFrame.origin.x = bounds.origin.x;
+            newFrame.origin.x = marginalBounds.origin.x;
          }
          else   
             if( autoresizingMask & MulleUIViewAutoresizingStickToRight)
             {
-               newFrame.origin.x = CGRectGetMaxX( bounds) - newFrame.size.width;
+               newFrame.origin.x = CGRectGetMaxX( marginalBounds) - newFrame.size.width;
             }
       }
    }
+
+   // if view doesn't fit into bounds, we do what ? we make it invisible
+   if( ! CGRectContainsRect( bounds, newFrame))
+      newFrame.size = CGSizeZero;
 
    if( ! CGRectEqualToRect( frame, newFrame))   
       [view setFrame:newFrame];      

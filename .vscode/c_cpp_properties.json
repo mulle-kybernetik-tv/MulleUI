@@ -7,7 +7,7 @@
                 "${workspaceFolder}/**"
             ],
             "defines": [],
-            "compilerPath": "/usr/bin/mulle-clang",
+            "compilerPath": "/usr/local/bin/mulle-clang",
             "cStandard": "c11",
             "intelliSenseMode": "clang-x64",
             "compileCommands": "${workspaceFolder}/kitchen/Debug/compile_commands.json"

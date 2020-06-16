@@ -29,6 +29,14 @@
  * which could be top/left for example.
  */ 
 
+
+typedef enum 
+{
+   UILayoutConstraintAxisVertical   = MulleVerticalIndex,  
+   UILayoutConstraintAxisHorizontal = MulleHorizontalIndex
+} UILayoutConstraintAxis;
+
+
 @interface UIView( Layout)
 
 - (void) setNeedsLayout;    // use this to touch up all hierarchy

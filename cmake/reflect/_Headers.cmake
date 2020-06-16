@@ -66,6 +66,7 @@ src/MulleEdgeInsets+CString.h
 src/MulleEdgeInsets+MulleObjC.h
 src/MulleEdgeInsets.h
 src/MulleImageLayer.h
+src/MulleJS.h
 src/MulleObjectArray.h
 src/MulleSVGImage.h
 src/MulleSVGLayer.h
@@ -76,9 +77,9 @@ src/MulleStepperLayer.h
 src/MulleTextLayer.h
 src/MulleTextureImage.h
 src/MulleTrackingArea.h
+src/NSValue+CGGeometry.h
 src/PSTCollectionView/NSIndexPath+PSTCollectionViewAdditions.h
 src/PSTCollectionView/NSString+CGGeometry.h
-src/PSTCollectionView/NSValue+CGGeometry.h
 src/PSTCollectionView/PSTCollectionViewCell.h
 src/PSTCollectionView/PSTCollectionViewCommon.h
 src/PSTCollectionView/PSTCollectionViewController.h
@@ -98,6 +99,7 @@ src/Roboto-Regular.inc
 src/UIApplication.h
 src/UIButton+UIResponder.h
 src/UIButton.h
+src/UICollectionView.h
 src/UIColor.h
 src/UIControl.h
 src/UIEdgeInsets+CString.h
@@ -133,7 +135,6 @@ src/bmp-writer.h
 src/entypo.inc
 src/import.h
 src/include.h
-src/main-stackview.h
 src/mulle-pointerarray+ObjC.h
 src/mulle-quadtree.h
 src/mulle-time.h

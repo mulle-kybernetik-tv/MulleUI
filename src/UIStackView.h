@@ -1,16 +1,10 @@
 //
 // Copyright (c) 2020 Nat!, Mulle kybernetiK
 //
-#import "UIView.h"
+#import "UIView+Layout.h"
 
 #import "UIEdgeInsets.h"
 
-
-typedef enum 
-{
-   UILayoutConstraintAxisVertical   = MulleVerticalIndex,  
-   UILayoutConstraintAxisHorizontal = MulleHorizontalIndex
-} UILayoutConstraintAxis;
 
 typedef enum 
 {
@@ -18,7 +12,8 @@ typedef enum
    UIStackViewDistributionFillEqually,
    UIStackViewDistributionFillProportionally,
    UIStackViewDistributionEqualSpacing, 
-   UIStackViewDistributionEqualCentering 
+   UIStackViewDistributionEqualCentering,
+   MulleStackViewDistributionFillRowColumn
 } UIStackViewDistribution;
 
 
@@ -42,5 +37,9 @@ typedef enum
 
 // the alignment is not used if the subview has a autoresizingMask set
 @property UIStackViewAlignment      alignment;
+
+// used for MulleStackViewDistributionFillRowColumn only
+@property CGFloat                   minimumInteritemSpacing;
+@property CGFloat                   minimumLineSpacing;
 
 @end

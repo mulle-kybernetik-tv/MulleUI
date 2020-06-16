@@ -125,11 +125,11 @@ void CGRectDivide(CGRect rect, CGRect* slice, CGRect* remainder, CGFloat amount,
 CGRect CGRectIntegral(CGRect r) {
     r = CGRectStandardize(r);
 
-    r.size.width = ceilf(r.origin.x + r.size.width);
-    r.size.height = ceilf(r.origin.y + r.size.height);
-    r.origin.x = floorf(r.origin.x);
-    r.origin.y = floorf(r.origin.y);
-    r.size.width -= r.origin.x;
+    r.size.width   = ceilf(r.origin.x + r.size.width);
+    r.size.height  = ceilf(r.origin.y + r.size.height);
+    r.origin.x     = floorf(r.origin.x);
+    r.origin.y     = floorf(r.origin.y);
+    r.size.width  -= r.origin.x;
     r.size.height -= r.origin.y;
 
     return r;

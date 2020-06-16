@@ -193,10 +193,7 @@
 {
    NSUInteger   n;
 
-   n = 0;
-   if( _subviews)
-      n += mulle_pointerarray_get_count( _subviews);
-
+   n = _subviews ? mulle_pointerarray_get_count( _subviews) : 0;
    if( n > length)
       return( n);
    if( ! buf)
@@ -205,6 +202,60 @@
    mulle_pointerarray_copy_all( _subviews, buf);
 
    return( n);
+}
+
+//
+// TODO: use some other data structure, not pointerarray ?
+//
+- (void) setSubviews:(struct mulle_pointerarray *) array
+{
+   struct mulle_allocator   *allocator;
+
+   if( array == self->_subviews)
+      return;
+
+   if( ! array)
+   {
+      mulle_pointerarray_release_all( _subviews);
+      mulle_pointerarray_destroy( _subviews);
+      _subviews = NULL;
+      return;       
+   }
+
+   allocator = MulleObjCInstanceGetAllocator( self);
+   assert( _mulle_pointerarray_get_allocator( array) == allocator);
+
+   /* retain/release */
+   mulle_pointerarray_retain_all( array);
+
+   if( ! _subviews)
+      _subviews = mulle_pointerarray_alloc( allocator);
+   else
+   {
+      mulle_pointerarray_release_all( _subviews);
+      _mulle_pointerarray_done( _subviews);   // but don't free
+   }
+
+   // transfer objects
+   memcpy( _subviews, array, sizeof( struct mulle_pointerarray));
+   // make sure these aren't reused by array anymore
+   _mulle_pointerarray_init( array, 0, nil, allocator); 
+}
+
+
+- (void) addSubviewsIntersectingRect:(CGRect) rect 
+                      toPointerArray:(struct mulle_pointerarray *) array
+              invertIntersectionTest:(BOOL) flag
+{
+   struct mulle_pointerarrayenumerator   rover;
+   UIView                                *view;
+
+   flag = ! flag;
+   rover = mulle_pointerarray_enumerate_nil( _subviews);
+   while( view = _mulle_pointerarrayenumerator_next( &rover))
+      if( CGRectIntersectsRect( [view frame], rect) == flag)
+         mulle_pointerarray_add( array, view);
+   mulle_pointerarrayenumerator_done( &rover);
 }
 
 
@@ -807,8 +858,5 @@
    item = MulleTrackingAreaArrayGetItemAtIndex( &_trackingAreas, i);
    return( item);
 }
-
-
-
 
 @end

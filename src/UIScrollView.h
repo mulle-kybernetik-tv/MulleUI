@@ -97,10 +97,10 @@ static inline void   MullePointHistoryStart( struct MullePointHistory *p,
    while( --n);
 }
 
-#ifdef DEBUG
 static inline void   MullePointHistoryPrint( FILE *fp,
                                              struct MullePointHistory *p)
 {
+#ifdef SCROLLVIEW_DEBUG
    unsigned int   n, i;
 
    i = p->i;
@@ -111,8 +111,8 @@ static inline void   MullePointHistoryPrint( FILE *fp,
       i = (i - 1) & 0x7;
    }
    while( --n);
-}
 #endif
+}
 
 
 //

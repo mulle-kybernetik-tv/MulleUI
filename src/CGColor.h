@@ -1,8 +1,12 @@
-#import "import.h"
+#ifndef cg_color_h__
+#define cg_color_h__
 
-#import "CGBase.h"
-#import <math.h>
-#import "nanovg.h"
+#include "CGBase.h"
+#include <math.h>
+#include "nanovg.h"
+#include <stdint.h>
+#include <string.h>
+#include <stdlib.h>
 
 
 typedef NVGcolor   CGColorRef;
@@ -59,10 +63,11 @@ static inline CGColorRef CGColorCreate( CGColorSpaceRef space, const CGFloat *co
 }
 
 
-static inline size_t CGColorGetNumberOfComponents(CGColorRef color)
+static inline int    CGColorGetNumberOfComponents(CGColorRef color)
 {
    return( 4);
 }
+
 
 static inline void   MulleColorGetComponents(CGColorRef color, CGFloat *components)
 {
@@ -79,9 +84,13 @@ static inline CGFloat   CGColorGetAlpha( CGColorRef color)
 }
 
 
-static inline BOOL   CGColorEqualToColor( CGColorRef color, CGColorRef other)
+static inline int   CGColorEqualToColor( CGColorRef color, CGColorRef other)
 {
    // CGColorRef is not really a ref..
    return( ! memcmp( &color, &other, sizeof( CGColorRef)));
 }
 
+
+CGColorRef   MulleColorCreateFromCString( char *s);
+
+#endif
