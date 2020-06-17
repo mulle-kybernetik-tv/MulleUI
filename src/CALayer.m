@@ -70,7 +70,7 @@
 - (void) drawContentsInContext:(CGContext *) context
 {
    if( _drawContentsCallback)
-      (*_drawContentsCallback)( self, [context nvgContext], [self frame], [context currentFrameInfo]);
+      (*_drawContentsCallback)( self, context, [self frame], [context currentFrameInfo]);
 }
 
 

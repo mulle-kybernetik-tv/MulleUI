@@ -21,13 +21,15 @@ static UIEvent   *button_callback( UIButton *button, UIEvent *event)
 
 
 void  drawStuff( void *layer, 
-                 NVGcontext *vg, 
+                 CGContext *context, 
                  CGRect frame, 
                  struct MulleFrameInfo *info)
 {
    CGRect  rect;
    MulleJS  *js;
+   struct NVGcontext   *vg;
 
+   vg = MulleContextGetNVGContext( context);
    js = [MulleJS object];
    [js setObject:[NSValue valueWithPointer:vg]
           forKey:@"nvgContext"];

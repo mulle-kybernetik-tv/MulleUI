@@ -38,14 +38,16 @@
 
 
 void  drawStuff( void *aLayer, 
-                 NVGcontext *vg, 
+                 CGContext *context, 
                  CGRect frame, 
                  struct MulleFrameInfo *info)
 {
    CircleLayer   *layer = aLayer;
    CGFloat        radius;
    CGRect         box;
+   struct NVGcontext   *vg;
 
+   vg = MulleContextGetNVGContext( context);
    nvgBeginPath( vg);
    radius = MulleCGFloatMinimum( CGRectGetWidth( frame), CGRectGetHeight( frame)) / 2 - 10;
    radius *= [layer scale];

@@ -197,6 +197,12 @@ struct MulleFrameInfo
 
 typedef CGContext   *CGContextRef;
 
+static inline struct NVGcontext   *MulleContextGetNVGContext( CGContextRef self)
+{
+   return( ((struct{ @defs( CGContext); } *) self)->_vg);
+}
+
+
 static inline void   CGContextSetAlpha( CGContextRef self, CGFloat alpha)
 {
    [self setAlpha:alpha];

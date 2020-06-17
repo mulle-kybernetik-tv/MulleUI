@@ -43,7 +43,7 @@ struct CAAnimationOptions;
 @property BOOL       hidden;
 @property char       *cStringName;
 @property void       (*drawContentsCallback)( void *layer, 
-                                              NVGcontext *vg, 
+                                              CGContext *ctxt, 
                                               CGRect frame, 
                                               struct MulleFrameInfo *info);
 

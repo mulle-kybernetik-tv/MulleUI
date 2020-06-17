@@ -4,6 +4,15 @@
 #import "import.h"
 
 
+struct MulleJSimage
+{
+   int      handle;
+   float    width;
+   float    height;
+};
+
+
+
 @interface MulleJS : NSObject
 {
 	void                 *_state;

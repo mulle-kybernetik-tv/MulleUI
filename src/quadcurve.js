@@ -1,6 +1,6 @@
 var ctx = $('nvgContext');
 
-ctx.translate( 20, 100);
+ctx.translate( 20, 20);
 
 var lingrad = ctx.createLinearGradient(0, 0, 0, 150);
 lingrad.addColorStop(0, '#00ABEB');
@@ -53,3 +53,23 @@ ctx.fillStyle = radgrad2;
 ctx.fillRect(0, 0, 150, 150);
 ctx.fillStyle = radgrad;
 ctx.fillRect(0, 0, 150, 150);
+
+
+ctx.translate( 170, 0);
+
+var image = $( "rhino");
+ctx.drawImage(image, 33, 71, 104, 124, 21, 20, 87, 104);
+
+ctx.translate( 0, 150);
+
+ctx.drawImage(image, 0, 0, 100, 100);
+
+ctx.translate(-400, 0);
+
+// var image = $("pattern");
+// 
+// var pattern = ctx.createPattern(image, 'repeat');
+// 
+// context.rect(0, 0, 400, 200);
+// context.fillStyle = pattern;
+// context.fill();

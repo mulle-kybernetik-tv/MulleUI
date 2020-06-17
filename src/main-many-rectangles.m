@@ -40,14 +40,16 @@
 // memo: this actually draws outside of the layer somewhat, should fix this
 //       as noticed when reusing the code in the collection view demo
 void  drawStuff( void *aLayer, 
-                 NVGcontext *vg, 
+                 CGContext *context, 
                  CGRect frame, 
                  struct MulleFrameInfo *info)
 {
    CircleLayer   *layer = aLayer;
    CGFloat        radius;
    CGRect         box;
+   struct NVGcontext   *vg;
 
+   vg = MulleContextGetNVGContext( context);
    nvgBezierTessellation( vg, NVG_TESS_AFD);
 
    nvgBeginPath( vg);

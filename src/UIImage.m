@@ -16,4 +16,16 @@
    return( context ? [context registerTextureIDForImage:self] : -1);
 }
 
+- (int) nvgImageFlags
+{
+   return( 0);
+}
+
+- (UIImage *) imageWithNVGImageFlags:(int) flags
+{
+   if( flags == [self nvgImageFlags])
+      return( self);
+   return( nil);
+}
+
 @end

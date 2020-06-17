@@ -13,6 +13,7 @@
 #include <math.h>
 
 
+
 static void jsB_gc(js_State *_state)
 {
    int report = js_toboolean(_state, 1);
@@ -146,6 +147,7 @@ static const char *stacktrace_js =
 #define MULLEJS_TAG     "MulleJS"      // used for objectForKey:
 #define NVGCONTEXT_TAG  "nvgContext"
 #define NVGPAINT_TAG    "nvgPaint"
+#define NVGIMAGE_TAG    "nvgImage"
 
 
 static void   NVGContext_prototype_save(js_State *J)
@@ -327,6 +329,67 @@ static void   NVGContext_prototype_createRadialGradient(js_State *J)
 
 
 
+//static void   NVGContext_prototype_createPattern(js_State *J)
+//{
+//   struct NVGcontext    *nvg;
+//   struct NVGpaint       paint;
+//   struct NVGimage      *image;
+//   float                sx, sy, ex, ey;
+//   char                 *repetition;
+//   int                  flags;
+//   int                  handle;
+//
+//   nvg        = js_touserdata( J, 0, NVGCONTEXT_TAG);
+//   image      = js_touserdata( J, 1, NVGIMAGE_TAG);
+//   repetition = js_tostring( J, 2);
+//
+////    "repeat" (both directions)
+////    "repeat-x" (horizontal only)
+////    "repeat-y" (vertical only)
+////    "no-repeat" (neither direction)
+//
+//   flags = 0;
+//   switch( *repetition)
+//   {
+//   case 'r' :
+//      if( ! strncmp( "repeat", repetition, 6))
+//      {
+//         repetition = &repetition[ 6];
+//         if( ! strcmp( "-x", repetition))
+//            flags = NVG_IMAGE_REPEATX;
+//         else
+//            if( ! strcmp( "-y", repetition))
+//               flags = NVG_IMAGE_REPEATY;
+//            else 
+//               flags = NVG_IMAGE_REPEATX | NVG_IMAGE_REPEATY;
+//      }
+//   }
+// 
+//   image = [image imageWithNVGImageFlags:flags];
+//   if( ! image)
+//   {
+//      js_pushundefined( J);
+//      return;
+//   }
+//   handle = [context registerTextureIDForImage:image];
+//   size  
+//   paint    = nvgImagePattern( nvg, 0, 0, [width, height, 0, handle, 1.0);   
+//   pointer  = mulle_malloc( sizeof( struct NVGpaint));
+//   *pointer = paint;
+//
+//   js_getregistry(J, "nvgPaint");
+//   js_getproperty(J, -1, "prototype");
+//   js_newuserdatax(J, 
+//                   NVGPAINT_TAG, 
+//                   pointer, 
+//                   0,
+//                   0,
+//                   0,
+//                   NVGpaint_free);
+//}
+
+
+
 static void   NVGContext_prototype_quadraticCurveTo(js_State *J)
 {
    struct NVGcontext  *nvg;
@@ -448,6 +511,27 @@ static void   NVGContext_prototype_strokeRect(js_State *J)
 }
 
 
+
+static void   NVGContext_prototype_rect(js_State *J)
+{
+   struct NVGcontext  *nvg;
+   CGRect             rect;
+
+   nvg               = js_touserdata( J, 0, NVGCONTEXT_TAG);
+   rect.origin.x     = js_tonumber( J, 1);
+   rect.origin.y     = js_tonumber( J, 2);
+   rect.size.width   = js_tonumber( J, 3);
+   rect.size.height  = js_tonumber( J, 4);
+
+   nvgRect( nvg, rect.origin.x, 
+                 rect.origin.y, 
+                 rect.size.width, 
+                 rect.size.height);
+
+   js_pushundefined( J);
+}
+
+
 // not working, need to figure out how to erase fb ?
 static void   NVGContext_prototype_clearRect(js_State *J)
 {
@@ -472,6 +556,74 @@ static void   NVGContext_prototype_clearRect(js_State *J)
       nvgFill( nvg);   
    }
    nvgRestore( nvg);
+
+   js_pushundefined( J);
+}
+
+
+static void   NVGContext_prototype_drawImage(js_State *J)
+{
+   struct NVGcontext    *nvg;
+   struct MulleJSimage  *image;    
+   CGRect                src;
+   CGRect                dst;
+   struct NVGpaint       imagePaint;
+   float                 ax, ay;
+
+   memset( &dst, 0, sizeof( dst));
+
+   nvg             = js_touserdata( J, 0, NVGCONTEXT_TAG);
+   image           = js_touserdata( J, 1, NVGIMAGE_TAG);
+   if( ! image)
+   {
+      js_pushundefined( J);
+      return;
+   }
+
+   src.origin.x    = 0;
+   src.origin.y    = 0;
+   src.size.width  = image->width;
+   src.size.height = image->height;
+
+   dst.size        = src.size;
+
+   dst.origin.x    = js_tointeger( J, 2);
+   dst.origin.y    = js_tointeger( J, 3);
+
+   if( js_isdefined( J, 4))
+   {
+      dst.size.width  = js_tointeger( J, 4);
+      dst.size.height = js_tointeger( J, 5);
+   
+      if( js_isdefined( J, 6))
+      {
+         src             = dst;
+         dst.origin.x    = js_tointeger( J, 6);
+         dst.origin.y    = js_tointeger( J, 7);
+
+         if( js_isdefined( J, 8))
+         {
+            dst.size.width  = js_tointeger( J, 8);
+            dst.size.height = js_tointeger( J, 9);
+         }
+      }
+   }
+   
+	ax = dst.size.width / src.size.width;
+	ay = dst.size.height / src.size.height;
+
+	imagePaint = nvgImagePattern( nvg, 
+                                 dst.origin.x - src.origin.x * ax, 
+                                 dst.origin.x - src.origin.y * ay, 
+                                 image->width * ax, 
+                                 image->height / ay, 
+                                 0, //0.0f/180.0f*NVG_PI, 
+                                 image->handle, 
+                                 1.0);
+	nvgBeginPath( nvg);
+	nvgRect( nvg, dst.origin.x, dst.origin.y, dst.size.width, dst.size.height);
+	nvgFillPaint( nvg, imagePaint);
+	nvgFill( nvg);   
 
    js_pushundefined( J);
 }
@@ -855,10 +1007,10 @@ static struct function_table  NVGContext_function_table[] =
 // closePath()            	
 // createEvent() 	        TODO ??? 
 // createImageData()      TODO
-// createLinearGradient() TODO
+// createLinearGradient() 
 // createPattern() 	     TODO    
-// createRadialGradient() TODO
-// drawImage() 	        TODO
+// createRadialGradient() 
+// drawImage() 	        
 // fill() 	            
 // fillRect() 	         
 // fillText()             TODO
@@ -870,7 +1022,7 @@ static struct function_table  NVGContext_function_table[] =
 // moveTo() 	         
 // putImageData()         TODO
 // quadraticCurveTo() 	  
-// rect() 	              TODO      
+// rect() 	                    
 // restore() 
 // rotate() 	      
 // save() 	
@@ -888,15 +1040,17 @@ static struct function_table  NVGContext_function_table[] =
    mulle_js_define( NVGContext_prototype_arcTo, 5),
    mulle_js_define( NVGContext_prototype_beginPath, 0 ),
    mulle_js_define( NVGContext_prototype_bezierCurveTo, 6),
-   mulle_js_define( NVGContext_prototype_clearRect, 4),
+   mulle_js_define( NVGContext_prototype_clearRect, 4),  // needs fixing
    mulle_js_define( NVGContext_prototype_closePath, 0),
    mulle_js_define( NVGContext_prototype_createLinearGradient, 4),
    mulle_js_define( NVGContext_prototype_createRadialGradient, 6),
+   mulle_js_define( NVGContext_prototype_drawImage, 9),
    mulle_js_define( NVGContext_prototype_fill, 0),
    mulle_js_define( NVGContext_prototype_fillRect, 4),
    mulle_js_define( NVGContext_prototype_lineTo, 2),
    mulle_js_define( NVGContext_prototype_moveTo, 2),
    mulle_js_define( NVGContext_prototype_quadraticCurveTo, 4),
+   mulle_js_define( NVGContext_prototype_rect, 4),
    mulle_js_define( NVGContext_prototype_restore, 0),
    mulle_js_define( NVGContext_prototype_rotate, 1),
    mulle_js_define( NVGContext_prototype_save, 0),
@@ -945,7 +1099,9 @@ void   MulleJS_initNVGcontext( MulleJS *self)
    js_setregistry( J, "nvgContext");
 }   
 
-
+/*
+ * Paint
+ */ 
 static void   NVGpaint_prototype_addColorStop( js_State *J)
 {
    struct NVGpaint   *paint;
@@ -1012,6 +1168,34 @@ void   MulleJS_initNVGpaint( MulleJS *self)
 }   
 
 
+/*
+ * Image
+ */ 
+void   MulleJS_initNVGimage( MulleJS *self)
+{
+   NSValue              *value;
+   struct NVGcontext    *nvg;
+   js_State             *J;
+   char                 *s;
+
+   J = self->_state;
+
+// create a new property object
+   js_getglobal(J, "Object");
+   js_getproperty(J, -1, "prototype");
+   js_newobject(J);
+
+   // our object ( now on the stack)
+
+  	js_newcconstructor(J, 0, 0, "nvgImage", 0);
+   js_setregistry( J, "nvgImage");
+}   
+
+
+
+/*
+ * Math
+ */
 #define define_math_function_1( functionname)                \
 static void   Math_prototype_ ## functionname(js_State *J)   \
 {                                                            \
@@ -1305,27 +1489,38 @@ static void   MulleJS_objectForKey(js_State *J)
       return;
    }
 
+   if( [key isEqualToString:@"nvgContext"])
+   {
+      pointer = [value pointerValue];
+
+      js_getregistry(J, "nvgContext");
+      js_getproperty(J, -1, "prototype");
+      js_newuserdatax(J, 
+                     NVGCONTEXT_TAG, 
+                     pointer, 
+                     NVGContext_GetProperty,
+                     NVGContext_PutProperty,
+                     0,
+                     0);
+
+      js_newnumber( J, [[self objectForKey:@"width"] doubleValue]);
+      js_defproperty(J, -2, "width", JS_DONTENUM|JS_READONLY);
+      js_newnumber( J, [[self objectForKey:@"height"] doubleValue]);
+      js_defproperty(J, -2, "height", JS_DONTENUM|JS_READONLY);
+      return;
+   }
+
    pointer = [value pointerValue];
 
-   js_getregistry(J, "nvgContext");
-//   js_repr( J, -1);
-//   fprintf( stderr, "po: %s\n", js_tostring(J, -1));
-//	js_pop(J, 1)
-   ;
-   //   js_stacktrace( J);
+   js_getregistry(J, "nvgImage");
    js_getproperty(J, -1, "prototype");
    js_newuserdatax(J, 
-                  NVGCONTEXT_TAG, 
-                  pointer, 
-                  NVGContext_GetProperty,
-                  NVGContext_PutProperty,
-                  0,
-                  0);
-
-   js_newnumber( J, [[self objectForKey:@"width"] doubleValue]);
-   js_defproperty(J, -2, "width", JS_DONTENUM|JS_READONLY);
-   js_newnumber( J, [[self objectForKey:@"height"] doubleValue]);
-   js_defproperty(J, -2, "height", JS_DONTENUM|JS_READONLY);
+                   NVGIMAGE_TAG, 
+                   pointer, 
+                   0,
+                   0,
+                   0,
+                   0);
 }
 
 
@@ -1385,6 +1580,7 @@ static void   MulleJS_objectForKey(js_State *J)
 
    MulleJS_initNVGcontext( self);
    MulleJS_initNVGpaint( self);
+   MulleJS_initNVGimage( self);
    MulleJS_initMath( self);
 
    return( self);

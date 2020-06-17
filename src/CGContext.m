@@ -371,7 +371,11 @@ static struct mulle_container_keyvaluecallback   c_string_to_object_callback;
       _images = mulle__pointermap_create( 16, 0, allocator);
 
    size      = [(MulleBitmapImage *) image intSize];
-   textureId = nvgCreateImageRGBA( _vg, size.width, size.height, 0, [(MulleBitmapImage *) image bytes]);
+   textureId = nvgCreateImageRGBA( _vg, 
+                                   size.width, 
+                                   size.height, 
+                                   [image nvgImageFlags], 
+                                   [(MulleBitmapImage *) image bytes]);
 //   fprintf( stderr, "textureid: %d\n", textureId);
 
    [image retain];

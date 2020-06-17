@@ -233,40 +233,91 @@ static inline   int  dehex( char c)
 // returns non-normalized floats
 // rgb are 0-255, alpha is normalized 0-1 (NOT MY IDEA!!)
 // https://developer.mozilla.org/en-US/docs/Web/CSS/color_value
-// 
-static inline int  decode_float_array( char *s, float rgba[ 4], unsigned int n)
+// in rgba pass the "max" values (i.e. 255,255,255,1 for RGBA
+// and 360,100,100,1 for HSLA)
+static inline int  decode_hsla_array( char *s, float hsla[ 4], unsigned int n)
 {
    char     *end;
    int      state;
    double   value;
-   double   maxValue;
+   float    max[ 4];
    int      i;
    int      c;
 
    assert( n >= 3 && n <= 4);
    i        = 0;
-   rgba[ 0] = 0.0;
-   rgba[ 1] = 0.0;
-   rgba[ 2] = 0.0;
-   rgba[ 3] = 1.0;
 
-   maxValue = 255.0;
+   max[ 0] = 360.0;
+   max[ 1] = 100.0;
+   max[ 2] = 100.0;
+   max[ 3] = 1.0;
+
+   hsla[ 0] = 0.0;
+   hsla[ 1] = 0.0;
+   hsla[ 2] = 0.0;
+   hsla[ 3] = 1.0;
+
    assert( *s == '(' );
    while( c = *++s)
    {
       if( (c >= '0' && c <= '9') || c == '.')
       {
-         rgba[ i] = strtod( s, &end);
-         if( *end == '%')
-            rgba[ i] /= 100.0 * maxValue;
-         if( rgba[ i] < 0.0)
-            rgba[ i] = 0.0;
-         if( rgba[ i] > maxValue) 
-            rgba[ i] = maxValue;
+         hsla[ i] = strtod( s, &end);
+         switch( *end)
+         {
+         case '%' :
+            hsla[ i] = hsla[ i] / 100.0 * max[ i];
+            s        = end + 1;
+            break;
+      
+         case 't' : 
+            if( i || strncmp( end, "turn", 4))
+               return( -1);
+            // only for h
+            hsla[ i] = fmod( hsla[ i], 1) * max[ i];  // turn must be 0-1 for now
+            s        = end + 4;
+            break;
+
+         case 'd' :
+            if( i || strncmp( end, "deg", 3))  // default
+               return( -1);
+            // only for h
+            s         = end + 3;
+            break;
+
+         case 'g' :
+            if( i || strncmp( end, "grad", 4))
+               return( -1);
+            // only for h
+            hsla[ i]  = hsla[ i] / 400.0 * max[ i];
+            s         = end + 4;
+            break;
+
+         case 'r' :
+            if( i || strncmp( end, "rad", 3))
+               return( -1);
+            // only for h
+            hsla[ i] = hsla[ i] / (2 * M_PI) * max[ i];
+            s        = end + 3;
+            break;
+         }
+
+         if( i == 0)
+         {
+            hsla[ i] = fmod( hsla[ i], max[ i]);
+            if( hsla[ i] < 0.0)
+               hsla[ i] = max[ i] - hsla[ i];
+         }
+         else
+         {
+            if( hsla[ i] < 0.0)
+               hsla[ i] = 0.0;
+            if( hsla[ i] > max[ i]) 
+               hsla[ i] = max[ i];
+         }
+
          if( ++i == n)
             return( 0);
-         if( i == 3)
-            maxValue = 1.0; // alpha now
 
          s = end - 1;
          continue;   
@@ -286,11 +337,121 @@ static inline int  decode_float_array( char *s, float rgba[ 4], unsigned int n)
 }
 
 
+//
+// returns non-normalized floats
+// rgb are 0-255, alpha is normalized 0-1 (NOT MY IDEA!!)
+// https://developer.mozilla.org/en-US/docs/Web/CSS/color_value
+// in hsla pass the "max" values (i.e. 255,255,255,1 for RGBA
+// and 360,100,100,1 for HSLA)
+static inline int  decode_rgba_array( char *s, float rgba[ 4], unsigned int n)
+{
+   char     *end;
+   int      state;
+   double   value;
+   float    max[ 4];
+   int      i;
+   int      c;
+
+   assert( n >= 3 && n <= 4);
+   i        = 0;
+
+   max[ 0] = 255.0;
+   max[ 1] = 255.0;
+   max[ 2] = 255.0;
+   max[ 3] = 1.0;
+
+   rgba[ 0] = 0.0;
+   rgba[ 1] = 0.0;
+   rgba[ 2] = 0.0;
+   rgba[ 3] = 1.0;
+
+   assert( *s == '(' );
+   while( c = *++s)
+   {
+      if( (c >= '0' && c <= '9') || c == '.')
+      {
+         rgba[ i] = strtod( s, &end);
+         switch( *end)
+         {
+         case '%' :
+            rgba[ i] = rgba[ i] / 100.0 * max[ i];
+            break;
+         }
+
+         if( rgba[ i] < 0.0)
+            rgba[ i] = 0.0;
+         if( rgba[ i] > max[ i]) 
+            rgba[ i] = max[ i];
+
+         if( ++i == n)
+            return( 0);
+
+         s = end - 1;
+         continue;   
+      }
+
+      if( c == ' ')
+         continue;
+      if( c == ',')
+         continue;
+      if( c == ')')
+         return( 0);
+      if( c == '/')
+         continue;
+      return( -1);
+   }
+   return( -1);
+}
+
+// stolen from @mjackson: https://gist.github.com/mjackson/5311256
+
+static float  hue2rgb( float p, float q, float t) 
+{
+   if (t < 0) t += 1;
+   if (t > 1) t -= 1;
+   if (t < 1/6) return p + (q - p) * 6 * t;
+   if (t < 1/2) return q;
+   if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+   return p;
+}
+
+
+/*
+ * Converts an RGB color value to HSL. Conversion formula
+ * adapted from http://en.wikipedia.org/wiki/HSL_color_space.
+ * Assumes r, g, and b are contained in the set [0, 255] and
+ * returns h, s, and l in the set [0, 1].
+ */
+static void   mulle_hsl_to_rgb_normalized( float hsl[ 3], float rgb[ 3])
+{
+   double   q;
+   double   p;
+
+   if( hsl[ 1] == 0) 
+   {
+      rgb[ 0] = 
+      rgb[ 1] = 
+      rgb[ 2] = hsl[ 2]; // achromatic
+      return;
+   }
+   q =  hsl[ 2] < 0.5 
+            ?  hsl[ 2] * (1 + hsl[ 1]) 
+            :  hsl[ 2] + hsl[ 1] - hsl[ 2] * hsl[ 1];
+   p = 2 * hsl[ 2] - q;
+
+   rgb[ 0] = hue2rgb( p, q, hsl[ 0] + 1/3);
+   rgb[ 1] = hue2rgb( p, q, hsl[ 0]);
+   rgb[ 2] = hue2rgb( p, q, hsl[ 0] - 1/3);
+}
+
+
+
 CGColorRef   MulleColorCreateFromCString( char *string)
 {
    size_t          len;
    unsigned int    rgba[ 4];
    float           rgbaf[ 4];
+   float           hslaf[ 4];
    unsigned char   *s;
    uint32_t        color;
    int             i;
@@ -343,7 +504,7 @@ CGColorRef   MulleColorCreateFromCString( char *string)
             ++i;
          if( string[ i] == '(')
          {
-            if( decode_float_array( &string[ i], rgbaf, i))
+            if( decode_rgba_array( &string[ i], rgbaf, i))
                return( getNVGColor( 0));
 
            
@@ -355,6 +516,31 @@ CGColorRef   MulleColorCreateFromCString( char *string)
       }
    }
 
+   if( *string == 'h')
+   {
+      if( ! strncmp( string, "hsl", 3))
+      {
+         i = 3;
+         if( string[ i] == 'a')
+            ++i;
+         if( string[ i] == '(')
+         {
+            if( decode_hsla_array( &string[ i], hslaf, i))
+               return( getNVGColor( 0));
+
+            // returns normalized
+            mulle_hsl_to_rgb_normalized( hslaf, rgbaf);
+            rgbaf[ 3] = hslaf[ 3];
+            return( nvgRGBAf( rgbaf[ 0], 
+                              rgbaf[ 1], 
+                              rgbaf[ 2], 
+                              rgbaf[ 3]));
+         }
+      }
+   }
    color = mulle_colorname_to_uint32( string);
    return( getNVGColor( color));
 }
+
+
+

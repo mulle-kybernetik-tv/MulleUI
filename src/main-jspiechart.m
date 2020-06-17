@@ -7,6 +7,7 @@
 #import "UIStackView.h"
 #import "UIScrollView.h"
 #import "MulleJS.h"
+#import "MulleBitmapImage.h"
 #import "UIView+Layout.h"
 #import "NSValue+CGGeometry.h"
 #import "UIEvent.h"
@@ -14,25 +15,43 @@
 
 
 void  drawStuff( void *layer, 
-                 NVGcontext *vg, 
+                 CGContext *context, 
                  CGRect frame, 
                  struct MulleFrameInfo *info)
 {
-   CGRect  rect;
-   MulleJS  *js;
+   CGRect                rect;
+   MulleJS               *js;
+   struct MulleJSimage   image;
+   struct NVGcontext     *vg;
+   MulleBitmapImage      *rhinoBitmap;
+   CGSize                size;
 
-   js = [MulleJS object];
-   [js setObject:[NSValue valueWithPointer:vg]
-          forKey:@"nvgContext"];
-   [js setObject:@(frame.size.width)
-          forKey:@"width"];
-   [js setObject:@(frame.size.height)
-          forKey:@"height"];
+   vg = MulleContextGetNVGContext( context);
 
-   [js runScriptFileCString:"/home/src/srcO/MulleUI/src/quadcurve.js"];
-//   [js runScriptFileCString:"/home/src/srcO/MulleUI/src/pie-chart-demo.js"];
-//   [js runScriptFileCString:"/home/src/srcO/MulleUI/src/colorsandlines.js"];
-//   [js runScriptFileCString:"/home/src/srcO/MulleUI/src/drawings.js"];
+   rhinoBitmap  = [[[MulleBitmapImage alloc] initWithContentsOfFileWithFileRepresentationString:"/home/src/srcO/MulleUI/rhino.jpg"] autorelease];
+
+   image.handle = [context registerTextureIDForImage:rhinoBitmap];
+   size         = [rhinoBitmap size];
+   image.width  = size.width;
+   image.height = size.height;
+
+   @autoreleasepool
+   {
+      js = [MulleJS object];
+      [js setObject:[NSValue valueWithPointer:vg]
+             forKey:@"nvgContext"];
+      [js setObject:[NSValue valueWithPointer:&image]
+             forKey:@"rhino"];          
+      [js setObject:@(frame.size.width)
+             forKey:@"width"];
+      [js setObject:@(frame.size.height)
+             forKey:@"height"];
+
+      [js runScriptFileCString:"/home/src/srcO/MulleUI/src/quadcurve.js"];
+   //   [js runScriptFileCString:"/home/src/srcO/MulleUI/src/pie-chart-demo.js"];
+   //   [js runScriptFileCString:"/home/src/srcO/MulleUI/src/colorsandlines.js"];
+   //   [js runScriptFileCString:"/home/src/srcO/MulleUI/src/drawings.js"];
+   }
 }
 
 

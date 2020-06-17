@@ -39,14 +39,16 @@
 
 
 void  drawStuff( void *aLayer, 
-                 NVGcontext *vg, 
+                 CGContext *context, 
                  CGRect frame, 
                  struct MulleFrameInfo *info)
 {
    CircleLayer   *layer = aLayer;
    CGFloat        radius;
    CGRect         box;
+   struct NVGcontext   *vg;
 
+   vg = MulleContextGetNVGContext( context);
    nvgBezierTessellation( vg, NVG_TESS_AFD);
 
    nvgBeginPath( vg);

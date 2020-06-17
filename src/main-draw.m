@@ -57,11 +57,14 @@ void   _drawStuff( NVGcontext *vg,
 }                 
 
 void  drawStuff( void *layer, 
-                 NVGcontext *vg, 
+                 CGContext *context, 
                  CGRect frame, 
                  struct MulleFrameInfo *info)
 {
-   CGRect  rect;
+   CGRect              rect;
+   struct NVGcontext   *vg;
+
+   vg = MulleContextGetNVGContext( context);
 
    rect = CGRectMake( 100.5, 100, 100, 100);
 
