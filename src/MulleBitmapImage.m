@@ -155,6 +155,11 @@
    return( ! bmp_rgb32_write_file( filename, _image, size.width, size.height, 0) ? YES : NO);
 }
 
+- (id) copy
+{
+   return( NSCopyObject( self, 0, NULL));
+}
+
 
 // derive and image with different flags for NVG
 - (UIImage *) imageWithNVGImageFlags:(int) flags

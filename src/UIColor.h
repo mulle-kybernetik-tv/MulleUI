@@ -7,7 +7,7 @@
 // nanovg color struct
 //
 // I think colors wrapped into objects is too heavyweight
-// In case of need one should use NSValue for that.
+// In case of need, one should use NSValue for that.
 
 @interface UIColor : NSObject
 
@@ -22,6 +22,8 @@
 + (CGColorRef) lightGrayColor;
 + (CGColorRef) underPageBackgroundColor;
 + (CGColorRef) colorWithCGColor:(CGColorRef) cgColor;
+
++ (NSValue *) mulleValueWithCGColor:(CGColorRef) cgColor;
 
 @end
 

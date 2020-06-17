@@ -66,6 +66,8 @@ src/MulleEdgeInsets+CString.h
 src/MulleEdgeInsets+MulleObjC.h
 src/MulleEdgeInsets.h
 src/MulleImageLayer.h
+src/MulleJS+Math.h
+src/MulleJS+MulleUI.h
 src/MulleJS.h
 src/MulleObjectArray.h
 src/MulleSVGImage.h

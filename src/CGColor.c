@@ -1,9 +1,11 @@
-#include "CGColor.h"
+#define _GNU_SOURCE
 
+#include "CGColor.h"
 
 #include <string.h>
 #include <stdint.h>
 #include <assert.h>
+#include <math.h>
 
 
 // all colors will have alpha set to 0xFF
@@ -267,7 +269,7 @@ static inline int  decode_hsla_array( char *s, float hsla[ 4], unsigned int n)
          {
          case '%' :
             hsla[ i] = hsla[ i] / 100.0 * max[ i];
-            s        = end + 1;
+            end      = end + 1;
             break;
       
          case 't' : 
@@ -275,14 +277,14 @@ static inline int  decode_hsla_array( char *s, float hsla[ 4], unsigned int n)
                return( -1);
             // only for h
             hsla[ i] = fmod( hsla[ i], 1) * max[ i];  // turn must be 0-1 for now
-            s        = end + 4;
+            end      = end + 4;
             break;
 
          case 'd' :
             if( i || strncmp( end, "deg", 3))  // default
                return( -1);
             // only for h
-            s         = end + 3;
+            end = end + 3;
             break;
 
          case 'g' :
@@ -290,7 +292,7 @@ static inline int  decode_hsla_array( char *s, float hsla[ 4], unsigned int n)
                return( -1);
             // only for h
             hsla[ i]  = hsla[ i] / 400.0 * max[ i];
-            s         = end + 4;
+            end       = end + 4;
             break;
 
          case 'r' :
@@ -298,7 +300,7 @@ static inline int  decode_hsla_array( char *s, float hsla[ 4], unsigned int n)
                return( -1);
             // only for h
             hsla[ i] = hsla[ i] / (2 * M_PI) * max[ i];
-            s        = end + 3;
+            end      = end + 3;
             break;
          }
 
@@ -407,22 +409,21 @@ static inline int  decode_rgba_array( char *s, float rgba[ 4], unsigned int n)
 
 static float  hue2rgb( float p, float q, float t) 
 {
-   if (t < 0) t += 1;
-   if (t > 1) t -= 1;
-   if (t < 1/6) return p + (q - p) * 6 * t;
-   if (t < 1/2) return q;
-   if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+   if (t < 0.0) t += 1;
+   if (t > 1.0) t -= 1;
+   if (t < 1.0/6.0) return p + (q - p) * 6.0 * t;
+   if (t < 1.0/2.0) return q;
+   if (t < 2.0/3.0) return p + (q - p) * (2.0/3.0 - t) * 6;
    return p;
 }
 
-
-/*
- * Converts an RGB color value to HSL. Conversion formula
+/**
+ * Converts an HSL color value to RGB. Conversion formula
  * adapted from http://en.wikipedia.org/wiki/HSL_color_space.
- * Assumes r, g, and b are contained in the set [0, 255] and
- * returns h, s, and l in the set [0, 1].
+ * Assumes h, s, and l are contained in the set [0, 1] and
+ * returns r, g, and b in the set [0, 1]. 
  */
-static void   mulle_hsl_to_rgb_normalized( float hsl[ 3], float rgb[ 3])
+static void mulle_normalized_hsl_to_normalized_rgb(float hsl[3], float rgb[3])
 {
    double   q;
    double   p;
@@ -439,9 +440,9 @@ static void   mulle_hsl_to_rgb_normalized( float hsl[ 3], float rgb[ 3])
             :  hsl[ 2] + hsl[ 1] - hsl[ 2] * hsl[ 1];
    p = 2 * hsl[ 2] - q;
 
-   rgb[ 0] = hue2rgb( p, q, hsl[ 0] + 1/3);
+   rgb[ 0] = hue2rgb( p, q, hsl[ 0] + 1.0/3.0);
    rgb[ 1] = hue2rgb( p, q, hsl[ 0]);
-   rgb[ 2] = hue2rgb( p, q, hsl[ 0] - 1/3);
+   rgb[ 2] = hue2rgb( p, q, hsl[ 0] - 1.0/3.0);
 }
 
 
@@ -507,7 +508,6 @@ CGColorRef   MulleColorCreateFromCString( char *string)
             if( decode_rgba_array( &string[ i], rgbaf, i))
                return( getNVGColor( 0));
 
-           
             return( nvgRGBAf( rgbaf[ 0] / 255.0, 
                               rgbaf[ 1] / 255.0, 
                               rgbaf[ 2] / 255.0, 
@@ -528,13 +528,16 @@ CGColorRef   MulleColorCreateFromCString( char *string)
             if( decode_hsla_array( &string[ i], hslaf, i))
                return( getNVGColor( 0));
 
-            // returns normalized
-            mulle_hsl_to_rgb_normalized( hslaf, rgbaf);
+            hslaf[ 0] /= 360.0;
+            hslaf[ 1] /= 100.0;
+            hslaf[ 2] /= 100.0;
+
+            mulle_normalized_hsl_to_normalized_rgb( hslaf, rgbaf);
             rgbaf[ 3] = hslaf[ 3];
-            return( nvgRGBAf( rgbaf[ 0], 
-                              rgbaf[ 1], 
-                              rgbaf[ 2], 
-                              rgbaf[ 3]));
+            return (nvgRGBAf(rgbaf[0],
+                             rgbaf[1],
+                             rgbaf[2],
+                             rgbaf[3]));
          }
       }
    }

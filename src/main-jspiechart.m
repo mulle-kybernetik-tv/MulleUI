@@ -1,7 +1,9 @@
 #import "import-private.h"
 
+#import "CALayer.h"
 #import "CGContext.h"
 #import "UIWindow.h"
+#import "UIColor.h"
 #import "UIApplication.h"
 #import "UIButton.h"
 #import "UIStackView.h"
@@ -14,46 +16,49 @@
 #import <string.h>
 
 
-void  drawStuff( void *layer, 
+static MulleBitmapImage      *rhinoBitmap;
+static MulleBitmapImage      *patternBitmap;
+
+void  drawStuff( CALayer *layer, 
                  CGContext *context, 
                  CGRect frame, 
                  struct MulleFrameInfo *info)
 {
    CGRect                rect;
    MulleJS               *js;
-   struct MulleJSimage   image;
-   struct NVGcontext     *vg;
-   MulleBitmapImage      *rhinoBitmap;
+   struct NVGcontext     *nvg;
    CGSize                size;
 
-   vg = MulleContextGetNVGContext( context);
+   nvg = MulleContextGetNVGContext( context);
 
-   rhinoBitmap  = [[[MulleBitmapImage alloc] initWithContentsOfFileWithFileRepresentationString:"/home/src/srcO/MulleUI/rhino.jpg"] autorelease];
-
-   image.handle = [context registerTextureIDForImage:rhinoBitmap];
-   size         = [rhinoBitmap size];
-   image.width  = size.width;
-   image.height = size.height;
-
+   // clip javascript drawing
+   nvgScissor( nvg, frame.origin.x, frame.origin.y, frame.size.width, frame.size.height);
+   nvgTranslate( nvg, frame.origin.x, frame.origin.y);
+   
    @autoreleasepool
    {
+      [context fontWithName:"sans"];
       js = [MulleJS object];
-      [js setObject:[NSValue valueWithPointer:vg]
+      [js setObject:context
+             forKey:@"CGContext"];
+      [js setObject:[NSValue valueWithPointer:nvg]
              forKey:@"nvgContext"];
-      [js setObject:[NSValue valueWithPointer:&image]
+      [js setObject:rhinoBitmap
              forKey:@"rhino"];          
+      [js setObject:patternBitmap
+             forKey:@"pattern"];          
       [js setObject:@(frame.size.width)
              forKey:@"width"];
       [js setObject:@(frame.size.height)
              forKey:@"height"];
-
+      [js setObject:[UIColor mulleValueWithCGColor:[(id) layer backgroundColor]]
+             forKey:@"backgroundColor"];
       [js runScriptFileCString:"/home/src/srcO/MulleUI/src/quadcurve.js"];
    //   [js runScriptFileCString:"/home/src/srcO/MulleUI/src/pie-chart-demo.js"];
    //   [js runScriptFileCString:"/home/src/srcO/MulleUI/src/colorsandlines.js"];
    //   [js runScriptFileCString:"/home/src/srcO/MulleUI/src/drawings.js"];
    }
 }
-
 
 
 static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
@@ -77,7 +82,7 @@ static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
    // the margin. The 100 is the height of the display
 
    displayView  = [[[UIView alloc] initWithFrame:CGRectZero] autorelease];
-   [displayView setBackgroundColor:getNVGColor( 0x7F7F7FFF)]; 
+   [displayView setBackgroundColor:getNVGColor( 0x00007FFF)]; 
    [displayView setCStringName:"DisplayView"];
    [displayView setMargins:UIEdgeInsetsMake( 10, 10, 10, 10)];
    [displayView setAutoresizingMask:UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth];
@@ -110,6 +115,9 @@ int  main()
 
    @autoreleasepool
    {
+      rhinoBitmap   = [[[MulleBitmapImage alloc] initWithContentsOfFileWithFileRepresentationString:"/home/src/srcO/MulleUI/rhino.jpg"] autorelease];
+      patternBitmap = [[[MulleBitmapImage alloc] initWithContentsOfFileWithFileRepresentationString:"/home/src/srcO/MulleUI/pattern.png"] autorelease];
+
       window  = [[[UIWindow alloc] initWithFrame:CGRectMake( 0.0, 0.0, 729.00, 449.00)] autorelease];
       assert( window);
 

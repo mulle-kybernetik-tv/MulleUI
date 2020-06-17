@@ -45,6 +45,8 @@ src/MulleControlBackgroundImage.m
 src/MulleEdgeInsets+CString.m
 src/MulleEdgeInsets.c
 src/MulleImageLayer.m
+src/MulleJS+Math.m
+src/MulleJS+MulleUI.m
 src/MulleJS.m
 src/MulleObjectArray.m
 src/MulleSVGImage.m

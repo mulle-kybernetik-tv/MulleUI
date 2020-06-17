@@ -42,7 +42,7 @@ struct CAAnimationOptions;
 // non-observable
 @property BOOL       hidden;
 @property char       *cStringName;
-@property void       (*drawContentsCallback)( void *layer, 
+@property void       (*drawContentsCallback)( CALayer *layer, 
                                               CGContext *ctxt, 
                                               CGRect frame, 
                                               struct MulleFrameInfo *info);
