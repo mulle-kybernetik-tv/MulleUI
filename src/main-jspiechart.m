@@ -16,7 +16,7 @@
 #import <string.h>
 
 
-static MulleBitmapImage      *rhinoBitmap;
+static MulleBitmapImage      *bengalBitmap;
 static MulleBitmapImage      *patternBitmap;
 
 void  drawStuff( CALayer *layer, 
@@ -43,8 +43,8 @@ void  drawStuff( CALayer *layer,
              forKey:@"CGContext"];
       [js setObject:[NSValue valueWithPointer:nvg]
              forKey:@"nvgContext"];
-      [js setObject:rhinoBitmap
-             forKey:@"rhino"];          
+      [js setObject:bengalBitmap
+             forKey:@"bengal"];          
       [js setObject:patternBitmap
              forKey:@"pattern"];          
       [js setObject:@(frame.size.width)
@@ -54,6 +54,7 @@ void  drawStuff( CALayer *layer,
       [js setObject:[UIColor mulleValueWithCGColor:[(id) layer backgroundColor]]
              forKey:@"backgroundColor"];
       [js runScriptFileCString:"/home/src/srcO/MulleUI/src/quadcurve.js"];
+      [js runScriptFileCString:"/home/src/srcO/MulleUI/src/donutpie.js"];
    //   [js runScriptFileCString:"/home/src/srcO/MulleUI/src/pie-chart-demo.js"];
    //   [js runScriptFileCString:"/home/src/srcO/MulleUI/src/colorsandlines.js"];
    //   [js runScriptFileCString:"/home/src/srcO/MulleUI/src/drawings.js"];
@@ -115,7 +116,7 @@ int  main()
 
    @autoreleasepool
    {
-      rhinoBitmap   = [[[MulleBitmapImage alloc] initWithContentsOfFileWithFileRepresentationString:"/home/src/srcO/MulleUI/rhino.jpg"] autorelease];
+      bengalBitmap   = [[[MulleBitmapImage alloc] initWithContentsOfFileWithFileRepresentationString:"/home/src/srcO/MulleUI/bengal_s.jpg"] autorelease];
       patternBitmap = [[[MulleBitmapImage alloc] initWithContentsOfFileWithFileRepresentationString:"/home/src/srcO/MulleUI/pattern.png"] autorelease];
 
       window  = [[[UIWindow alloc] initWithFrame:CGRectMake( 0.0, 0.0, 729.00, 449.00)] autorelease];

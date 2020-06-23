@@ -405,6 +405,8 @@ static inline int  decode_rgba_array( char *s, float rgba[ 4], unsigned int n)
    return( -1);
 }
 
+
+#if USE_OWN_HSLA_CODE
 // stolen from @mjackson: https://gist.github.com/mjackson/5311256
 
 static float  hue2rgb( float p, float q, float t) 
@@ -444,7 +446,7 @@ static void mulle_normalized_hsl_to_normalized_rgb(float hsl[3], float rgb[3])
    rgb[ 1] = hue2rgb( p, q, hsl[ 0]);
    rgb[ 2] = hue2rgb( p, q, hsl[ 0] - 1.0/3.0);
 }
-
+#endif
 
 
 CGColorRef   MulleColorCreateFromCString( char *string)
@@ -531,13 +533,10 @@ CGColorRef   MulleColorCreateFromCString( char *string)
             hslaf[ 0] /= 360.0;
             hslaf[ 1] /= 100.0;
             hslaf[ 2] /= 100.0;
-
-            mulle_normalized_hsl_to_normalized_rgb( hslaf, rgbaf);
-            rgbaf[ 3] = hslaf[ 3];
-            return (nvgRGBAf(rgbaf[0],
-                             rgbaf[1],
-                             rgbaf[2],
-                             rgbaf[3]));
+            return (nvgHSLA(hslaf[0],
+                            hslaf[1],
+                            hslaf[2],
+                            hslaf[3]));
          }
       }
    }

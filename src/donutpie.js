@@ -1,15 +1,11 @@
 function drawPieSlice(ctx, centerX, centerY, radius, startAngle, endAngle, color) {
-   nvgFillColor(ctx, MulleColorCreateFromCString( color));
-   //ctx.beginPath();
-   nvgBeginPath( ctx);
-   // ctx.moveTo( centerX, centerY);
-   nvgMoveTo( ctx, centerX, centerY);
+   ctx.fillStyle = color;
+   ctx.beginPath();
+   ctx.moveTo(centerX, centerY);
    // ctx.arc(centerX, centerY, radius, startAngle, endAngle);
    nvgArc( ctx, centerX, centerY, radius, startAngle, endAngle);
-   // ctx.closePath();
-   nvgClosePath( ctx);
-   //ctx.fill();
-   nvgFill(ctx);
+   ctx.closePath();
+   ctx.fill();
 }
 
 
@@ -76,15 +72,9 @@ var Piechart = function (options) {
        }
 
         var labelText = Math.round(100 * val / total_value);
-
-        nvgTextColor(this.ctx, MulleColorCreateFromCString('white'), MulleColorCreateFromCString('blue'));
-        
-        // this.ctx.fillStyle = "black";
-        nvgFontFace( this.ctx, "sans");
-//        this.ctx.font = "32px sans";
-        nvgFontSize(this.ctx, 40);
-        nvgText(this.ctx, labelX, labelY, labelText + "%", NULL);
-        //this.ctx.fillText(labelText + "%", labelX, labelY);
+        this.ctx.fillStyle = "white";
+        this.ctx.font = "32px sans";
+        this.ctx.fillText(labelText + "%", labelX, labelY);
         start_angle += slice_angle;
 
       }      
@@ -110,13 +100,3 @@ var myDougnutChart = new Piechart(
 );
 
 myDougnutChart.draw();
-
-
-var ctx = $('nvgContext')
-var image = loadImage( "bengal");
-var paint = nvgImagePattern( ctx, 0, 0, 200, 200, 0, image, 1.0);
-nvgBeginPath( ctx);
-nvgTranslate(ctx, 255, 115);
-nvgCircle( ctx, 100, 100, 100);
-nvgFillPaint( ctx, paint);
-nvgFill( ctx);

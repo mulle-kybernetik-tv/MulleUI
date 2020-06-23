@@ -404,7 +404,7 @@ static void   error_callback(int code, const char* description)
          [self updateRenderCachesWithContext:context 
                                    frameInfo:&info];
 
-         info.isPerfEnabled = NO;
+         info.isPerfEnabled = YES;
          [context startRenderWithFrameInfo:&info];
          [self renderWithContext:context];
          [context endRender];
