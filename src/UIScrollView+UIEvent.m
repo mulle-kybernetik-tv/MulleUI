@@ -9,7 +9,7 @@
 
 
 // #define LAYOUT_DEBUG    
-// #define EVENT_DEBUG
+#define EVENT_DEBUG
 #define ZOOM_DEBUG
 
 @implementation UIScrollView( UIEvent)
@@ -83,6 +83,12 @@
    CGRect    newContentBounds;
    CGSize    contentSize;
    UIView    *contentView;
+
+   //
+   // TODO: if not zooming possibly scroll up/down
+   //
+   if( ! [self isZoomEnabled])
+      return( event);
 
    diff = [event scrollOffset];
 
@@ -389,10 +395,13 @@
 
    [self scrollContentOffsetBy:diff];
 
+#ifdef EVENT_DEBUG
    MullePointHistoryAdd( &_mousePositionHistory, [event timestamp], mousePosition);
-   fprintf( stderr, "{ timestamp=%.9f, point=%.2f,%2.f }\n", 
-                  [event timestamp], mousePosition.x, mousePosition.y);
-
+   fprintf( stderr, "{ timestamp=%.9f, point=%.2f,%2.f (diff=%.2f,%2.f) }\n", 
+                  [event timestamp], 
+                  mousePosition.x, mousePosition.y,
+                  diff.x, diff.y);
+#endif
    _mousePosition = mousePosition;
 
    return( nil);
@@ -439,7 +448,7 @@
 #endif
    item = MullePointHistoryGetItemForTimestamp( &_mousePositionHistory, scrollEndTime - SWIPEDURATION);
 
-   fprintf( stderr, "mousePosition: %s\n", CGPointCStringDescription( mousePosition));
+   fprintf( stderr, "%s mousePosition: %s\n", __PRETTY_FUNCTION__, CGPointCStringDescription( mousePosition));
 
    MullePointHistoryItemPrintf( stderr, &item);
 

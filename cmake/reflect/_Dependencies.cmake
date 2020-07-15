@@ -143,6 +143,159 @@ endif()
 
 
 #
+# Generated from sourcetree: mulle-testallocator;no-all-load,no-import,no-singlephase;
+# Disable with: `mulle-sourcetree mark mulle-testallocator no-link`
+#
+if( NOT MULLE_TESTALLOCATOR_LIBRARY)
+   find_library( MULLE_TESTALLOCATOR_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-testallocator${CMAKE_STATIC_LIBRARY_SUFFIX} mulle-testallocator NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
+   message( STATUS "MULLE_TESTALLOCATOR_LIBRARY is ${MULLE_TESTALLOCATOR_LIBRARY}")
+   #
+   # The order looks ascending, but due to the way this file is read
+   # it ends up being descending, which is what we need.
+   #
+   if( MULLE_TESTALLOCATOR_LIBRARY)
+      #
+      # Add MULLE_TESTALLOCATOR_LIBRARY to DEPENDENCY_LIBRARIES list.
+      # Disable with: `mulle-sourcetree mark mulle-testallocator no-cmakeadd`
+      #
+      set( DEPENDENCY_LIBRARIES
+         ${DEPENDENCY_LIBRARIES}
+         ${MULLE_TESTALLOCATOR_LIBRARY}
+         CACHE INTERNAL "need to cache this"
+      )
+      #
+      # Inherit ObjC loader and link dependency info.
+      # Disable with: `mulle-sourcetree mark mulle-testallocator no-cmakeinherit`
+      #
+      # // temporarily expand CMAKE_MODULE_PATH
+      get_filename_component( _TMP_MULLE_TESTALLOCATOR_ROOT "${MULLE_TESTALLOCATOR_LIBRARY}" DIRECTORY)
+      get_filename_component( _TMP_MULLE_TESTALLOCATOR_ROOT "${_TMP_MULLE_TESTALLOCATOR_ROOT}" DIRECTORY)
+      #
+      #
+      # Search for "DependenciesAndLibraries.cmake" to include.
+      # Disable with: `mulle-sourcetree mark mulle-testallocator no-cmakedependency`
+      #
+      foreach( _TMP_MULLE_TESTALLOCATOR_NAME "mulle-testallocator")
+         set( _TMP_MULLE_TESTALLOCATOR_DIR "${_TMP_MULLE_TESTALLOCATOR_ROOT}/include/${_TMP_MULLE_TESTALLOCATOR_NAME}/cmake")
+         # use explicit path to avoid "surprises"
+         if( EXISTS "${_TMP_MULLE_TESTALLOCATOR_DIR}/DependenciesAndLibraries.cmake")
+            unset( MULLE_TESTALLOCATOR_DEFINITIONS)
+            list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_MULLE_TESTALLOCATOR_DIR}")
+            # we only want top level INHERIT_OBJC_LOADERS, so disable them
+            if( NOT NO_INHERIT_OBJC_LOADERS)
+               set( NO_INHERIT_OBJC_LOADERS OFF)
+            endif()
+            list( APPEND _TMP_INHERIT_OBJC_LOADERS ${NO_INHERIT_OBJC_LOADERS})
+            set( NO_INHERIT_OBJC_LOADERS ON)
+            #
+            include( "${_TMP_MULLE_TESTALLOCATOR_DIR}/DependenciesAndLibraries.cmake")
+            #
+            list( GET _TMP_INHERIT_OBJC_LOADERS -1 NO_INHERIT_OBJC_LOADERS)
+            list( REMOVE_AT _TMP_INHERIT_OBJC_LOADERS -1)
+            #
+            list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_MULLE_TESTALLOCATOR_DIR}")
+            set( INHERITED_DEFINITIONS
+               ${INHERITED_DEFINITIONS}
+               ${MULLE_TESTALLOCATOR_DEFINITIONS}
+               CACHE INTERNAL "need to cache this"
+            )
+            break()
+         else()
+            message( STATUS "${_TMP_MULLE_TESTALLOCATOR_DIR}/DependenciesAndLibraries.cmake not found")
+         endif()
+      endforeach()
+   else()
+      message( FATAL_ERROR "MULLE_TESTALLOCATOR_LIBRARY was not found")
+   endif()
+endif()
+
+
+#
+# Generated from sourcetree: MulleJS;no-singlephase;
+# Disable with: `mulle-sourcetree mark MulleJS no-link`
+#
+if( NOT MULLE_JS_LIBRARY)
+   find_library( MULLE_JS_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}MulleJS${CMAKE_STATIC_LIBRARY_SUFFIX} MulleJS NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
+   message( STATUS "MULLE_JS_LIBRARY is ${MULLE_JS_LIBRARY}")
+   #
+   # The order looks ascending, but due to the way this file is read
+   # it ends up being descending, which is what we need.
+   #
+   if( MULLE_JS_LIBRARY)
+      #
+      # Add MULLE_JS_LIBRARY to ALL_LOAD_DEPENDENCY_LIBRARIES list.
+      # Disable with: `mulle-sourcetree mark MulleJS no-cmakeadd`
+      #
+      set( ALL_LOAD_DEPENDENCY_LIBRARIES
+         ${ALL_LOAD_DEPENDENCY_LIBRARIES}
+         ${MULLE_JS_LIBRARY}
+         CACHE INTERNAL "need to cache this"
+      )
+      #
+      # Inherit ObjC loader and link dependency info.
+      # Disable with: `mulle-sourcetree mark MulleJS no-cmakeinherit`
+      #
+      # // temporarily expand CMAKE_MODULE_PATH
+      get_filename_component( _TMP_MULLE_JS_ROOT "${MULLE_JS_LIBRARY}" DIRECTORY)
+      get_filename_component( _TMP_MULLE_JS_ROOT "${_TMP_MULLE_JS_ROOT}" DIRECTORY)
+      #
+      #
+      # Search for "DependenciesAndLibraries.cmake" to include.
+      # Disable with: `mulle-sourcetree mark MulleJS no-cmakedependency`
+      #
+      foreach( _TMP_MULLE_JS_NAME "MulleJS")
+         set( _TMP_MULLE_JS_DIR "${_TMP_MULLE_JS_ROOT}/include/${_TMP_MULLE_JS_NAME}/cmake")
+         # use explicit path to avoid "surprises"
+         if( EXISTS "${_TMP_MULLE_JS_DIR}/DependenciesAndLibraries.cmake")
+            unset( MULLE_JS_DEFINITIONS)
+            list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_MULLE_JS_DIR}")
+            # we only want top level INHERIT_OBJC_LOADERS, so disable them
+            if( NOT NO_INHERIT_OBJC_LOADERS)
+               set( NO_INHERIT_OBJC_LOADERS OFF)
+            endif()
+            list( APPEND _TMP_INHERIT_OBJC_LOADERS ${NO_INHERIT_OBJC_LOADERS})
+            set( NO_INHERIT_OBJC_LOADERS ON)
+            #
+            include( "${_TMP_MULLE_JS_DIR}/DependenciesAndLibraries.cmake")
+            #
+            list( GET _TMP_INHERIT_OBJC_LOADERS -1 NO_INHERIT_OBJC_LOADERS)
+            list( REMOVE_AT _TMP_INHERIT_OBJC_LOADERS -1)
+            #
+            list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_MULLE_JS_DIR}")
+            set( INHERITED_DEFINITIONS
+               ${INHERITED_DEFINITIONS}
+               ${MULLE_JS_DEFINITIONS}
+               CACHE INTERNAL "need to cache this"
+            )
+            break()
+         else()
+            message( STATUS "${_TMP_MULLE_JS_DIR}/DependenciesAndLibraries.cmake not found")
+         endif()
+      endforeach()
+      #
+      # Search for "MulleObjCLoader+<name>.h" in include directory.
+      # Disable with: `mulle-sourcetree mark MulleJS no-cmakeloader`
+      #
+      if( NOT NO_INHERIT_OBJC_LOADERS)
+         foreach( _TMP_MULLE_JS_NAME "MulleJS")
+            set( _TMP_MULLE_JS_FILE "${_TMP_MULLE_JS_ROOT}/include/${_TMP_MULLE_JS_NAME}/MulleObjCLoader+${_TMP_MULLE_JS_NAME}.h")
+            if( EXISTS "${_TMP_MULLE_JS_FILE}")
+               set( INHERITED_OBJC_LOADERS
+                  ${INHERITED_OBJC_LOADERS}
+                  ${_TMP_MULLE_JS_FILE}
+                  CACHE INTERNAL "need to cache this"
+               )
+               break()
+            endif()
+         endforeach()
+      endif()
+   else()
+      message( FATAL_ERROR "MULLE_JS_LIBRARY was not found")
+   endif()
+endif()
+
+
+#
 # Generated from sourcetree: Foundation;no-singlephase;
 # Disable with: `mulle-sourcetree mark Foundation no-link`
 #
@@ -228,7 +381,7 @@ endif()
 
 
 #
-# Generated from sourcetree: Foundation-startup;no-dynamic-link,no-header,no-intermediate-link;
+# Generated from sourcetree: Foundation-startup;no-cmakedependency,no-cmakeloader,no-dynamic-link,no-header,no-intermediate-link;
 # Disable with: `mulle-sourcetree mark Foundation-startup no-link`
 #
 if( NOT FOUNDATION_STARTUP_LIBRARY)
@@ -256,56 +409,6 @@ if( NOT FOUNDATION_STARTUP_LIBRARY)
       get_filename_component( _TMP_FOUNDATION_STARTUP_ROOT "${FOUNDATION_STARTUP_LIBRARY}" DIRECTORY)
       get_filename_component( _TMP_FOUNDATION_STARTUP_ROOT "${_TMP_FOUNDATION_STARTUP_ROOT}" DIRECTORY)
       #
-      #
-      # Search for "DependenciesAndLibraries.cmake" to include.
-      # Disable with: `mulle-sourcetree mark Foundation-startup no-cmakedependency`
-      #
-      foreach( _TMP_FOUNDATION_STARTUP_NAME "Foundation-startup")
-         set( _TMP_FOUNDATION_STARTUP_DIR "${_TMP_FOUNDATION_STARTUP_ROOT}/include/${_TMP_FOUNDATION_STARTUP_NAME}/cmake")
-         # use explicit path to avoid "surprises"
-         if( EXISTS "${_TMP_FOUNDATION_STARTUP_DIR}/DependenciesAndLibraries.cmake")
-            unset( FOUNDATION_STARTUP_DEFINITIONS)
-            list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_FOUNDATION_STARTUP_DIR}")
-            # we only want top level INHERIT_OBJC_LOADERS, so disable them
-            if( NOT NO_INHERIT_OBJC_LOADERS)
-               set( NO_INHERIT_OBJC_LOADERS OFF)
-            endif()
-            list( APPEND _TMP_INHERIT_OBJC_LOADERS ${NO_INHERIT_OBJC_LOADERS})
-            set( NO_INHERIT_OBJC_LOADERS ON)
-            #
-            include( "${_TMP_FOUNDATION_STARTUP_DIR}/DependenciesAndLibraries.cmake")
-            #
-            list( GET _TMP_INHERIT_OBJC_LOADERS -1 NO_INHERIT_OBJC_LOADERS)
-            list( REMOVE_AT _TMP_INHERIT_OBJC_LOADERS -1)
-            #
-            list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_FOUNDATION_STARTUP_DIR}")
-            set( INHERITED_DEFINITIONS
-               ${INHERITED_DEFINITIONS}
-               ${FOUNDATION_STARTUP_DEFINITIONS}
-               CACHE INTERNAL "need to cache this"
-            )
-            break()
-         else()
-            message( STATUS "${_TMP_FOUNDATION_STARTUP_DIR}/DependenciesAndLibraries.cmake not found")
-         endif()
-      endforeach()
-      #
-      # Search for "MulleObjCLoader+<name>.h" in include directory.
-      # Disable with: `mulle-sourcetree mark Foundation-startup no-cmakeloader`
-      #
-      if( NOT NO_INHERIT_OBJC_LOADERS)
-         foreach( _TMP_FOUNDATION_STARTUP_NAME "Foundation-startup")
-            set( _TMP_FOUNDATION_STARTUP_FILE "${_TMP_FOUNDATION_STARTUP_ROOT}/include/${_TMP_FOUNDATION_STARTUP_NAME}/MulleObjCLoader+${_TMP_FOUNDATION_STARTUP_NAME}.h")
-            if( EXISTS "${_TMP_FOUNDATION_STARTUP_FILE}")
-               set( INHERITED_OBJC_LOADERS
-                  ${INHERITED_OBJC_LOADERS}
-                  ${_TMP_FOUNDATION_STARTUP_FILE}
-                  CACHE INTERNAL "need to cache this"
-               )
-               break()
-            endif()
-         endforeach()
-      endif()
    else()
       message( FATAL_ERROR "FOUNDATION_STARTUP_LIBRARY was not found")
    endif()
@@ -313,75 +416,7 @@ endif()
 
 
 #
-# Generated from sourcetree: mulle-testallocator;no-all-load,no-import,no-singlephase;
-# Disable with: `mulle-sourcetree mark mulle-testallocator no-link`
-#
-if( NOT MULLE_TESTALLOCATOR_LIBRARY)
-   find_library( MULLE_TESTALLOCATOR_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-testallocator${CMAKE_STATIC_LIBRARY_SUFFIX} mulle-testallocator NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
-   message( STATUS "MULLE_TESTALLOCATOR_LIBRARY is ${MULLE_TESTALLOCATOR_LIBRARY}")
-   #
-   # The order looks ascending, but due to the way this file is read
-   # it ends up being descending, which is what we need.
-   #
-   if( MULLE_TESTALLOCATOR_LIBRARY)
-      #
-      # Add MULLE_TESTALLOCATOR_LIBRARY to DEPENDENCY_LIBRARIES list.
-      # Disable with: `mulle-sourcetree mark mulle-testallocator no-cmakeadd`
-      #
-      set( DEPENDENCY_LIBRARIES
-         ${DEPENDENCY_LIBRARIES}
-         ${MULLE_TESTALLOCATOR_LIBRARY}
-         CACHE INTERNAL "need to cache this"
-      )
-      #
-      # Inherit ObjC loader and link dependency info.
-      # Disable with: `mulle-sourcetree mark mulle-testallocator no-cmakeinherit`
-      #
-      # // temporarily expand CMAKE_MODULE_PATH
-      get_filename_component( _TMP_MULLE_TESTALLOCATOR_ROOT "${MULLE_TESTALLOCATOR_LIBRARY}" DIRECTORY)
-      get_filename_component( _TMP_MULLE_TESTALLOCATOR_ROOT "${_TMP_MULLE_TESTALLOCATOR_ROOT}" DIRECTORY)
-      #
-      #
-      # Search for "DependenciesAndLibraries.cmake" to include.
-      # Disable with: `mulle-sourcetree mark mulle-testallocator no-cmakedependency`
-      #
-      foreach( _TMP_MULLE_TESTALLOCATOR_NAME "mulle-testallocator")
-         set( _TMP_MULLE_TESTALLOCATOR_DIR "${_TMP_MULLE_TESTALLOCATOR_ROOT}/include/${_TMP_MULLE_TESTALLOCATOR_NAME}/cmake")
-         # use explicit path to avoid "surprises"
-         if( EXISTS "${_TMP_MULLE_TESTALLOCATOR_DIR}/DependenciesAndLibraries.cmake")
-            unset( MULLE_TESTALLOCATOR_DEFINITIONS)
-            list( INSERT CMAKE_MODULE_PATH 0 "${_TMP_MULLE_TESTALLOCATOR_DIR}")
-            # we only want top level INHERIT_OBJC_LOADERS, so disable them
-            if( NOT NO_INHERIT_OBJC_LOADERS)
-               set( NO_INHERIT_OBJC_LOADERS OFF)
-            endif()
-            list( APPEND _TMP_INHERIT_OBJC_LOADERS ${NO_INHERIT_OBJC_LOADERS})
-            set( NO_INHERIT_OBJC_LOADERS ON)
-            #
-            include( "${_TMP_MULLE_TESTALLOCATOR_DIR}/DependenciesAndLibraries.cmake")
-            #
-            list( GET _TMP_INHERIT_OBJC_LOADERS -1 NO_INHERIT_OBJC_LOADERS)
-            list( REMOVE_AT _TMP_INHERIT_OBJC_LOADERS -1)
-            #
-            list( REMOVE_ITEM CMAKE_MODULE_PATH "${_TMP_MULLE_TESTALLOCATOR_DIR}")
-            set( INHERITED_DEFINITIONS
-               ${INHERITED_DEFINITIONS}
-               ${MULLE_TESTALLOCATOR_DEFINITIONS}
-               CACHE INTERNAL "need to cache this"
-            )
-            break()
-         else()
-            message( STATUS "${_TMP_MULLE_TESTALLOCATOR_DIR}/DependenciesAndLibraries.cmake not found")
-         endif()
-      endforeach()
-   else()
-      message( FATAL_ERROR "MULLE_TESTALLOCATOR_LIBRARY was not found")
-   endif()
-endif()
-
-
-#
-# Generated from sourcetree: mujs;no-all-load,no-import;
+# Generated from sourcetree: mujs;no-all-load,no-bequeath,no-cmakeloader,no-import,no-public,no-singlephase;
 # Disable with: `mulle-sourcetree mark mujs no-link`
 #
 if( NOT MUJS_LIBRARY)

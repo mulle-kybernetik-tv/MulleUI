@@ -76,7 +76,7 @@ ctx.lineTo(140, 140);
 ctx.stroke();
 
 // Draw lines
-ctx.strokeStyle = 'black';
+ctx.strokeStyle = 'lightsalmon';
 for (var i = 0; i < lineCap.length; i++) {
    ctx.lineWidth = 15;
    ctx.lineCap = lineCap[i];
@@ -87,6 +87,7 @@ for (var i = 0; i < lineCap.length; i++) {
 }
 
 ctx.translate(200, 0);
+ctx.strokeStyle = 'goldenrod';
 
 var lineJoin = ['round', 'bevel', 'miter'];
 ctx.lineWidth = 10;

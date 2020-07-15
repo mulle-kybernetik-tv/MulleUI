@@ -39,6 +39,7 @@ typedef enum
 //
 - (CGPoint) mousePositionInView:(UIView *) view;
 - (void) _setFirstResponderPoint:(CGPoint) point;
+- (CGPoint) _firstResponderPoint;
 
 - (id) initWithWindow:(UIWindow *) window
         mousePosition:(CGPoint) pos

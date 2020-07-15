@@ -9,7 +9,7 @@
 
 static inline void   MulleObjectSetEdgeInsets( id obj, SEL sel, MulleEdgeInsets insets)
 {
-   mulle_objc_metaabi_param_block_voidptr_return( struct { MulleEdgeInsets insets; })  param;
+   mulle_metaabi_struct_voidptr_return( struct { MulleEdgeInsets insets; })  param;
 
    param.p.insets = insets;
 
@@ -19,7 +19,7 @@ static inline void   MulleObjectSetEdgeInsets( id obj, SEL sel, MulleEdgeInsets 
 
 static inline MulleEdgeInsets   MulleObjectGetEdgeInsets( id obj, SEL sel)
 {
-   mulle_objc_metaabi_param_block_voidptr_parameter( struct { MulleEdgeInsets insets; })  param;
+   mulle_metaabi_struct_voidptr_parameter( struct { MulleEdgeInsets insets; })  param;
 
    mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, &param);
    return( param.r.insets);

@@ -15,9 +15,10 @@
 // #define EVENT_DEBUG
 // #define MOMENTUM_DEBUG
 
-#define SCROLLER_WIDTH			8
-#define SCROLLER_OFFSET_START	8
-#define SCROLLER_OFFSET_END	(SCROLLER_WIDTH + SCROLLER_OFFSET_START * 1.5)
+#define SCROLLER_WIDTH			      8
+#define SCROLLER_OFFSET_START    	8
+#define SCROLLER_OFFSET_END	      (SCROLLER_WIDTH + SCROLLER_OFFSET_START * 1.5)
+#define SCROLLER_OFFSET_END_ALONE	SCROLLER_WIDTH
 
 
 @implementation UIScrollView 
@@ -29,6 +30,10 @@
 
    self = [super initWithLayer:layer];
    frame = CGRectZero;
+
+   // default values
+   _showsHorizontalScrollIndicator = YES;
+   _showsVerticalScrollIndicator   = YES;
 
 /* 
    the code depends on the layout being called before the render at least
@@ -136,6 +141,7 @@
 
    return( bounds);
 }
+
 
 - (CGPoint) clampedContentOffset:(CGPoint) offset 
 {
@@ -253,7 +259,8 @@
 	[super renderWithContext:context];
 }
 
-
+// TODO: if there is only a vertical indicator, enlarge it so that it takes
+//       up empty space otherwise used by the horizontal indicator 
 - (void) layoutSubviews
 {
 	CGRect         bounds;
@@ -261,6 +268,7 @@
 	CGRect         verFrame;
 	CGFloat        offset;
 	UIEdgeInsets   insets;
+   CGFloat        end;
 
 	[super layoutSubviews];
 
@@ -276,14 +284,17 @@
 // determined solely by contentSize/offset and own bounds
 	[_contentView setFrame:bounds];
 
+   end = SCROLLER_OFFSET_END;
+   if( _showsHorizontalScrollIndicator == NO || _showsVerticalScrollIndicator == NO)
+      end = SCROLLER_OFFSET_END_ALONE;
+
 	// currently these scrollers are 8 pixel wide and 4 pixels offset
 	// the 6.0 is so that scrollers don't overlap if both are visible
-	insets   = UIEdgeInsetsMake( 0.0, SCROLLER_OFFSET_START, SCROLLER_OFFSET_START, SCROLLER_OFFSET_END);
+	insets   = UIEdgeInsetsMake( 0.0, SCROLLER_OFFSET_START, SCROLLER_OFFSET_START, end);
 	horFrame = UIEdgeInsetsInsetRect( bounds, insets);
 
-	horFrame.origin.y     = horFrame.size.height + horFrame.origin.y - SCROLLER_WIDTH;
-	horFrame.size.height  = SCROLLER_WIDTH ;
-;
+	horFrame.origin.y    = horFrame.size.height + horFrame.origin.y - SCROLLER_WIDTH;
+	horFrame.size.height = SCROLLER_WIDTH ;
 
 #ifdef LAYOUT_DEBUG
    fprintf( stderr, "%s %s bounds: %s\n",
@@ -293,7 +304,7 @@
 #endif
 	[_horIndicatorView setFrame:horFrame];
 
-	insets   = UIEdgeInsetsMake( SCROLLER_OFFSET_START, 0.0, SCROLLER_OFFSET_END, SCROLLER_OFFSET_START);
+	insets   = UIEdgeInsetsMake( SCROLLER_OFFSET_START, 0.0, end, SCROLLER_OFFSET_START);
 	verFrame = UIEdgeInsetsInsetRect( bounds, insets);
 
 	verFrame.origin.x   = verFrame.size.width + verFrame.origin.x - SCROLLER_WIDTH;

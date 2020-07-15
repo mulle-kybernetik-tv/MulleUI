@@ -30,13 +30,4 @@
 //    remove for os:   `mulle-sourcetree mark mulle-testallocator no-os-<osname>`
 # include <mulle-testallocator/mulle-testallocator.h>   // mulle-testallocator
 
-// How to tweak the following mujs #include
-//    remove:          `mulle-sourcetree mark mujs no-header`
-//    rename:          `mulle-sde dependency|library set mujs include whatever.h`
-//    toggle #import:  `mulle-sourcetree mark mujs [no-]import`
-//    toggle public:   `mulle-sourcetree mark mujs [no-]public`
-//    toggle optional: `mulle-sourcetree mark mujs [no-]require`
-//    remove for os:   `mulle-sourcetree mark mujs no-os-<osname>`
-# include <mujs.h>   // mujs
-
 #endif

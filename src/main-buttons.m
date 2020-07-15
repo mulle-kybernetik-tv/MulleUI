@@ -11,31 +11,12 @@
 #import "UILabel.h"
 #import "UIScrollView.h"
 #import "UISegmentedControl.h"
-#import "UISlider.h"
 #import "UIStepper.h"
 #import "UISwitch.h"
 #import "UIWindow.h"
 #import "UIColor.h"
 #import <string.h>
 
-
-//	stolen from catgl ©2015,2018 Yuichiro Nakada
-#define W  200
-#define H  100
-
-#include "Ghostscript_Tiger-svg.inc"
-#include "sealie-bitmap.inc"
-#include "turtle-bitmap.inc"
-#include "viech-bitmap.inc"
-
-#if 0
-static char   svginput[] = \
-"<svg version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\">\n"
-"   <rect x=\"100\" y=\"50\" width=\"200\" height=\"100\" stroke=\"#c04949\" stroke-linejoin=\"round\" stroke-width=\"5.265\"/>\n"
-"</svg>\n"
-"\n"
-;
-#endif
 
 
 static UIEvent   *button_callback( UIButton *button, UIEvent *event)
@@ -54,39 +35,11 @@ static UIEvent   *segmented_callback( UISegmentedControl *control, UIEvent *even
 }
 
 
-static UIEvent   *scroll_callback( UIButton *button, UIEvent *event)
-{
-   UIScrollView   *scroller;
-   CGPoint        offset;
-
-   fprintf( stderr, "scroll_callback: %s\n", [button cStringDescription]);
-
-   scroller = (UIScrollView *) [[button superview] superview];
-   assert( [scroller isKindOfClass:[UIScrollView class]]);
-
-   offset    = [scroller contentOffset];
-   offset.y += 10;
-   [scroller setContentOffset:offset];
-
-   return( nil);
-}
-
-
 // scale stuff for stream
 #define SCALE     2.0
 
 int   main()
 {
-   MulleSVGLayer        *tigerLayer;
-   MulleSVGLayer        *shiftedTigerLayer;
-   MulleImageLayer      *viechLayer;
-   MulleImageLayer      *sealieLayer;
-   MulleImageLayer      *turtleLayer;
-   MulleImageLayer      *turtleLayer2;
-   MulleSVGImage        *tigerSVGImage;
-   MulleBitmapImage     *viechBitmap;
-   MulleBitmapImage     *sealieBitmap;
-   MulleBitmapImage     *turtleBitmap;
    CGRect               frame;
    CGRect               bounds;
    CGContext            *context;
@@ -99,11 +52,10 @@ int   main()
    UIButton             *nestedButton;
    UIButton             *inScrollerButton;
    UIButton             *uiButton;
+   UIButton             *trackingButton;
    UISegmentedControl   *segmentedControl;
    UIScrollView         *scroller;
    UIApplication        *application;
-   UISwitch             *checkbox;
-   UISlider             *slider;
    UIView               *contentView;
 
    /*
@@ -170,15 +122,36 @@ int   main()
       [segmentedControl setFontPixelSize:frame.size.height / 2];
 #endif
 
-      frame.origin.x   += frame.size.width + 20;
-      frame.size.width  = 120;
-      frame.size.height = 44;
+      /* simple Button */
+      {
+         frame.origin.x   += frame.size.width + 20;
+         frame.size.width  = 120;
+         frame.size.height = 44;
 
-      uiButton = [[[UIButton alloc] initWithFrame:frame] autorelease];
-      [uiButton setTitleCString:"Button"];
+         uiButton = [[[UIButton alloc] initWithFrame:frame] autorelease];
+         [uiButton setTitleCString:"Button"];
 
-      // [insideButton setClipsSubviews:YES];
-      [contentView addSubview:uiButton];
+         // [insideButton setClipsSubviews:YES];
+         [contentView addSubview:uiButton];
+      }
+
+      /* Button with highlighting and tracking rectangle */
+      {
+         frame.origin.x    = 20;
+         frame.size.width  = 120;
+         frame.size.height = 44;
+
+         trackingButton = [[[UIButton alloc] initWithFrame:frame] autorelease];
+         [trackingButton setTitleCString:"Tracking"];
+
+         frame.origin = CGPointZero;
+         [trackingButton addTrackingAreaWithRect:frame
+                                         toWindow:window
+                                         userInfo:nil];
+         [contentView addSubview:trackingButton];
+
+         // [insideButton setClipsSubviews:YES];
+      }
 
       [window dump];
       [window renderLoopWithContext:context];

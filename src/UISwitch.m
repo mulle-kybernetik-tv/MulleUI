@@ -37,7 +37,7 @@
    if( [super becomeFirstResponder])
    {
       fprintf( stderr, "become\n");
-      [self toggleState];
+      [self mulleToggleSelectedState];
       return( YES);
    }
    return( NO);
@@ -49,7 +49,7 @@
    if( [super resignFirstResponder])
    {
       fprintf( stderr, "resign\n");
-      [self toggleState];
+      [self mulleToggleSelectedState];
       return( YES);
    }
    return( NO);

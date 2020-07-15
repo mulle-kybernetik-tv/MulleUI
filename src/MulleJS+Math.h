@@ -14,6 +14,9 @@
 
 @interface MulleJS( Math)
 
-- (void) addJavaScriptMathLibrary;
+// @property( assign) NSUInteger  value;
+// @property( retain) id          other;
+
+// - (id) method:(id) other;
 
 @end

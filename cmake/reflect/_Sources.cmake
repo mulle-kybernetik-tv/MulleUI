@@ -45,10 +45,14 @@ src/MulleControlBackgroundImage.m
 src/MulleEdgeInsets+CString.m
 src/MulleEdgeInsets.c
 src/MulleImageLayer.m
+src/MulleJS+Canvas.m
 src/MulleJS+Math.m
 src/MulleJS+MulleUI.m
-src/MulleJS.m
+src/MulleMenuButton.m
+src/MulleMenu+UIEvent.m
+src/MulleMenu.m
 src/MulleObjectArray.m
+src/MullePopUpButton.m
 src/MulleSVGImage.m
 src/MulleSVGLayer.m
 src/MulleScrollIndicatorView.m
@@ -106,6 +110,9 @@ src/UIWindow.m
 src/YogaKit/UIView+Yoga.m
 src/YogaKit/YGLayout.m
 src/bmp-writer.c
+src/mulle-js.c
+src/mulle-js-math.c
+src/mulle-js-nanovg.c
 src/mulle-pointerarray+ObjC.m
 src/mulle-quadtree.m
 src/nanoperf.m

@@ -29,7 +29,7 @@
 //#define MOUSE_MOTION_CALLBACK_DEBUG
 #define MOUSE_BUTTON_CALLBACK_DEBUG
 // #define PRINTF_PROFILE_RENDER
-// #define PRINTF_PROFILE_EVENTS
+//#define PRINTF_PROFILE_EVENTS
 
 
 @implementation UIWindow
@@ -464,21 +464,24 @@ static void   error_callback(int code, const char* description)
          }
       }
 
-      @autoreleasepool
-      {
-         [self setupQuadtree];
-      }
 #ifdef PRINTF_PROFILE_EVENTS
       clock_gettime( CLOCK_REALTIME, &start);
       printf( "@%ld:%09ld events start\n", start.tv_sec, start.tv_nsec);
 #endif
 
-      // use at max 200 Hz refresh rate (0: polls)
-      [self waitForEvents:0.0];
-
+      @autoreleasepool
+      {
+         [self setupQuadtree];
+         // use at max 200 Hz refresh rate (0: polls)
+         // use 0.001Hz for event debugging. The wait time is "max", events
+         // will be processed if something comes in and then render will be
+         // immediate anyway.
+         [self waitForEvents:0.001];
+      }
+   
 #ifdef PRINTF_PROFILE_EVENTS
       clock_gettime( CLOCK_REALTIME, &end);
-      diff = timespec_diff( start, end);
+      diff = timespec_sub( end, start);
       printf( "@%ld:%09ld events end, elapsed : %09ld\n", end.tv_sec, end.tv_nsec,
                                                   diff.tv_sec ? 999999999 : diff.tv_nsec);
 #endif

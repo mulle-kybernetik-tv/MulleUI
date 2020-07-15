@@ -5,7 +5,7 @@
 
 static inline void   MulleObjectSetCGColorRef( id obj, SEL sel, CGColorRef color)
 {
-   mulle_objc_metaabi_param_block_voidptr_return( struct { CGColorRef color; })  param;
+   mulle_metaabi_struct_voidptr_return( struct { CGColorRef color; })  param;
 
    param.p.color = color;
 
@@ -15,7 +15,7 @@ static inline void   MulleObjectSetCGColorRef( id obj, SEL sel, CGColorRef color
 
 static inline CGColorRef   MulleObjectGetCGColorRef( id obj, SEL sel)
 {
-   mulle_objc_metaabi_param_block_voidptr_parameter( struct { CGColorRef color; })  param;
+   mulle_metaabi_struct_voidptr_parameter( struct { CGColorRef color; })  param;
 
    mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, &param);
    return( param.r.color);

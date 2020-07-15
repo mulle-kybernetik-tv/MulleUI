@@ -38,12 +38,12 @@
 @end
 
 
-void  drawStuff( void *aLayer, 
+void  drawStuff( CALayer *aLayer, 
                  CGContext *context, 
                  CGRect frame, 
                  struct MulleFrameInfo *info)
 {
-   CircleLayer   *layer = aLayer;
+   CircleLayer   *layer = (CircleLayer *) aLayer;
    CGFloat        radius;
    CGRect         box;
    struct NVGcontext   *vg;

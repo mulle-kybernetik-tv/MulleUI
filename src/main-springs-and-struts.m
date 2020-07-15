@@ -6,7 +6,6 @@
 #import "UIButton.h"
 #import "UIStackView.h"
 #import "UIScrollView.h"
-#import "MulleJS.h"
 #import "UIView+Layout.h"
 #import "NSValue+CGGeometry.h"
 #import "UIEvent.h"
@@ -20,9 +19,9 @@ static UIEvent   *button_callback( UIButton *button, UIEvent *event)
 }
 
 
-void  drawStuff( void *layer, 
-                 CGContext *context, 
-                 CGRect frame, 
+void  drawStuff( void *layer,
+                 CGContext *context,
+                 CGRect frame,
                  struct MulleFrameInfo *info)
 {
    CGRect  rect;
@@ -40,7 +39,7 @@ void  drawStuff( void *layer,
 
    nvgTranslate( vg, 0, 10);
 
-   [js runScriptCString:"" 
+   [js runScriptCString:""
 "print( 'PI=' + Math.cos( Math.PI).toString());"
    ];
 /*
@@ -78,7 +77,7 @@ static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
 
    rootView  = [[[UIView alloc] initWithFrame:CGRectZero] autorelease];
    [rootView setCStringName:"RootView"];
-   [rootView setBackgroundColor:getNVGColor( 0xFFFF00FF)]; 
+   [rootView setBackgroundColor:getNVGColor( 0xFFFF00FF)];
    [rootView setAutoresizingMask:UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth];
 
    // LCD Display container
@@ -87,13 +86,13 @@ static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
    frame = CGRectMake( 0, 0, 0, 100);
 
    displayView  = [[[UIView alloc] initWithFrame:frame] autorelease];
-   [displayView setBackgroundColor:getNVGColor( 0xFF7F7FFF)]; 
+   [displayView setBackgroundColor:getNVGColor( 0xFF7F7FFF)];
    [displayView setCStringName:"DisplayView"];
    [displayView setMargins:UIEdgeInsetsMake( 10, 10, 0, 10)];
    [displayView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
 
    layer = [displayView layer];
-   [displayView setDrawContentsCallback:drawStuff];   
+   [displayView setDrawContentsCallback:drawStuff];
    [rootView addSubview:displayView];
 
    // Keyboard container
@@ -131,15 +130,15 @@ static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
 
       // determine own geometry, take up all space that is given
       [rowView setAutoresizingMask:UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth];
-      // if every rowview has the same margins, they will get evenly 
-      // autosized (if flexible) as available space is calculated the same 
+      // if every rowview has the same margins, they will get evenly
+      // autosized (if flexible) as available space is calculated the same
       // we want 10 distance, we get 10 distance on the bottom for free from
       // the container
       [rowView setMargins:UIEdgeInsetsMake( 0, 0, 10, 0)];
 
       // specify settings for kids, have 20 margin on the left an right
       // and a pixel on top (gratuitously for testing)
-      // 
+      //
       [rowView setContentInsets:UIEdgeInsetsMake( 1, 20, 1, 0)];
       [rowView setAxis:UILayoutConstraintAxisHorizontal];
 
@@ -156,7 +155,7 @@ static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
          [(UIButton *) view setTitleCString:name];
 
          [rowView addSubview:view];
-      }      
+      }
    }
 
    [rootView setNeedsLayout];
@@ -172,7 +171,7 @@ int  main()
    UIApplication   *application;
    MulleJS         *js;
       /*
-       * window and app 
+       * window and app
        */
 
    /* move singleton outside of test allocator code */
@@ -208,6 +207,6 @@ int  main()
          ./kitchen/Debug/calculator
    */
 
-   mulle_testallocator_reset();   
+   mulle_testallocator_reset();
   }
 

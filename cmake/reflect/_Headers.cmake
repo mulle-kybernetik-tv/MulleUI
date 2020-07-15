@@ -66,10 +66,15 @@ src/MulleEdgeInsets+CString.h
 src/MulleEdgeInsets+MulleObjC.h
 src/MulleEdgeInsets.h
 src/MulleImageLayer.h
+src/MulleJS+Canvas.h
 src/MulleJS+Math.h
 src/MulleJS+MulleUI.h
-src/MulleJS.h
+src/MulleMenuButton.h
+src/MulleMenu+UIEvent.h
+src/MulleMenu.h
 src/MulleObjectArray.h
+src/MullePointHistory.h
+src/MullePopUpButton.h
 src/MulleSVGImage.h
 src/MulleSVGLayer.h
 src/MulleScrollIndicatorView.h
@@ -137,6 +142,9 @@ src/bmp-writer.h
 src/entypo.inc
 src/import.h
 src/include.h
+src/mulle-js.h
+src/mulle-js-math.h
+src/mulle-js-nanovg.h
 src/mulle-pointerarray+ObjC.h
 src/mulle-quadtree.h
 src/mulle-time.h

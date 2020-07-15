@@ -27,6 +27,12 @@
 }
 
 
++ (instancetype) mulleViewWithFrame:(CGRect) frame;
+{
+   return( [[[self alloc] initWithFrame:frame] autorelease]);
+}
+
+
 - (instancetype) initWithFrame:(CGRect) frame
 {
    CALayer   *layer;
@@ -51,7 +57,7 @@
    }
    _mainLayer              = [layer retain];
    _clipsSubviews          = YES;  // default
-   _userInteractionEnabled = YES;  // 
+   _userInteractionEnabled = YES;  // default
    _alpha                  = 1.0;
    return( self);
 }
@@ -270,7 +276,6 @@
 {
    return( _layers != NULL);
 }
-
 
 
 - (CGRect) bounds
@@ -813,17 +818,21 @@
 # pragma mark - tracking rectangles
 
 - (struct MulleTrackingArea *) addTrackingAreaWithRect:(CGRect) rect
+                                              toWindow:(UIWindow *) window
                                               userInfo:(id) userInfo 
 {
    struct MulleTrackingArea   *tracking;
    UIWindow                  *window;
 
+   if( ! window)
+      window = [self window];
+
+   assert( window);
+
    if( MulleTrackingAreaArrayGetCount( &_trackingAreas) == 0)
    {
       // if window does not exist, then a late add would not be noticed
       // and tracking fails... 
-      window = [self window];
-      assert( window);
       [window addTrackingView:self];
    }
 
@@ -857,6 +866,22 @@
 
    item = MulleTrackingAreaArrayGetItemAtIndex( &_trackingAreas, i);
    return( item);
+}
+
+
+- (BOOL) mulleIsEffectivelyHidden  // recursive test the hierarchy up
+{
+   UIView   *p;
+
+   p = self;
+   for(;;)
+   {
+      if( p->_hidden)
+         return( YES);
+      p = p->_superview;
+      if( ! p)
+         return( NO);
+   }
 }
 
 @end

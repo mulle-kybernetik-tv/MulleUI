@@ -39,12 +39,12 @@
 
 // memo: this actually draws outside of the layer somewhat, should fix this
 //       as noticed when reusing the code in the collection view demo
-void  drawStuff( void *aLayer, 
+void  drawStuff( CALayer *aLayer, 
                  CGContext *context, 
                  CGRect frame, 
                  struct MulleFrameInfo *info)
 {
-   CircleLayer   *layer = aLayer;
+   CircleLayer   *layer = (CircleLayer *) aLayer;
    CGFloat        radius;
    CGRect         box;
    struct NVGcontext   *vg;

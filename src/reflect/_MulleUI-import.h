@@ -12,6 +12,15 @@
 #ifndef _MulleUI_import_h__
 #define _MulleUI_import_h__
 
+// How to tweak the following MulleJS #import
+//    remove:          `mulle-sourcetree mark MulleJS no-header`
+//    rename:          `mulle-sde dependency|library set MulleJS include whatever.h`
+//    toggle #import:  `mulle-sourcetree mark MulleJS [no-]import`
+//    toggle public:   `mulle-sourcetree mark MulleJS [no-]public`
+//    toggle optional: `mulle-sourcetree mark MulleJS [no-]require`
+//    remove for os:   `mulle-sourcetree mark MulleJS no-os-<osname>`
+# import <MulleJS/MulleJS.h>   // MulleJS
+
 // How to tweak the following Foundation #import
 //    remove:          `mulle-sourcetree mark Foundation no-header`
 //    rename:          `mulle-sde dependency|library set Foundation include whatever.h`

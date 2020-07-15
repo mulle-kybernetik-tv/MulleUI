@@ -3,6 +3,8 @@
 #import "UIView.h"
 
 #define LOG_EVENTS
+// #define LOG_MOUSE_MOVE_EVENTS
+
 
 PROTOCOLCLASS_IMPLEMENTATION( UIControl)
 
@@ -134,6 +136,82 @@ PROTOCOLCLASS_IMPLEMENTATION( UIControl)
 }
 
 
+- (UIEvent *) consumeMouseEntered:(UIEvent *) event
+{
+   [self mulleToggleHighlightedState]; // what if already set ???
+   return( nil);
+}
+
+
+- (UIEvent *) mouseEntered:(UIEvent *) event
+{
+#ifdef LOG_EVENTS   
+   fprintf( stderr, "%s: %s\n", __PRETTY_FUNCTION__, [(UIView *) self cStringDescription]);
+#endif
+
+   // TODO: have a "consumeEvent" method instead, which checks for being
+   //       disabled in UIControl. UIView will return event by default
+   //       modal MulleWindowPlane might return nil if not hidden.. ??
+	event = [self consumeEventIfDisabled:event];
+	// event was handled if nil
+	if( ! event)
+	   return( event);   
+
+   event = [self consumeMouseEntered:event];
+   return( event);
+}
+
+
+- (UIEvent *) consumeMouseMoved:(UIEvent *) event
+{
+   return( nil);
+}
+
+
+- (UIEvent *) mouseMoved:(UIEvent *) event
+{
+#ifdef LOG_MOUSE_MOVE_EVENTS   
+   fprintf( stderr, "%s: %s\n", __PRETTY_FUNCTION__, [(UIView *) self cStringDescription]);
+#endif
+
+   // TODO: have a "consumeEvent" method instead, which checks for being
+   //       disabled in UIControl. UIView will return event by default
+   //       modal MulleWindowPlane might return nil if not hidden.. ??
+	event = [self consumeEventIfDisabled:event];
+	// event was handled if nil
+	if( ! event)
+	   return( event);   
+
+   event = [self consumeMouseMoved:event];
+   return( event);
+}
+
+
+- (UIEvent *) consumeMouseExited:(UIEvent *) event
+{
+   [self mulleToggleHighlightedState]; // what if already set ???
+   return( nil);
+}
+
+- (UIEvent *) mouseExited:(UIEvent *) event
+{
+#ifdef LOG_EVENTS   
+   fprintf( stderr, "%s: %s\n", __PRETTY_FUNCTION__, [(UIView *) self cStringDescription]);
+#endif
+
+   // TODO: have a "consumeEvent" method instead, which checks for being
+   //       disabled in UIControl. UIView will return event by default
+   //       modal MulleWindowPlane might return nil if not hidden.. ??
+	event = [self consumeEventIfDisabled:event];
+	// event was handled if nil
+	if( ! event)
+	   return( event);   
+
+   event = [self consumeMouseExited:event];
+   return( event);
+}
+
+
 static inline BOOL   getStateBit( UIControl *self, enum UIControlStateBit bit)
 {
 	UIControlState   state;
@@ -142,7 +220,7 @@ static inline BOOL   getStateBit( UIControl *self, enum UIControlStateBit bit)
 	return( state & bit ? YES : NO);
 }
 
-- (void) toggleState
+- (void) mulleToggleSelectedState
 {
    UIControlState   state;
 
@@ -153,6 +231,21 @@ static inline BOOL   getStateBit( UIControl *self, enum UIControlStateBit bit)
 		state |= UIControlStateSelected;
 	[self setState:state];
 }
+
+
+- (void) mulleToggleHighlightedState
+{
+   UIControlState   state;
+
+	state = [self state];
+	if( state & UIControlStateHighlighted)
+		state &= ~UIControlStateHighlighted;
+	else
+		state |= UIControlStateHighlighted;
+	[self setState:state];
+}
+
+
 
 
 static void   setStateBit( UIControl *self, enum UIControlStateBit bit, BOOL flag)

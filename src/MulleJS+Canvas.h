@@ -12,10 +12,5 @@
 #import "import.h"
 
 
-
-
-@interface MulleJS( MulleUI)
-
-- (void) uiPushValue:(id) value
-              forKey:(NSString *) key;
+@interface MulleJS( Canvas)
 @end

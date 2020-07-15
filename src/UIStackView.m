@@ -148,7 +148,7 @@ struct UIStackViewLayoutContext
 // UIStackViewDistributionFillProportionally. Only really useful if there
 // are resizable views in there, possibly all of them
 //
-- (void) layoutSubviewsFillProportionally:(BOOL) proportionally
+- (void) layoutSubviewsFillWithDistribution:(UIStackViewDistribution) mode
 {
    CGFloat                                factor;
    CGFloat                                remainder;
@@ -167,7 +167,7 @@ struct UIStackViewLayoutContext
    if( ! [self setupLayoutContext:&ctxt])
       return;
 
-   axis      = _axis;
+   axis     = _axis;
    lastView = _mulle_pointerarray_find_last( self->_subviews);
    area     = [self areaCoveredByStackingSubviews];
    rect     = ctxt.bounds;
@@ -178,8 +178,8 @@ struct UIStackViewLayoutContext
                   : UIViewAutoresizingFlexibleHeight;
 
    remainder = ctxt.bounds.size.value[ axis];
-      if( proportionally && area.value[ axis] != 0.0)
-         factor = ctxt.bounds.size.value[ axis] / area.value[ axis];
+   if( mode == UIStackViewDistributionFillProportionally && area.value[ axis] != 0.0)
+      factor = ctxt.bounds.size.value[ axis] / area.value[ axis];
 
    rover = mulle_pointerarray_enumerate_nil( self->_subviews);
    while( view = _mulle_pointerarrayenumerator_next( &rover))   
@@ -192,22 +192,38 @@ struct UIStackViewLayoutContext
       // the first candidate gets all the remaining space or gets shrunk
       // by it
       size = [view mulleLayoutSize];
-      if( ! proportionally && (mask & flexBit))
+      switch( mode)
       {
-         // calc space as height - height given to others
-         size.value[ axis] = ctxt.bounds.size.value[ axis] - (area.value[ axis] - size.value[ axis]);
-         if( size.value[ axis] < 0.0)
-            size.value[ axis] = 0.0;
-         rect.size.value[ axis] = size.value[ axis];
-      }
-      else
-      {
+      case UIStackViewDistributionFillProportionally :      
          size.value[ axis] *= factor;
          if( size.value[ axis] > remainder || view == lastView)
             rect.size.value[ axis] = remainder;
          else
             rect.size.value[ axis] = size.value[ axis];
-      }
+         break;
+
+      case UIStackViewDistributionFill               :     
+         if( mask & flexBit)
+         {
+            // calc space as height - height given to others
+            size.value[ axis] = ctxt.bounds.size.value[ axis] - (area.value[ axis] - size.value[ axis]);
+            if( size.value[ axis] < 0.0)
+               size.value[ axis] = 0.0;
+            rect.size.value[ axis] = size.value[ axis];
+         }
+         else
+         {
+            if( size.value[ axis] > remainder || view == lastView)
+               rect.size.value[ axis] = remainder;
+            else
+               rect.size.value[ axis] = size.value[ axis];
+         }
+         break;
+
+      case MulleStackViewDistributionUnbounded :
+         rect.size.value[ axis] = size.value[ axis];
+         break; 
+      }   
 
       // each view autoresizes in the bounds we divided it up for
       [self layoutSubview:view
@@ -327,18 +343,18 @@ struct UIStackViewLayoutContext
 // 
 - (void) layoutSubviewsFillRowColumn
 {
-   CGRect                                 bounds;
-   struct  mulle_pointerarrayenumerator   rover;
-   UIView                                 *view;
-   CGRect                                 rect;
-   CGRect                                 rowBounds;
-   CGRect                                 frame;
-   CGFloat                                rowHeight;
-   CGFloat                                value;
-   CGSize                                 spacing;
-   NSUInteger                             column;
-   int                                    axis;
-   int                                    otherAxis;
+   CGRect                                bounds;
+   struct mulle_pointerarrayenumerator   rover;
+   UIView                                *view;
+   CGRect                                rect;
+   CGRect                                rowBounds;
+   CGRect                                frame;
+   CGFloat                               rowHeight;
+   CGFloat                               value;
+   CGSize                                spacing;
+   NSUInteger                            column;
+   int                                   axis;
+   int                                   otherAxis;
 
    axis      = [self axis];
    otherAxis = ! axis;
@@ -392,14 +408,42 @@ struct UIStackViewLayoutContext
 {
    switch( _distribution)
    {
-   case UIStackViewDistributionFill               : [self layoutSubviewsFillProportionally:NO]; break;
+   case UIStackViewDistributionFill               : [self layoutSubviewsFillWithDistribution:UIStackViewDistributionFill]; break;
    case UIStackViewDistributionFillEqually        : [self layoutSubviewsFillEqually]; break;
-   case UIStackViewDistributionFillProportionally : [self layoutSubviewsFillProportionally:YES]; break;
+   case UIStackViewDistributionFillProportionally : [self layoutSubviewsFillWithDistribution:UIStackViewDistributionFillProportionally]; break;
    case UIStackViewDistributionEqualSpacing       : [self layoutSubviewsEquallySpaced:0]; break;
    case UIStackViewDistributionEqualCentering     : [self layoutSubviewsEquallyCentered]; break;
    case MulleStackViewDistributionFillRowColumn   : [self layoutSubviewsFillRowColumn]; break;
+   case MulleStackViewDistributionUnbounded       : [self layoutSubviewsFillWithDistribution:MulleStackViewDistributionUnbounded]; break;
    default                                        : abort();
    }
+}
+
+
+- (CGSize) sizeThatFits:(CGSize)size
+{
+   UIView       *first;
+   UIView       *last;
+   NSUInteger   n;
+   CGRect       frame;
+
+   // assume already layouted!
+   assert( [self needsLayout] != YES);
+
+   // get first and last subview
+   n     = mulle_pointerarray_get_count( self->_subviews);
+   if( ! n)
+      return( CGSizeZero);
+
+   first = mulle_pointerarray_get( self->_subviews, 0);
+   frame = [first frame];
+
+   if( n >= 2)
+   {
+      last  = mulle_pointerarray_get( self->_subviews, n - 1);
+      frame = CGRectUnion( frame, [last frame]);
+   }
+   return( frame.size);
 }
 
 @end

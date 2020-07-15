@@ -56,7 +56,7 @@ void   _drawStuff( NVGcontext *vg,
    nvgShapeAntiAlias( vg, 1);  
 }                 
 
-void  drawStuff( void *layer, 
+void  drawStuff( CALayer *layer, 
                  CGContext *context, 
                  CGRect frame, 
                  struct MulleFrameInfo *info)

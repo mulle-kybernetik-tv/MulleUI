@@ -89,7 +89,9 @@ UIControlProperties;
 
 - (char *) cStringDescription;
 
-- (void) toggleState;
+/* utilities for implementors */
+- (void) mulleToggleSelectedState;
+- (void) mulleToggleHighlightedState;
 
 PROTOCOLCLASS_END()
 

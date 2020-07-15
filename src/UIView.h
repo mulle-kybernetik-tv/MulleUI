@@ -79,10 +79,10 @@ enum UILayoutStrategy
    struct MulleClickDragDifferentiator  _clickOrDrag;
 }
 
-@property( getter=isHidden)                 BOOL   hidden;
-@property( getter=isUserInteractionEnabled) BOOL   userInteractionEnabled;
+@property( getter=isHidden)                 BOOL   hidden;                  // default: NO
+@property( getter=isUserInteractionEnabled) BOOL   userInteractionEnabled;  // default: YES
 
-@property BOOL   clipsSubviews;
+@property BOOL   clipsSubviews;  // default: YES
 @property BOOL   needsLayout;   // use setNeedsLayout for marking
 @property BOOL   needsCaching;
 @property BOOL   needsDisplay;  // a NOP for compatiblity
@@ -100,6 +100,8 @@ enum UILayoutStrategy
 - (void) setNeedsCaching;  // wipes the _cacheLayer and asks for a new one to be drawn
 
 + (Class) layerClass;
+
++ (instancetype) mulleViewWithFrame:(CGRect) frame;
 
 - (instancetype) initWithFrame:(CGRect) frame;
 
@@ -140,10 +142,13 @@ enum UILayoutStrategy
 // view must be part of window view hierarchy, for these function to work
 // properly
 - (struct MulleTrackingArea *) addTrackingAreaWithRect:(CGRect) rect
+                                              toWindow:(UIWindow *) window
                                               userInfo:(id) userInfo;
 - (void) removeTrackingArea:(struct MulleTrackingArea *) trackingRect;
 - (NSUInteger) numberOfTrackingAreas;
 - (struct MulleTrackingArea *) trackingAreaAtIndex:(NSUInteger) i;
+
+- (BOOL) mulleIsEffectivelyHidden;  // recursive test the hierarchy up
 
 @end
 

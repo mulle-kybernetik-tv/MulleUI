@@ -30,6 +30,11 @@
                      fromView:NULL]);
 }
 
+- (CGPoint) _firstResponderPoint
+{
+   return( _point);
+}
+
 - (void) _setFirstResponderPoint:(CGPoint) point
 {
    assert( point.x != CGFLOAT_MIN);

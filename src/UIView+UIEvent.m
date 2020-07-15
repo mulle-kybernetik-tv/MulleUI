@@ -7,6 +7,7 @@
 #import "CALayer.h"  // for _NVGtransform
 #import "CGGeometry+CString.h"
 
+
 @interface UIResponder
 @end 
 
@@ -244,6 +245,10 @@
       return( event);
    }
 
+#ifdef EVENT_DEBUG
+    fprintf( stderr, "Try to handle event %s\n", [self cStringDescription]);
+#endif 
+
    switch( [event eventType])
    {
    case UIEventTypePresses :
@@ -262,7 +267,46 @@
       event = [self handleMouseScrollEvent:(UIMouseScrollEvent *) event];
       break;
    }
+
    return( event);
+}
+
+//
+// This was written to support MulleMenu. But MulleMenu does it now 
+// differently.
+//
+- (void) mulleSubviewDidHandleEvent:(UIEvent *) event
+{
+   // pass it up, until noone cares anymore
+   [[self superview] mulleSubviewDidHandleEvent:event];
+}
+
+
+- (UIView *) mulleLetSubviewHandleEvent:(UIEvent *) event
+                   atTranslatedPosition:(CGPoint) translated
+{
+   struct mulle_pointerarrayenumerator   rover;
+   UIView                                *view;
+   BOOL                                  handledEvent;
+
+   view = nil;
+   if( _subviews)
+   {
+      rover = _mulle_pointerarray_reverseenumerate( _subviews);
+      while( (view = _mulle_pointerarrayenumerator_next( &rover)))
+      {
+         handledEvent = [view handleEvent:event
+                               atPosition:translated] == nil;
+         if( handledEvent)
+         {
+            [self mulleSubviewDidHandleEvent:event];
+            break;
+         }
+      }
+      mulle_pointerarrayenumerator_done( &rover);
+   }
+
+   return( view);
 }
 
 
@@ -273,8 +317,9 @@
    CGPoint                               translated;
    struct mulle_pointerarrayenumerator   rover;
    UIView                                *view;
+   UIEvent                               *memo;
 
-   if( [self isHidden] || [self alpha] < 0.01)
+   if( [self isHidden]) // alpha < 0.01: should we care for events ? 
    {
 #ifdef EVENT_DEBUG
        fprintf( stderr, "Invisible view %s ignores event\n", [self cStringDescription]);
@@ -295,23 +340,17 @@
    if( ! [self hitTest:translated
              withEvent:event])
    {
+#ifdef EVENT_DEBUG
+       fprintf( stderr, "Event does not hit view %s\n", [self cStringDescription]);
+#endif        
       return( event);
    }
 
-   if( _subviews)
-   {
-      rover = _mulle_pointerarray_reverseenumerate( _subviews);
-      while( (view = _mulle_pointerarrayenumerator_next( &rover)))
-      {
-         event = [view handleEvent:event
-                        atPosition:translated];
-         if( ! event)
-            break;
-      }
-      mulle_pointerarrayenumerator_done( &rover);
-   }
-   if( ! event)
-      return( event);
+    // if a subview handled the event, we are done
+   view = [self mulleLetSubviewHandleEvent:event
+                      atTranslatedPosition:translated];
+   if( view)
+      return( nil);
 
    //
    // current position relative to visible bounds

@@ -156,18 +156,25 @@
    bounds = [self bounds];
    rover = mulle_pointerarray_enumerate_nil( _subviews);
    while( (view = _mulle_pointerarrayenumerator_next( &rover)))
-      [view layoutSubview:view 
-                inBounds:bounds
-        autoresizingMask:[view autoresizingMask]];
+      [self layoutSubview:view 
+                 inBounds:bounds
+         autoresizingMask:[view autoresizingMask]];
    mulle_pointerarrayenumerator_done( &rover);   
 }
 
-
+//
+// Layouting is strictly top/down. Space is distributed from the top to
+// the button via bounds/frame and the code in "layoutSubviews" that 
+// distributes it.
+//
 - (void) layout
 {
    struct mulle_pointerarrayenumerator   rover;
    UIView                                *view;
 
+   /* 
+    * TOP/DOWN
+    */
    [self setNeedsLayout:NO];
 
    // start Yoga

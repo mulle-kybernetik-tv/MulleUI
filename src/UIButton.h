@@ -39,4 +39,8 @@ MulleControlBackgroundImageProperties;
 
 - (void) layoutLayersWithFrame:(CGRect) frame;
 
+// subclasses can style by overriding these
++ (MulleTextLayer *) titleLayerWithFrame:(CGRect) rect;
++ (CALayer *) mulleTitleBackgroundLayerWithFrame:(CGRect) rect;
+
 @end

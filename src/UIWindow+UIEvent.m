@@ -208,6 +208,7 @@ static void   mouseScrollCallback( GLFWwindow *window,
 {
    assert( view);
    assert( [view isKindOfClass:[UIView class]]);
+   assert( [view window] == self || ! [view window]);
 
    assert( _mulle_pointerarray_find( &_trackingViews, view) == -1);
    [view retain];
@@ -236,6 +237,13 @@ static void   mouseScrollCallback( GLFWwindow *window,
    CGRect                     rect;
    CGRect                     converted;
 
+   assert( ! view || [view isKindOfClass:[UIView class]]);
+   assert( [view window] == self || ! [view window]);
+
+   // don't track hidden view ..
+   if( [view mulleIsEffectivelyHidden])
+      return;
+      
    n = [view numberOfTrackingAreas];
    for( i = 0; i < n; i++)
    {
@@ -243,6 +251,7 @@ static void   mouseScrollCallback( GLFWwindow *window,
       rect      = MulleTrackingAreaGetRect( area);
       converted = [self convertRect:rect 
                            fromView:view];
+      assert( _quadtree);
       mulle_quadtree_insert( _quadtree, converted, view);
    }
 }
@@ -250,13 +259,13 @@ static void   mouseScrollCallback( GLFWwindow *window,
 
 - (void) setupQuadtree
 {
-   CGRect       rect;
-   CGRect       bounds;
-   NSUInteger   i;
-   NSUInteger   level;
-   NSUInteger   extent;
+   CGRect                                rect;
+   CGRect                                bounds;
+   NSUInteger                            i;
+   NSUInteger                            level;
+   NSUInteger                            extent;
    struct mulle_pointerarrayenumerator   rover;
-   UIView       *view;
+   UIView                                *view;
 
    bounds = [self bounds];
    extent = round( bounds.size.width < bounds.size.height ? bounds.size.width : bounds.size.height);
@@ -274,7 +283,10 @@ static void   mouseScrollCallback( GLFWwindow *window,
    // 4. do not create quadtree when scrolling ?
    // 5. cache freed quadtree nodes in a mulle_pointerarray ?
    //
-   mulle_quadtree_reset( _quadtree, bounds);
+   if( ! _quadtree)
+      _quadtree = mulle_quadtree_create( bounds, 10, 10, MulleObjCInstanceGetAllocator( self));
+   else
+      mulle_quadtree_reset( _quadtree, bounds);
 
    rover = mulle_pointerarray_enumerate_nil( &_trackingViews);
    while( (view = _mulle_pointerarrayenumerator_next( &rover)))

@@ -9,6 +9,8 @@
 - (void) waitForEvents:(double) hz;
 - (void) setupQuadtree;
 
+// Use -[UIView addTrackingAreaWithRect:toWindow:userInfo:]. It will call 
+// -[UIWindow addTrackingView:] eventually
 - (void) addTrackingView:(UIView *) view;
 - (void) removeTrackingView:(UIView *) view;
 

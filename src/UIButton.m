@@ -10,7 +10,7 @@
 // it out (yet)
 @interface UIView( ProtocolClass)
 
-- (void) toggleState;
+- (void) mulleToggleSelectedState;
 
 @end
 
@@ -20,20 +20,12 @@
 #define BORDER_WIDTH    3.0
 #define TEXT_MARGIN     1.0
 #define CORNER_RADIUS   8
-              
-- (instancetype) initWithLayer:(CALayer *) layer 
-{
-   CGRect         frame;
-   CGRect         textLayerFrame;
-   UIEdgeInsets   insets;
 
-   self = [super initWithLayer:layer];
-   if( ! self)
-      return( self);
++ (MulleTextLayer *) titleLayerWithFrame:(CGRect) frame
+ {
+    MulleTextLayer   *layer;
 
-   // layout later
-   frame       = [layer frame];
-   _titleLayer = [[[MulleTextLayer alloc] initWithFrame:frame] autorelease];
+   layer = [[[MulleTextLayer alloc] initWithFrame:frame] autorelease];
 
    //
    // if we composite on top of an image and leave the background 
@@ -48,29 +40,60 @@
    //
 
    // [self setTitleCString:"Title"];
-   [_titleLayer setFontName:"sans"];
+   [layer setFontName:"sans"];
    //
    // Even with pixel size full frame, we won't cover the button. I suspect
    // because the font leaves vertical room for a previous row of text
    // Fontsize is probably usefully set by the user anyway 
-   [_titleLayer setFontPixelSize:frame.size.height / 2];
-   [_titleLayer setBackgroundColor:getNVGColor( 0x0000000)];
-   [_titleLayer setTextColor:getNVGColor( 0x000000FF)];
+   [layer setFontPixelSize:frame.size.height / 2];
+   [layer setBackgroundColor:getNVGColor( 0x0000000)];
+   [layer setTextColor:getNVGColor( 0x000000FF)];
    // set this as we are transparent
-   [_titleLayer setTextBackgroundColor:getNVGColor( 0xFFFF00FF)];
-   [_titleLayer setHidden:YES];
-   [_titleLayer setCStringName:"UIButton titleLayer"];
+   [layer setTextBackgroundColor:getNVGColor( 0xFFFF00FF)];
+   [layer setHidden:YES];
 
-   _titleBackgroundLayer = [[[CALayer alloc] initWithFrame:frame] autorelease];
-   [_titleBackgroundLayer setBackgroundColor:getNVGColor( 0xFFFFFFFF)];
+   return( layer);
+}
+
+/* Selection and highlight colors are currently hardcoded in 
+ * UIButton+UIResponder.
+ */
++ (CALayer *) mulleTitleBackgroundLayerWithFrame:(CGRect) frame
+{
+   CALayer   *layer;
+
+   layer = [[[CALayer alloc] initWithFrame:frame] autorelease];
+
+   [layer setBackgroundColor:getNVGColor( 0xFFFFFFFF)];
    // this ensures that the background fill does not antialias into the
    // outside
-   [_titleBackgroundLayer setBorderWidth:1.5];
-   [_titleBackgroundLayer setBorderColor:getNVGColor( 0x7F7FFFFF)];
-   [_titleBackgroundLayer setCornerRadius:CORNER_RADIUS];
-   [_titleBackgroundLayer setCStringName:"UIButton titleBackgroundLayer"];
+   [layer setBorderWidth:1.5];
+   [layer setBorderColor:getNVGColor( 0x7F7FFFFF)];
+   [layer setCornerRadius:CORNER_RADIUS];
+   [layer setCStringName:"UIButton titleBackgroundLayer"];
+   return( layer);
+}
 
+
+- (instancetype) initWithLayer:(CALayer *) layer 
+{
+   CGRect         frame;
+   CGRect         textLayerFrame;
+   UIEdgeInsets   insets;
+
+   self = [super initWithLayer:layer];
+   if( ! self)
+      return( self);
+
+   // layout later
+   frame       = [layer frame];
+
+   _titleBackgroundLayer = [[self class] mulleTitleBackgroundLayerWithFrame:frame];
+   [_titleBackgroundLayer setCStringName:"UIButton titleBackgroundLayer"];
    [self addLayer:_titleBackgroundLayer];
+
+   _titleLayer = [[self class] titleLayerWithFrame:frame];
+   [_titleLayer setCStringName:"UIButton titleLayer"];
    [self addLayer:_titleLayer];
 
    [self layoutLayersWithFrame:frame];

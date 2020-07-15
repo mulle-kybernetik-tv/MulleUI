@@ -5,7 +5,11 @@
 
 #import "UIEdgeInsets.h"
 
-
+//
+// MulleStackViewDistributionUnbounded, is like UIStackViewDistributionFill
+// but as views are added the axis bounds are ignored and views are just
+// stacked unto each other.
+//
 typedef enum 
 {
    UIStackViewDistributionFill      = 0,  
@@ -13,7 +17,8 @@ typedef enum
    UIStackViewDistributionFillProportionally,
    UIStackViewDistributionEqualSpacing, 
    UIStackViewDistributionEqualCentering,
-   MulleStackViewDistributionFillRowColumn
+   MulleStackViewDistributionFillRowColumn,
+   MulleStackViewDistributionUnbounded
 } UIStackViewDistribution;
 
 
@@ -41,5 +46,9 @@ typedef enum
 // used for MulleStackViewDistributionFillRowColumn only
 @property CGFloat                   minimumInteritemSpacing;
 @property CGFloat                   minimumLineSpacing;
+
+
+// UIStackView must have been layouted before. Size parameter is ignored.
+- (CGSize) sizeThatFits:(CGSize)size;
 
 @end

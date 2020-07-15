@@ -14,7 +14,8 @@
    UIControlState   fallbackState;
    CGRect           frame;
    UIImage          *image;
-   
+   CGColorRef       color;
+
    state = [self state];
 
    if( state & UIControlStateSelected)
@@ -23,10 +24,16 @@
       [_titleLayer setTextBackgroundColor:getNVGColor( 0xD0D0D0FF)];
    }
    else
-   {
-      [_titleBackgroundLayer setBackgroundColor:getNVGColor( 0xFFFFFFFF)];
-      [_titleLayer setTextBackgroundColor:getNVGColor( 0xFFFFFFFF)];
-   }
+      if( state & UIControlStateHighlighted)
+      {
+         [_titleBackgroundLayer setBackgroundColor:getNVGColor( 0x6060E0FF)];
+         [_titleLayer setTextBackgroundColor:getNVGColor( 0x6060E0FF)];
+      }
+      else
+      {
+         [_titleBackgroundLayer setBackgroundColor:getNVGColor( 0xFFFFFFFF)];
+         [_titleLayer setTextBackgroundColor:getNVGColor( 0xFFFFFFFF)];
+      }
 
    image         = [self backgroundImageForState:state];
    fallbackState = state & ~UIControlStateDisabled;
@@ -42,12 +49,19 @@
 
 
 // use compatible code
-- (void) toggleState
+- (void) mulleToggleSelectedState
 {
    //
    // target/action has been called already by UIControl
    //
-   [super toggleState];
+   [super mulleToggleSelectedState];
+   [self reflectState];
+}
+
+
+- (void) mulleToggleHighlightedState
+{
+   [super mulleToggleHighlightedState];
    [self reflectState];
 }
 

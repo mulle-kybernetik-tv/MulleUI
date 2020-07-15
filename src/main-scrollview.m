@@ -137,6 +137,7 @@ int   main()
    bounds   = frame;
    frame    = CGRectMake( 10.0 * SCALE, 10.0 * SCALE, 320.0 * SCALE, 200.0 * SCALE);
    scroller = [[[UIScrollView alloc] initWithFrame:frame] autorelease];
+   [scroller setZoomEnabled:YES];
    [scroller setContentSize:bounds.size];
    [[scroller contentView] addSubview:inScrollerButton];
    [contentView addSubview:scroller];

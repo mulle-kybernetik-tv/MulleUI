@@ -8,7 +8,7 @@ if( MULLE_TRACE_INCLUDE)
 endif()
 
 #
-# Generated from sourcetree: GL;no-all-load,no-header,no-import,no-os-darwin;
+# Generated from sourcetree: GL;no-all-load,no-build,no-delete,no-dependency,no-fs,no-header,no-import,no-os-darwin,no-update;
 # Disable with: `mulle-sourcetree mark GL no-link`
 #
 if( NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -78,7 +78,7 @@ endif()
 
 
 #
-# Generated from sourcetree: GLU;no-all-load,no-header,no-import,no-os-darwin;
+# Generated from sourcetree: GLU;no-all-load,no-build,no-delete,no-dependency,no-fs,no-header,no-import,no-os-darwin,no-update;
 # Disable with: `mulle-sourcetree mark GLU no-link`
 #
 if( NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -148,7 +148,7 @@ endif()
 
 
 #
-# Generated from sourcetree: X11;no-all-load,no-header,no-import,no-os-darwin;
+# Generated from sourcetree: X11;no-all-load,no-build,no-delete,no-dependency,no-fs,no-header,no-import,no-os-darwin,no-update;
 # Disable with: `mulle-sourcetree mark X11 no-link`
 #
 if( NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -218,7 +218,7 @@ endif()
 
 
 #
-# Generated from sourcetree: Xrandr;no-all-load,no-header,no-import,no-os-darwin;
+# Generated from sourcetree: Xrandr;no-all-load,no-build,no-delete,no-dependency,no-fs,no-header,no-import,no-os-darwin,no-update;
 # Disable with: `mulle-sourcetree mark Xrandr no-link`
 #
 if( NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -288,7 +288,7 @@ endif()
 
 
 #
-# Generated from sourcetree: Xxf86vm;no-all-load,no-header,no-import,no-os-darwin;
+# Generated from sourcetree: Xxf86vm;no-all-load,no-build,no-delete,no-dependency,no-fs,no-header,no-import,no-os-darwin,no-update;
 # Disable with: `mulle-sourcetree mark Xxf86vm no-link`
 #
 if( NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -358,7 +358,7 @@ endif()
 
 
 #
-# Generated from sourcetree: Xinerama;no-all-load,no-header,no-import,no-os-darwin;
+# Generated from sourcetree: Xinerama;no-all-load,no-build,no-delete,no-dependency,no-fs,no-header,no-import,no-os-darwin,no-update;
 # Disable with: `mulle-sourcetree mark Xinerama no-link`
 #
 if( NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -428,7 +428,7 @@ endif()
 
 
 #
-# Generated from sourcetree: Xcursor;no-all-load,no-header,no-import,no-os-darwin;
+# Generated from sourcetree: Xcursor;no-all-load,no-build,no-delete,no-dependency,no-fs,no-header,no-import,no-os-darwin,no-update;
 # Disable with: `mulle-sourcetree mark Xcursor no-link`
 #
 if( NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -498,7 +498,7 @@ endif()
 
 
 #
-# Generated from sourcetree: dl;no-all-load,no-header,no-import;
+# Generated from sourcetree: dl;no-all-load,no-build,no-delete,no-dependency,no-fs,no-header,no-import,no-update;
 # Disable with: `mulle-sourcetree mark dl no-link`
 #
 if( NOT DL_LIBRARY)
@@ -566,7 +566,7 @@ endif()
 
 
 #
-# Generated from sourcetree: pthread;no-all-load,no-header,no-import;
+# Generated from sourcetree: pthread;no-all-load,no-build,no-delete,no-dependency,no-fs,no-header,no-import,no-update;
 # Disable with: `mulle-sourcetree mark pthread no-link`
 #
 if( NOT PTHREAD_LIBRARY)
@@ -634,7 +634,7 @@ endif()
 
 
 #
-# Generated from sourcetree: m;no-all-load,no-header,no-import;
+# Generated from sourcetree: m;no-all-load,no-build,no-delete,no-dependency,no-fs,no-header,no-import,no-update;
 # Disable with: `mulle-sourcetree mark m no-link`
 #
 if( NOT M_LIBRARY)
@@ -702,7 +702,7 @@ endif()
 
 
 #
-# Generated from sourcetree: z;no-all-load,no-cmakeinherit,no-header,no-import,no-share;
+# Generated from sourcetree: z;no-all-load,no-build,no-cmakeinherit,no-delete,no-dependency,no-fs,no-header,no-import,no-share,no-update;
 # Disable with: `mulle-sourcetree mark z no-link`
 #
 if( NOT Z_LIBRARY)
@@ -730,7 +730,7 @@ endif()
 
 
 #
-# Generated from sourcetree: bz2;no-all-load,no-cmakeinherit,no-header,no-import,no-share;
+# Generated from sourcetree: bz2;no-all-load,no-build,no-cmakeinherit,no-delete,no-dependency,no-fs,no-header,no-import,no-share,no-update;
 # Disable with: `mulle-sourcetree mark bz2 no-link`
 #
 if( NOT BZ2_LIBRARY)
@@ -758,7 +758,7 @@ endif()
 
 
 #
-# Generated from sourcetree: png;no-all-load,no-cmakeinherit,no-header,no-import,no-share;
+# Generated from sourcetree: png;no-all-load,no-build,no-cmakeinherit,no-delete,no-dependency,no-fs,no-header,no-import,no-share,no-update;
 # Disable with: `mulle-sourcetree mark png no-link`
 #
 if( NOT PNG_LIBRARY)
@@ -786,7 +786,7 @@ endif()
 
 
 #
-# Generated from sourcetree: harfbuzz;no-all-load,no-cmakeinherit,no-header,no-import,no-share;
+# Generated from sourcetree: harfbuzz;no-all-load,no-build,no-cmakeinherit,no-delete,no-dependency,no-fs,no-header,no-import,no-share,no-update;
 # Disable with: `mulle-sourcetree mark harfbuzz no-link`
 #
 if( NOT HARFBUZZ_LIBRARY)
