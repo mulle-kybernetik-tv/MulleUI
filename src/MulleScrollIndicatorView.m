@@ -218,7 +218,6 @@
 }
 
 
-
 //
 // if point is in bubble, return -1
 // otherwise where the bubble would go
@@ -297,23 +296,7 @@
    if( ! [super drawInContext:context])
       return( NO);
 
-   //
-   // don't paint scrollbar if content fits inside scrollView
-   //
-   if( _bubbleLength >= _contentLength)
-   {
-#ifdef LAYOUT_DEBUG
-  	 	fprintf( stderr, "%s Not showing %s for %.2f >= %.2f\n\n",
-   					__PRETTY_FUNCTION__, 
-                  [self cStringDescription],
-                  _bubbleLength, 
-                  _contentLength);
-#endif   	
-   	return( NO);
-   }
-
-   vg = [context nvgContext];
-
+   vg     = [context nvgContext];
    bounds = [self bounds];
 #ifdef LAYOUT_DEBUG
    fprintf( stderr, "bounds bubble: %s\n", CGRectCStringDescription( bounds));      

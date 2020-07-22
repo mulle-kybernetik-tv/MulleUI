@@ -11,6 +11,8 @@
 // #define LAYOUT_DEBUG    
 #define EVENT_DEBUG
 #define ZOOM_DEBUG
+#define SCROLL_DEBUG
+
 
 @implementation UIScrollView( UIEvent)
 
@@ -40,7 +42,7 @@
 }
 
 
-#define ZOOM_FACTOR  0.075
+#define ZOOM_FACTOR    0.075
 
 - (CGPoint) zoomFactor
 {
@@ -60,8 +62,30 @@
    zoomFactor.y = contentSize.height / contentBounds.size.height;
 
    return( zoomFactor);
-
 }
+
+#define SCROLL_FACTOR  0.25
+
+- (CGPoint) scrollFactor
+{
+   CGRect   contentBounds;
+   CGSize   contentSize;
+   CGPoint  scrollFactor;
+
+   contentBounds = [_contentView bounds];
+
+   if( contentBounds.size.width <= 0.1 || contentBounds.size.height <= 0.1)
+      return( CGPointMake( 0.0, 0.0));
+
+   // the current scroll factor
+   // contentSize  = [self contentSize];
+
+   scrollFactor.x = SCROLL_FACTOR;
+   scrollFactor.y = SCROLL_FACTOR;
+
+   return( scrollFactor);
+}
+
 //
 // event handling
 // In category ?
@@ -78,23 +102,14 @@
    CGPoint   scale;
    CGPoint   zoomFactor;
    CGPoint   newZoomFactor;
+   CGPoint   scrollFactor;
    CGRect    bounds;
    CGRect    contentBounds;
    CGRect    newContentBounds;
    CGSize    contentSize;
    UIView    *contentView;
 
-   //
-   // TODO: if not zooming possibly scroll up/down
-   //
-   if( ! [self isZoomEnabled])
-      return( event);
-
    diff = [event scrollOffset];
-
-#ifdef EVENT_DEBUG
-   fprintf( stderr, "scrollWheel: %s\n", CGPointCStringDescription( diff));
-#endif
 
    contentOffset = [self contentOffset];
    contentSize   = [self contentSize];
@@ -103,7 +118,38 @@
    contentView   = [self contentView];
    contentBounds = [contentView bounds];
 
-   zoomFactor    = [self zoomFactor];
+#ifdef EVENT_DEBUG
+   fprintf( stderr, "scrollWheel: %s\n", CGPointCStringDescription( diff));
+#endif
+   //
+   // TODO: if not zooming possibly scroll up/down
+   //
+   if( ! [self isZoomEnabled])
+   {
+      scrollFactor = [self scrollFactor];
+
+      newContentOffset.x = contentOffset.x + diff.x * scrollFactor.x;
+      newContentOffset.y = contentOffset.y + diff.y * scrollFactor.y;
+
+      newContentOffset = [self clampedContentOffset:newContentOffset];
+      [self setContentOffset:newContentOffset];
+
+ #ifdef SCROLL_DEBUG
+      fprintf( stderr, "scrollFactor: %s\n", 
+                        CGPointCStringDescription( scrollFactor));
+
+      fprintf( stderr, "contentOffset: %s -> %s\n", 
+                        CGPointCStringDescription( contentOffset),
+                        CGPointCStringDescription( newContentOffset));
+#endif
+
+      return( nil);
+   }
+
+   /*
+    *  Zoom
+    */ 
+   zoomFactor = [self zoomFactor];
    if( zoomFactor.x <= 0.0)
       return( nil);
 
@@ -163,7 +209,8 @@
    newContentOffset.y -= (newContentBounds.size.height - contentBounds.size.height) * factor.y;
 
    newContentOffset = [self clampedContentOffset:newContentOffset];
-  #ifdef ZOOM_DEBUG
+ 
+ #ifdef ZOOM_DEBUG
    // fprintf( stderr, "scale: %f\n", scale.y);
 
    fprintf( stderr, "factor: %s\n", CGPointCStringDescription( factor));
@@ -184,7 +231,7 @@
                      CGPointCStringDescription( contentOffset),
                      CGPointCStringDescription( newContentOffset));
 #endif
-
+   
    [contentView setBounds:newContentBounds];
 
    [self setContentOffset:newContentOffset];

@@ -38,7 +38,7 @@
 @end
 
 
-void  drawStuff( CALayer *aLayer, 
+BOOL  drawStuff( CALayer *aLayer, 
                  CGContext *context, 
                  CGRect frame, 
                  struct MulleFrameInfo *info)
@@ -72,6 +72,7 @@ void  drawStuff( CALayer *aLayer,
    nvgStrokeWidth( vg, 3.5);
    nvgFill( vg);
 */
+   return( NO);
 }
 
 // scale stuff for stream

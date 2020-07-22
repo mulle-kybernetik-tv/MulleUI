@@ -39,7 +39,7 @@
 
 // memo: this actually draws outside of the layer somewhat, should fix this
 //       as noticed when reusing the code in the collection view demo
-void  drawStuff( CALayer *aLayer, 
+BOOL  drawStuff( CALayer *aLayer, 
                  CGContext *context, 
                  CGRect frame, 
                  struct MulleFrameInfo *info)
@@ -73,6 +73,7 @@ void  drawStuff( CALayer *aLayer,
    nvgStrokeWidth( vg, 3.5);
    nvgFill( vg);
 */
+   return( NO);
 }
 
 // scale stuff for stream

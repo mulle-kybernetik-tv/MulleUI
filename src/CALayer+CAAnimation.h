@@ -7,6 +7,7 @@
 - (void) removeAllAnimations;
 - (NSUInteger) numberOfAnimations;
 
+- (void) willAnimateWithAbsoluteTime:(CAAbsoluteTime) time;
 - (void) animateWithAbsoluteTime:(CAAbsoluteTime) time;
 
 - (void) animatePropertiesWithSnapshotlayer:(CALayer *) snapshot

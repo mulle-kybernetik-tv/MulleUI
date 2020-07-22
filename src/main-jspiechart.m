@@ -11,6 +11,7 @@
 #import "MulleBitmapImage.h"
 #import "MulleMenu.h" // rename to MulleMenuView.h
 #import "MulleMenuButton.h"
+#import "MullePopUpButton.h"
 #import "UIView+Layout.h"
 #import "NSValue+CGGeometry.h"
 #import "UIEvent.h"
@@ -20,9 +21,28 @@
 static MulleBitmapImage      *bengalBitmap;
 static MulleBitmapImage      *patternBitmap;
 
-static char   *javascript = "quadcurve.js";
+static char  *javascript = "quadcurve.js";
+static char  *titles[] =
+{
+   "quadcurve.js",
+   "donutpie.js",
+   "pie-chart-demo.js",
+   "colorsandlines.js",
+   "drawings.js"
+};
 
-void  drawStuff( CALayer *layer,
+
+static UIEvent   *buttonClicked( id <UIControl> control, UIEvent *event)
+{
+   fprintf( stderr, "%s\n", __PRETTY_FUNCTION__);
+
+   javascript = [(UIButton *) control titleCString];
+   return( nil);
+}
+
+
+
+BOOL  drawStuff( CALayer *layer,
                  CGContext *context,
                  CGRect frame,
                  struct MulleFrameInfo *info)
@@ -61,38 +81,8 @@ void  drawStuff( CALayer *layer,
       filename = MulleObjC_asprintf( "/home/src/srcO/MulleUI/src/%s", javascript);
       [js runScriptFileCString:filename];
    }
+   return( YES);
 }
-
-static MulleMenu   *menu;
-
-static UIEvent   *showMenu( id <UIControl> control, UIEvent *event)
-{
-   fprintf( stderr, "%s\n", __PRETTY_FUNCTION__);
-
-   assert( menu);
-
-   [menu setHidden:NO];
-   return( nil);
-}
-
-
-static UIEvent   *buttonClicked( id <UIControl> control, UIEvent *event)
-{
-   fprintf( stderr, "%s\n", __PRETTY_FUNCTION__);
-
-   javascript = [control titleCString];
-   [menu setHidden:YES];
-   return( nil);
-}
-
-static UIEvent   *menuOutsideClicked( id <UIControl> control, UIEvent *event)
-{
-   fprintf( stderr, "%s\n", __PRETTY_FUNCTION__);
-
-   [menu setHidden:YES];
-   return( nil);
-}
-
 
 static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
 {
@@ -133,47 +123,17 @@ static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
    [displayView setDrawContentsCallback:drawStuff];
    [rootView addSubview:displayView];
 
-   button  = [UIButton mulleViewWithFrame:CGRectMake( 0, 0, 120, 20)];
+   button = [MullePopUpButton mulleViewWithFrame:CGRectMake( 0, 0, 120, 20)];
    [button setTitleCString:"Change"];
-   [button setMargins:UIEdgeInsetsMake( 0, 0, 10, 10)];
-   [button setAutoresizingMask:MulleUIViewAutoresizingStickToBottom|MulleUIViewAutoresizingStickToRight];
-   [button setClick:showMenu];
+   [button setMargins:UIEdgeInsetsMake( 10, 10, 10, 10)];
+   [button setAutoresizingMask:MulleUIViewAutoresizingStickToTop|MulleUIViewAutoresizingStickToLeft];
+   [button setClick:buttonClicked];
+
+   // not strdupped currently!
+   [button setTitlesCStrings:titles
+                       count:sizeof( titles) / sizeof( char *)];
+
    [displayView addSubview:button];
-
-
-   menuView = [MulleMenu mulleViewWithFrame:CGRectMake( 0, 0, 200, 75)];
-   [menuView setAutoresizingMask:MulleUIViewAutoresizingStickToBottom|MulleUIViewAutoresizingStickToRight];
-   [menuView setMargins:UIEdgeInsetsMake( 0, 0, 10, 50)];
-   [menuView setClick:menuOutsideClicked];
-   [menuView setHidden:YES];
-
-   menu = menuView;
-
-   for( i = 0; i < 5; i++)
-   {
-      static char  *titles[] =
-      {
-         "quadcurve.js",
-         "donutpie.js",
-         "pie-chart-demo.js",
-         "colorsandlines.js",
-         "drawings.js"
-      };
-      menuButton = [MulleMenuButton mulleViewWithFrame:CGRectMake( 0, 0, 0, 20)];
-      [menuButton setTitleCString:titles[ i]];
-      [menuButton setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
-      [menuButton setClick:buttonClicked];
-      /* TODO: Tricky, if the button resizes then the tracking area must also
-               resize. BUT, it's not really dynamic yet.
-       */
-      [menuButton addTrackingAreaWithRect:CGRectMake( 0, 0, 200, 20)
-                                 toWindow:window
-                                 userInfo:nil];
-      [menuView addMenuButton:menuButton];
-   }
-   [menuPlane addSubview:menuView];
-   [menuPlane setNeedsLayout];
-   [menuPlane setHidden:NO];
 
    [rootView setNeedsLayout];
 

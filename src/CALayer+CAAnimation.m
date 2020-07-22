@@ -400,6 +400,11 @@ static mulle_objc_walkcommand_t
 }
 
 
+- (void) willAnimateWithAbsoluteTime:(CAAbsoluteTime) time;
+{
+}
+
+
 - (void) animateWithAbsoluteTime:(CAAbsoluteTime) renderTime
 {
    struct mulle_pointerarrayenumerator   rover;

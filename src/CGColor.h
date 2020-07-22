@@ -83,6 +83,16 @@ static inline CGFloat   CGColorGetAlpha( CGColorRef color)
    return( color.a);
 }
 
+static inline int   MulleColorIsTransparent( CGColorRef color)
+{
+   return( color.a < 0.5 / 32767.0);  // assume rounding up and 16 bit color depth
+}
+
+static inline int   MulleColorIsOpaque( CGColorRef color)
+{
+   return( color.a >= 1.0 - 0.5 / 32767.0);  // assume rounding up and 16 bit color depth
+}
+
 
 static inline int   CGColorEqualToColor( CGColorRef color, CGColorRef other)
 {

@@ -53,7 +53,7 @@ static char  *cpToUTF8(int cp, char* str)
 }
 
 
-- (void) drawContentsInContext:(CGContext *) context
+- (BOOL) drawContentsInContext:(CGContext *) context
 {
    CGFloat             fontPixelSize;
    CGFont              *font;
@@ -96,6 +96,8 @@ static char  *cpToUTF8(int cp, char* str)
       nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
       nvgText(vg, frame.origin.x + 9 + 2, frame.origin.y + frame.size.height * 0.5f, cpToUTF8(ICON_CHECK, icon), NULL);
    }
+
+   return( NO);
 }
 
 

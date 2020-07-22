@@ -56,7 +56,8 @@ void   _drawStuff( NVGcontext *vg,
    nvgShapeAntiAlias( vg, 1);  
 }                 
 
-void  drawStuff( CALayer *layer, 
+
+BOOL  drawStuff( CALayer *layer, 
                  CGContext *context, 
                  CGRect frame, 
                  struct MulleFrameInfo *info)
@@ -71,6 +72,7 @@ void  drawStuff( CALayer *layer,
    _drawStuff( vg, rect, 1);
    rect.origin.x += 300;
    _drawStuff( vg, rect, 0);
+   return( NO);
 }
 
 // scale stuff for stream

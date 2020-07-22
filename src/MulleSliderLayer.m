@@ -88,7 +88,7 @@
 }
 
 
-- (void) drawContentsInContext:(CGContext *) context
+- (BOOL) drawContentsInContext:(CGContext *) context
 {
    CGRect              frame;
    CGRect              rect;
@@ -162,6 +162,8 @@
 	nvgStrokeColor(vg, [self backgroundColor]);
    nvgStrokeWidth( vg, KNOB_OUTLINE);
 	nvgStroke(vg);
+
+   return( NO);
 }
 
 @end

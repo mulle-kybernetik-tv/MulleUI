@@ -18,16 +18,28 @@
 //    title :   value,
 //    foo   :   value,
 // }
+//
+// TODO: Need a selectedTitle happening, need a string for no selection.
+//       
 @interface MullePopUpButton : UIButton
 {
-   MulleMenu    *_menu;  // temporary as long as the menu exists on screen
+   CALayer      *_disclosureLayer;
+   char         **_titles;
+   NSUInteger   _titlesCount;
 
+   NSUInteger   _selectedIndex;     // NSNotFound == no selection!
+   char         *_noSelectionTitle;
 }
+
+@property( retain) MulleMenu   *menu;
 
 - (id) representedValue;
 
 - (void) removeAllItems;
 - (void) addMenuItemWithTitleCString:(char *) s
                    representedObject:(id) obj;
+
+- (void) setTitlesCStrings:(char **) titles 
+                     count:(NSUInteger) count;
 
 @end

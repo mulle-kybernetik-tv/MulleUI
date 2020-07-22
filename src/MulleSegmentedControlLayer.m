@@ -92,12 +92,14 @@
    self->_segments[ segment].backgroundColor = color;
 }
 
-- (void) drawBackgroundInContext:(CGContext *) context
+- (BOOL) drawBackgroundInContext:(CGContext *) context
 {
+   return( NO);
 }
 
-- (void) drawBorderInContext:(CGContext *) context
+- (BOOL) drawBorderInContext:(CGContext *) context
 {
+   return( NO);
 }
 
 
@@ -217,7 +219,7 @@ static inline int   is_only_segment( NSUInteger i, NSUInteger n)
 }
 
 
-- (void) drawContentsInContext:(CGContext *) context
+- (BOOL) drawContentsInContext:(CGContext *) context
 {
    CGFloat             fontPixelSize;
    CGFloat             midX;
@@ -238,7 +240,7 @@ static inline int   is_only_segment( NSUInteger i, NSUInteger n)
    MulleEdgeInsets        insets;
    
    if( ! _n)
-      return;
+      return( NO);
 
    vg    = [context nvgContext];
    frame = [self frame];
@@ -357,6 +359,7 @@ static inline int   is_only_segment( NSUInteger i, NSUInteger n)
                       _segments[ i].title, NULL);
       }
    }
+   return( NO);
 }
 
 @end

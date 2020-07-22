@@ -1,6 +1,7 @@
 #import "import-private.h"
 
 #import "CGContext.h"
+#import "CALayer.h"
 #import "UIWindow.h"
 #import "UIApplication.h"
 #import "UIButton.h"
@@ -19,13 +20,13 @@ static UIEvent   *button_callback( UIButton *button, UIEvent *event)
 }
 
 
-void  drawStuff( void *layer,
+BOOL  drawStuff( CALayer *layer,
                  CGContext *context,
                  CGRect frame,
                  struct MulleFrameInfo *info)
 {
-   CGRect  rect;
-   MulleJS  *js;
+   CGRect               rect;
+   MulleJS             *js;
    struct NVGcontext   *vg;
 
    vg = MulleContextGetNVGContext( context);
@@ -52,6 +53,7 @@ void  drawStuff( void *layer,
 "x.write( '1849', 1); \n"
 ];
 */
+   return( YES);
 }
 
 

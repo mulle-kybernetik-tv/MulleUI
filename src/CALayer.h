@@ -42,7 +42,9 @@ struct CAAnimationOptions;
 // non-observable
 @property BOOL       hidden;
 @property char       *cStringName;
-@property void       (*drawContentsCallback)( CALayer *layer, 
+
+// return YES if you changed transform or scissor
+@property BOOL       (*drawContentsCallback)( CALayer *layer, 
                                               CGContext *ctxt, 
                                               CGRect frame, 
                                               struct MulleFrameInfo *info);
@@ -51,18 +53,21 @@ struct CAAnimationOptions;
 @property CGRect     clipRect;
 
 
++ (instancetype) layerWithFrame:(CGRect) frame;
+
 - (instancetype) init;
 - (instancetype) initWithFrame:(CGRect) frame;
 
 - (BOOL) drawInContext:(CGContext *) ctx;
 
 //
-// subclasses do their drawing in this method. The code simply draws the
-// frame coordinates.
+// Subclasses do their drawing in these methods. The code simply draws the
+// frame coordinates. If you do transformations or add to
+// scissors in return YES, otherwise NO.
 //
-- (void) drawContentsInContext:(CGContext *) ctx;
-- (void) drawBackgroundInContext:(CGContext *) context;
-- (void) drawBorderInContext:(CGContext *) context;
+- (BOOL) drawBackgroundInContext:(CGContext *) context;
+- (BOOL) drawContentsInContext:(CGContext *) ctx;
+- (BOOL) drawBorderInContext:(CGContext *) context;
 
 
 - (void) setTransform:(_NVGtransform) transform

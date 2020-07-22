@@ -712,7 +712,8 @@
 }
 
 
-- (void) animateLayersWithAbsoluteTime:(CAAbsoluteTime) renderTime
+- (void) makeLayersPerformSelector:(SEL) sel
+                  withAbsoluteTime:(CAAbsoluteTime) renderTime
 {
    struct mulle_pointerarrayenumerator   rover;
    CALayer                               *layer;
@@ -721,16 +722,17 @@
    fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
 #endif
 
-   [_mainLayer animateWithAbsoluteTime:renderTime];
+   MulleObjCObjectPerformSelectorDoubleArgument( _mainLayer, sel, renderTime);
    
    rover = mulle_pointerarray_enumerate_nil( _layers);
    while( (layer = _mulle_pointerarrayenumerator_next( &rover)))
-      [layer animateWithAbsoluteTime:renderTime];
+      MulleObjCObjectPerformSelectorDoubleArgument( layer, sel, renderTime);
    mulle_pointerarrayenumerator_done( &rover);
 }
 
 
-- (void) animateSubviewsWithAbsoluteTime:(CAAbsoluteTime) renderTime
+- (void) makeSubviewsPerformSelector:(SEL) sel
+                    withAbsoluteTime:(CAAbsoluteTime) renderTime
 {
    struct mulle_pointerarrayenumerator   rover;
    UIView                                *view;
@@ -741,15 +743,26 @@
 
    rover = mulle_pointerarray_enumerate_nil( _subviews);
    while( (view = _mulle_pointerarrayenumerator_next( &rover)))
-      [view animateWithAbsoluteTime:renderTime];
+      MulleObjCObjectPerformSelectorDoubleArgument( view, sel, renderTime);
    mulle_pointerarrayenumerator_done( &rover);
 }
 
 
 - (void) animateWithAbsoluteTime:(CAAbsoluteTime) renderTime
 {
-   [self animateLayersWithAbsoluteTime:renderTime];
-   [self animateSubviewsWithAbsoluteTime:renderTime];
+   [self makeLayersPerformSelector:_cmd   
+                 withAbsoluteTime:renderTime];
+   [self makeSubviewsPerformSelector:_cmd
+                    withAbsoluteTime:renderTime];
+}
+
+
+- (void) willAnimateWithAbsoluteTime:(CAAbsoluteTime) renderTime
+{
+   [self makeLayersPerformSelector:_cmd   
+                  withAbsoluteTime:renderTime];
+   [self makeSubviewsPerformSelector:_cmd
+                    withAbsoluteTime:renderTime];
 }
 
 
@@ -775,6 +788,33 @@
    }
    return( nil);
 }
+
+//
+// look for the plance, the view is part of (if any)
+// a plane will say nil
+//
+- (UIView *) mulleWindowPlane
+{
+   UIView   *view;
+   UIView   *plane;
+   UIView   *parent;
+
+   plane = nil;
+   view  = self;
+   while( (parent = [view superview]))
+   {
+      plane = view;
+      view  = parent;
+   }
+
+   if( [view isKindOfClass:[UIWindow class]])
+   {
+      //fprintf( stderr, "window found\n");
+      return( plane);
+   }
+   return( nil);
+}
+
 
 
 - (UIImage *) textureImageWithContext:(CGContext *) context

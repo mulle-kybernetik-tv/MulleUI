@@ -135,32 +135,36 @@
 - (CGRect) convertRect:(CGRect) rect
                 toView:(UIView *) toView
 {
-   CGRect  rect;
+   CGRect  converted;
 
    if( self == toView)
       return( rect);
 
-   rect = [self convertRect:rect
-                     factor:-1];
+   converted = [self convertRect:rect
+                          factor:+1];
    if( toView)
-      rect = [toView convertRect:rect
-                          factor:1];
-   return( rect);
+      converted = [toView convertRect:converted
+                               factor:-1];
+   return( converted);
 }
 
 - (CGRect) convertRect:(CGRect) rect
               fromView:(UIView *) fromView
 {
-   CGRect  rect;
+   CGRect  converted;
 
    if( self == fromView)
       return( rect);
+     
    if( fromView)
-      rect = [fromView convertRect:rect
-                            factor:+1];
-   rect = [self convertRect:rect
-                     factor:-1];
-   return( rect);
+      converted = [fromView convertRect:rect
+                                 factor:+1];
+   else
+      converted = rect;
+                                 
+   converted = [self convertRect:converted
+                          factor:-1];
+   return( converted);
 }
 
 /**

@@ -37,7 +37,7 @@
 @end
 
 
-void  drawStuff( void *aLayer, 
+BOOL  drawStuff( void *aLayer, 
                  CGContext *context, 
                  CGRect frame, 
                  struct MulleFrameInfo *info)
@@ -63,6 +63,8 @@ void  drawStuff( void *aLayer,
    nvgStrokeColor( vg, [layer color]);
    nvgStrokeWidth( vg, 3.5);
    nvgStroke( vg);
+
+   return( NO);
 }
 
 // scale stuff for stream

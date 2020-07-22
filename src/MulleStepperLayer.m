@@ -28,7 +28,7 @@
 }
 
 
-- (void) drawContentsInContext:(CGContext *) context
+- (BOOL) drawContentsInContext:(CGContext *) context
 {
    CGFloat             fontPixelSize;
    CGFloat             midX;
@@ -85,6 +85,8 @@
 	nvgTextAlign( vg,NVG_ALIGN_CENTER|NVG_ALIGN_MIDDLE);
 	nvgText( vg, frame1.origin.x + frame1.size.width / 2.0, frame1.origin.y + frame1.size.height *0.5f, "-", NULL);
 	nvgText( vg, frame2.origin.x + frame2.size.width / 2.0, frame2.origin.y + frame2.size.height *0.5f, "+", NULL);
+
+   return( NO);
 }
 
 @end

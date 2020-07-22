@@ -25,6 +25,8 @@ set( PRIVATE_HEADERS
 src/YogaKit/YGLayout+Private.h
 src/import-private.h
 src/include-private.h
+src/mulle-js-nanovg-private.h
+src/mulle-js-private.h
 )
 
 set( PUBLIC_GENERATED_HEADERS
@@ -45,6 +47,7 @@ src/CAAnimationGroup.h
 src/CAAnimation.h
 src/CALayer+CAAnimation.h
 src/CALayer.h
+src/CAShapeLayer.h
 src/CATime.h
 src/CGAffineTransform.h
 src/CGBase.h
@@ -55,6 +58,8 @@ src/CGFont.h
 src/CGGeometry+CString.h
 src/CGGeometry+MulleObjC.h
 src/CGGeometry.h
+src/CGPath.h
+src/CGPath+nanovg.h
 src/Foundation/NSIndexPath.h
 src/Foundation/NSIndexSet.h
 src/Foundation/NSMutableIndexSet.h
@@ -74,6 +79,8 @@ src/MulleMenu+UIEvent.h
 src/MulleMenu.h
 src/MulleObjectArray.h
 src/MullePointHistory.h
+src/MullePopUpButton+MulleMenu.h
+src/MullePopUpButton+UIEvent.h
 src/MullePopUpButton.h
 src/MulleSVGImage.h
 src/MulleSVGLayer.h
@@ -142,7 +149,6 @@ src/bmp-writer.h
 src/entypo.inc
 src/import.h
 src/include.h
-src/mulle-js.h
 src/mulle-js-math.h
 src/mulle-js-nanovg.h
 src/mulle-pointerarray+ObjC.h

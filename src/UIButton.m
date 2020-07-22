@@ -17,7 +17,7 @@
 
 @implementation UIButton
 
-#define BORDER_WIDTH    3.0
+#define BORDER_WIDTH    1.5
 #define TEXT_MARGIN     1.0
 #define CORNER_RADIUS   8
 
@@ -67,11 +67,26 @@
    [layer setBackgroundColor:getNVGColor( 0xFFFFFFFF)];
    // this ensures that the background fill does not antialias into the
    // outside
-   [layer setBorderWidth:1.5];
+   [layer setBorderWidth:BORDER_WIDTH];
    [layer setBorderColor:getNVGColor( 0x7F7FFFFF)];
    [layer setCornerRadius:CORNER_RADIUS];
    [layer setCStringName:"UIButton titleBackgroundLayer"];
    return( layer);
+}
+
+- (void) setupLayersWithFrame:(CGRect) frame
+{
+   Class   cls;
+
+   cls = [self class];
+
+   _titleBackgroundLayer = [cls mulleTitleBackgroundLayerWithFrame:frame];
+   [_titleBackgroundLayer setCStringName:"UIButton titleBackgroundLayer"];
+   [self addLayer:_titleBackgroundLayer];
+
+   _titleLayer = [cls titleLayerWithFrame:frame];
+   [_titleLayer setCStringName:"UIButton titleLayer"];
+   [self addLayer:_titleLayer];
 }
 
 
@@ -86,16 +101,9 @@
       return( self);
 
    // layout later
-   frame       = [layer frame];
+   frame = [layer frame];
 
-   _titleBackgroundLayer = [[self class] mulleTitleBackgroundLayerWithFrame:frame];
-   [_titleBackgroundLayer setCStringName:"UIButton titleBackgroundLayer"];
-   [self addLayer:_titleBackgroundLayer];
-
-   _titleLayer = [[self class] titleLayerWithFrame:frame];
-   [_titleLayer setCStringName:"UIButton titleLayer"];
-   [self addLayer:_titleLayer];
-
+   [self setupLayersWithFrame:frame];
    [self layoutLayersWithFrame:frame];
    [self hideUnhideTitleLayers];
 
@@ -166,7 +174,6 @@
 }
 
 
-
 //
 // When using Yoga to do the layout. It will change the frame of the
 // UIButton. This frame is identical to the frame of the mainLayer.
@@ -175,18 +182,26 @@
 // immediately. Note that Yoga is the layouting step and doing another
 // layouting is kinda weird.
 //
+- (CGRect) mulleInsetTextLayerFrameWithFrame:(CGRect) frame
+{
+   UIEdgeInsets   insets;
+   double         borderWidth;
+
+   borderWidth = [_titleBackgroundLayer borderWidth];
+   insets = UIEdgeInsetsMake( borderWidth / 2 + TEXT_MARGIN, 
+                              borderWidth / 2 + TEXT_MARGIN, 
+                              borderWidth / 2 + TEXT_MARGIN,
+                              borderWidth / 2 + TEXT_MARGIN);
+
+   return( UIEdgeInsetsInsetRect( frame, insets));
+}
+
+
 - (void) layoutLayersWithFrame:(CGRect) frame
 {
-   CGRect         textLayerFrame;
-   UIEdgeInsets   insets;
-  
-   insets = UIEdgeInsetsMake( BORDER_WIDTH + TEXT_MARGIN, 
-                              BORDER_WIDTH + TEXT_MARGIN, 
-                              BORDER_WIDTH + TEXT_MARGIN,
-                              BORDER_WIDTH + TEXT_MARGIN);
+   CGRect   textLayerFrame;
 
-   textLayerFrame = UIEdgeInsetsInsetRect( frame, insets);
-
+   textLayerFrame = [self mulleInsetTextLayerFrameWithFrame:frame];   
    [_titleLayer setFrame:textLayerFrame];
    [_titleBackgroundLayer setFrame:frame];
 }

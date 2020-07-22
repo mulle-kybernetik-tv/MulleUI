@@ -123,6 +123,7 @@ enum UILayoutStrategy
 
 - (void) renderWithContext:(CGContext *) context;
 - (void) animateWithAbsoluteTime:(CAAbsoluteTime) renderTime;
+- (void) willAnimateWithAbsoluteTime:(CAAbsoluteTime) renderTime;
 
 - (NSInteger) getLayers:(CALayer **) buf
                  length:(NSUInteger) length;
@@ -130,6 +131,7 @@ enum UILayoutStrategy
                    length:(NSUInteger) length;           
 
 - (UIWindow *) window;
+- (UIView *) mulleWindowPlane; // window plane a view resides in 
 - (UIView *) superview;
 
 - (CGRect) clipRect;

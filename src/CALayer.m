@@ -16,6 +16,13 @@
 
 @implementation CALayer
 
+
++ (instancetype) layerWithFrame:(CGRect) frame
+{
+   return( [[[self alloc] initWithFrame:frame] autorelease]);
+}
+
+
 - (id) init
 {
    self = [super init];
@@ -67,14 +74,15 @@
 }
 
 
-- (void) drawContentsInContext:(CGContext *) context
+- (BOOL) drawContentsInContext:(CGContext *) context
 {
-   if( _drawContentsCallback)
-      (*_drawContentsCallback)( self, context, [self frame], [context currentFrameInfo]);
+   if( ! _drawContentsCallback)
+      return( NO);
+   return( (*_drawContentsCallback)( self, context, [self frame], [context currentFrameInfo]));
 }
 
 
-- (void) drawBackgroundInContext:(CGContext *) context 
+- (BOOL) drawBackgroundInContext:(CGContext *) context 
 {
    NVGcontext     *vg;
    CGPoint        tl;
@@ -84,8 +92,8 @@
    MulleEdgeInsets   insets;
 
    // if transparent, just don't draw anything
-   if( _backgroundColor.a <= 0.0)
-      return;
+   if( MulleColorIsTransparent( _backgroundColor))
+      return( NO);
 
    // if there is a border to be drawn, then we use antialias
    // otherwise we don't and only draw to the middle of the border
@@ -127,11 +135,13 @@
       nvgFillColor(vg, _backgroundColor);
       nvgFill( vg);
    } 
-   nvgShapeAntiAlias( vg, 1);  
+   nvgShapeAntiAlias( vg, 1); 
+
+   return( NO); 
 }
 
 
-- (void) drawBorderInContext:(CGContext *) context
+- (BOOL) drawBorderInContext:(CGContext *) context
 {
    NVGcontext  *vg;
    CGRect      frame;
@@ -143,11 +153,11 @@
    // the strokeWidth isn't scaled in nvg, so we do this now ourselves
    //
    if( _borderWidth <= 0.1)
-      return;
+      return( NO);
 
    // if transparent, just don't draw anything
-   if( _backgroundColor.a <= 0.0)
-      return;
+   if( MulleColorIsTransparent( _borderColor))
+      return( NO);
  
    vg = [context nvgContext];
 
@@ -171,7 +181,7 @@
    br.y = tl.y + frame.size.height - halfBorderWidth * 2;
 
    if( ! (tl.x <= br.x || tl.y <= br.y))
-      return;
+      return( NO);
    //
    // the _cornerRadius is computed for a stroke of width 1 (or 0 ?)
    // the strokeWidth is just scaling it out
@@ -183,7 +193,6 @@
                        br.y - tl.y, 
                        _cornerRadius);
    nvgStrokeWidth( vg, (int) _borderWidth);
-   nvgStrokeWidth( vg, (int) _borderWidth);
    nvgStrokeColor( vg, _borderColor);
    nvgStroke( vg);
 
@@ -192,7 +201,18 @@
 //      nvgLineTo( vg, br.x, br.y);
 //      nvgLineTo( vg, tl.x, br.y);
 //      nvgLineTo( vg, tl.x, tl.y);
+   return( NO);
 } 
+
+
+static void   resetTransformAndScissor( CALayer *self, NVGcontext *vg)
+{
+   nvgResetTransform( vg);
+   nvgTransform( vg, self->_transform[ 0], self->_transform[ 1], self->_transform[ 2],
+                     self->_transform[ 3], self->_transform[ 4], self->_transform[ 5]);
+
+   nvgSetScissor( vg, &self->_scissor);
+}
 
 
 - (BOOL) drawInContext:(CGContext *) context
@@ -231,17 +251,12 @@
    //
    // these are the "inherited" transforms
    //
-   nvgResetTransform( vg);
-   nvgTransform( vg, _transform[ 0], _transform[ 1], _transform[ 2],
-                     _transform[ 3], _transform[ 4], _transform[ 5]);
+   resetTransformAndScissor( self, vg);
+
 #ifdef CALAYER_DEBUG   
    fprintf( stderr, "%s: set to local transform %s\n", 
                      [self cStringDescription],
                      _NVGtransformCStringDescription( _transform));                     
-#endif   
-   nvgSetScissor( vg, &_scissor);
-
-#ifdef CALAYER_DEBUG   
    fprintf( stderr, "%s: set to local scissor %s\n", 
                      [self cStringDescription],
                      NVGscissorCStringDescription( &_scissor));                     
@@ -254,10 +269,13 @@
                      NVGscissorCStringDescription( &_scissor));
 #endif
 
-   [self drawBackgroundInContext:context];
+   if( [self drawBackgroundInContext:context])
+      resetTransformAndScissor( self, vg);
 
-   [self drawContentsInContext:context];
+   if( [self drawContentsInContext:context])
+      resetTransformAndScissor( self, vg);
 
+   // here we don't have to reset
    [self drawBorderInContext:context];
 
    bounds = [self bounds];

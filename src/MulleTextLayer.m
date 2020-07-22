@@ -63,7 +63,7 @@
  * everytime.
  */
 
-- (void) drawContentsInContext:(CGContext *) context
+- (BOOL) drawContentsInContext:(CGContext *) context
 {
    struct NVGcontext   *vg;
    CGRect              frame;
@@ -76,7 +76,7 @@
 
    // nothing to draw ? then bail
    if( ! _cString || ! *_cString)
-      return;
+      return( NO);
 
    font  = [context fontWithName:_fontName ? _fontName : "sans"];
    name  = [font name];  // get actual name, which could have different address
@@ -107,6 +107,8 @@
    nvgIntersectScissor( vg, frame.origin.x, frame.origin.y, frame.size.width, frame.size.height);
 
    nvgText( vg, frame.origin.x + (frame.size.width - extents.width) / 2.0, frame.origin.y + frame.size.height * 0.5f, _cString, NULL);
+
+   return( YES);
 }
 
 @end

@@ -29,8 +29,8 @@
 //#define MOUSE_MOTION_CALLBACK_DEBUG
 #define MOUSE_BUTTON_CALLBACK_DEBUG
 // #define PRINTF_PROFILE_RENDER
-//#define PRINTF_PROFILE_EVENTS
-
+// #define PRINTF_PROFILE_EVENTS
+// #define PRINTF_PROFILE_LAYOUT
 
 @implementation UIWindow
 
@@ -382,8 +382,6 @@ static void   error_callback(int code, const char* description)
    fprintf( stderr, "Refresh: %d (%09ld ns/frame)\n", mode->refreshRate, nsperframe);
 #endif
 
-   [self layoutIfNeeded];
-
    // glfwMakeContextCurrent( _window );
    //
    // gut feeling: when we do onw swap buffers first, once, we know we have enough
@@ -395,16 +393,62 @@ static void   error_callback(int code, const char* description)
    oldFrame = _frame;
    while( ! glfwWindowShouldClose( _window))
    {
+      clock_gettime( CLOCK_REALTIME, &start);
+
+      [self getFrameInfo:&info];
+      info.isPerfEnabled = NO;
+
+#ifdef PRINTF_PROFILE_LAYOUT
+      clock_gettime( CLOCK_REALTIME, &start);
+      printf( "@%ld:%09ld layout start\n", start.tv_sec, start.tv_nsec);
+#endif
+      /*
+       * Layout and animate 
+       */
+      @autoreleasepool
+      {
+         CAAbsoluteTime   renderTime;
+
+         renderTime = CAAbsoluteTimeWithTimespec( start);
+         [self willAnimateWithAbsoluteTime:renderTime];
+
+         // do this before the animation step, as this will generate animations
+#if LAYOUT_ANIMATIONS      
+         [self startLayoutWithFrameInfo:&info];
+#endif      
+         [self layoutIfNeeded];
+         if( ! CGRectEqualToRect( _frame, oldFrame))
+         {
+            [self dump];
+            oldFrame = _frame;
+         }
+#if LAYOUT_ANIMATIONS      
+         [self endLayout];
+#endif
+         [self animateWithAbsoluteTime:renderTime];
+      }
+
+#ifdef PRINTF_PROFILE_LAYOUT
+      clock_gettime( CLOCK_REALTIME, &end);
+      diff = timespec_sub( end, start);
+      printf( "@%ld:%09ld lavout end, elapsed : %09ld\n", end.tv_sec, end.tv_nsec,
+                                                  diff.tv_sec ? 999999999 : diff.tv_nsec);
+#endif   
+
+#ifdef PRINTF_PROFILE_RENDER
+      clock_gettime( CLOCK_REALTIME, &start);
+      printf( "@%ld:%09ld render start\n", start.tv_sec, start.tv_nsec);
+#endif     
+      /*
+       * Render 
+       */
       @autoreleasepool
       {
          // nvgGlobalCompositeOperation( ctxt->vg, NVG_ATOP);
-         clock_gettime( CLOCK_REALTIME, &start);
 
-         [self getFrameInfo:&info];
          [self updateRenderCachesWithContext:context 
                                    frameInfo:&info];
 
-         info.isPerfEnabled = YES;
          [context startRenderWithFrameInfo:&info];
          [self renderWithContext:context];
          [context endRender];
@@ -440,43 +484,29 @@ static void   error_callback(int code, const char* description)
          // glClearColor( 1.0 - _didRender / 120.0, 1.0 - _didRender / 120.0, 1.0 - _didRender / 240.0, 0.0f );
          [context clearFramebuffer];
       }
-
-      @autoreleasepool
-      {
-         // do this before the animation step, as this will generate animations
-#if LAYOUT_ANIMATIONS      
-         [self startLayoutWithFrameInfo:&info];
-#endif      
-         [self layoutIfNeeded];
-         if( ! CGRectEqualToRect( _frame, oldFrame))
-         {
-            [self dump];
-            oldFrame = _frame;
-         }
-#if LAYOUT_ANIMATIONS      
-         [self endLayout];
-#endif
-         {
-            CAAbsoluteTime   renderTime;
-
-            renderTime = CAAbsoluteTimeWithTimespec( start);
-            [self animateWithAbsoluteTime:renderTime];
-         }
-      }
+#ifdef PRINTF_PROFILE_RENDER
+      clock_gettime( CLOCK_REALTIME, &end);
+      diff = timespec_sub( end, start);
+      printf( "@%ld:%09ld render end, elapsed : %09ld\n", end.tv_sec, end.tv_nsec,
+                                                  diff.tv_sec ? 999999999 : diff.tv_nsec);
+#endif   
 
 #ifdef PRINTF_PROFILE_EVENTS
       clock_gettime( CLOCK_REALTIME, &start);
       printf( "@%ld:%09ld events start\n", start.tv_sec, start.tv_nsec);
 #endif
 
+      /*
+       * Event handling
+       */
       @autoreleasepool
       {
          [self setupQuadtree];
          // use at max 200 Hz refresh rate (0: polls)
          // use 0.001Hz for event debugging. The wait time is "max", events
          // will be processed if something comes in and then render will be
-         // immediate anyway.
-         [self waitForEvents:0.001];
+         // immediate anyway. Animations won't be processed though..
+         [self waitForEvents:60.0]; // 0.001];
       }
    
 #ifdef PRINTF_PROFILE_EVENTS
@@ -485,6 +515,7 @@ static void   error_callback(int code, const char* description)
       printf( "@%ld:%09ld events end, elapsed : %09ld\n", end.tv_sec, end.tv_nsec,
                                                   diff.tv_sec ? 999999999 : diff.tv_nsec);
 #endif
+   
    }
    [self dump];
 }

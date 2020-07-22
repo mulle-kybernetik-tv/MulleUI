@@ -37,6 +37,7 @@
    [_stackView setDistribution:MulleStackViewDistributionUnbounded];
 
    _scrollView = [UIScrollView mulleViewWithFrame:frame];
+   [_scrollView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
    [_scrollView setShowsHorizontalScrollIndicator:NO];
    [[_scrollView contentView] addSubview:_stackView];
 
@@ -117,12 +118,40 @@
    [_scrollView layoutSubviews];
 
    // shrink self to fit if frame.size.height is less than current
-   before       = [self frame];
+   before = [self frame];
    if( before.size.height > frame.size.height)
    {
       frame.origin = before.origin;
       [self setFrame:frame];
    }
 }
+
+
+- (void) addMenuButtonsWithTitleCStrings:(char **) titles
+                                   count:(NSUInteger) n
+                                  target:(id) target
+                                  window:(UIWindow *) window
+{
+   NSUInteger        i;
+   MulleMenuButton   *menuButton;
+
+   for( i = 0; i < n; i++)
+   {
+      menuButton = [MulleMenuButton mulleViewWithFrame:CGRectMake( 0, 0, 0, 20)];
+      [menuButton setTitleCString:titles[ i]];
+      [menuButton setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
+      [menuButton setTarget:target];
+      [menuButton setAction:@selector( menuButtonClicked:)];
+
+      /* TODO: Tricky, if the button resizes then the tracking area must also
+               resize. BUT, it's not really dynamic yet.
+       */
+      [menuButton addTrackingAreaWithRect:CGRectMake( 0, 0, 200, 20)
+                                 toWindow:window
+                                 userInfo:nil];
+      [self addMenuButton:menuButton];
+   }
+}
+
 
 @end

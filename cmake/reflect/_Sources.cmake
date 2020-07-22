@@ -14,6 +14,7 @@ src/main-draw.m
 src/main-jspiechart.m
 src/main-layer.m
 src/main-many-rectangles.m
+src/main-path.m
 src/main-remove-from-area.m
 src/main-rowcolumn.m
 src/main-scrollview.m
@@ -21,6 +22,7 @@ src/main-slider.m
 src/main-springs-and-struts.m
 src/main-stackview.m
 src/main-svg.m
+src/main-viewconversion.m
 )
 
 set( SOURCES
@@ -29,6 +31,7 @@ src/CAAnimationGroup.m
 src/CAAnimation.m
 src/CALayer+CAAnimation.m
 src/CALayer.m
+src/CAShapeLayer.m
 src/CATime.c
 src/CGAffineTransform.c
 src/CGColor.c
@@ -36,6 +39,8 @@ src/CGContext.m
 src/CGFont.m
 src/CGGeometry+CString.m
 src/CGGeometry.c
+src/CGPath.c
+src/CGPath+nanovg.c
 src/Foundation/NSIndexPath.m
 src/Foundation/NSIndexSet.m
 src/Foundation/NSMutableIndexSet.m
@@ -52,6 +57,8 @@ src/MulleMenuButton.m
 src/MulleMenu+UIEvent.m
 src/MulleMenu.m
 src/MulleObjectArray.m
+src/MullePopUpButton+MulleMenu.m
+src/MullePopUpButton+UIEvent.m
 src/MullePopUpButton.m
 src/MulleSVGImage.m
 src/MulleSVGLayer.m

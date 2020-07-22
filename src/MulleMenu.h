@@ -35,6 +35,10 @@ UIControlProperties;
 // 
 - (void) addMenuButton:(MulleMenuButton *) button;
 
+- (void) addMenuButtonsWithTitleCStrings:(char **) titles
+                                   count:(NSUInteger) count
+                                  target:(id) target
+                                  window:(UIWindow *) window;
 @end
 
 

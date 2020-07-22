@@ -176,7 +176,7 @@
 #define HZ60         (1.0/60.0)
 #define DRAGFACTOR   0.95
 
-- (CGPoint) applyMomentumToContentOffset:(CGContext *) context
+- (void) applyMomentumToContentWithAbsoluteTime:(CAAbsoluteTime) now
 {
 	CGPoint          offset;
 	CGPoint          newOffset;
@@ -185,9 +185,7 @@
    CGFloat          friction;
    CAAbsoluteTime   now;
 
-   now      = [context renderStartTimestamp];
    previous = _momentumTimestamp;
-
    diff     = CATimeSubtract( now, previous);
 
    // 1/60 = 0.166  so if our last render was 0.0s before, we use 1.0
@@ -228,36 +226,59 @@
 	   offset = [self clampedContentOffset:newOffset];
 	   [self setContentOffset:offset];
    }
-   return( offset);
 }
 
 
-- (void) renderWithContext:(CGContext *) context
+- (void) setupIndicatorViews
 {
 	CGPoint   offset;
 	CGSize    size;
    CGRect    frame;
    CGRect    bounds;
-  
-//	CGRect    contentViewFrame;
-//	CGRect    contentViewBounds;
+   BOOL      wasHiddenH;
+   BOOL      wasHiddenV;
+   BOOL      isHiddenH;
+   BOOL      isHiddenV;
 
-   offset            = [self applyMomentumToContentOffset:context];
-	size              = [self contentSize];
-//	contentViewFrame  = [_contentView frame];
-	bounds            = [_contentView bounds]; // or should this be bounds ?
-   frame             = [self frame];
+   // TODO: this should be the frameInfo now!
+   offset = [self contentOffset];
+	size   = [self contentSize];
+	bounds = [_contentView bounds]; // or should this be bounds ?
+   frame  = [self frame];
 
 	[_horIndicatorView setBubbleOffset:offset.x];
 	[_horIndicatorView setBubbleLength:bounds.size.width];
 	[_horIndicatorView setContentLength:size.width];
+   //
+   // don't paint scrollbar if content fits inside scrollView
+   //
+   wasHiddenH = [_horIndicatorView isHidden];
+   isHiddenH = ! _showsHorizontalScrollIndicator;
+   if( bounds.size.width >= size.width)
+      isHiddenH = YES;
+   [_horIndicatorView setHidden:isHiddenH];
 
 	[_verIndicatorView setBubbleOffset:offset.y];
 	[_verIndicatorView setBubbleLength:bounds.size.height];
 	[_verIndicatorView setContentLength:size.height];
 
-	[super renderWithContext:context];
+   wasHiddenV = [_verIndicatorView isHidden];
+   isHiddenV = ! _showsVerticalScrollIndicator;
+   if( bounds.size.height >= size.height)
+      isHiddenV = YES;
+   [_verIndicatorView setHidden:isHiddenV];
+
+   if( isHiddenH ^ wasHiddenH || isHiddenV ^ wasHiddenV)
+      [self setNeedsLayout];
 }
+
+
+- (void) willAnimateWithAbsoluteTime:(CAAbsoluteTime) now 
+{
+   [self applyMomentumToContentWithAbsoluteTime:now];
+   [self setupIndicatorViews];
+}
+
 
 // TODO: if there is only a vertical indicator, enlarge it so that it takes
 //       up empty space otherwise used by the horizontal indicator 
@@ -285,7 +306,7 @@
 	[_contentView setFrame:bounds];
 
    end = SCROLLER_OFFSET_END;
-   if( _showsHorizontalScrollIndicator == NO || _showsVerticalScrollIndicator == NO)
+   if( [_horIndicatorView isHidden] || [_verIndicatorView isHidden])
       end = SCROLLER_OFFSET_END_ALONE;
 
 	// currently these scrollers are 8 pixel wide and 4 pixels offset
