@@ -73,6 +73,9 @@
    float               bounds[ 4];
    CGSize              extents;
    CGColorRef          color;
+	float               lineh;
+   CGPoint             cursor;
+   CGPoint             offset;
 
    // nothing to draw ? then bail
    if( ! _cString || ! *_cString)
@@ -98,17 +101,80 @@
 
    // TODO: use textalign property
    nvgTextAlign( vg, NVG_ALIGN_LEFT|NVG_ALIGN_MIDDLE);
-   nvgTextBounds( vg, 0.0, 0.0, _cString, NULL, bounds);
-
-   extents.width  = bounds[ 2] - bounds[ 0];
-   extents.height = bounds[ 3] - bounds[ 1];
 
    // don't render outside of myself
-   nvgIntersectScissor( vg, frame.origin.x, frame.origin.y, frame.size.width, frame.size.height);
+   //   nvgIntersectScissor( vg, frame.origin.x, frame.origin.y, frame.size.width, frame.size.height);
 
-   nvgText( vg, frame.origin.x + (frame.size.width - extents.width) / 2.0, frame.origin.y + frame.size.height * 0.5f, _cString, NULL);
+	// The text break API can be used to fill a large buffer of rows,
+	// or to iterate over the text just few lines (or just one) at a time.
+	// The "next" variable of the last returned item tells where to continue.
 
-   return( YES);
+	_nRows = nvgTextBreakLines( vg, _cString, NULL, frame.size.width, &_row, 1);
+   if( _nRows)
+   {
+	   nvgTextMetrics(vg, NULL, NULL, &_lineh);
+
+      nvgTextBounds( vg, 0.0, 0.0, _row.start, _row.end, bounds);
+
+      extents.width  = bounds[ 2] - bounds[ 0];
+      extents.height = bounds[ 3] - bounds[ 1];
+
+      _cursor.x = (frame.size.width - extents.width) / 2.0;
+      _cursor.y = frame.size.height * 0.5f;
+
+      nvgText( vg, frame.origin.x + _cursor.x, frame.origin.y + _cursor.y, _row.start, _row.end);
+		if( [self isEditable])
+      {
+         // TODO: make this dynamic in size
+			_nGlyphs = nvgTextGlyphPositions( vg, 0, 0, _row.start, _row.end, _glyphs, 100);
+         assert( _nGlyphs < 100 - 1);
+         // put in a node at the sentinel position
+         _glyphs[ _nGlyphs].x = _row.width;
+
+         // ''   nglyphs == 0, _cursorPositon=={ 0 - 0 }
+         // 'A'  nglyphs == 1, _cursorPositon=={ 0 - 1 }  |A or A|
+         // 'AB' nglyphs == 2, _cursorPositon=={ 0 - 2 }  |AB or A|B or AB|
+
+         if( _cursorPosition > _nGlyphs)
+            _cursorPosition = _nGlyphs;
+
+         offset.x = _glyphs[ _cursorPosition].x;
+         offset.y = -(_lineh / 2); // depends on alignment, really, use middle here
+            
+			nvgBeginPath( vg);
+			nvgFillColor( vg, nvgRGBA(255,0,0,255));
+			nvgRect( vg, 
+                  frame.origin.x + _cursor.x + offset.x - 0.5, 
+                  frame.origin.y + _cursor.y + offset.y, 1, 
+                  _lineh);
+			nvgFill( vg);
+		}
+	}
+   return( NO);
+}
+
+
+- (void) setCursorPositionToPoint:(CGPoint) point 
+{
+   CGRect       rect;
+   NSUInteger   i;
+
+   for( i = 0; i < _nGlyphs; i++)
+   {
+      rect.origin.x    = _glyphs[ i].x + _cursor.x;
+      rect.origin.y    = _cursor.y - (_lineh / 2);
+      rect.size.width  = _glyphs[ i + 1].x - _glyphs[ i].x;  // sentinel! node is OK!
+      rect.size.height = _lineh;
+
+      if( CGRectContainsPoint( rect, point))
+      {
+         _cursorPosition = i;
+         rect.size.width  /= 2.0;  // sentinel! node is OK!
+         if( ! CGRectContainsPoint( rect, point))
+            _cursorPosition++;
+         break;
+      }
+   }
 }
 
 @end

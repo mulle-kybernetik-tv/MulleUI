@@ -8,14 +8,36 @@
           #import this file anywhere (except in import-private.h)
  */
 
-// keep undefined for OpenGL3
-// see: https://www.glfw.org/docs/latest/build_guide.html
-#define GLFW_INCLUDE_ES2       // GLES2
+#define MULLE_UI_GL      1
+#define MULLE_UI_GLES2   2
+#define MULLE_UI_GLES3   3
+//#define MULLE_UI_VULKAN  4
 
-/* This is a central include file to not expose includes to consumers of
-   this library. It must not be imported by .h files, but by .c files
-   only.
- */
+// change the "backend" to use
+#define MULLE_UI_GLVERSION   MULLE_UI_GL
+
+#if MULLE_UI_GLVERSION == MULLE_UI_GLES2
+# define GLFW_INCLUDE_ES2
+# ifdef DEFINE_NANOVG_GL_IMPLEMENTATION
+#  define NANOVG_GLES2_IMPLEMENTATION
+# endif
+#endif
+
+#if MULLE_UI_GLVERSION == MULLE_UI_GLES3
+# define GLFW_INCLUDE_ES3
+# ifdef DEFINE_NANOVG_GL_IMPLEMENTATION
+#  define NANOVG_GLES3_IMPLEMENTATION
+# endif
+#endif
+
+#if MULLE_UI_GLVERSION == MULLE_UI_GL
+// GLFW_INCLUDE_... keep undefined for OpenGL3
+// see: https://www.glfw.org/docs/latest/build_guide.html
+# ifdef DEFINE_NANOVG_GL_IMPLEMENTATION
+#  define NANOVG_GL3_IMPLEMENTATION
+# endif
+#endif
+
 
 #include "include.h"
 

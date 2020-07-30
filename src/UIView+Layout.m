@@ -16,7 +16,7 @@
    return( [_mainLayer frame].size);
 }
 
-# pragma mark - 
+# pragma mark -
 
 - (void) startLayoutWithFrameInfo:(struct MulleFrameInfo *) info
 {
@@ -114,7 +114,7 @@
          {
             newFrame.origin.y = marginalBounds.origin.y;
          }
-         else   
+         else
             if( autoresizingMask & MulleUIViewAutoresizingStickToBottom)
             {
                newFrame.origin.y = CGRectGetMaxY( marginalBounds) - newFrame.size.height;
@@ -124,7 +124,7 @@
          {
             newFrame.origin.x = marginalBounds.origin.x;
          }
-         else   
+         else
             if( autoresizingMask & MulleUIViewAutoresizingStickToRight)
             {
                newFrame.origin.x = CGRectGetMaxX( marginalBounds) - newFrame.size.width;
@@ -136,8 +136,8 @@
    if( ! CGRectContainsRect( bounds, newFrame))
       newFrame.size = CGSizeZero;
 
-   if( ! CGRectEqualToRect( frame, newFrame))   
-      [view setFrame:newFrame];      
+   if( ! CGRectEqualToRect( frame, newFrame))
+      [view setFrame:newFrame];
 }
 
 
@@ -154,17 +154,17 @@
    CGRect                                bounds;
 
    bounds = [self bounds];
-   rover = mulle_pointerarray_enumerate_nil( _subviews);
-   while( (view = _mulle_pointerarrayenumerator_next( &rover)))
-      [self layoutSubview:view 
+   rover = mulle_pointerarray_enumerate( _subviews);
+   while( _mulle_pointerarrayenumerator_next( &rover, (void **) &view))
+      [self layoutSubview:view
                  inBounds:bounds
          autoresizingMask:[view autoresizingMask]];
-   mulle_pointerarrayenumerator_done( &rover);   
+   mulle_pointerarrayenumerator_done( &rover);
 }
 
 //
 // Layouting is strictly top/down. Space is distributed from the top to
-// the button via bounds/frame and the code in "layoutSubviews" that 
+// the button via bounds/frame and the code in "layoutSubviews" that
 // distributes it.
 //
 - (void) layout
@@ -172,7 +172,7 @@
    struct mulle_pointerarrayenumerator   rover;
    UIView                                *view;
 
-   /* 
+   /*
     * TOP/DOWN
     */
    [self setNeedsLayout:NO];
@@ -195,15 +195,15 @@
    // this is recursive code, triggering possibly more autoresizes
    // or yogas..
    //
-   rover = mulle_pointerarray_enumerate_nil( _subviews);
-   while( (view = _mulle_pointerarrayenumerator_next( &rover)))
+   rover = mulle_pointerarray_enumerate( _subviews);
+   while( _mulle_pointerarrayenumerator_next( &rover, (void **) &view))
       [view layout];
    mulle_pointerarrayenumerator_done( &rover);
 }
 
 
 
-- (void) layoutIfNeeded 
+- (void) layoutIfNeeded
 {
    if( [self needsLayout])
       [self layout];

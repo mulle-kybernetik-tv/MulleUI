@@ -27,7 +27,7 @@
 
 @implementation CircleLayer
 
-- (instancetype) initWithFrame:(CGRect) frame 
+- (instancetype) initWithFrame:(CGRect) frame
 {
    _scale = 1;
    _color = MulleColorCreate( 0x000000FF);
@@ -39,9 +39,9 @@
 
 // memo: this actually draws outside of the layer somewhat, should fix this
 //       as noticed when reusing the code in the collection view demo
-BOOL  drawStuff( CALayer *aLayer, 
-                 CGContext *context, 
-                 CGRect frame, 
+BOOL  drawStuff( CALayer *aLayer,
+                 CGContext *context,
+                 CGRect frame,
                  struct MulleFrameInfo *info)
 {
    CircleLayer   *layer = (CircleLayer *) aLayer;
@@ -56,9 +56,9 @@ BOOL  drawStuff( CALayer *aLayer,
    radius = MulleCGFloatMinimum( CGRectGetWidth( frame), CGRectGetHeight( frame)) / 2 - 10;
    radius *= [layer scale];
 
-   nvgRect( vg, CGRectGetMidX( frame) - radius, 
-                CGRectGetMidY( frame) - radius, 
-                radius * 2, 
+   nvgRect( vg, CGRectGetMidX( frame) - radius,
+                CGRectGetMidY( frame) - radius,
+                radius * 2,
                 radius * 2);
 
 //   nvgCircle( vg, CGRectGetMidX( frame), CGRectGetMidY( frame), radius);
@@ -127,21 +127,21 @@ void   setupScene( UIWindow *window, CGContext *context)
    }
 
    // UIView -> CAAnimation
-   [UIView beginAnimations:"animation" 
+   [UIView beginAnimations:"animation"
                     context:NULL];
    [UIView setAnimationCurve:UIViewAnimationCurveEaseInOut];
-   [UIView setAnimationDelay:0];        
-   [UIView setAnimationDuration:10];        
-   [UIView setAnimationRepeatCount:20]; 
+   [UIView setAnimationDelay:0];
+   [UIView setAnimationDuration:10];
+   [UIView setAnimationRepeatCount:20];
 
-   rover = mulle_pointerarray_enumerate_nil( [view _layers]);
-   while( (layer = _mulle_pointerarrayenumerator_next( &rover)))
+   rover = mulle_pointerarray_enumerate( [view _layers]);
+   while( _mulle_pointerarrayenumerator_next( &rover, (void **) &layer))
    {
       [layer setScale:-1.0];
       [layer setColor:MulleColorCreateRandom( 0x000000FF, 0x00FF0000)];
    }
    mulle_pointerarrayenumerator_done( &rover);
-         
+
 
    [UIView commitAnimations];
 }
@@ -153,7 +153,7 @@ int   main()
    UIWindow    *window;
 
    /*
-    * window and app 
+    * window and app
     */
    window  = [[[UIWindow alloc] initWithFrame:CGRectMake( 0.0, 0.0, 400.0 * SCALE, 300.0 * SCALE)] autorelease];
    assert( window);

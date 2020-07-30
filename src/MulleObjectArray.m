@@ -13,20 +13,24 @@
 {
    assert( p);
 
-   _rover = mulle_pointerarray_enumerate_nil( p);
+   _rover = mulle_pointerarray_enumerate( p);
    return( self);
 }
 
 
 - (id) nextObject
 {
-   return( _mulle_pointerarrayenumerator_next( &_rover));
+   id   obj;
+
+   if( _mulle_pointerarrayenumerator_next( &_rover, (void **) &obj))
+      return( obj);
+   return( nil);
 }
 
 @end
 
 
-@implementation MulleObjectArray 
+@implementation MulleObjectArray
 
 - (instancetype) initWithPointerarray:(struct mulle_pointerarray *) p
                          freeWhenDone:(BOOL) yn
@@ -40,7 +44,7 @@
 
 - (instancetype) init
 {
-   self->_pointerarray = mulle_pointerarray_create_nil( MulleObjCInstanceGetAllocator( self));
+   self->_pointerarray = mulle_pointerarray_create( MulleObjCInstanceGetAllocator( self));
    self->_freeWhenDone = YES;
    return( self);
 }
@@ -54,8 +58,8 @@
       struct mulle_pointerarrayenumerator   rover;
       id <NSObject>                         obj;
 
-      rover = mulle_pointerarray_enumerate_nil( self->_pointerarray);
-      while( (obj = _mulle_pointerarrayenumerator_next( &rover)))
+      rover = mulle_pointerarray_enumerate( self->_pointerarray);
+      if( _mulle_pointerarrayenumerator_next( &rover, (void **) &obj))
          [obj release];
       mulle_pointerarrayenumerator_done( &rover);
 
@@ -102,7 +106,7 @@ struct _MulleObjectArrayFastEnumerationState
    dstate = (struct _MulleObjectArrayFastEnumerationState *) rover->extra;
    if( ! rover->state)
    {
-      dstate->_rover = mulle_pointerarray_enumerate_nil( self->_pointerarray);
+      dstate->_rover = mulle_pointerarray_enumerate( self->_pointerarray);
       rover->state   = 1;
    }
 
@@ -111,8 +115,7 @@ struct _MulleObjectArrayFastEnumerationState
    sentinel = &buffer[ len];
    while( buffer < sentinel)
    {
-      obj = _mulle_pointerarrayenumerator_next( &dstate->_rover);
-      if( ! obj)
+      if( ! _mulle_pointerarrayenumerator_next( &dstate->_rover, (void **) &obj))
       {
          rover->state = -1;
          break;
@@ -137,33 +140,33 @@ struct _MulleObjectArrayFastEnumerationState
 
 
 
-@implementation MulleMutableObjectArray 
+@implementation MulleMutableObjectArray
 
 
 - (void) insertObject:(id <NSObject>) obj
               atIndex:(NSUInteger) i;
 {
    abort();
-} 
+}
 
 
 - (void) removeObjectAtIndex:(NSUInteger) i
 {
    abort();
-} 
+}
 
 
 - (void) removeAllObjects
 {
    abort();
-} 
+}
 
 
 - (void) addObject:(id <NSObject>) obj
 {
    [obj retain];
    _mulle_pointerarray_add( self->_pointerarray, obj);
-} 
+}
 
 
 - (void) removeLastObject
@@ -172,13 +175,13 @@ struct _MulleObjectArrayFastEnumerationState
 
    obj = _mulle_pointerarray_remove_last( self->_pointerarray);
    [obj autorelease];
-} 
+}
 
 
 - (void) replaceObjectAtIndex:(NSUInteger) i
                   withObject:(id <NSObject>) obj
 {
    abort();
-} 
+}
 
 @end

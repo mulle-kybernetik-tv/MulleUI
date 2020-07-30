@@ -27,7 +27,7 @@
 
 @implementation CircleLayer
 
-- (instancetype) initWithFrame:(CGRect) frame 
+- (instancetype) initWithFrame:(CGRect) frame
 {
    _scale = 1;
    _color = MulleColorCreate( 0x000000FF);
@@ -38,9 +38,9 @@
 @end
 
 
-BOOL  drawStuff( CALayer *aLayer, 
-                 CGContext *context, 
-                 CGRect frame, 
+BOOL  drawStuff( CALayer *aLayer,
+                 CGContext *context,
+                 CGRect frame,
                  struct MulleFrameInfo *info)
 {
    CircleLayer   *layer = (CircleLayer *) aLayer;
@@ -55,9 +55,9 @@ BOOL  drawStuff( CALayer *aLayer,
    radius = MulleCGFloatMinimum( CGRectGetWidth( frame), CGRectGetHeight( frame)) / 2 - 10;
    radius *= [layer scale];
 
-   nvgRect( vg, CGRectGetMidX( frame) - radius, 
-                CGRectGetMidY( frame) - radius, 
-                radius * 2, 
+   nvgRect( vg, CGRectGetMidX( frame) - radius,
+                CGRectGetMidY( frame) - radius,
+                radius * 2,
                 radius * 2);
 
 //   nvgCircle( vg, CGRectGetMidX( frame), CGRectGetMidY( frame), radius);
@@ -105,7 +105,7 @@ void   setupScene( UIWindow *window, CGContext *context)
       [window addSubview:view];
    }
 
-   _mulle_pointerarray_init( &array, 0, 0, NULL);
+   _mulle_pointerarray_init( &array, 0, NULL);
    [window addSubviewsIntersectingRect:CGRectMake( frame.size.width / 4,
                                                    frame.size.height / 4,
                                                    frame.size.width / 2,
@@ -113,11 +113,11 @@ void   setupScene( UIWindow *window, CGContext *context)
                       toPointerArray:&array
               invertIntersectionTest:YES];
 
-   rover = mulle_pointerarray_enumerate_nil( &array);
-   while( view = _mulle_pointerarrayenumerator_next( &rover))
+   rover = mulle_pointerarray_enumerate( &array);
+   while( _mulle_pointerarrayenumerator_next( &rover, (void **) &view))
       [view setColor:MulleColorCreateRandom( 0xFF0000FF, 0x00FFFF00)];
    mulle_pointerarrayenumerator_done( &rover);
-  
+
    mulle_pointerarray_done( &array);
 }
 
@@ -128,7 +128,7 @@ int   main()
    UIWindow    *window;
 
    /*
-    * window and app 
+    * window and app
     */
    window  = [[[UIWindow alloc] initWithFrame:CGRectMake( 0.0, 0.0, 400.0 * SCALE, 300.0 * SCALE)] autorelease];
    assert( window);

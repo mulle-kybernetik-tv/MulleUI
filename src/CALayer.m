@@ -53,15 +53,15 @@
    allocator = MulleObjCInstanceGetAllocator( self);
    mulle_allocator_free( allocator, _cStringName);
 
-   rover = mulle_pointerarray_enumerate_nil( &_animations);
-   while( (animation = _mulle_pointerarrayenumerator_next( &rover)))
+   rover = mulle_pointerarray_enumerate( &_animations);
+   while( _mulle_pointerarrayenumerator_next( &rover, (void **) &animation))
       [animation release];
-   mulle_pointerarrayenumerator_done( &rover); 
+   mulle_pointerarrayenumerator_done( &rover);
 
    mulle_pointerarray_done( &_animations);
 
    [_snapshot release];
-   
+
    [super dealloc];
 }
 
@@ -82,7 +82,7 @@
 }
 
 
-- (BOOL) drawBackgroundInContext:(CGContext *) context 
+- (BOOL) drawBackgroundInContext:(CGContext *) context
 {
    NVGcontext     *vg;
    CGPoint        tl;
@@ -111,7 +111,7 @@
    {
       insets = MulleEdgeInsetsMake( borderWidth / 2, borderWidth / 2,  borderWidth / 2, borderWidth / 2);
       frame  = MulleEdgeInsetsInsetRect( insets, frame);
-      nvgShapeAntiAlias( vg, 0);  
+      nvgShapeAntiAlias( vg, 0);
    }
 
    //
@@ -125,19 +125,19 @@
 
    if( tl.x <= br.x || tl.y <= br.y)
    {
-      // fill 
+      // fill
       nvgBeginPath( vg);
-      nvgRoundedRect( vg, frame.origin.x, 
-                          frame.origin.y, 
-                          frame.size.width, 
-                          frame.size.height, 
+      nvgRoundedRect( vg, frame.origin.x,
+                          frame.origin.y,
+                          frame.size.width,
+                          frame.size.height,
                           _cornerRadius);
       nvgFillColor(vg, _backgroundColor);
       nvgFill( vg);
-   } 
-   nvgShapeAntiAlias( vg, 1); 
+   }
+   nvgShapeAntiAlias( vg, 1);
 
-   return( NO); 
+   return( NO);
 }
 
 
@@ -147,7 +147,7 @@
    CGRect      frame;
    CGFloat     halfBorderWidth;
    CGPoint     tl;
-   CGPoint     br;   
+   CGPoint     br;
 
    //
    // the strokeWidth isn't scaled in nvg, so we do this now ourselves
@@ -158,7 +158,7 @@
    // if transparent, just don't draw anything
    if( MulleColorIsTransparent( _borderColor))
       return( NO);
- 
+
    vg = [context nvgContext];
 
    //
@@ -187,10 +187,10 @@
    // the strokeWidth is just scaling it out
    //
    nvgBeginPath( vg);
-   nvgRoundedRect( vg, tl.x, 
-                       tl.y, 
-                       br.x - tl.x, 
-                       br.y - tl.y, 
+   nvgRoundedRect( vg, tl.x,
+                       tl.y,
+                       br.x - tl.x,
+                       br.y - tl.y,
                        _cornerRadius);
    nvgStrokeWidth( vg, (int) _borderWidth);
    nvgStrokeColor( vg, _borderColor);
@@ -202,7 +202,7 @@
 //      nvgLineTo( vg, tl.x, br.y);
 //      nvgLineTo( vg, tl.x, tl.y);
    return( NO);
-} 
+}
 
 
 static void   resetTransformAndScissor( CALayer *self, NVGcontext *vg)
@@ -214,6 +214,16 @@ static void   resetTransformAndScissor( CALayer *self, NVGcontext *vg)
    nvgSetScissor( vg, &self->_scissor);
 }
 
+/*
+- (CGPoint) scale
+{
+   CGPoint    scale;
+
+   scale.x = _frame.size.width / _bounds.size.width;
+   scale.y = _frame.size.height / _bounds.size.height;
+   return( scale);
+}
+*/
 
 - (BOOL) drawInContext:(CGContext *) context
 {
@@ -232,8 +242,8 @@ static void   resetTransformAndScissor( CALayer *self, NVGcontext *vg)
    struct NVGpaint   paint; // todo convert to CG ??
 
 #ifdef RENDER_DEBUG
-   fprintf( stderr, "%s %s (f:%s b:%s)\n", 
-                        __PRETTY_FUNCTION__, 
+   fprintf( stderr, "%s %s (f:%s b:%s)\n",
+                        __PRETTY_FUNCTION__,
                         [self cStringDescription],
                         CGRectCStringDescription( [self frame]),
                         CGRectCStringDescription( [self bounds]));
@@ -253,18 +263,18 @@ static void   resetTransformAndScissor( CALayer *self, NVGcontext *vg)
    //
    resetTransformAndScissor( self, vg);
 
-#ifdef CALAYER_DEBUG   
-   fprintf( stderr, "%s: set to local transform %s\n", 
-                     [self cStringDescription],
-                     _NVGtransformCStringDescription( _transform));                     
-   fprintf( stderr, "%s: set to local scissor %s\n", 
-                     [self cStringDescription],
-                     NVGscissorCStringDescription( &_scissor));                     
-
-   fprintf( stderr, "%s: transform %s\n", 
+#ifdef CALAYER_DEBUG
+   fprintf( stderr, "%s: set to local transform %s\n",
                      [self cStringDescription],
                      _NVGtransformCStringDescription( _transform));
-   fprintf( stderr, "%s: scissor %s\n", 
+   fprintf( stderr, "%s: set to local scissor %s\n",
+                     [self cStringDescription],
+                     NVGscissorCStringDescription( &_scissor));
+
+   fprintf( stderr, "%s: transform %s\n",
+                     [self cStringDescription],
+                     _NVGtransformCStringDescription( _transform));
+   fprintf( stderr, "%s: scissor %s\n",
                      [self cStringDescription],
                      NVGscissorCStringDescription( &_scissor));
 #endif
@@ -282,20 +292,20 @@ static void   resetTransformAndScissor( CALayer *self, NVGcontext *vg)
    if( bounds.size.width <= 0.0 || bounds.size.height <= 0.0)
       return( NO);
 
-#ifdef CALAYER_DEBUG   
-   fprintf( stderr, "%s: frame %s\n", 
+#ifdef CALAYER_DEBUG
+   fprintf( stderr, "%s: frame %s\n",
             [self cStringDescription],
             CGRectCStringDescription( frame));
-   fprintf( stderr, "%s: bounds %s\n", 
+   fprintf( stderr, "%s: bounds %s\n",
             [self cStringDescription],
             CGRectCStringDescription( bounds));
 #endif
 
    nvgTranslate( vg, frame.origin.x, frame.origin.y);
 #if 1
-   nvgIntersectScissor( vg, 0.0, 
-                            0.0, 
-                            frame.size.width, 
+   nvgIntersectScissor( vg, 0.0,
+                            0.0,
+                            frame.size.width,
                             frame.size.height);
 #endif
 
@@ -314,25 +324,25 @@ static void   resetTransformAndScissor( CALayer *self, NVGcontext *vg)
       NVGscissor      scissor;
 
       nvgCurrentTransform( vg, transform);
-#ifdef CALAYER_DEBUG   
-      fprintf( stderr, "%s: modified transform %s\n", 
+#ifdef CALAYER_DEBUG
+      fprintf( stderr, "%s: modified transform %s\n",
                         [self cStringDescription],
                         _NVGtransformCStringDescription( transform));
 #endif
       nvgTransformPoint( &point.x, &point.y, transform, 0.0, 0.0);
-#ifdef CALAYER_DEBUG   
+#ifdef CALAYER_DEBUG
       fprintf( stderr, "%s: transform 0.0/0.0 -> %s\n",
                [self cStringDescription],
                CGPointCStringDescription( point));
 #endif
       nvgGetScissor( vg, &scissor);
-#ifdef CALAYER_DEBUG   
-      fprintf( stderr, "%s: modified scissor %s\n", 
+#ifdef CALAYER_DEBUG
+      fprintf( stderr, "%s: modified scissor %s\n",
                         [self cStringDescription],
                         NVGscissorCStringDescription( &scissor));
 #endif
       nvgTransformPoint( &point.x, &point.y, transform, 0.0, 0.0);
-#ifdef CALAYER_DEBUG   
+#ifdef CALAYER_DEBUG
       fprintf( stderr, "%s: scissor transform 0.0/0.0 -> %s\n",
                [self cStringDescription],
                CGPointCStringDescription( point));
@@ -356,7 +366,7 @@ static void   resetTransformAndScissor( CALayer *self, NVGcontext *vg)
       return;
    if( _snapshot)
       return;
- 
+
    [UIView addAnimatedLayer:self];
    _snapshot = [self copy];
 }
@@ -371,7 +381,7 @@ static void   resetTransformAndScissor( CALayer *self, NVGcontext *vg)
 
    // nil out references to outside memory
    copy->_snapshot    = nil;
-   _mulle_pointerarray_init( &copy->_animations, 0, 0, NULL);
+   _mulle_pointerarray_init( &copy->_animations, 0, NULL);
    copy->_cStringName = NULL;
 
    return( copy);
@@ -382,7 +392,7 @@ static void   resetTransformAndScissor( CALayer *self, NVGcontext *vg)
 {
    CGRect  bounds;
 
-   // not tied to frame anymore ? 
+   // not tied to frame anymore ?
    if( _bounds.origin.x != INFINITY)
       return( _bounds);
 
@@ -399,7 +409,7 @@ static void   resetTransformAndScissor( CALayer *self, NVGcontext *vg)
    allocator = MulleObjCInstanceGetAllocator( self);
    if( s)
       s = mulle_allocator_strdup( allocator, s);
-   
+
    mulle_allocator_free( allocator, _cStringName);
    _cStringName = s;
 }
@@ -413,7 +423,7 @@ static void   resetTransformAndScissor( CALayer *self, NVGcontext *vg)
    size_t      len;
    char        *format;
 
-   s = class_getName( object_getClass( self));  
+   s = class_getName( object_getClass( self));
    sprintf( buf, "%p",  self);
 
    format = "<%s %s>";

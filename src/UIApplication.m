@@ -26,23 +26,23 @@
 
 - (NSInteger) _indexOfWindow:(UIWindow *) window
 {
-   unsigned int             n;
-   unsigned long            found;
+   uintptr_t   found;
 
-   n     = mulle_array_get_count( &_windows);
-   found = mulle_array_find_in_range_identical( &_windows, window, 0, n);
+   found = mulle_array_find_in_range_identical( &_windows,
+                                                window,
+                                                mulle_range_make_all());
 
    return( found == mulle_not_found_e ? NSNotFound : (NSInteger) found);
 }
 
 - (NSInteger) getWindows:(UIWindow **) buf
-                  length:(NSUInteger) length;
+                  length:(NSUInteger) length
 {
    unsigned int    n;
 
    n = mulle_array_get_count( &_windows);
    if( length >= n)
-      memcpy( buf, mulle_array_get_all( &_windows), n * sizeof( UIWindow *));
+      mulle_array_get_in_range( &_windows, mulle_range_make( 0, n), buf);
    return( n);
 }
 
@@ -64,15 +64,14 @@
    if( found == NSNotFound)
       return;
 
-   mulle_array_remove_in_range( &_windows, 
-                                (unsigned int) found, 
-                                1);
+   mulle_array_remove_in_range( &_windows,
+                                mulle_range_make( found, 1));
 }
 
 
 - (void) terminate
 {
-   mulle_array_remove_all( &_windows);
+   mulle_array_reset( &_windows);
 
 	glfwTerminate();
 }

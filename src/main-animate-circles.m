@@ -26,7 +26,7 @@
 
 @implementation CircleLayer
 
-- (instancetype) initWithFrame:(CGRect) frame 
+- (instancetype) initWithFrame:(CGRect) frame
 {
    _scale = 1;
    _color = MulleColorCreate( 0x000000FF);
@@ -37,12 +37,12 @@
 @end
 
 
-BOOL  drawStuff( void *aLayer, 
-                 CGContext *context, 
-                 CGRect frame, 
+BOOL  drawStuff( CALayer *aLayer,
+                 CGContext *context,
+                 CGRect frame,
                  struct MulleFrameInfo *info)
 {
-   CircleLayer   *layer = aLayer;
+   CircleLayer   *layer = (CircleLayer *) aLayer;
    CGFloat        radius;
    CGRect         box;
    struct NVGcontext   *vg;
@@ -76,7 +76,7 @@ void   setupScene( UIWindow *window, CGContext *context)
    CGRect         frame;
    UIEdgeInsets   insets;
    CircleLayer    *layer;
-  
+
    frame        = [window frame];
    frame.origin = CGPointZero;
 
@@ -91,12 +91,12 @@ void   setupScene( UIWindow *window, CGContext *context)
    [layer setColor:MulleColorCreate( 0xFF0000FF)];
 
    // UIView -> CAAnimation
-   [UIView beginAnimations:"animation" 
+   [UIView beginAnimations:"animation"
                     context:NULL];
    [UIView setAnimationCurve:UIViewAnimationCurveEaseInOut];
-   [UIView setAnimationDelay:2];        
-   [UIView setAnimationDuration:2];        
-   [UIView setAnimationRepeatCount:20];        
+   [UIView setAnimationDelay:2];
+   [UIView setAnimationDuration:2];
+   [UIView setAnimationRepeatCount:20];
    [layer setScale:-1.0];
    [layer setColor:MulleColorCreate( 0x0000FFFF)];
    [layer setBox:CGRectMake( 100, 100, 100, 100)];
@@ -110,7 +110,7 @@ int   main()
    UIWindow    *window;
 
    /*
-    * window and app 
+    * window and app
     */
    window  = [[[UIWindow alloc] initWithFrame:CGRectMake( 0.0, 0.0, 400.0 * SCALE, 300.0 * SCALE)] autorelease];
    assert( window);

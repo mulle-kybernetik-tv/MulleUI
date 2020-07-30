@@ -50,7 +50,7 @@ static void   windowMoveCallback( GLFWwindow* window, int xpos, int ypos)
    frame        = [self frame];
    frame.origin = CGPointMake( xpos, ypos);
    [self setFrame:frame];
-   [self setNeedsLayout:YES]; 
+   [self setNeedsLayout:YES];
 }
 
 
@@ -130,11 +130,11 @@ static void   framebufferResizeCallback( GLFWwindow* window, int width, int heig
    h = 0; // for valgrind
    glfwGetMonitorPhysicalSize( monitor, NULL, &h);
    if( ! h)
-       return( 0.0); 
+       return( 0.0);
 
    mode = (GLFWvidmode *) glfwGetVideoMode( monitor);
    if( ! mode)
-       return( 0.0); 
+       return( 0.0);
 
    // need to convert h in mm to inches
    ppi = mode->height / (h * 0.03937007874);
@@ -165,9 +165,26 @@ static void   framebufferResizeCallback( GLFWwindow* window, int width, int heig
    int              w;
    int              h;
 
+#if MULLE_UI_GLVERSION == MULLE_GLES2
    glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 2);
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 0);
+#endif
+#if MULLE_UI_GLVERSION == MULLE_GLES3
+   glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 2);
+   glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#endif
+#if MULLE_UI_GLVERSION == MULLE_GL
+   glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 0);
+   glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#endif
+
 	glfwWindowHint( GLFW_RESIZABLE, GL_TRUE);
+
+   // not super sure about this, but lets try to avoid "old" OpenGL
+   // calls. alas, we are doing OpenGLES 2.0 minimum, so I don't know
+   // if this is useful.
 
    _primaryMonitorPPI = [UIWindow primaryMonitorPPI];
    if( _primaryMonitorPPI == 0.0)
@@ -211,7 +228,7 @@ static void   framebufferResizeCallback( GLFWwindow* window, int width, int heig
    glfwSetFramebufferSizeCallback( _window, framebufferResizeCallback);
    glfwSetWindowRefreshCallback( _window, windowRefreshCallback);
 
-   // initialize various plane for the future, currently only 
+   // initialize various plane for the future, currently only
    // _contentPlane can be used
    frame.origin = CGPointZero;
 
@@ -238,9 +255,9 @@ static void   framebufferResizeCallback( GLFWwindow* window, int width, int heig
    [_alertPlane setCStringName:"Window/AlertPlane"];
    [_alertPlane setHidden:YES];
    [self addSubview:_alertPlane];
-  
+
    _scrollWheelSensitivity = 20.0;
-   
+
    [self setNeedsLayout:YES];
 
    return( self);
@@ -263,7 +280,7 @@ static void   framebufferResizeCallback( GLFWwindow* window, int width, int heig
    mulle_pointerarray_done( &_trackingViews);
    mulle_pointerarray_release_all( &_enteredViews);
    mulle_pointerarray_done( &_enteredViews);
-         
+
    mulle_quadtree_destroy( _quadtree);
 
    // TODO: delete window ?
@@ -275,13 +292,13 @@ static void   framebufferResizeCallback( GLFWwindow* window, int width, int heig
  * petty accessors
  */
 
-- (void) setAlpha:(CGFloat) value 
+- (void) setAlpha:(CGFloat) value
 {
    assert( 0 && "don't set alpha on window");
 }
 
 
-- (CGFloat) alpha 
+- (CGFloat) alpha
 {
    return( 1.0);
 }
@@ -302,7 +319,7 @@ static void   framebufferResizeCallback( GLFWwindow* window, int width, int heig
    // glfwGetWindowContentScale( _window, &scale_x, &scale_y);
    scale_x = 1.0; scale_y = 1.0;
    glfwGetWindowSize( _window, &winWidth, &winHeight);
-   glfwGetFramebufferSize( _window, &fbWidth, &fbHeight);  
+   glfwGetFramebufferSize( _window, &fbWidth, &fbHeight);
 
    info->frame           = _frame;
    info->windowSize      = CGSizeMake( winWidth, winHeight);
@@ -369,7 +386,7 @@ static void   error_callback(int code, const char* description)
 
 //   _discardEvents = UIEventTypeMotion;
 
-   glfwSetErrorCallback( error_callback); 
+   glfwSetErrorCallback( error_callback);
    glfwSwapInterval( 0);  // need for smooth pointer/control sync
 
    // should check the monitor where the window is on really
@@ -403,7 +420,7 @@ static void   error_callback(int code, const char* description)
       printf( "@%ld:%09ld layout start\n", start.tv_sec, start.tv_nsec);
 #endif
       /*
-       * Layout and animate 
+       * Layout and animate
        */
       @autoreleasepool
       {
@@ -413,16 +430,16 @@ static void   error_callback(int code, const char* description)
          [self willAnimateWithAbsoluteTime:renderTime];
 
          // do this before the animation step, as this will generate animations
-#if LAYOUT_ANIMATIONS      
+#if LAYOUT_ANIMATIONS
          [self startLayoutWithFrameInfo:&info];
-#endif      
+#endif
          [self layoutIfNeeded];
          if( ! CGRectEqualToRect( _frame, oldFrame))
          {
             [self dump];
             oldFrame = _frame;
          }
-#if LAYOUT_ANIMATIONS      
+#if LAYOUT_ANIMATIONS
          [self endLayout];
 #endif
          [self animateWithAbsoluteTime:renderTime];
@@ -433,20 +450,20 @@ static void   error_callback(int code, const char* description)
       diff = timespec_sub( end, start);
       printf( "@%ld:%09ld lavout end, elapsed : %09ld\n", end.tv_sec, end.tv_nsec,
                                                   diff.tv_sec ? 999999999 : diff.tv_nsec);
-#endif   
+#endif
 
 #ifdef PRINTF_PROFILE_RENDER
       clock_gettime( CLOCK_REALTIME, &start);
       printf( "@%ld:%09ld render start\n", start.tv_sec, start.tv_nsec);
-#endif     
+#endif
       /*
-       * Render 
+       * Render
        */
       @autoreleasepool
       {
          // nvgGlobalCompositeOperation( ctxt->vg, NVG_ATOP);
 
-         [self updateRenderCachesWithContext:context 
+         [self updateRenderCachesWithContext:context
                                    frameInfo:&info];
 
          [context startRenderWithFrameInfo:&info];
@@ -489,7 +506,7 @@ static void   error_callback(int code, const char* description)
       diff = timespec_sub( end, start);
       printf( "@%ld:%09ld render end, elapsed : %09ld\n", end.tv_sec, end.tv_nsec,
                                                   diff.tv_sec ? 999999999 : diff.tv_nsec);
-#endif   
+#endif
 
 #ifdef PRINTF_PROFILE_EVENTS
       clock_gettime( CLOCK_REALTIME, &start);
@@ -508,14 +525,14 @@ static void   error_callback(int code, const char* description)
          // immediate anyway. Animations won't be processed though..
          [self waitForEvents:60.0]; // 0.001];
       }
-   
+
 #ifdef PRINTF_PROFILE_EVENTS
       clock_gettime( CLOCK_REALTIME, &end);
       diff = timespec_sub( end, start);
       printf( "@%ld:%09ld events end, elapsed : %09ld\n", end.tv_sec, end.tv_nsec,
                                                   diff.tv_sec ? 999999999 : diff.tv_nsec);
 #endif
-   
+
    }
    [self dump];
 }

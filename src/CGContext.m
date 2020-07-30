@@ -1,6 +1,4 @@
-// if you change this, also change the GLFW definition in include-private.h
-//#define NANOVG_GL3_IMPLEMENTATION	// Use GL2 implementation.
-#define NANOVG_GLES2_IMPLEMENTATION	// Use GL2 implementation.
+#define DEFINE_NANOVG_GL_IMPLEMENTATION
 
 #import "import-private.h"
 
@@ -12,7 +10,7 @@
 #import "UIImage.h"
 #import "MulleBitmapImage.h"
 #import "MulleTextureImage.h"
-
+#include <stdio.h>
 
 // #define USE_ANONYMOUS_PRO
 
@@ -57,6 +55,65 @@ static struct mulle_container_keyvaluecallback   c_string_to_object_callback;
    _perf.cpuTime = -1.0;
 }
 
+/*
+static void   assert_shader_compiler_errors( GLuint shader)
+{
+   GLint    success;
+   GLchar   infoLog[1024];
+
+   glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+   if( ! success)
+   {
+      glGetShaderInfoLog( shader, 1024, NULL, infoLog);
+      fprintf( stderr, "ERROR::SHADER_COMPILATION_ERROR: %s\n", infoLog);
+      abort();
+   }
+}
+
+// stolen from : https://learnopengl.com/code_viewer_gh.php?code=src/4.advanced_opengl/9.2.geometry_shader_exploding/9.2.geometry_shader.gs
+static char  geometryShaderSource[] =
+"#version 330 core\n"
+"layout (triangles) in;\n"
+"layout (triangle_strip, max_vertices = 3) out;\n"
+"\n"
+"in VS_OUT {\n"
+"    vec2 texCoords;\n"
+"} gs_in[];\n"
+"\n"
+"out vec2 TexCoords;\n"
+"\n"
+"uniform float time;\n"
+"\n"
+"vec4 explode(vec4 position, vec3 normal)\n"
+"{\n"
+"    float magnitude = 2.0;\n"
+"    vec3 direction = normal * ((sin(time) + 1.0) / 2.0) * magnitude;\n"
+"    return position + vec4(direction, 0.0);\n"
+"}\n"
+"\n"
+"vec3 GetNormal()\n"
+"{\n"
+"    vec3 a = vec3(gl_in[0].gl_Position) - vec3(gl_in[1].gl_Position);\n"
+"    vec3 b = vec3(gl_in[2].gl_Position) - vec3(gl_in[1].gl_Position);\n"
+"    return normalize(cross(a, b));\n"
+"}\n"
+"\n"
+"void main() {\n"
+"    vec3 normal = GetNormal();\n"
+"\n"
+"    gl_Position = explode(gl_in[0].gl_Position, normal);\n"
+"    TexCoords = gs_in[0].texCoords;\n"
+"    EmitVertex();\n"
+"    gl_Position = explode(gl_in[1].gl_Position, normal);\n"
+"    TexCoords = gs_in[1].texCoords;\n"
+"    EmitVertex();\n"
+"    gl_Position = explode(gl_in[2].gl_Position, normal);\n"
+"    TexCoords = gs_in[2].texCoords;\n"
+"    EmitVertex();\n"
+"    EndPrimitive();\n"
+"}\n"
+;
+*/
 
 - (id) init
 {
@@ -66,17 +123,51 @@ static struct mulle_container_keyvaluecallback   c_string_to_object_callback;
 #ifdef NANOVG_GLES2_IMPLEMENTATION
 	_vg  = nvgCreateGLES2( NVG_ANTIALIAS | NVG_STENCIL_STROKES);
 #endif
+#ifdef NANOVG_GLES3_IMPLEMENTATION
+	_vg  = nvgCreateGLES3( NVG_ANTIALIAS | NVG_STENCIL_STROKES);
+#endif
    if( ! _vg)
    {
       [self release];
       return( nil);
    }
 
+/*
+#if MULLE_UI_GLVERSION != MULLE_GLES2
+   {
+      struct GLNVGcontext   *vgl = (struct GLNVGcontext *) _vg;
+      unsigned int          program;
+      unsigned int          geometryShader;
+      char                  *str[ 2];
+	   static char           *shaderHeader = ""
+#ifdef NANOVG_GL2_IMPLEMENTATION
+#elif defined( NANOVG_GL3_IMPLEMENTATION)
+		"#version 330 core\n"
+#elif defined( NANOVG_GLES2_IMPLEMENTATION)
+		"#version 100\n"
+#elif defined( NANOVG_GLES3_IMPLEMENTATION)
+		"#version 300 es\n"
+#endif
+      ;
+
+      program        = vgl->shader.prog;
+      geometryShader = glCreateShader (GL_GEOMETRY_SHADER);
+      str[ 0] = shaderHeader;
+      str[ 1] = geometryShaderSource;
+      glShaderSource( geometryShader, 1, str, NULL);
+      glCompileShader( geometryShader);
+      assert_shader_compiler_errors( geometryShader);
+      glAttachShader( program, geometryShader);
+      glLinkProgram( program);
+      glDeleteShader( geometryShader);     // release basically
+   }
+#endif
+*/
    [self initPerformanceCounters];
-   mulle_map_init( &_fontMap, 
-                   8,                        
-                   &c_string_to_object_callback,
-                   MulleObjCInstanceGetAllocator( self));
+   _mulle_map_init( &_fontMap,
+                    8,
+                    &c_string_to_object_callback,
+                    MulleObjCInstanceGetAllocator( self));
    return( self);
 }
 
@@ -99,9 +190,9 @@ static struct mulle_container_keyvaluecallback   c_string_to_object_callback;
    rover = mulle__pointermap_enumerate( _images);
    while( (pair = _mulle__pointermapenumerator_next( &rover)))
    {
-      image     = pair->_key;
+      image     = pair->key;
       [image autorelease];
-      textureId = (int) (intptr_t) pair->_value;
+      textureId = (int) (intptr_t) pair->value;
       nvgDeleteImage( _vg, textureId);
    }
    mulle__pointermapenumerator_done( &rover);
@@ -116,8 +207,8 @@ static struct mulle_container_keyvaluecallback   c_string_to_object_callback;
    struct mulle_pointerarrayenumerator  rover;
    UIImage                             *image;
 
-   rover = mulle_pointerarray_enumerate_nil( _framebufferImages);
-   while( (image = _mulle_pointerarrayenumerator_next( &rover)))
+   rover = mulle_pointerarray_enumerate( _framebufferImages);
+   while( _mulle_pointerarrayenumerator_next( &rover, (void **) &image))
       [image autorelease];
    mulle_pointerarrayenumerator_done( &rover);
 
@@ -128,8 +219,8 @@ static struct mulle_container_keyvaluecallback   c_string_to_object_callback;
 
 - (void) finalize
 {
-   mulle_map_done( &_fontMap);
-  
+   _mulle_map_done( &_fontMap);
+
    [self _freeImages];
    [self _freeFramebufferImages];
    [super finalize];
@@ -213,6 +304,19 @@ static struct mulle_container_keyvaluecallback   c_string_to_object_callback;
 
    nvgResetTransform( _vg);
    nvgScissor( _vg, 0.0, 0.0, info->frame.size.width, info->frame.size.height);
+
+/*
+#if MULLE_UI_GLVERSION != MULLE_GLES2
+   {
+      struct GLNVGcontext   *vgl = (struct GLNVGcontext *) _vg;
+      unsigned int          program;
+      GLfloat               matrix[ 4][ 4];
+
+      program = vgl->shader.prog;
+      glUniform1f( glGetUniformLocation( program, "time", glfwGetTime());
+   }
+#endif
+*/
 }
 
 
@@ -319,7 +423,7 @@ static struct mulle_container_keyvaluecallback   c_string_to_object_callback;
    font = mulle_map_get( &_fontMap, s);
    if( font)
       return( font);
-   
+
    if( ! strcmp( s, "sans"))
       font = [CGFont fontWithName:s
                             bytes:FONT_DATA
@@ -371,10 +475,10 @@ static struct mulle_container_keyvaluecallback   c_string_to_object_callback;
       _images = mulle__pointermap_create( 16, 0, allocator);
 
    size      = [(MulleBitmapImage *) image intSize];
-   textureId = nvgCreateImageRGBA( _vg, 
-                                   size.width, 
-                                   size.height, 
-                                   [image nvgImageFlags], 
+   textureId = nvgCreateImageRGBA( _vg,
+                                   size.width,
+                                   size.height,
+                                   [image nvgImageFlags],
                                    [(MulleBitmapImage *) image bytes]);
 //   fprintf( stderr, "textureid: %d\n", textureId);
 
@@ -415,7 +519,7 @@ static struct mulle_container_keyvaluecallback   c_string_to_object_callback;
       return( nil);
 
    if( ! _framebufferImages)
-      _framebufferImages = mulle_pointerarray_create_nil( NULL);
+      _framebufferImages = mulle_pointerarray_create( NULL);
 
    [image retain];
    _mulle_pointerarray_add( _framebufferImages, image);
@@ -431,7 +535,7 @@ static struct mulle_container_keyvaluecallback   c_string_to_object_callback;
       return;
 
    index = _mulle_pointerarray_find( _framebufferImages, image);
-   if( index == -1)
+   if( index == mulle_not_found_e)
       return;
 
    [image autorelease];

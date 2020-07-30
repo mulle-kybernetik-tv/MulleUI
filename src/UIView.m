@@ -101,9 +101,9 @@
    assert(_mainLayer != layer);
 
    if( ! _layers)
-      _layers = mulle_pointerarray_create_nil( NULL);
+      _layers = mulle_pointerarray_create( NULL);
 
-   assert( _mulle_pointerarray_find( _layers, layer) == -1);
+   assert( _mulle_pointerarray_find( _layers, layer) == mulle_not_found_e);
    _mulle_pointerarray_add( _layers, layer);
 }
 
@@ -122,13 +122,13 @@
    {
       allocator = MulleObjCInstanceGetAllocator( self);
       _layers = mulle_pointerarray_alloc( allocator);
-      _mulle_pointerarray_init( _layers, 4, nil, allocator);
+      _mulle_pointerarray_init( _layers, 4, allocator);
    }
    return( _layers);
 }
 
 
-- (struct mulle_pointerarray *) _subviews 
+- (struct mulle_pointerarray *) _subviews
 {
    struct mulle_allocator   *allocator;
 
@@ -136,7 +136,7 @@
    {
       allocator = MulleObjCInstanceGetAllocator( self);
       _subviews = mulle_pointerarray_alloc( allocator);
-      _mulle_pointerarray_init( _subviews, 4, nil, allocator);
+      _mulle_pointerarray_init( _subviews, 4, allocator);
    }
    return( _subviews);
 }
@@ -144,13 +144,18 @@
 - (void) mulleAddRetainedSubview:(UIView *) view
 {
    struct mulle_pointerarray  *subviews;
+   uintptr_t                  index;
+
    assert( view);
    assert( view != self);
    assert( ! [view superview]);
    assert( [view isKindOfClass:[UIView class]]);
-   
+
    subviews = [self _subviews];
-   assert( _mulle_pointerarray_find( subviews, view) == -1);
+   index    = _mulle_pointerarray_find( subviews, view);
+   fprintf( stderr, "%llx\n", (long long) index);
+
+   assert( _mulle_pointerarray_find( subviews, view) == mulle_not_found_e);
    _mulle_pointerarray_add( subviews, view);
 
    view->_superview = self;
@@ -160,7 +165,6 @@
 {
    [self mulleAddRetainedSubview:[view retain]];
 }
-
 
 
 - (NSUInteger) subviewCount
@@ -225,7 +229,7 @@
       mulle_pointerarray_release_all( _subviews);
       mulle_pointerarray_destroy( _subviews);
       _subviews = NULL;
-      return;       
+      return;
    }
 
    allocator = MulleObjCInstanceGetAllocator( self);
@@ -245,11 +249,11 @@
    // transfer objects
    memcpy( _subviews, array, sizeof( struct mulle_pointerarray));
    // make sure these aren't reused by array anymore
-   _mulle_pointerarray_init( array, 0, nil, allocator); 
+   _mulle_pointerarray_init( array, 0, allocator);
 }
 
 
-- (void) addSubviewsIntersectingRect:(CGRect) rect 
+- (void) addSubviewsIntersectingRect:(CGRect) rect
                       toPointerArray:(struct mulle_pointerarray *) array
               invertIntersectionTest:(BOOL) flag
 {
@@ -257,8 +261,8 @@
    UIView                                *view;
 
    flag = ! flag;
-   rover = mulle_pointerarray_enumerate_nil( _subviews);
-   while( view = _mulle_pointerarrayenumerator_next( &rover))
+   rover = mulle_pointerarray_enumerate( _subviews);
+   while( _mulle_pointerarrayenumerator_next( &rover, (void **) &view))
       if( CGRectIntersectsRect( [view frame], rect) == flag)
          mulle_pointerarray_add( array, view);
    mulle_pointerarrayenumerator_done( &rover);
@@ -324,22 +328,22 @@
 
 
 //// conveniences
-//- (void) setBackgroundColor:(CGColorRef) color 
+//- (void) setBackgroundColor:(CGColorRef) color
 //{
 //   [_mainLayer setBackgroundColor:color];
 //}
 //
-//- (void) setBorderColor:(CGColorRef) color 
+//- (void) setBorderColor:(CGColorRef) color
 //{
 //   return( [_mainLayer setBorderColor:color]);
 //}
 //
-//- (void) setBorderWidth:(CGFloat) value 
+//- (void) setBorderWidth:(CGFloat) value
 //{
 //   [_mainLayer setBorderWidth:value];
 //}
 //
-//- (void) setCornerRadius:(CGFloat) value 
+//- (void) setCornerRadius:(CGFloat) value
 //{
 //   return( [_mainLayer setCornerRadius:value]);
 //}
@@ -350,17 +354,17 @@
 //   return( [_mainLayer backgroundColor]);
 //}
 //
-//- (CGColorRef) borderColor 
+//- (CGColorRef) borderColor
 //{
 //   return( [_mainLayer borderColor]);
 //}
 //
-//- (CGFloat) borderWidth 
+//- (CGFloat) borderWidth
 //{
 //   return( [_mainLayer borderWidth]);
 //}
 //
-//- (CGFloat) cornerRadius 
+//- (CGFloat) cornerRadius
 //{
 //   return( [_mainLayer cornerRadius]);
 //}
@@ -376,11 +380,11 @@
 - (void) setNeedsCaching  // wipes the _backinglayer and asks for a new one to be drawn
 {
 #ifdef HAVE_RENDER_CACHE
-   // might have to do this atomically later on 
+   // might have to do this atomically later on
    _needsCaching = YES;
    [_cacheLayer autorelease];
    _cacheLayer = nil;
-#endif   
+#endif
 }
 
 - (char *) cStringDescription
@@ -429,7 +433,7 @@
       _cacheLayer = [[MulleImageLayer alloc] initWithFrame:[_mainLayer frame]];
       [_cacheLayer setImage:image];
    }
-#endif   
+#endif
 }
 
 - (void) updateRenderCachesWithContext:(CGContext *) context
@@ -443,7 +447,7 @@
    fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
 #endif
 
-   rover = mulle_pointerarray_enumerate_nil( _subviews);
+   rover = mulle_pointerarray_enumerate( _subviews);
    while( view = mulle_pointerarrayenumerator_next( &rover))
       [view updateRenderCachesWithContext:context
                                 frameInfo:info];
@@ -451,7 +455,7 @@
 
    [self _createRenderCacheIfNeededWithContext:context
                                      frameInfo:info];
-#endif                                     
+#endif
 }
 
 
@@ -466,8 +470,8 @@
    CGFloat                               alpha;
 
 #ifdef RENDER_DEBUG_VERBOSE
-   fprintf( stderr, "%s %s (f:%s b:%s)\n", 
-                        __PRETTY_FUNCTION__, 
+   fprintf( stderr, "%s %s (f:%s b:%s)\n",
+                        __PRETTY_FUNCTION__,
                         [self cStringDescription],
                         CGRectCStringDescription( [self frame]),
                         CGRectCStringDescription( [self bounds]));
@@ -492,8 +496,8 @@
                     scissor:&scissor];
    [_mainLayer drawInContext:context];
 
-   rover = mulle_pointerarray_enumerate_nil( _layers);
-   while( (layer = _mulle_pointerarrayenumerator_next( &rover)))
+   rover = mulle_pointerarray_enumerate( _layers);
+   while( _mulle_pointerarrayenumerator_next( &rover, (void **) &layer))
    {
       [layer setTransform:transform
                   scissor:&scissor];
@@ -517,18 +521,18 @@
 #endif
 
    bounds = [self bounds];
-   rover  = mulle_pointerarray_enumerate_nil( _subviews);
-   while( (view = _mulle_pointerarrayenumerator_next( &rover)))
+   rover  = mulle_pointerarray_enumerate( _subviews);
+   while( _mulle_pointerarrayenumerator_next( &rover, (void **) &view))
    {
       frame = [view frame];
       // TODO: this intersection code doesn't work for UIScrollView,
       // because the UIScrollContentView uses bounds.origin to shift its
-      // contents. The intersection code will mistaken ly notice for larger 
+      // contents. The intersection code will mistaken ly notice for larger
       // scrolls, that the contentView is displaying nothing and will cull it.
       //
       // TODO: REALLY figure out what to do with bounds and frame. Can bounds
       //       be used in scrollview ?
-      
+
     //  if( CGRectIntersectsRect( bounds, frame))
          [view renderWithContext:context];
    }
@@ -564,7 +568,7 @@
 #endif
       return;
    }
-   
+
    vg = [context nvgContext];
 
 // DEBUG CODE JUST TO SEE SOMETHING IN RENDERDOC
@@ -572,7 +576,7 @@
 //   nvgCircle(vg, CGRectGetMidX( frame), CGRectGetMidY( frame), 10.0);
 //   nvgStrokeColor( vg, nvgRGBA(0, 32, 0, 32));
 //   nvgStroke( vg);
-// 
+//
    // remember for later
    nvgCurrentTransform( vg, transform);
    nvgGetScissor( vg, &scissor);
@@ -692,9 +696,9 @@
       return;
    if( [self isHidden])
       return;
-     
+
    //
-   // set alpha, if needed 
+   // set alpha, if needed
    // layers need to read this and multiply with their opacity and
    // colors (or texture operations)
    //
@@ -723,9 +727,9 @@
 #endif
 
    MulleObjCObjectPerformSelectorDoubleArgument( _mainLayer, sel, renderTime);
-   
-   rover = mulle_pointerarray_enumerate_nil( _layers);
-   while( (layer = _mulle_pointerarrayenumerator_next( &rover)))
+
+   rover = mulle_pointerarray_enumerate( _layers);
+   while( _mulle_pointerarrayenumerator_next( &rover, (void **) &layer))
       MulleObjCObjectPerformSelectorDoubleArgument( layer, sel, renderTime);
    mulle_pointerarrayenumerator_done( &rover);
 }
@@ -741,8 +745,8 @@
    fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
 #endif
 
-   rover = mulle_pointerarray_enumerate_nil( _subviews);
-   while( (view = _mulle_pointerarrayenumerator_next( &rover)))
+   rover = mulle_pointerarray_enumerate( _subviews);
+   while( _mulle_pointerarrayenumerator_next( &rover, (void **) &view))
       MulleObjCObjectPerformSelectorDoubleArgument( view, sel, renderTime);
    mulle_pointerarrayenumerator_done( &rover);
 }
@@ -750,7 +754,7 @@
 
 - (void) animateWithAbsoluteTime:(CAAbsoluteTime) renderTime
 {
-   [self makeLayersPerformSelector:_cmd   
+   [self makeLayersPerformSelector:_cmd
                  withAbsoluteTime:renderTime];
    [self makeSubviewsPerformSelector:_cmd
                     withAbsoluteTime:renderTime];
@@ -759,7 +763,7 @@
 
 - (void) willAnimateWithAbsoluteTime:(CAAbsoluteTime) renderTime
 {
-   [self makeLayersPerformSelector:_cmd   
+   [self makeLayersPerformSelector:_cmd
                   withAbsoluteTime:renderTime];
    [self makeSubviewsPerformSelector:_cmd
                     withAbsoluteTime:renderTime];
@@ -859,7 +863,7 @@
 
 - (struct MulleTrackingArea *) addTrackingAreaWithRect:(CGRect) rect
                                               toWindow:(UIWindow *) window
-                                              userInfo:(id) userInfo 
+                                              userInfo:(id) userInfo
 {
    struct MulleTrackingArea   *tracking;
    UIWindow                  *window;
@@ -872,7 +876,7 @@
    if( MulleTrackingAreaArrayGetCount( &_trackingAreas) == 0)
    {
       // if window does not exist, then a late add would not be noticed
-      // and tracking fails... 
+      // and tracking fails...
       [window addTrackingView:self];
    }
 

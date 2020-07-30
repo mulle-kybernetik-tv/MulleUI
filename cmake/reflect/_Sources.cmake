@@ -22,6 +22,7 @@ src/main-slider.m
 src/main-springs-and-struts.m
 src/main-stackview.m
 src/main-svg.m
+src/main-textfield.m
 src/main-viewconversion.m
 )
 
@@ -103,6 +104,8 @@ src/UISlider.m
 src/UIStackView.m
 src/UIStepper.m
 src/UISwitch.m
+src/UITextField+UIResponder.m
+src/UITextField.m
 src/UIView+CAAnimation.m
 src/UIView+CGGeometry.m
 src/UIView+Layout.m

@@ -26,11 +26,11 @@ PROTOCOLCLASS_IMPLEMENTATION( UIControl)
 }
 
 
-- (UIEvent *) consumeEventIfDisabled:(UIEvent *) event
+- (UIEvent *) consumeMouseEventIfDisabled:(UIEvent *) event
 {
 	UIControlState   state;
 
-   // a disable control swallows events
+   // a disabled control swallows events
  	state = [self state];
 	if( state & UIControlStateDisabled)
 		return( nil);
@@ -53,7 +53,7 @@ PROTOCOLCLASS_IMPLEMENTATION( UIControl)
    fprintf( stderr, "%s: %s\n", __PRETTY_FUNCTION__, [(UIView *) self cStringDescription]);
 #endif
 
-	event = [self consumeEventIfDisabled:event];
+	event = [self consumeMouseEventIfDisabled:event];
 	// event was handled if nil
 	if( ! event)
 	   return( event);   
@@ -78,7 +78,7 @@ PROTOCOLCLASS_IMPLEMENTATION( UIControl)
    fprintf( stderr, "%s: %s\n", __PRETTY_FUNCTION__, [(UIView *) self cStringDescription]);
 #endif
 
-	event = [self consumeEventIfDisabled:event];
+	event = [self consumeMouseEventIfDisabled:event];
 	// event was handled if nil
 	if( ! event)
 	   return( event);   
@@ -87,7 +87,7 @@ PROTOCOLCLASS_IMPLEMENTATION( UIControl)
    event = [self consumeMouseDragged:event];
    return( event);
 }
-
+ 
 
 - (UIEvent *) performClickAndTargetActionCallbacks:(UIEvent *) event
 {
@@ -122,7 +122,7 @@ PROTOCOLCLASS_IMPLEMENTATION( UIControl)
    fprintf( stderr, "%s: %s\n", __PRETTY_FUNCTION__, [(UIView *) self cStringDescription]);
 #endif
 
-	event = [self consumeEventIfDisabled:event];
+	event = [self consumeMouseEventIfDisabled:event];
 	// event was handled if nil
 	if( ! event)
    {
@@ -152,7 +152,7 @@ PROTOCOLCLASS_IMPLEMENTATION( UIControl)
    // TODO: have a "consumeEvent" method instead, which checks for being
    //       disabled in UIControl. UIView will return event by default
    //       modal MulleWindowPlane might return nil if not hidden.. ??
-	event = [self consumeEventIfDisabled:event];
+	event = [self consumeMouseEventIfDisabled:event];
 	// event was handled if nil
 	if( ! event)
 	   return( event);   
@@ -177,7 +177,7 @@ PROTOCOLCLASS_IMPLEMENTATION( UIControl)
    // TODO: have a "consumeEvent" method instead, which checks for being
    //       disabled in UIControl. UIView will return event by default
    //       modal MulleWindowPlane might return nil if not hidden.. ??
-	event = [self consumeEventIfDisabled:event];
+	event = [self consumeMouseEventIfDisabled:event];
 	// event was handled if nil
 	if( ! event)
 	   return( event);   
@@ -202,12 +202,77 @@ PROTOCOLCLASS_IMPLEMENTATION( UIControl)
    // TODO: have a "consumeEvent" method instead, which checks for being
    //       disabled in UIControl. UIView will return event by default
    //       modal MulleWindowPlane might return nil if not hidden.. ??
-	event = [self consumeEventIfDisabled:event];
+	event = [self consumeMouseEventIfDisabled:event];
 	// event was handled if nil
 	if( ! event)
 	   return( event);   
 
    event = [self consumeMouseExited:event];
+   return( event);
+}
+
+
+/*
+ * Keyboard
+ */ 
+// @method_alias( keyUp:, keyDown:);
+
+- (BOOL) shouldProcessKeyEvent:(UIEvent *) event
+{
+	UIControlState   state;
+
+   // a disabled control swallows events
+ 	state = [self state];
+	if( state & UIControlStateDisabled)
+		return( NO);
+
+   return( YES);   
+}
+
+
+
+// if we don't want it, pass it up i guess
+- (UIEvent *) consumeKeyUp:(UIEvent *) event
+{
+   return( nil);
+}
+
+
+- (UIEvent *) keyUp:(UIEvent *) event
+{
+   BOOL       flag;
+   UIEvent   *result;
+   
+#ifdef LOG_EVENTS   
+   fprintf( stderr, "%s: %s\n", __PRETTY_FUNCTION__, [(UIView *) self cStringDescription]);
+#endif
+
+	if( ! [self shouldProcessKeyEvent:event])
+	   return( event);
+
+   event = [self consumeKeyUp:event];
+   return( event);  
+}
+
+
+// if we don't want it, pass it up i guess
+- (UIEvent *) consumeKeyDown:(UIEvent *) event
+{
+   return( nil);
+}
+
+
+- (UIEvent *) keyDown:(UIEvent *) event
+{
+#ifdef LOG_EVENTS   
+   fprintf( stderr, "%s: %s\n", __PRETTY_FUNCTION__, [(UIView *) self cStringDescription]);
+#endif
+
+	if( ! [self shouldProcessKeyEvent:event])
+	   return( event);   
+
+   [self becomeFirstResponder];
+   event = [self consumeKeyDown:event];
    return( event);
 }
 
@@ -244,8 +309,6 @@ static inline BOOL   getStateBit( UIControl *self, enum UIControlStateBit bit)
 		state |= UIControlStateHighlighted;
 	[self setState:state];
 }
-
-
 
 
 static void   setStateBit( UIControl *self, enum UIControlStateBit bit, BOOL flag)

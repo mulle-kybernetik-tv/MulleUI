@@ -5,6 +5,9 @@
 
 #import "import-private.h"
 
+#include "mulle-js-math.h"
+#include "mulle-js-nanovg.h"
+
 
 
 @implementation MulleJS ( Canvas)

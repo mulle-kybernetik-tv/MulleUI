@@ -9,7 +9,7 @@
 
 
 @interface UIResponder
-@end 
+@end
 
 
 @interface UIResponder( PrivateFuture)
@@ -69,7 +69,8 @@
    button = [event button];
 
    if( action == GLFW_PRESS)
-      _clickOrDrag._suppressUntilTimestamp = [event timestamp] + _clickOrDrag._mouseMotionSuppressionDelay;
+      _clickOrDrag._suppressUntilTimestamp = [event timestamp] + 
+                                             _clickOrDrag._mouseMotionSuppressionDelay;
 
    switch( button)
    {
@@ -118,8 +119,8 @@
 }
 
 
-// general idea: suppress mouseDragged events, until a certain amount of 
-//               time has passed.  
+// general idea: suppress mouseDragged events, until a certain amount of
+//               time has passed.
 - (UIEvent *) handleMouseMotionEvent:(UIMouseMotionEvent *) event
 {
    uint64_t   state;
@@ -210,7 +211,7 @@
    {
 #ifdef EVENT_DEBUG
       fprintf( stderr, "request close\n");
-#endif      
+#endif
       [[self window] requestClose];
 
       return( nil);
@@ -223,14 +224,14 @@
 // flat, doesn't recurse
 - (UIView *) subviewAtPoint:(CGPoint) point
 {
-   struct mulle_pointerarrayenumerator   rover;
-   UIView                                *view;
+   struct mulle_pointerarrayreverseenumerator   rover;
+   UIView                                       *view;
 
-   rover = mulle_pointerarray_reverseenumerate_nil( _subviews);
-   while( (view = _mulle_pointerarrayenumerator_next( &rover)))
+   rover = mulle_pointerarray_reverseenumerate( _subviews);
+   while( _mulle_pointerarrayreverseenumerator_next( &rover, (void **) &view))
       if( CGRectContainsPoint( [view frame], point))
          break;
-   mulle_pointerarrayenumerator_done( &rover);
+   mulle_pointerarrayreverseenumerator_done( &rover);
    return( view);
 }
 
@@ -241,13 +242,13 @@
    {
 #ifdef EVENT_DEBUG
        fprintf( stderr, "Disabled view %s ignores event\n", [self cStringDescription]);
-#endif      
+#endif
       return( event);
    }
 
 #ifdef EVENT_DEBUG
     fprintf( stderr, "Try to handle event %s\n", [self cStringDescription]);
-#endif 
+#endif
 
    switch( [event eventType])
    {
@@ -272,7 +273,7 @@
 }
 
 //
-// This was written to support MulleMenu. But MulleMenu does it now 
+// This was written to support MulleMenu. But MulleMenu does it now
 // differently.
 //
 - (void) mulleSubviewDidHandleEvent:(UIEvent *) event
@@ -285,15 +286,15 @@
 - (UIView *) mulleLetSubviewHandleEvent:(UIEvent *) event
                    atTranslatedPosition:(CGPoint) translated
 {
-   struct mulle_pointerarrayenumerator   rover;
-   UIView                                *view;
-   BOOL                                  handledEvent;
+   struct mulle_pointerarrayreverseenumerator   rover;
+   UIView                                       *view;
+   BOOL                                          handledEvent;
 
    view = nil;
    if( _subviews)
    {
       rover = _mulle_pointerarray_reverseenumerate( _subviews);
-      while( (view = _mulle_pointerarrayenumerator_next( &rover)))
+      while( _mulle_pointerarrayreverseenumerator_next( &rover, (void **) &view))
       {
          handledEvent = [view handleEvent:event
                                atPosition:translated] == nil;
@@ -303,7 +304,7 @@
             break;
          }
       }
-      mulle_pointerarrayenumerator_done( &rover);
+      mulle_pointerarrayreverseenumerator_done( &rover);
    }
 
    return( view);
@@ -319,11 +320,11 @@
    UIView                                *view;
    UIEvent                               *memo;
 
-   if( [self isHidden]) // alpha < 0.01: should we care for events ? 
+   if( [self isHidden]) // alpha < 0.01: should we care for events ?
    {
 #ifdef EVENT_DEBUG
        fprintf( stderr, "Invisible view %s ignores event\n", [self cStringDescription]);
-#endif      
+#endif
       return( event);
    }
 
@@ -335,14 +336,14 @@
                [self cStringDescription],
                CGPointCStringDescription( position),
                CGPointCStringDescription( translated));
-#endif 
+#endif
 
    if( ! [self hitTest:translated
              withEvent:event])
    {
 #ifdef EVENT_DEBUG
        fprintf( stderr, "Event does not hit view %s\n", [self cStringDescription]);
-#endif        
+#endif
       return( event);
    }
 
@@ -376,12 +377,12 @@
       {
 #ifdef EVENT_DEBUG
          fprintf( stderr, "Responder %s consumed event\n", (char *) [responder cStringDescription]);
-#endif          
+#endif
          break;
       }
 #ifdef EVENT_DEBUG
       fprintf( stderr, "Responder %s did not consume event, try next\n", [responder cStringDescription]);
-#endif         
+#endif
       responder = [responder nextResponder];
    }
    while( responder);

@@ -4,7 +4,7 @@
 #import "CATime.h"
 
 
-typedef float   _NVGtransform[ 6];   
+typedef float   _NVGtransform[ 6];
 
 
 @class CGContext;
@@ -19,7 +19,7 @@ struct CAAnimationOptions;
    _NVGtransform               _transform;
    NVGscissor                  _scissor;
    CALayer                     *_snapshot;
-   struct mulle_pointerarray   _animations;    
+   struct mulle_pointerarray   _animations;
 }
 
 // animatable properties
@@ -44,9 +44,9 @@ struct CAAnimationOptions;
 @property char       *cStringName;
 
 // return YES if you changed transform or scissor
-@property BOOL       (*drawContentsCallback)( CALayer *layer, 
-                                              CGContext *ctxt, 
-                                              CGRect frame, 
+@property BOOL       (*drawContentsCallback)( CALayer *layer,
+                                              CGContext *ctxt,
+                                              CGRect frame,
                                               struct MulleFrameInfo *info);
 
 // properties used for rendering only
@@ -59,6 +59,9 @@ struct CAAnimationOptions;
 - (instancetype) initWithFrame:(CGRect) frame;
 
 - (BOOL) drawInContext:(CGContext *) ctx;
+
+// computed from scale / bounds
+//- (CGPoint) scale;
 
 //
 // Subclasses do their drawing in these methods. The code simply draws the
@@ -80,9 +83,9 @@ struct CAAnimationOptions;
 @class UIImage;
 
 
-@protocol CAImageLayer 
+@protocol CAImageLayer
 
 @property( retain) UIImage   *image;
 
 @end
-  
+

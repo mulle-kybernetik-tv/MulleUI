@@ -101,10 +101,10 @@ static void   mouseMoveCallback( GLFWwindow* window,
 	self->_mousePosition.y = ypos;
 
    //
-   // Observed behaviour on linux: Depending on mouse sensitivity, it may 
+   // Observed behaviour on linux: Depending on mouse sensitivity, it may
    // become obvious that there is a rounding bug in the Linux mouse handling
-   // where certain integer values are never returned. In my case this 
-   // turned out to be 200,200. So don't expect the mouse to provide all 
+   // where certain integer values are never returned. In my case this
+   // turned out to be 200,200. So don't expect the mouse to provide all
    // possible integer coordinates for every pixel on the screen.
    //
    if( self->_discardEvents & UIEventTypeMotion)
@@ -136,7 +136,7 @@ static void   mouseScrollCallback( GLFWwindow *window,
 
 #ifdef CALLBACK_DEBUG
    fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
-#endif   
+#endif
 
    if( self->_discardEvents)
       return;
@@ -147,12 +147,12 @@ static void   mouseScrollCallback( GLFWwindow *window,
       xoffset *= sensitivity;
       yoffset *= sensitivity;
    }
-   
+
    if( [self isScrollWheelNatural])
       scrollOffset = CGPointMake( xoffset, yoffset);
    else
       scrollOffset = CGPointMake( -xoffset, -yoffset);
-     
+
    event        = [[UIMouseScrollEvent alloc] initWithWindow:self
                                                mousePosition:self->_mousePosition
                                                 scrollOffset:scrollOffset
@@ -181,7 +181,7 @@ static void   mouseScrollCallback( GLFWwindow *window,
    if( hz == 0.0)
    	glfwPollEvents();
    else
-     glfwWaitEventsTimeout( 1.0 / hz);    
+     glfwWaitEventsTimeout( 1.0 / hz);
 }
 
 
@@ -202,7 +202,7 @@ static void   mouseScrollCallback( GLFWwindow *window,
 }
 
 
-# pragma mark - tracking rects  
+# pragma mark - tracking rects
 
 - (void) addTrackingView:(UIView *) view
 {
@@ -210,7 +210,7 @@ static void   mouseScrollCallback( GLFWwindow *window,
    assert( [view isKindOfClass:[UIView class]]);
    assert( [view window] == self || ! [view window]);
 
-   assert( _mulle_pointerarray_find( &_trackingViews, view) == -1);
+   assert( _mulle_pointerarray_find( &_trackingViews, view) == mulle_not_found_e);
    [view retain];
    _mulle_pointerarray_add( &_trackingViews, view);
 }
@@ -220,7 +220,7 @@ static void   mouseScrollCallback( GLFWwindow *window,
 {
    assert( [view isKindOfClass:[UIView class]]);
 
-   if( _mulle_pointerarray_find( &_trackingViews, view) != -1)
+   if( _mulle_pointerarray_find( &_trackingViews, view) != mulle_not_found_e)
    {
         abort();
       //mulle_pointerarray_remove( &_trackingViews, view);
@@ -243,13 +243,13 @@ static void   mouseScrollCallback( GLFWwindow *window,
    // don't track hidden view ..
    if( [view mulleIsEffectivelyHidden])
       return;
-      
+
    n = [view numberOfTrackingAreas];
    for( i = 0; i < n; i++)
    {
       area      = [view trackingAreaAtIndex:i];
       rect      = MulleTrackingAreaGetRect( area);
-      converted = [self convertRect:rect 
+      converted = [self convertRect:rect
                            fromView:view];
       assert( _quadtree);
       mulle_quadtree_insert( _quadtree, converted, view);
@@ -288,8 +288,8 @@ static void   mouseScrollCallback( GLFWwindow *window,
    else
       mulle_quadtree_reset( _quadtree, bounds);
 
-   rover = mulle_pointerarray_enumerate_nil( &_trackingViews);
-   while( (view = _mulle_pointerarrayenumerator_next( &rover)))
+   rover = mulle_pointerarray_enumerate( &_trackingViews);
+   while( _mulle_pointerarrayenumerator_next( &rover, (void **) &view))
       [self addTrackingAreasOfView:view];
    mulle_pointerarrayenumerator_done( &rover);
 }
@@ -322,8 +322,8 @@ static void   collect_hit_views( CGRect rect, void *payload, void *userinfo)
 
       keyEvent = (UIKeyboardEvent *) event;
 
-      // left-shift on my keyboard apparently
-      if( [keyEvent scanCode] == 50 && [keyEvent key] == 340)
+      // F12 key: 301 
+      if( [keyEvent key] == 301)
       {
          [self dump];
          return( nil);
@@ -333,19 +333,19 @@ static void   collect_hit_views( CGRect rect, void *payload, void *userinfo)
 
    if( [event eventType] == UIEventTypeMotion)
    {
-      _mulle_pointerarray_init( &views, 16, 0, NULL);
+      _mulle_pointerarray_init( &views, 16, NULL);
 
       point = [event mousePosition];
-      
+
       //
       // this could be a dragging event though, which needs to be handled
       // without tracking areas (...). But we only handle these events if
       // a button is pressed. We don't send mouseMoved: then though (useful ?)
       //
       isDrag = [(UIMouseMotionEvent *) event buttonStates] != 0;
-      n      = mulle_quadtree_find_point( _quadtree, 
+      n      = mulle_quadtree_find_point( _quadtree,
                                           point,
-                                          collect_hit_views, 
+                                          collect_hit_views,
                                           &views);
       //
       // if we have no entered views and nothing is hit, then there is nothing
@@ -357,12 +357,12 @@ static void   collect_hit_views( CGRect rect, void *payload, void *userinfo)
          // and send them a MouseExited event
          // send MouseMoved: events to all remaining enteredViews
 
-         _mulle_pointerarray_init( &remaining, 16, 0, _mulle_pointerarray_get_allocator( &_enteredViews));
-        
-         rover = mulle_pointerarray_enumerate_nil( &_enteredViews);
-         while( (view = _mulle_pointerarrayenumerator_next( &rover)))
+         _mulle_pointerarray_init( &remaining, 16, _mulle_pointerarray_get_allocator( &_enteredViews));
+
+         rover = mulle_pointerarray_enumerate( &_enteredViews);
+          while( _mulle_pointerarrayenumerator_next( &rover, (void **) &view))
          {
-            if( _mulle_pointerarray_find( &views, view) == -1)
+            if( _mulle_pointerarray_find( &views, view) == mulle_not_found_e)
             {
                [view mouseExited:event];
             }
@@ -374,20 +374,20 @@ static void   collect_hit_views( CGRect rect, void *payload, void *userinfo)
                _mulle_pointerarray_add( &remaining, view);
             }
          }
-         mulle_pointerarrayenumerator_done( &rover);      
+         mulle_pointerarrayenumerator_done( &rover);
 
          // remaining are now the remaining active enteredViews
 
-         rover = mulle_pointerarray_enumerate_nil( &views);
-         while( (view = _mulle_pointerarrayenumerator_next( &rover)))
+         rover = mulle_pointerarray_enumerate( &views);
+         while( _mulle_pointerarrayenumerator_next( &rover, (void **) &view))
          {
-            if( _mulle_pointerarray_find( &remaining, view) == -1)
+            if( _mulle_pointerarray_find( &remaining, view) == mulle_not_found_e)
             {
                [view mouseEntered:event];
                _mulle_pointerarray_add( &remaining, view);
             }
          }
-         mulle_pointerarrayenumerator_done( &rover);      
+         mulle_pointerarrayenumerator_done( &rover);
 
          // now move remaining to _enteredViews and switch to remaining
          mulle_pointerarray_done( &_enteredViews);
@@ -405,5 +405,5 @@ static void   collect_hit_views( CGRect rect, void *payload, void *userinfo)
    return( [super handleEvent:event]);
 }
 
-@end 
+@end
 

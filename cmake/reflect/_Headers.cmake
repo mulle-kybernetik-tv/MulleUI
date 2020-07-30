@@ -130,6 +130,8 @@ src/UISlider.h
 src/UIStackView.h
 src/UIStepper.h
 src/UISwitch.h
+src/UITextField+UIResponder.h
+src/UITextField.h
 src/UIView+CAAnimation.h
 src/UIView+CGGeometry.h
 src/UIView+Layout.h

@@ -13,7 +13,7 @@ struct UIStackViewLayoutContext
 {
    CGRect               bounds;
    NSUInteger           n_views;
-   UIViewAutoresizing   defaultMask;   
+   UIViewAutoresizing   defaultMask;
 };
 
 
@@ -26,7 +26,7 @@ struct UIStackViewLayoutContext
 
    _axis                    = UILayoutConstraintAxisVertical;
    _minimumInteritemSpacing = 10.0;
-   _minimumLineSpacing      = 10.0;   
+   _minimumLineSpacing      = 10.0;
 
    return( self);
 }
@@ -37,10 +37,10 @@ struct UIStackViewLayoutContext
    CGSize                                 size;
    CGRect                                 rect;
    struct  mulle_pointerarrayenumerator   rover;
-   UIView                                 *view;   
+   UIView                                 *view;
 
-   rover = mulle_pointerarray_enumerate_nil( self->_subviews);
-   while( view = _mulle_pointerarrayenumerator_next( &rover))   
+   rover = mulle_pointerarray_enumerate( self->_subviews);
+   while(  _mulle_pointerarrayenumerator_next( &rover, (void **) &view))
    {
       size = [view mulleLayoutSize];
       if( ! CGSizeEqualToSize( size, CGSizeZero))
@@ -82,20 +82,20 @@ struct UIStackViewLayoutContext
    CGSize                                 size;
    CGSize                                 area;
    struct  mulle_pointerarrayenumerator   rover;
-   UIView                                 *view;   
+   UIView                                 *view;
    int                                    axis;
    int                                    otherAxis;
 
    area      = CGSizeZero;
    axis      = _axis;
    otherAxis = ! axis;
-        
-   rover = mulle_pointerarray_enumerate_nil( self->_subviews);
-   while( view = _mulle_pointerarrayenumerator_next( &rover))   
+
+   rover = mulle_pointerarray_enumerate( self->_subviews);
+   while( _mulle_pointerarrayenumerator_next( &rover, (void **) &view))
    {
       size = [view mulleLayoutSize];
-      area.value[ otherAxis] = size.value[ otherAxis] > area.value[ otherAxis] 
-                                   ? size.value[ otherAxis] 
+      area.value[ otherAxis] = size.value[ otherAxis] > area.value[ otherAxis]
+                                   ? size.value[ otherAxis]
                                    : area.value[ otherAxis];
       area.value[ axis]     += size.value[ axis];
    }
@@ -122,8 +122,8 @@ struct UIStackViewLayoutContext
    axis = _axis;
 
    rect.size.value[ axis] = rect.size.value[ axis] / ctxt.n_views;
-   rover = mulle_pointerarray_enumerate_nil( self->_subviews);
-   while( view = _mulle_pointerarrayenumerator_next( &rover))   
+   rover = mulle_pointerarray_enumerate( self->_subviews);
+   while( _mulle_pointerarrayenumerator_next( &rover, (void **) &view))
    {
       // each view autoresizes in the bounds we divided it up for
       mask = [view autoresizingMask];
@@ -141,9 +141,9 @@ struct UIStackViewLayoutContext
 //
 // UIStackViewDistributionFill
 //
-// Basically just add views, left to right or top to bottom. If there is space 
+// Basically just add views, left to right or top to bottom. If there is space
 // left at the end, the last view will get it. If views exhaust the space, they
-// will get bounds of 0 size 
+// will get bounds of 0 size
 //
 // UIStackViewDistributionFillProportionally. Only really useful if there
 // are resizable views in there, possibly all of them
@@ -168,21 +168,21 @@ struct UIStackViewLayoutContext
       return;
 
    axis     = _axis;
-   lastView = _mulle_pointerarray_find_last( self->_subviews);
+   lastView = _mulle_pointerarray_get_last( self->_subviews);
    area     = [self areaCoveredByStackingSubviews];
    rect     = ctxt.bounds;
    factor   = 1.0;
 
-   flexBit = (axis == UILayoutConstraintAxisHorizontal) 
-                  ?  UIViewAutoresizingFlexibleWidth 
+   flexBit = (axis == UILayoutConstraintAxisHorizontal)
+                  ?  UIViewAutoresizingFlexibleWidth
                   : UIViewAutoresizingFlexibleHeight;
 
    remainder = ctxt.bounds.size.value[ axis];
    if( mode == UIStackViewDistributionFillProportionally && area.value[ axis] != 0.0)
       factor = ctxt.bounds.size.value[ axis] / area.value[ axis];
 
-   rover = mulle_pointerarray_enumerate_nil( self->_subviews);
-   while( view = _mulle_pointerarrayenumerator_next( &rover))   
+   rover = mulle_pointerarray_enumerate( self->_subviews);
+   while( _mulle_pointerarrayenumerator_next( &rover, (void **) &view))
    {
       mask = [view autoresizingMask];
       if( mask == UIViewAutoresizingNone)
@@ -194,7 +194,7 @@ struct UIStackViewLayoutContext
       size = [view mulleLayoutSize];
       switch( mode)
       {
-      case UIStackViewDistributionFillProportionally :      
+      case UIStackViewDistributionFillProportionally :
          size.value[ axis] *= factor;
          if( size.value[ axis] > remainder || view == lastView)
             rect.size.value[ axis] = remainder;
@@ -202,7 +202,7 @@ struct UIStackViewLayoutContext
             rect.size.value[ axis] = size.value[ axis];
          break;
 
-      case UIStackViewDistributionFill               :     
+      case UIStackViewDistributionFill               :
          if( mask & flexBit)
          {
             // calc space as height - height given to others
@@ -222,8 +222,8 @@ struct UIStackViewLayoutContext
 
       case MulleStackViewDistributionUnbounded :
          rect.size.value[ axis] = size.value[ axis];
-         break; 
-      }   
+         break;
+      }
 
       // each view autoresizes in the bounds we divided it up for
       [self layoutSubview:view
@@ -261,8 +261,8 @@ struct UIStackViewLayoutContext
       space = (ctxt.bounds.size.value[ axis] - area.value[ axis] - edge) / (ctxt.n_views - 1);
 
    rect = ctxt.bounds;
-   rover = mulle_pointerarray_enumerate_nil( self->_subviews);
-   while( view = _mulle_pointerarrayenumerator_next( &rover))   
+   rover = mulle_pointerarray_enumerate( self->_subviews);
+   while( _mulle_pointerarrayenumerator_next( &rover, (void **) &view))
    {
       // each view autoresizes in the bounds we divided it up for
       mask = [view autoresizingMask];
@@ -270,7 +270,7 @@ struct UIStackViewLayoutContext
          mask = ctxt.defaultMask;
 
       size                   = [view mulleLayoutSize];
-      rect.size.value[ axis] = size.value[ axis]; 
+      rect.size.value[ axis] = size.value[ axis];
       [self layoutSubview:view
                  inBounds:rect
          autoresizingMask:mask];
@@ -281,7 +281,7 @@ struct UIStackViewLayoutContext
 
 
 // UIStackViewDistributionEqualCentering
-// See: https://spin.atomicobject.com/2016/06/22/uistackview-distribution/ 
+// See: https://spin.atomicobject.com/2016/06/22/uistackview-distribution/
 // for what this does. It's probably useles
 
 - (void) layoutSubviewsEquallyCentered
@@ -304,7 +304,7 @@ struct UIStackViewLayoutContext
       return;
 
    firstView = _mulle_pointerarray_get( self->_subviews, 0);
-   lastView  = _mulle_pointerarray_find_last( self->_subviews);
+   lastView  = _mulle_pointerarray_get_last( self->_subviews);
    axis      = _axis;
    leftEdge  = [firstView mulleLayoutSize].value[ axis] / 2.0;
    rightEdge = [lastView mulleLayoutSize].value[ axis] / 2.0;
@@ -315,8 +315,8 @@ struct UIStackViewLayoutContext
 
    rect = ctxt.bounds;
    i    = 0;
-   rover = mulle_pointerarray_enumerate_nil( self->_subviews);
-   while( view = _mulle_pointerarrayenumerator_next( &rover))   
+   rover = mulle_pointerarray_enumerate( self->_subviews);
+   while( _mulle_pointerarrayenumerator_next( &rover, (void **) &view))
    {
       // each view autoresizes in the bounds we divided it up for
       mask = [view autoresizingMask];
@@ -324,11 +324,11 @@ struct UIStackViewLayoutContext
          mask = ctxt.defaultMask;
 
       size                     = [view mulleLayoutSize];
-      rect.size.value[ axis]   = size.value[ axis]; 
+      rect.size.value[ axis]   = size.value[ axis];
       rect.origin.value[ axis] = ctxt.bounds.origin.value[ axis]
-                                 + leftEdge 
-                                 + (space * i) 
-                                 - rect.size.value[ axis] / 2; 
+                                 + leftEdge
+                                 + (space * i)
+                                 - rect.size.value[ axis] / 2;
       [self layoutSubview:view
                  inBounds:rect
          autoresizingMask:mask];
@@ -340,7 +340,7 @@ struct UIStackViewLayoutContext
 
 //
 // layout in row, column fashion. The views need to be fixed size currently
-// 
+//
 - (void) layoutSubviewsFillRowColumn
 {
    CGRect                                bounds;
@@ -367,8 +367,8 @@ struct UIStackViewLayoutContext
    rowBounds     = bounds;
    column        = 0;
 
-   rover  = mulle_pointerarray_enumerate_nil( self->_subviews);
-   while( view = _mulle_pointerarrayenumerator_next( &rover))   
+   rover  = mulle_pointerarray_enumerate( self->_subviews);
+   while( _mulle_pointerarrayenumerator_next( &rover, (void **) &view))
    {
       frame = [view frame];
       if( frame.size.value[ axis] > rowBounds.size.value[ axis] - (column ? spacing.value[ axis] : 0))
@@ -394,7 +394,7 @@ struct UIStackViewLayoutContext
                  inBounds:rect
          autoresizingMask:MulleUIViewAutoresizingStickToTop|MulleUIViewAutoresizingStickToLeft];
 
-      // advance preshrunk remaining row 
+      // advance preshrunk remaining row
       rowBounds.origin.value[ axis] += frame.size.value[ axis] + spacing.value[ axis];
       rowBounds.size.value[ axis]   -= frame.size.value[ axis] + spacing.value[ axis];
       rowHeight                      = frame.size.value[ otherAxis] > rowHeight ? frame.size.value[ otherAxis] : rowHeight;

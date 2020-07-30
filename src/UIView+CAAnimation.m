@@ -7,7 +7,7 @@
 
 @implementation UIView ( CAAnimation)
 
-enum 
+enum
 {
    UIViewAnimationIdle,
    UIViewAnimationStarted,
@@ -15,7 +15,7 @@ enum
 };
 
 
-static struct 
+static struct
 {
    mulle_thread_mutex_t        _lock;
 
@@ -49,33 +49,33 @@ static inline void   SelfUnlock()
 }
 
 
-+ (void) load 
++ (void) load
 {
    mulle_thread_mutex_init( &Self._lock);
-   _mulle_pointerarray_init( &Self._animatedLayers, 16, 0, NULL);
+   _mulle_pointerarray_init( &Self._animatedLayers, 16, NULL);
 }
 
-+ (void) unload 
++ (void) unload
 {
    _mulle_pointerarray_done( &Self._animatedLayers);
    mulle_thread_mutex_done( &Self._lock);
 }
 
-+ (void) beginAnimations:(char *) animationID 
++ (void) beginAnimations:(char *) animationID
                  context:(void *) context
 {
    assert( _mulle_atomic_pointer_read( &Self._animationState) == NULL);
-   
+
    SelfLock();
    {
       mulle_free( Self._animationID);
 
       Self._animationID       = animationID ? mulle_strdup( animationID) : NULL;
       Self._context           = context;
-      _mulle_atomic_pointer_nonatomic_write( &Self._animationState, 
+      _mulle_atomic_pointer_nonatomic_write( &Self._animationState,
                                             (void *) (intptr_t)  UIViewAnimationStarted);
       _mulle_pointerarray_done( &Self._animatedLayers);
-      _mulle_pointerarray_init( &Self._animatedLayers, 16, 0, NULL);
+      _mulle_pointerarray_init( &Self._animatedLayers, 16, NULL);
 
       // reset everything to default values or ?
       Self._animationDelay              = 0.0;
@@ -87,7 +87,7 @@ static inline void   SelfUnlock()
       Self._animationDidStopSelector    = 0;
    }
    SelfUnlock();
-}                 
+}
 
 + (void) commitAnimations
 {
@@ -100,16 +100,16 @@ static inline void   SelfUnlock()
    SEL                                   willStart;
    SEL                                   didEnd;
    MulleAnimationDelegate                *animationDelegate;
-   
+
    assert( _mulle_atomic_pointer_read( &Self._animationState) == (void *) (intptr_t) UIViewAnimationStarted);
 
    SelfLock();
    {
-      _mulle_atomic_pointer_nonatomic_write( &Self._animationState, 
+      _mulle_atomic_pointer_nonatomic_write( &Self._animationState,
                                             (void *) (intptr_t)  UIViewAnimationCommitting);
 
       memcpy( &tmp, &Self._animatedLayers, sizeof( struct mulle_pointerarray));
-      _mulle_pointerarray_init( &Self._animatedLayers, 16, 0, NULL);
+      _mulle_pointerarray_init( &Self._animatedLayers, 16, NULL);
       animationID       = Self._animationID;
       Self._animationID = NULL;
       context           = Self._context;
@@ -135,8 +135,8 @@ static inline void   SelfUnlock()
       [animationDelegate setAnimationDidStopSelector:didEnd];
    }
 
-   rover = mulle_pointerarray_enumerate_nil( &tmp);
-   while( (layer = _mulle_pointerarrayenumerator_next( &rover)))
+   rover = mulle_pointerarray_enumerate( &tmp);
+   while( _mulle_pointerarrayenumerator_next( &rover, (void **) &layer))
    {
       [layer commitImplicitAnimationsWithAnimationID:animationID
                                    animationDelegate:animationDelegate];
@@ -148,22 +148,22 @@ static inline void   SelfUnlock()
 
    //
    // TODO: we need a special kind of animation that is actually just calling
-   //       the delegate at appropriate times. This animation needs to be 
-   //       part of a layer ? Window layer ? Or some completely different 
+   //       the delegate at appropriate times. This animation needs to be
+   //       part of a layer ? Window layer ? Or some completely different
    //       mechanism ?
    //
 
    // return to idle
-   _mulle_atomic_pointer_write( &Self._animationState, 
+   _mulle_atomic_pointer_write( &Self._animationState,
                                (void *) (intptr_t)  UIViewAnimationIdle);
-}                 
+}
 
 BOOL   UIViewAreAnimationsEnabled( void)
 {
    void  *state;
 
    state = _mulle_atomic_pointer_read( &Self._animationState);
-   return( state != NULL);   
+   return( state != NULL);
 }
 
 
@@ -182,8 +182,8 @@ BOOL   UIViewAreAnimationsEnabled( void)
 
    SelfLock();
    {
-      assert( _mulle_pointerarray_find( &Self._animatedLayers, layer) == -1);
-      _mulle_pointerarray_add( &Self._animatedLayers, layer);   
+      assert( _mulle_pointerarray_find( &Self._animatedLayers, layer) == mulle_not_found_e);
+      _mulle_pointerarray_add( &Self._animatedLayers, layer);
    }
    SelfUnlock();
 }
@@ -199,7 +199,7 @@ BOOL   UIViewAreAnimationsEnabled( void)
    {
       value = Self._delegate;
    }
-   SelfUnlock();   
+   SelfUnlock();
    return( value);
 }
 
@@ -211,7 +211,7 @@ BOOL   UIViewAreAnimationsEnabled( void)
    {
       value = Self._animationDidStopSelector;
    }
-   SelfUnlock();   
+   SelfUnlock();
    return( value);
 }
 
@@ -223,7 +223,7 @@ BOOL   UIViewAreAnimationsEnabled( void)
    {
       value = Self._animationWillStartSelector;
    }
-   SelfUnlock();   
+   SelfUnlock();
    return( value);
 }
 
@@ -234,7 +234,7 @@ BOOL   UIViewAreAnimationsEnabled( void)
    {
       Self._delegate = value;
    }
-   SelfUnlock();   
+   SelfUnlock();
 }
 
 
@@ -244,7 +244,7 @@ BOOL   UIViewAreAnimationsEnabled( void)
    {
       Self._animationDidStopSelector = value;
    }
-   SelfUnlock();   
+   SelfUnlock();
 }
 
 
@@ -254,7 +254,7 @@ BOOL   UIViewAreAnimationsEnabled( void)
    {
       Self._animationWillStartSelector = value;
    }
-   SelfUnlock();   
+   SelfUnlock();
 }
 
 
@@ -270,7 +270,7 @@ BOOL   UIViewAreAnimationsEnabled( void)
    {
       value = Self._animationDelay;
    }
-   SelfUnlock();   
+   SelfUnlock();
    return( value);
 }
 
@@ -281,7 +281,7 @@ BOOL   UIViewAreAnimationsEnabled( void)
    {
       Self._animationDelay = delay;
    }
-   SelfUnlock();   
+   SelfUnlock();
 }
 
 + (CARelativeTime) animationDuration
@@ -292,7 +292,7 @@ BOOL   UIViewAreAnimationsEnabled( void)
    {
       value = Self._animationDuration;
    }
-   SelfUnlock();   
+   SelfUnlock();
    return( value);
 }
 
@@ -303,7 +303,7 @@ BOOL   UIViewAreAnimationsEnabled( void)
    {
       Self._animationDuration = duration;
    }
-   SelfUnlock();   
+   SelfUnlock();
 }
 
 
@@ -315,7 +315,7 @@ BOOL   UIViewAreAnimationsEnabled( void)
    {
       value = Self._animationCurve;
    }
-   SelfUnlock();   
+   SelfUnlock();
    return( value);
 }
 
@@ -326,7 +326,7 @@ BOOL   UIViewAreAnimationsEnabled( void)
    {
       Self._animationCurve = value;
    }
-   SelfUnlock();   
+   SelfUnlock();
 }
 
 
@@ -338,7 +338,7 @@ BOOL   UIViewAreAnimationsEnabled( void)
    {
       value = Self._animationReverses;
    }
-   SelfUnlock();   
+   SelfUnlock();
    return( value);
 }
 
@@ -349,7 +349,7 @@ BOOL   UIViewAreAnimationsEnabled( void)
    {
       Self._animationReverses = flag;
    }
-   SelfUnlock();   
+   SelfUnlock();
 }
 
 // incompatible
@@ -361,7 +361,7 @@ BOOL   UIViewAreAnimationsEnabled( void)
    {
       value = Self._animationRepeatCount;
    }
-   SelfUnlock();   
+   SelfUnlock();
    return( value);
 }
 
@@ -372,7 +372,7 @@ BOOL   UIViewAreAnimationsEnabled( void)
    {
       Self._animationRepeatCount = value < 0.0 ? -1.0 : value;
    }
-   SelfUnlock();   
+   SelfUnlock();
 }
 
 
@@ -385,7 +385,7 @@ BOOL   UIViewAreAnimationsEnabled( void)
    {
       value = Self._animationRepeatCount != 0.0;
    }
-   SelfUnlock();   
+   SelfUnlock();
    return( value);
 }
 
@@ -396,7 +396,7 @@ BOOL   UIViewAreAnimationsEnabled( void)
    {
       Self._animationRepeatCount = flag ? -1.0 : 0.0;
    }
-   SelfUnlock();   
+   SelfUnlock();
 }
 
 @end

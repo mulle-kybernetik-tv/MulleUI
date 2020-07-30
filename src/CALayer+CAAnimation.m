@@ -19,7 +19,7 @@ struct property_animation_context
 
 
 // returns 0 on match
-static inline int   string_matcher( char *s, char *other, size_t other_len)  
+static inline int   string_matcher( char *s, char *other, size_t other_len)
 {
    if( strlen( s) != other_len)
       return( 1);
@@ -50,7 +50,7 @@ static void   animate_bool_property( struct _mulle_objc_property *property,
    [animation setAnimationDelegate:ctx->animationDelegate];
    [ctx->self addAnimation:animation];
 
-   // reset to start position 
+   // reset to start position
    MulleObjectSetBOOL( ctx->self, setter, startValue);
 }
 
@@ -78,7 +78,7 @@ static void   animate_integer_property( struct _mulle_objc_property *property,
    [animation setAnimationDelegate:ctx->animationDelegate];
    [ctx->self addAnimation:animation];
 
-   // reset to start position 
+   // reset to start position
    MulleObjectSetNSInteger( ctx->self, setter, startValue);
 }
 
@@ -106,7 +106,7 @@ static void   animate_float_property( struct _mulle_objc_property *property,
    [animation setAnimationDelegate:ctx->animationDelegate];
    [ctx->self addAnimation:animation];
 
-   // reset to start position 
+   // reset to start position
    MulleObjectSetCGFloat( ctx->self, setter, startValue);
 }
 
@@ -121,24 +121,24 @@ static void   animate_point_property( struct _mulle_objc_property *property,
 
    getter     = mulle_objc_property_get_getter( property);
    startPoint = MulleObjectGetCGPoint( ctx->snapshot, getter);
-   endPoint   = MulleObjectGetCGPoint( ctx->self, getter);    
+   endPoint   = MulleObjectGetCGPoint( ctx->self, getter);
    if( ! CGPointEqualToPoint( startPoint, endPoint))
    {
       setter    = mulle_objc_property_get_setter( property);
-      animation = [[[CAAnimation alloc] initWithPropertySetter:setter 
+      animation = [[[CAAnimation alloc] initWithPropertySetter:setter
                                                      startPoint:startPoint
                                                        endPoint:endPoint
                                                        options:ctx->animationOptions] autorelease];
       [animation setAnimationDelegate:ctx->animationDelegate];
       [ctx->self addAnimation:animation];
 
-      // reset to start position 
+      // reset to start position
       // this should work and not trigger another willChange action, as willChange
       // will see the existing snapshot in the layer and do nothing
       // STILL it would be nicer to do this more stealthily by setting the ivar
       // directly
       MulleObjectSetCGPoint( ctx->self, setter, startPoint);
-   }  
+   }
 }
 
 
@@ -153,24 +153,24 @@ static void   animate_size_property( struct _mulle_objc_property *property,
 
    getter    = mulle_objc_property_get_getter( property);
    startSize = MulleObjectGetCGSize( ctx->snapshot, getter);
-   endSize   = MulleObjectGetCGSize( ctx->self, getter);    
+   endSize   = MulleObjectGetCGSize( ctx->self, getter);
    if( ! CGSizeEqualToSize( startSize, endSize))
    {
       setter    = mulle_objc_property_get_setter( property);
-      animation = [[[CAAnimation alloc] initWithPropertySetter:setter 
+      animation = [[[CAAnimation alloc] initWithPropertySetter:setter
                                                      startSize:startSize
                                                        endSize:endSize
                                                        options:ctx->animationOptions] autorelease];
       [animation setAnimationDelegate:ctx->animationDelegate];
       [ctx->self addAnimation:animation];
 
-      // reset to start position 
+      // reset to start position
       // this should work and not trigger another willChange action, as willChange
       // will see the existing snapshot in the layer and do nothing
       // STILL it would be nicer to do this more stealthily by setting the ivar
       // directly
       MulleObjectSetCGSize( ctx->self, setter, startSize);
-   }  
+   }
 }
 
 
@@ -185,24 +185,24 @@ static void   animate_rect_property( struct _mulle_objc_property *property,
 
    getter    = mulle_objc_property_get_getter( property);
    startRect = MulleObjectGetCGRect( ctx->snapshot, getter);
-   endRect   = MulleObjectGetCGRect( ctx->self, getter);    
+   endRect   = MulleObjectGetCGRect( ctx->self, getter);
    if( ! CGRectEqualToRect( startRect, endRect))
    {
       setter    = mulle_objc_property_get_setter( property);
-      animation = [[[CAAnimation alloc] initWithPropertySetter:setter 
+      animation = [[[CAAnimation alloc] initWithPropertySetter:setter
                                                      startRect:startRect
                                                        endRect:endRect
                                                        options:ctx->animationOptions] autorelease];
       [animation setAnimationDelegate:ctx->animationDelegate];
       [ctx->self addAnimation:animation];
 
-      // reset to start position 
+      // reset to start position
       // this should work and not trigger another willChange action, as willChange
       // will see the existing snapshot in the layer and do nothing
       // STILL it would be nicer to do this more stealthily by setting the ivar
       // directly
       MulleObjectSetCGRect( ctx->self, setter, startRect);
-   }  
+   }
 }
 
 
@@ -217,24 +217,24 @@ static void   animate_insets_property( struct _mulle_objc_property *property,
 
    getter     = mulle_objc_property_get_getter( property);
    startInsets = MulleObjectGetEdgeInsets( ctx->snapshot, getter);
-   endInsets   = MulleObjectGetEdgeInsets( ctx->self, getter);    
+   endInsets   = MulleObjectGetEdgeInsets( ctx->self, getter);
    if( ! MulleEdgeInsetsEqualToEdgeInsets( startInsets, endInsets))
    {
       setter    = mulle_objc_property_get_setter( property);
-      animation = [[[CAAnimation alloc] initWithPropertySetter:setter 
+      animation = [[[CAAnimation alloc] initWithPropertySetter:setter
                                                startEdgeInsets:startInsets
                                                  endEdgeInsets:endInsets
                                                        options:ctx->animationOptions] autorelease];
       [animation setAnimationDelegate:ctx->animationDelegate];
       [ctx->self addAnimation:animation];
 
-      // reset to start position 
+      // reset to start position
       // this should work and not trigger another willChange action, as willChange
       // will see the existing snapshot in the layer and do nothing
       // STILL it would be nicer to do this more stealthily by setting the ivar
       // directly
       MulleObjectSetEdgeInsets( ctx->self, setter, startInsets);
-   }  
+   }
 }
 
 
@@ -243,26 +243,26 @@ static void   animate_color_property( struct _mulle_objc_property *property,
 {
    CAAnimation   *animation;
    CGColorRef    startColor;
-   CGColorRef    endColor;  
+   CGColorRef    endColor;
    SEL           getter;
    SEL           setter;
 
    getter      = mulle_objc_property_get_getter( property);
    startColor = MulleObjectGetCGColorRef( ctx->snapshot, getter);
-   endColor   = MulleObjectGetCGColorRef( ctx->self, getter);    
+   endColor   = MulleObjectGetCGColorRef( ctx->self, getter);
 
    if( CGColorEqualToColor( startColor,  endColor))
       return;
 
    setter    = mulle_objc_property_get_setter( property);
-   animation = [[[CAAnimation alloc] initWithPropertySetter:setter 
+   animation = [[[CAAnimation alloc] initWithPropertySetter:setter
                                                  startColor:startColor
                                                    endColor:endColor
                                                     options:ctx->animationOptions] autorelease];
    [animation setAnimationDelegate:ctx->animationDelegate];
    [ctx->self addAnimation:animation];
 
-   // reset to start position 
+   // reset to start position
    MulleObjectSetCGColorRef( ctx->self, setter, startColor);
 }
 
@@ -270,7 +270,7 @@ static void   animate_color_property( struct _mulle_objc_property *property,
 @implementation CALayer( CAAnimation)
 
 
-static mulle_objc_walkcommand_t   
+static mulle_objc_walkcommand_t
    walkproperties_callback( struct _mulle_objc_property *property,
                             struct _mulle_objc_infraclass *infra,
                             void *userinfo)
@@ -295,20 +295,20 @@ static mulle_objc_walkcommand_t
    {
    default           : return( mulle_objc_walk_ok); // warn ????
 
-   case _C_BOOL      : animate_bool_property( property, ctx); 
+   case _C_BOOL      : animate_bool_property( property, ctx);
                        return( mulle_objc_walk_ok);
-   case _C_LNG       : if( sizeof( long) == sizeof( NSInteger)) 
-                          animate_integer_property( property, ctx); 
+   case _C_LNG       : if( sizeof( long) == sizeof( NSInteger))
+                          animate_integer_property( property, ctx);
                        return( mulle_objc_walk_ok);
-   case _C_LNG_LNG   : if( sizeof( long long) == sizeof( NSInteger)) 
-                          animate_integer_property( property, ctx); 
+   case _C_LNG_LNG   : if( sizeof( long long) == sizeof( NSInteger))
+                          animate_integer_property( property, ctx);
                        return( mulle_objc_walk_ok);
 
    case _C_FLT       : if( sizeof( float) == sizeof( CGFloat))
-                          animate_float_property( property, ctx); 
+                          animate_float_property( property, ctx);
                        return( mulle_objc_walk_ok);
    case _C_DBL       : if( sizeof( double) == sizeof( CGFloat))
-                          animate_float_property( property, ctx); 
+                          animate_float_property( property, ctx);
                        return( mulle_objc_walk_ok);
    case _C_STRUCT_B  : // default code
       break;
@@ -341,7 +341,7 @@ static mulle_objc_walkcommand_t
    case 'R' : if( ! string_matcher( "CGRect", name_b, name_len))
                   animate_rect_property( property, ctx);
              return( mulle_objc_walk_ok);
-   }   
+   }
 
    return( mulle_objc_walk_ok);
 }
@@ -374,7 +374,7 @@ static mulle_objc_walkcommand_t
 {
    assert( animation);
 
-   assert( _mulle_pointerarray_find( &_animations, animation) == -1);
+   assert( _mulle_pointerarray_find( &_animations, animation) == mulle_not_found_e);
    _mulle_pointerarray_add( &_animations, animation);
 }
 
@@ -384,13 +384,13 @@ static mulle_objc_walkcommand_t
    struct mulle_pointerarrayenumerator   rover;
    CAAnimation                           *animation;
 
-   rover = mulle_pointerarray_enumerate_nil( &_animations);
-   while( (animation = _mulle_pointerarrayenumerator_next( &rover)))
+   rover = mulle_pointerarray_enumerate( &_animations);
+   while( _mulle_pointerarrayenumerator_next( &rover, (void **) &animation))
       [animation autorelease];
-   mulle_pointerarrayenumerator_done( &rover); 
+   mulle_pointerarrayenumerator_done( &rover);
 
    _mulle_pointerarray_done( &_animations);
-   _mulle_pointerarray_init( &_animations, 16, 0, NULL);
+   _mulle_pointerarray_init( &_animations, 16, NULL);
 }
 
 
@@ -414,11 +414,11 @@ static mulle_objc_walkcommand_t
    fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
 #endif
 
-   rover = mulle_pointerarray_enumerate_nil( &_animations);
-   while( (animation = _mulle_pointerarrayenumerator_next( &rover)))
+   rover = mulle_pointerarray_enumerate( &_animations);
+   while( _mulle_pointerarrayenumerator_next( &rover, (void **) &animation))
       [animation animateLayer:self
                  absoluteTime:renderTime];
-   mulle_pointerarrayenumerator_done( &rover);   
+   mulle_pointerarrayenumerator_done( &rover);
 }
 
 
@@ -428,22 +428,22 @@ MulleQuadratic   CALayerQuadraticForCurveType( NSUInteger curvetype)
 
    switch( [UIView animationCurve])
    {
-   case UIViewAnimationCurveEaseInOut: 
+   case UIViewAnimationCurveEaseInOut:
       MulleQuadraticInit( &quadratic, 0.0, 0.025, 1.0 - 0.025, 1.0);
       break;
-      
-   case UIViewAnimationCurveEaseOut: 
+
+   case UIViewAnimationCurveEaseOut:
       MulleQuadraticInit( &quadratic, 0.0, 0.9, 0.9, 1.0);
       break;
 
-   case UIViewAnimationCurveEaseIn: 
+   case UIViewAnimationCurveEaseIn:
       MulleQuadraticInit( &quadratic, 0.0, 0.0, 0.1, 1.0);
       break;
 
    default :
       MulleQuadraticInit( &quadratic, 0.0, 0.333, 0.666, 1.0);
       break;
-   }   
+   }
 
    return( quadratic);
 }
@@ -479,7 +479,7 @@ MulleQuadratic   CALayerQuadraticForCurveType( NSUInteger curvetype)
                            animationOptions:&options];
 
    [_snapshot autorelease];
-   _snapshot = nil;  
+   _snapshot = nil;
 }
 
 @end

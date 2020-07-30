@@ -7,6 +7,10 @@ struct MulleFrameInfo;
 typedef UIView   MulleWindowPlane;
 
 
+//
+// TODO: firstResponder needed for UITextField to gain keyboard
+//       focus immediately
+//
 @interface UIWindow : UIView
 {
    void               *_window;            // GLFWwindow
