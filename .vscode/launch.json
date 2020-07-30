@@ -9,7 +9,7 @@
             "MIMode": "gdb",
             "request": "launch",
             "stopAtEntry": false,
-            "program": "${workspaceFolder}/kitchen/Debug/jspiechart",
+            "program": "${workspaceFolder}/kitchen/Debug/textfield",
             "args": [],
             "environment": [],
             "cwd": "${workspaceFolder}",

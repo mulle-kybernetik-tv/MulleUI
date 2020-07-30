@@ -1,4 +1,4 @@
-mulle-objc/vscode-objc-developer;meta
+mulle-objc/objc-developer;meta
 mulle-objc/objc;runtime
 mulle-c/c;runtime
 mulle-sde/c;runtime
@@ -7,6 +7,9 @@ mulle-objc/objc-cmake;buildtool
 mulle-c/c-cmake;buildtool
 mulle-sde/c-cmake;buildtool
 mulle-sde/cmake;buildtool
+mulle-sde/c-demo;extra
+mulle-c/c-demo;extra
+mulle-objc/objc-demo;extra
 mulle-objc/vscode-clang;extra
 mulle-sde/vscode-clang;extra
 mulle-sde/vscode;extra
