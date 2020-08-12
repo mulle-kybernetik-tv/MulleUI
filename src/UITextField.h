@@ -47,5 +47,17 @@ UIControlProperties;
 - (CGRect) mulleInsetTextLayerFrameWithFrame:(CGRect) frame;
 
 - (void) insertCharacter:(unichar) c;
+- (NSUInteger) maxCursorPosition;
+
+- (void) paste;
 
 @end
+
+
+@interface UITextField ( Forward)
+
+@property( assign) NSUInteger  cursorPosition;
+
+@end
+
+

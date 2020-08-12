@@ -14,13 +14,10 @@
 @property( assign) int   fontIndex;  // NVG index
 
 + (instancetype) fontWithName:(char *) name
-                        bytes:(void *) bytes
-                       length:(NSUInteger) length
-                      context:(CGContext *) context;
+                    fontIndex:(int)fontIndex;
                      
 - (instancetype) initWithName:(char *) name
-                        bytes:(void *) bytes
-                       length:(NSUInteger) length
-                      context:(CGContext *) context;
+                    fontIndex:(int)fontIndex;
+
 
 @end

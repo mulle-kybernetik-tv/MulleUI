@@ -62,10 +62,10 @@
 
 - (id) initWithWindow:(UIWindow *) window
         mousePosition:(CGPoint) pos
+            modifiers:(int) mods
                   key:(int) key
              scanCode:(int) scanCode
                action:(int) action
-            modifiers:(int) mods
 {
    self = [self initWithWindow:window
                  mousePosition:pos
@@ -86,6 +86,33 @@
 @end
 
 
+
+// Receive a OS unicode character (w/o key press)
+@implementation UIUnicodeEvent
+
+- (id) initWithWindow:(UIWindow *) window
+        mousePosition:(CGPoint) pos
+            modifiers:(int) mods
+            character:(int) character
+{
+   self = [self initWithWindow:window
+                 mousePosition:pos
+                     modifiers:mods];
+
+   _character = character;
+
+   return( self);
+}
+
+- (UIEventType) eventType
+{
+   return( UIEventTypeUnicode);
+}
+
+            
+@end
+
+
 @implementation UIMouseMotionEvent 
 
 - (UIEventType) eventType
@@ -96,8 +123,8 @@
 
 - (id) initWithWindow:(UIWindow *) window
         mousePosition:(CGPoint) pos
-         buttonStates:(uint64_t) buttonStates
             modifiers:(int) mods
+         buttonStates:(uint64_t) buttonStates
 {
    self = [self initWithWindow:window
                  mousePosition:pos
@@ -115,9 +142,9 @@
 
 - (id) initWithWindow:(UIWindow *) window
         mousePosition:(CGPoint) pos
+            modifiers:(int) mods
                button:(int) button
                action:(int) action 
-            modifiers:(int) mods
 {
    self = [self initWithWindow:window
                  mousePosition:pos
@@ -165,8 +192,8 @@ static struct
 
 - (id) initWithWindow:(UIWindow *) window
         mousePosition:(CGPoint) pos
-         scrollOffset:(CGPoint) scrollOffset 
             modifiers:(int) mods
+         scrollOffset:(CGPoint) scrollOffset 
 {
    self = [self initWithWindow:window
                  mousePosition:pos

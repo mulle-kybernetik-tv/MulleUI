@@ -39,7 +39,7 @@ if( EXECUTABLE_NAME)
    if( CREATE_MOTD_EXE)
       if( NOT TARGET "__cleanmotd__")
          add_custom_target( "__cleanmotd__" ALL
-            COMMAND "rm" "${CMAKE_BINARY_DIR}/.motd"
+            COMMAND "test" "!" "-f" "${CMAKE_BINARY_DIR}/.motd" "||" "rm" "${CMAKE_BINARY_DIR}/.motd"
             COMMENT "Remove old motd file for mulle-craft"
             VERBATIM
          )

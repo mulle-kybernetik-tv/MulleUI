@@ -188,6 +188,17 @@
    sel   = 0;
    switch( [event action])
    {
+   case GLFW_REPEAT  :  // do keyUp: and keyDown:
+      sel = @selector( keyUp:);
+      if( sel && [self respondsToSelector:sel])
+      {
+         // keep GLFW_REPEAT as action, don't create new event
+         // event return value ignored,as to not accidentally prohibit keyDown:
+         [self performSelector:sel
+                    withObject:event];
+      }
+      // fall thru
+
    case GLFW_PRESS   :
       sel = @selector( keyDown:);
       break;
@@ -219,6 +230,25 @@
 
    return( event);
 }
+
+
+- (UIEvent *) handleUnicodeEvent:(UIUnicodeEvent *) event
+{
+   uint64_t   state;
+   SEL        sel;
+
+   sel = @selector( unicodeCharacter:);
+   if( [self respondsToSelector:sel])
+   {
+      event = [self performSelector:sel
+                         withObject:event];
+   }
+#ifdef EVENT_DEBUG
+   fprintf( stderr, "event %p\n", event);
+#endif
+   return( event);
+}
+
 
 
 // flat, doesn't recurse
@@ -254,6 +284,10 @@
    {
    case UIEventTypePresses :
       event = [self handleKeyboardEvent:(UIKeyboardEvent *) event];
+      break;
+
+   case UIEventTypeUnicode :
+      event = [self handleUnicodeEvent:(UIUnicodeEvent *) event];
       break;
 
    case UIEventTypeTouches :
@@ -381,7 +415,7 @@
          break;
       }
 #ifdef EVENT_DEBUG
-      fprintf( stderr, "Responder %s did not consume event, try next\n", [responder cStringDescription]);
+      fprintf( stderr, "Responder %s did not consume event, try next\n", (char *) [responder cStringDescription]);
 #endif
       responder = [responder nextResponder];
    }

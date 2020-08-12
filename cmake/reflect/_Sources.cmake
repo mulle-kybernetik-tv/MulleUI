@@ -96,6 +96,7 @@ src/UIEvent.m
 src/UIFont.m
 src/UIImage.m
 src/UILabel.m
+src/UIPasteboard.m
 src/UIResponder.m
 src/UIScrollView+UIEvent.m
 src/UIScrollView.m
@@ -115,6 +116,7 @@ src/UIView+UIResponder.m
 src/UIView.m
 src/UIWindow+CGGeometry.m
 src/UIWindow+UIEvent.m
+src/UIWindow+UIPasteboard.m
 src/UIWindow+UIResponder.m
 src/UIWindow.m
 src/YogaKit/UIView+Yoga.m

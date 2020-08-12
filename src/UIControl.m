@@ -230,6 +230,12 @@ PROTOCOLCLASS_IMPLEMENTATION( UIControl)
 }
 
 
+- (BOOL) shouldProcessUnicodeEvent:(UIEvent *) event
+{
+   return( [self shouldProcessKeyEvent:event]);
+}
+
+
 
 // if we don't want it, pass it up i guess
 - (UIEvent *) consumeKeyUp:(UIEvent *) event
@@ -273,6 +279,29 @@ PROTOCOLCLASS_IMPLEMENTATION( UIControl)
 
    [self becomeFirstResponder];
    event = [self consumeKeyDown:event];
+   return( event);
+}
+
+
+
+// if we don't want it, pass it up i guess
+- (UIEvent *) consumeUnicodeCharacter:(UIEvent *) event
+{
+   return( nil);
+}
+
+
+- (UIEvent *) unicodeCharacter:(UIEvent *) event
+{
+#ifdef LOG_EVENTS   
+   fprintf( stderr, "%s: %s\n", __PRETTY_FUNCTION__, [(UIView *) self cStringDescription]);
+#endif
+
+	if( ! [self shouldProcessUnicodeEvent:event])
+	   return( event);   
+
+   [self becomeFirstResponder];
+   event = [self consumeUnicodeCharacter:event];
    return( event);
 }
 

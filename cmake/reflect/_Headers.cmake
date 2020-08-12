@@ -122,6 +122,7 @@ src/UIEvent.h
 src/UIFont.h
 src/UIImage.h
 src/UILabel.h
+src/UIPasteboard.h
 src/UIResponder.h
 src/UIScrollView+UIEvent.h
 src/UIScrollView.h
@@ -141,6 +142,7 @@ src/UIView+UIResponder.h
 src/UIView.h
 src/UIWindow+CGGeometry.h
 src/UIWindow+UIEvent.h
+src/UIWindow+UIPasteboard.h
 src/UIWindow+UIResponder.h
 src/UIWindow.h
 src/YogaKit/UIView+Yoga.h
@@ -148,6 +150,7 @@ src/YogaKit/YGLayout.h
 src/YogaKit/YogaProtocol.h
 src/anonymous-pro.inc
 src/bmp-writer.h
+src/emoji.inc
 src/entypo.inc
 src/import.h
 src/include.h

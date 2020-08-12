@@ -10,10 +10,11 @@
 // bits suitable or bitmasking
 typedef enum
 {
-   UIEventTypePresses = 0x1,  // Keyboard
-   UIEventTypeTouches = 0x2,  // Mouse click
-   UIEventTypeMotion  = 0x4,  // Mouse movemeent
-   UIEventTypeScroll  = 0x8   // Mouse Scrollwheel
+   UIEventTypePresses = 0x01,  // Keyboard
+   UIEventTypeUnicode = 0x02,  // Unicode char (interpreted Keyboard)
+   UIEventTypeTouches = 0x04,  // Mouse click
+   UIEventTypeMotion  = 0x08,  // Mouse movemeent
+   UIEventTypeScroll  = 0x10   // Mouse Scrollwheel
 } UIEventType;
 
 
@@ -66,10 +67,23 @@ typedef enum
 
 - (id) initWithWindow:(UIWindow *) window
         mousePosition:(CGPoint) pos
+            modifiers:(int) mods
                   key:(int) key
              scanCode:(int) scanCode
-               action:(int) action
-            modifiers:(int) mods;
+               action:(int) action;
+@end
+
+
+// Receive a OS unicode character (w/o key press)
+@interface UIUnicodeEvent : UIEvent
+
+@property( assign, readonly) int   character;
+
+- (id) initWithWindow:(UIWindow *) window
+        mousePosition:(CGPoint) pos
+            modifiers:(int) mods
+            character:(int) key;
+
 @end
 
 
@@ -80,9 +94,9 @@ typedef enum
 
 - (id) initWithWindow:(UIWindow *) window
         mousePosition:(CGPoint) pos
+            modifiers:(int) mods
                button:(int) button
-               action:(int) action 
-            modifiers:(int) mods;
+               action:(int) action;
                   
 
 @end
@@ -92,8 +106,8 @@ typedef enum
 
 - (id) initWithWindow:(UIWindow *) window
         mousePosition:(CGPoint) pos
-         buttonStates:(uint64_t) buttonStates
-            modifiers:(int) mods;
+            modifiers:(int) mods
+         buttonStates:(uint64_t) buttonStates;
 
 @property( assign, readonly) int   buttonStates;
 
@@ -104,8 +118,8 @@ typedef enum
 
 - (id) initWithWindow:(UIWindow *) window
         mousePosition:(CGPoint) pos
-         scrollOffset:(CGPoint) offset
-            modifiers:(int) mods;
+            modifiers:(int) mods
+         scrollOffset:(CGPoint) offset;
 
 @property( assign, readonly) CGPoint   scrollOffset;
 

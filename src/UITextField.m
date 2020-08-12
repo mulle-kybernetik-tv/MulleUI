@@ -66,6 +66,7 @@
    return( layer);
 }
 
+
 - (void) setupLayersWithFrame:(CGRect) frame
 {
    Class   cls;
@@ -179,39 +180,106 @@
 }
 
 
+
+//
+// super lame: convert cursor position to UTF8 character index in string
+//
+static int  characterOffsetForCursorPosition( char *s, NSUInteger pos)
+{
+   unsigned char  *p;
+   
+	for( p = (unsigned char *) s; *p;) 
+   {
+      if( ! pos)
+         break;
+
+      _mulle_utf8_next_utf32character( &p);
+      --pos;
+   }
+   return( (int) ((char *) p - s));
+}
+
+
+- (NSUInteger) maxCursorPosition
+{
+   unsigned char  *p;
+   NSUInteger     pos;
+
+   pos = 0;
+   p   = (unsigned char *) [self cString];
+   while( *p) 
+   {
+      _mulle_utf8_next_utf32character( &p);
+      ++pos;
+   }
+   return( pos);
+}
+
+
+
 - (void) insertCharacter:(unichar) c
 {
    char         *s;
    NSUInteger   cursorPosition;
+   int          pos;
 
    s              = [self cString];
    cursorPosition = [self cursorPosition];
+   pos            = characterOffsetForCursorPosition( s, cursorPosition);
+
+
    s = MulleObjC_asprintf( "%.*s%C%s", 
-               (int) cursorPosition, 
+               (int) pos, 
                s, 
                c, 
-               &s[ cursorPosition]);
+               &s[ pos]);
    [self setCString:s];
    [self setCursorPosition:cursorPosition+1];
 }
 
+
+// cursor position is in Unicode characters...
 - (void) backspaceCharacter
 {
    char         *s;
    NSUInteger   cursorPosition;
+   int          pos1;
+   int          pos2;
 
    s              = [self cString];
    cursorPosition = [self cursorPosition];
    if( ! cursorPosition)
       return;
+     
+   pos1 = characterOffsetForCursorPosition( s, cursorPosition - 1);
+   pos2 = characterOffsetForCursorPosition( s, cursorPosition);
 
    s = MulleObjC_asprintf( "%.*s%s", 
-               (int) cursorPosition - 1, 
+               (int) pos1, 
                s, 
-               &s[ cursorPosition]);
+               &s[ pos2]);
    [self setCString:s];
    [self setCursorPosition:cursorPosition-1];
 }
 
+
+- (void) paste 
+{
+   char            *s;
+   unsigned char   *p;
+   int             codepoint;
+   
+   s = [[self window] pasteboardCString];
+   if( ! s)
+      return;
+
+   p = (unsigned char *) s;
+   while( *p)
+   {
+      // TODO: ensure is valid
+      codepoint = _mulle_utf8_next_utf32character( &p);
+      [self insertCharacter:codepoint];
+   }
+}
 
 @end

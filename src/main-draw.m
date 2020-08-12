@@ -10,6 +10,12 @@
 #import "UIEdgeInsets.h"
 
 
+// Topics:
+//  * create a window
+//  * place view inside window
+//  * add drawing C code to the views layer to produce the graphics
+//  * run renderloop (with event handling)
+//
 void   _drawStuff( NVGcontext *vg, 
                    CGRect rect,
                    int antialias)
@@ -68,6 +74,8 @@ BOOL  drawStuff( CALayer *layer,
    vg = MulleContextGetNVGContext( context);
 
    rect = CGRectMake( 100.5, 100, 100, 100);
+   rect.origin.x += frame.origin.x;
+   rect.origin.y += frame.origin.y;
 
    _drawStuff( vg, rect, 1);
    rect.origin.x += 300;

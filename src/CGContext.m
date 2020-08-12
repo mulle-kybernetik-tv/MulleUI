@@ -23,8 +23,10 @@
 # define FONT_DATA   Roboto_Regular_ttf
 #endif
 #include "entypo.inc"
+#include "emoji.inc"
 
 
+#define fallback_font_ttf NotoEmoji_Regular_ttf
 #define HAVE_MEM_GRAPH
 
 // #define RENDER_DEBUG
@@ -416,30 +418,69 @@ static char  geometryShaderSource[] =
 // TODO: use hash table to keep track of names and avoid duplicate loads of
 //       fonts
 //
+- (CGFont *) fallbackFont
+{
+   CGFont   *font;
+   int      fontIndex;
+
+   font = mulle_map_get( &_fontMap, "fallback");
+   if( font)
+      return( font);
+   
+   fontIndex = nvgCreateFontMem( [self nvgContext], 
+                                 "fallback", 
+                                 fallback_font_ttf, 
+                                 (int) sizeof( fallback_font_ttf), 
+                                 0);   
+   font      = [CGFont fontWithName:"fallback"
+                          fontIndex:fontIndex];  
+
+   mulle_map_insert( &_fontMap, "fallback", font);
+   return( font);
+}
+
+
 - (CGFont *) fontWithName:(char *) s
 {
    CGFont   *font;
+   CGFont   *fallbackFont;
+   int       fontIndex;
 
    font = mulle_map_get( &_fontMap, s);
    if( font)
       return( font);
 
+   fontIndex = -1;
    if( ! strcmp( s, "sans"))
-      font = [CGFont fontWithName:s
-                            bytes:FONT_DATA
-                           length:sizeof( FONT_DATA)
-                          context:self];
+   {
+      fontIndex = nvgCreateFontMem( _vg, 
+                                    s, 
+                                    FONT_DATA, 
+                                    (int) sizeof( FONT_DATA), 
+                                    0);
+   }
    else
       if( ! strcmp( s, "icons"))
-         font = [CGFont fontWithName:s
-                               bytes:entypo_ttf
-                              length:sizeof( entypo_ttf)
-                              context:self];
-      else
-         abort();
-   assert( font);
+      {
+         fontIndex = nvgCreateFontMem( _vg, 
+                                       s, 
+                                       entypo_ttf, 
+                                       (int) sizeof( entypo_ttf), 
+                                       0);         
+      }
 
+   if( fontIndex == -1)
+      abort();
+
+   fallbackFont = [self fallbackFont];
+   if( fallbackFont)
+      nvgAddFallbackFontId( _vg, fontIndex, [fallbackFont fontIndex]);
+
+   font = [CGFont fontWithName:s
+                  fontIndex:fontIndex];
+   assert( font);
    mulle_map_insert( &_fontMap, s, font);
+ 
    return( font);
 }
 

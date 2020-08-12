@@ -35,10 +35,33 @@ static void   keyCallback( GLFWwindow* window,
 
    event = [[UIKeyboardEvent alloc] initWithWindow:self
                                      mousePosition:self->_mousePosition
+                                         modifiers:mods
                                                key:key
                                           scanCode:scancode
-                                            action:action
-                                         modifiers:mods];
+                                            action:action];
+   [self handleEvent:event];
+   [event release];
+}
+
+
+void   charCallback(GLFWwindow* window, unsigned int codepoint)
+{
+   UIWindow   *self;
+   UIEvent    *event;
+
+   self = glfwGetWindowUserPointer( window);
+
+#ifdef CALLBACK_DEBUG
+   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
+#endif
+
+   if( self->_discardEvents & UIEventTypeUnicode)
+      return;
+
+   event = [[UIUnicodeEvent alloc] initWithWindow:self
+                                    mousePosition:self->_mousePosition
+                                        modifiers:self->_modifiers
+                                        character:codepoint];
    [self handleEvent:event];
    [event release];
 }
@@ -70,9 +93,9 @@ static void   mouseButtonCallback( GLFWwindow* window,
 
    event = [[UIMouseButtonEvent alloc] initWithWindow:self
                                         mousePosition:self->_mousePosition
+                                            modifiers:mods
                                                button:button
-                                               action:action
-                                            modifiers:mods];
+                                               action:action];
    [self handleEvent:event];
    [event release];
 
@@ -96,7 +119,7 @@ static void   mouseMoveCallback( GLFWwindow* window,
 
    // coordinates are window relative ?
    // we get not events for the window title bar
-
+   // TODO: we might need to scale the values for DPI or ?
 	self->_mousePosition.x = xpos;
 	self->_mousePosition.y = ypos;
 
@@ -115,8 +138,8 @@ static void   mouseMoveCallback( GLFWwindow* window,
    //       - latency
    event = [[UIMouseMotionEvent alloc] initWithWindow:self
                                         mousePosition:self->_mousePosition
-                                         buttonStates:self->_mouseButtonStates
-                                            modifiers:self->_modifiers];
+                                            modifiers:self->_modifiers
+                                         buttonStates:self->_mouseButtonStates];
    [self handleEvent:event];
    [event release];
 }
@@ -153,10 +176,10 @@ static void   mouseScrollCallback( GLFWwindow *window,
    else
       scrollOffset = CGPointMake( -xoffset, -yoffset);
 
-   event        = [[UIMouseScrollEvent alloc] initWithWindow:self
-                                               mousePosition:self->_mousePosition
-                                                scrollOffset:scrollOffset
-                                                   modifiers:self->_modifiers];
+   event = [[UIMouseScrollEvent alloc] initWithWindow:self
+                                        mousePosition:self->_mousePosition
+                                            modifiers:self->_modifiers
+                                         scrollOffset:scrollOffset];
    [self handleEvent:event];
    [event release];
 }
@@ -167,6 +190,7 @@ static void   mouseScrollCallback( GLFWwindow *window,
    glfwSetMouseButtonCallback( _window, mouseButtonCallback);
    glfwSetCursorPosCallback( _window, mouseMoveCallback);
    glfwSetKeyCallback( _window, keyCallback);
+   glfwSetCharCallback( _window, charCallback);
    glfwSetScrollCallback( _window, mouseScrollCallback);
 }
 
@@ -196,6 +220,8 @@ static void   mouseScrollCallback( GLFWwindow *window,
    }
    _discardEvents = old;
 }
+
+
 + (void) sendEmptyEvent
 {
    glfwPostEmptyEvent();
@@ -322,7 +348,7 @@ static void   collect_hit_views( CGRect rect, void *payload, void *userinfo)
 
       keyEvent = (UIKeyboardEvent *) event;
 
-      // F12 key: 301 
+      // F12 key: 301
       if( [keyEvent key] == 301)
       {
          [self dump];

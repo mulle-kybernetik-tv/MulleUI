@@ -48,7 +48,7 @@ static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
    // because the root view is still zero sized, the -10.2 as size is really
    // the margin. The 100 is the height of the display
 
-   for( j = 0; j < N_ROWS; j++)
+   for( j = 0; j <= UIStackViewDistributionEqualCentering; j++)
    {
       frame = CGRectMake( 0, 0, 0, 0);
       stackView = [[[UIStackView alloc] initWithFrame:CGRectZero] autorelease];

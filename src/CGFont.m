@@ -11,31 +11,25 @@
 @implementation CGFont 
 
 - (instancetype) initWithName:(char *) name
-                        bytes:(void *) bytes
-                       length:(NSUInteger) length
-                      context:(CGContext *) context
+                    fontIndex:(int) fontIndex
 {
-   [self setName:name];
-  
-	_fontIndex = nvgCreateFontMem( [context nvgContext], _name, bytes, (int) length, 0);
 	if( _fontIndex == -1) 
    {
       [self release];
       return( nil);
 	}
+
+   [self setName:name];
+	_fontIndex = fontIndex;
    return( self);
 }
 
 
 + (instancetype) fontWithName:(char *) name
-                        bytes:(void *) bytes
-                       length:(NSUInteger) length
-                      context:(CGContext *) context
+                    fontIndex:(int) fontIndex
 {
    return( [[[self alloc] initWithName:name
-                                 bytes:bytes
-                                length:length
-                               context:context] autorelease]);
+                             fontIndex:fontIndex] autorelease]);
 }  
 
 

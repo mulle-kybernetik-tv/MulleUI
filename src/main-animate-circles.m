@@ -17,9 +17,9 @@
 
 @interface CircleLayer : CALayer
 
-@property( observable) CGFloat     scale;  // 0 - 1
+@property( observable) CGFloat     scale;  
 @property( observable) CGColorRef  color;  // 0 - 1
-@property( observable) CGRect      box;    // 0 - 1
+@property( observable) CGRect      box;    
 
 @end
 
@@ -97,9 +97,11 @@ void   setupScene( UIWindow *window, CGContext *context)
    [UIView setAnimationDelay:2];
    [UIView setAnimationDuration:2];
    [UIView setAnimationRepeatCount:20];
+
    [layer setScale:-1.0];
    [layer setColor:MulleColorCreate( 0x0000FFFF)];
    [layer setBox:CGRectMake( 100, 100, 100, 100)];
+   
    [UIView commitAnimations];
 }
 

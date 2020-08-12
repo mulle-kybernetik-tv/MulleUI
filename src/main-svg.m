@@ -10,6 +10,14 @@
 #import <string.h>
 
 
+// TODO: remove yoga
+
+
+// Topics:
+//
+//  * render SVG code in a view
+//
+
 #include "Ghostscript_Tiger-svg.inc"
 
 

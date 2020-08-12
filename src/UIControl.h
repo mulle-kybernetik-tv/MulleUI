@@ -3,7 +3,14 @@
 #import "UIResponder.h"
 
 
+//
+// keeping with NSView event handling, we keep the UIEvent subclasses somewhat
+// opaque in the method signatures. More or less for readability. Technically
+// You can cast the events to the proper subclass (i.e. UIMouseButtonEvent
+// for mouseDown: etc.)
+//
 @class UIEvent;
+
 
 enum UIControlStateBit
 {

@@ -28,6 +28,7 @@ typedef enum CATextLayerAlignmentMode
 @property( assign) CGFloat  fontPixelSize;
 @property( assign) char     *cString;
 @property CGColorRef        textColor;
+
 // for cleartype it's important to know the color the text is drawn on
 // if the layer backgroundColor is transparent, use this color to supply
 // the correct color to use

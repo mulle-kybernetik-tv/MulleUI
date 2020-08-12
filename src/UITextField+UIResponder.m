@@ -85,14 +85,15 @@
 }
 
 //
-// TODO: long presses on key down should effect multiple events, but
-//       that's currently not happening. Question what does NSEvent do ?
-//       Send multiple events ? Or is the logic in the receiver.
+// The key events are checked for special keys only, like backspace or
+// cursor keys. (Or CTRL-A / CTRL-E). Actual text input is being taken
+// though Unicode events
 //
 - (UIEvent *) consumeKeyDown:(UIEvent *) event
 {
-   UIKeyboardEvent  *keyEvent = (UIKeyboardEvent *) event;
+   UIKeyboardEvent   *keyEvent = (UIKeyboardEvent *) event;
    NSInteger         pos;
+   NSInteger         max;
    NSUInteger        key;
    NSUInteger        modifiers;
 
@@ -101,20 +102,28 @@
                         (long) [keyEvent scanCode],
                         (long) [keyEvent modifiers]);
 
-   pos = [self cursorPosition];
-   key = [keyEvent key];
+   pos       = [self cursorPosition];
+   key       = [keyEvent key];
+   modifiers = [keyEvent modifiers];
    switch( key)
    {
-   default  :
-      if( key >= 'A' && key <= 'Z')
-      {
-         modifiers = [keyEvent modifiers];
-         if( ! modifiers)
-            key = 'a' + key - 'A';
-         [self insertCharacter:key];
-         return( nil);      
-      }
-      break;
+   default   :
+      return( nil);
+
+   // TODO: these should be global (MENU ?) events!!
+   //       so actually pass the event back up
+   case 'V'  :
+      if( modifiers == 2) // 2  is CONTROL (linux)
+         [self paste];
+      return( nil);
+   case 'C'  :
+      if( modifiers == 2)
+         [self copy];
+      return( nil);
+   case 'XS'  :
+      if( modifiers == 2)
+         [self cut];
+      return( nil);
 
    case 259  :  
       [self backspaceCharacter]; 
@@ -126,10 +135,28 @@
 
    if( pos < 0)
       pos = 0;
+   max = [self maxCursorPosition];
+   if( pos > max)
+      pos = max;
    [self setCursorPosition:pos];
 
    return( nil);
 }
+
+
+- (UIEvent *) consumeUnicodeCharacter:(UIEvent *) event
+{
+   UIUnicodeEvent *unicodeEvent = (UIUnicodeEvent *) event;
+   int   c;
+
+   fprintf( stderr, "character: %ld\n", 
+                        (long) [unicodeEvent character]);
+
+   c = [unicodeEvent character];
+   [self insertCharacter:c];
+   return( nil);
+}
+
 
 
 - (UIEvent *) consumeMouseDown:(UIEvent *) event

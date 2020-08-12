@@ -6,6 +6,8 @@ struct MulleFrameInfo;
 
 typedef UIView   MulleWindowPlane;
 
+@class UIPasteboard;
+
 
 //
 // TODO: firstResponder needed for UITextField to gain keyboard
@@ -34,6 +36,7 @@ typedef UIView   MulleWindowPlane;
 
 @property( retain) CGContext                  *context;
 @property( retain) id                         userInfo;
+@property( retain) UIPasteboard               *pasteboard;
 @property( assign, readonly) CGPoint          mousePosition;
 @property( assign, readonly) uint64_t         mouseButtonStates;
 @property( assign, readonly) uint64_t         modifiers;
