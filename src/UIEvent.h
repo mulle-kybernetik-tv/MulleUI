@@ -21,10 +21,11 @@ typedef enum
 @interface UIEvent : NSObject
 {
    UIWindow  *_window;   // assign  ??
-   CGPoint   _point;
+   CGPoint   _translatedPoint;
+   UIView    *_translatedView; // assign!
 }
 
-@property( assign, readonly) CGPoint   mousePosition;
+@property( assign, readonly) CGPoint   locationInWindow;
 
 // clock() vs clock_gettime() tests on linux show, that that clock
 // is 25% faster. That's IMO not enough to forego the convenience of 
@@ -35,15 +36,17 @@ typedef enum
 @property( assign, readonly) uint64_t  modifiers;
 
 //
-// translated mousePosition to current view bounds (ephemeral)
+// translated mouseLocation to current view bounds (ephemeral)
 // set by _handleEvent:position for
 //
-- (CGPoint) mousePositionInView:(UIView *) view;
-- (void) _setFirstResponderPoint:(CGPoint) point;
-- (CGPoint) _firstResponderPoint;
+- (CGPoint) mouseLocationInView:(UIView *) view;
+
+- (void) _setTranslatedPoint:(CGPoint) point
+                     forView:(UIView *) view;
+- (CGPoint) _translatedPointForView:(UIView *) view;
 
 - (id) initWithWindow:(UIWindow *) window
-        mousePosition:(CGPoint) pos
+        mouseLocation:(CGPoint) pos
             modifiers:(int) mods;
 
 @end
@@ -66,7 +69,7 @@ typedef enum
 @property( assign, readonly) int   action;
 
 - (id) initWithWindow:(UIWindow *) window
-        mousePosition:(CGPoint) pos
+        mouseLocation:(CGPoint) pos
             modifiers:(int) mods
                   key:(int) key
              scanCode:(int) scanCode
@@ -80,7 +83,7 @@ typedef enum
 @property( assign, readonly) int   character;
 
 - (id) initWithWindow:(UIWindow *) window
-        mousePosition:(CGPoint) pos
+        mouseLocation:(CGPoint) pos
             modifiers:(int) mods
             character:(int) key;
 
@@ -93,7 +96,7 @@ typedef enum
 @property( assign, readonly) int   action;
 
 - (id) initWithWindow:(UIWindow *) window
-        mousePosition:(CGPoint) pos
+        mouseLocation:(CGPoint) pos
             modifiers:(int) mods
                button:(int) button
                action:(int) action;
@@ -105,7 +108,7 @@ typedef enum
 @interface UIMouseMotionEvent : UIEvent
 
 - (id) initWithWindow:(UIWindow *) window
-        mousePosition:(CGPoint) pos
+        mouseLocation:(CGPoint) pos
             modifiers:(int) mods
          buttonStates:(uint64_t) buttonStates;
 
@@ -117,7 +120,7 @@ typedef enum
 @interface UIMouseScrollEvent : UIEvent
 
 - (id) initWithWindow:(UIWindow *) window
-        mousePosition:(CGPoint) pos
+        mouseLocation:(CGPoint) pos
             modifiers:(int) mods
          scrollOffset:(CGPoint) offset;
 

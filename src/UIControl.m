@@ -58,8 +58,8 @@ PROTOCOLCLASS_IMPLEMENTATION( UIControl)
 	if( ! event)
 	   return( event);   
 
-   [self becomeFirstResponder];
-
+   if( ! [self isFirstResponder])
+      [self becomeFirstResponder];
    // we alway snarf up the mouseDown: event (why pass to parent ?)
    event = [self consumeMouseDown:event];
    return( event);
@@ -277,7 +277,9 @@ PROTOCOLCLASS_IMPLEMENTATION( UIControl)
 	if( ! [self shouldProcessKeyEvent:event])
 	   return( event);   
 
-   [self becomeFirstResponder];
+   if( ! [self isFirstResponder])
+      [self becomeFirstResponder];
+
    event = [self consumeKeyDown:event];
    return( event);
 }
@@ -300,7 +302,9 @@ PROTOCOLCLASS_IMPLEMENTATION( UIControl)
 	if( ! [self shouldProcessUnicodeEvent:event])
 	   return( event);   
 
-   [self becomeFirstResponder];
+   if( ! [self isFirstResponder])
+      [self becomeFirstResponder];
+      
    event = [self consumeUnicodeCharacter:event];
    return( event);
 }

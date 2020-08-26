@@ -75,7 +75,8 @@
 
    // only if we consumed the event, do we want to become first responder
    // for the subsequent rightMouseDown: or rightMouseDragged: events
-   [self becomeFirstResponder];
+   if( ! [self isFirstResponder])
+      [self becomeFirstResponder];
    return( event);
 }
 

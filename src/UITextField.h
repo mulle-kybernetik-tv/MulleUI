@@ -10,8 +10,7 @@
 #import "import.h"
 
 #import "UIControl.h"
-
-@class MulleTextLayer;
+#import "MulleTextLayer.h" // expose those properties and methods (forward)
 
 
 @interface UITextField : UIView < UIControl>
@@ -21,6 +20,7 @@
    MulleTextLayer   *_titleLayer;
    CALayer          *_titleBackgroundLayer;
 }
+
 
 UIControlProperties;
 

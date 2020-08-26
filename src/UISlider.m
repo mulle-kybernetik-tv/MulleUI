@@ -21,7 +21,7 @@
    float    value;
    CGRect   rect;
 
-	point = [event mousePositionInView:self];
+	point = [event mouseLocationInView:self];
    // fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, CGPointCStringDescription( point));
 
    rect = [(MulleSliderLayer *) _mainLayer controlRectWithFrame:[self bounds]];

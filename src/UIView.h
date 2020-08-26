@@ -134,6 +134,7 @@ enum UILayoutStrategy
 - (UIView *) mulleWindowPlane; // window plane a view resides in 
 - (UIView *) superview;
 
+// UNUSED ??
 - (CGRect) clipRect;
 
 // - (CALayer *) mainLayer;  // mainlayer is an internal thing

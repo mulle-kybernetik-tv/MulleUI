@@ -70,7 +70,6 @@
 {
    if( [super becomeFirstResponder])
    {
-      fprintf( stderr, "become\n");
       [self setSelected:YES];
       [self reflectState];
       return( YES);

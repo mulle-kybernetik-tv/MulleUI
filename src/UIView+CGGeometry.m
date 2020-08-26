@@ -8,7 +8,6 @@
 
 @implementation UIView( CGGeometry)
 
-
 //
 // Transform for incoming values of the superview to translate into
 // bounds space of the view. For hit tests.
@@ -270,6 +269,11 @@ static CGRect   convertBoundsRectToFrameRect( UIView *self, CGRect rect, CGRect 
    _mulle__pointerarray_init_with_static_pointers( &array,
                                                    (void **) views,
                                                    sizeof( views) / sizeof( UIView *));
+   if( ! toView)
+   {
+      toView = [self window];
+      assert( toView);
+   }
 
    for( view = toView; view; view = [view superview])
    {
@@ -321,6 +325,12 @@ done:
    UIView                                        *views[ 32];
 
    converted = rect;
+
+   if( ! fromView)
+   {
+      fromView = [self window];
+      assert( fromView);
+   }
 
    _mulle__pointerarray_init_with_static_pointers( &array,
                                                    (void **) views,

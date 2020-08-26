@@ -6,6 +6,7 @@
 #import "UITextField.h"
 #import "UIWindow.h"
 #import "UIColor.h"
+#import "UIView+CAAnimation.h"
 #import <string.h>
 
 
@@ -54,13 +55,35 @@ int   main()
 
          textView = [[[UITextField alloc] initWithFrame:frame] autorelease];
          [textView setCString:"TextView"];
-         [textView setFontPixelSize:64.0];
+         // TODO: this is apparently ignored!!! why ?? (because the prototype
+         //       was missing!)
+         [textView setFontPixelSize:80.0];
          [textView setCursorPosition:2];
+         [textView setAlignmentMode:CAAlignmentRight];
          [textView setEditable:YES];
-
+#if 0      
+         [textView setTextOffset:CGPointMake( 80.0, 0.0)];
+#endif
          // [insideButton setClipsSubviews:YES];
          [contentView addSubview:textView];
       }
+
+#if 0
+      {
+         // UIView -> CAAnimation
+         [UIView beginAnimations:"animation"
+                          context:NULL];
+         [UIView setAnimationCurve:UIViewAnimationCurveEaseInOut];
+         [UIView setAnimationRepeatAutoreverses:YES];
+         [UIView setAnimationDelay:2];
+         [UIView setAnimationDuration:2];
+         [UIView setAnimationRepeatCount:20];
+
+         [textView setTextOffset:CGPointMake( -80.0, 0.0)];
+
+         [UIView commitAnimations];
+      }
+#endif
 
       [window dump];
       [window renderLoopWithContext:context];

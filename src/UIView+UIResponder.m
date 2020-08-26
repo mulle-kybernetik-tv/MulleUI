@@ -15,6 +15,9 @@
    UIWindow           *window;
    id <UIResponder>   firstResponder;
 
+   // I think calling this too often is not good, as it does too much
+   assert( ! [self isFirstResponder]);
+   
    window         = [self window];
    firstResponder = [window firstResponder];
    if( firstResponder)

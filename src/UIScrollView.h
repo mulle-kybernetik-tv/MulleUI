@@ -50,12 +50,12 @@
 
 // Event handling state
    CGPoint                     _momentum;
-   CGPoint                     _mousePosition;
+   CGPoint                     _locationInWindow;
    CGPoint                     _bubbleDragOffset;
    CAAbsoluteTime              _scrollStartTime;
    CAAbsoluteTime              _momentumTimestamp;
    
-   struct MullePointHistory    _mousePositionHistory;
+   struct MullePointHistory    _locationInWindowHistory;
 }
 
 @property UIEdgeInsets                         contentInset;

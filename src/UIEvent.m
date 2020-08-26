@@ -7,38 +7,71 @@
 @implementation UIEvent 
 
 - (id) initWithWindow:(UIWindow *) window
-        mousePosition:(CGPoint) pos
+        mouseLocation:(CGPoint) pos
             modifiers:(int) mods
 {
-   _window         = window;
-   _mousePosition  = pos;
-   _timestamp      = CAAbsoluteTimeNow();
-   _modifiers      = mods;
-   _point.x        = CGFLOAT_MIN;
+   _window            = window;
+   _locationInWindow  = pos;
+   _timestamp         = CAAbsoluteTimeNow();
+   _modifiers         = mods;
+   _translatedPoint.x = CGFLOAT_MIN; // not set
    return( self);
 }
 
-
-- (CGPoint) mousePositionInView:(UIView *) view
+static int   UIEventIsFirstResponderPointSet( UIEvent *event)
 {
+   return( event->_translatedPoint.x != CGFLOAT_MIN);
+}
+
+
+- (CGPoint) mouseLocationInView:(UIView *) view
+{
+   CGPoint   point;
+   CGPoint   translated;
+   UIView    *superview;
+
    if( ! view)
-      return( _mousePosition);
-   if ( _point.x != CGFLOAT_MIN && view == [_window _firstResponder])
-      return( _point);
-   
-   return( [view convertPoint:_mousePosition
-                     fromView:NULL]);
+      return( _locationInWindow);
+ 
+   // TODO: CHECK THIS!!
+#if 0   
+   point = [self _translatedPointForView:view];
+   if ( point.x != CGFLOAT_MIN)
+   {
+#if DEBUG      
+      fprintf( stderr, "shortcut");
+#endif      
+      return( point);
+   }
+#endif 
+
+   translated = [view convertPoint:_locationInWindow
+                          fromView:NULL];
+#ifdef DEBUG
+   fprintf( stderr, "%s -> %s\n", 
+               CGPointCStringDescription( _locationInWindow),
+               CGPointCStringDescription( translated));
+#endif               
+   return( translated);
 }
 
-- (CGPoint) _firstResponderPoint
+
+- (CGPoint) _translatedPointForView:(UIView *) view
 {
-   return( _point);
+   if( view == _translatedView)
+      return( _translatedPoint);
+   return( CGPointMake( CGFLOAT_MIN, CGFLOAT_MIN));
 }
 
-- (void) _setFirstResponderPoint:(CGPoint) point
+
+- (void) _setTranslatedPoint:(CGPoint) point
+                     forView:(UIView *) view
 {
    assert( point.x != CGFLOAT_MIN);
-   _point = point;
+   assert( view);
+
+   _translatedPoint = point;
+   _translatedView  = view;
 }
 
 
@@ -49,8 +82,8 @@
    s = MulleObjC_asprintf( "<%p %s @%.1f %.1f t:%.6f>", 
                   self, 
                   class_getName( object_getClass( self)),
-                  _mousePosition.x,
-                  _mousePosition.y,
+                  _locationInWindow.x,
+                  _locationInWindow.y,
                   _timestamp);
    return( s);
 }
@@ -61,14 +94,14 @@
 @implementation UIKeyboardEvent 
 
 - (id) initWithWindow:(UIWindow *) window
-        mousePosition:(CGPoint) pos
+        mouseLocation:(CGPoint) pos
             modifiers:(int) mods
                   key:(int) key
              scanCode:(int) scanCode
                action:(int) action
 {
    self = [self initWithWindow:window
-                 mousePosition:pos
+                 mouseLocation:pos
                      modifiers:mods];
 
    _key       = key;
@@ -91,12 +124,12 @@
 @implementation UIUnicodeEvent
 
 - (id) initWithWindow:(UIWindow *) window
-        mousePosition:(CGPoint) pos
+        mouseLocation:(CGPoint) pos
             modifiers:(int) mods
             character:(int) character
 {
    self = [self initWithWindow:window
-                 mousePosition:pos
+                 mouseLocation:pos
                      modifiers:mods];
 
    _character = character;
@@ -122,12 +155,12 @@
 
 
 - (id) initWithWindow:(UIWindow *) window
-        mousePosition:(CGPoint) pos
+        mouseLocation:(CGPoint) pos
             modifiers:(int) mods
          buttonStates:(uint64_t) buttonStates
 {
    self = [self initWithWindow:window
-                 mousePosition:pos
+                 mouseLocation:pos
                      modifiers:mods];
 
    _buttonStates = buttonStates;
@@ -141,13 +174,13 @@
 @implementation UIMouseButtonEvent
 
 - (id) initWithWindow:(UIWindow *) window
-        mousePosition:(CGPoint) pos
+        mouseLocation:(CGPoint) pos
             modifiers:(int) mods
                button:(int) button
                action:(int) action 
 {
    self = [self initWithWindow:window
-                 mousePosition:pos
+                 mouseLocation:pos
                      modifiers:mods];
    _button = button;
    _action = action;
@@ -168,8 +201,8 @@
    s = MulleObjC_asprintf( "<%p %s @%.1f %.1f t:%.6f b:%d a:%d>", 
                   self, 
                   class_getName( object_getClass( self)),
-                  _mousePosition.x,
-                  _mousePosition.y,
+                  _locationInWindow.x,
+                  _locationInWindow.y,
                   _timestamp,
                   _button,
                   _action);
@@ -191,12 +224,12 @@ static struct
 
 
 - (id) initWithWindow:(UIWindow *) window
-        mousePosition:(CGPoint) pos
+        mouseLocation:(CGPoint) pos
             modifiers:(int) mods
          scrollOffset:(CGPoint) scrollOffset 
 {
    self = [self initWithWindow:window
-                 mousePosition:pos
+                 mouseLocation:pos
                      modifiers:mods];
    _scrollOffset = scrollOffset;
 

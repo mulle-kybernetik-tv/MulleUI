@@ -34,7 +34,7 @@ static void   keyCallback( GLFWwindow* window,
       return;
 
    event = [[UIKeyboardEvent alloc] initWithWindow:self
-                                     mousePosition:self->_mousePosition
+                                     mouseLocation:self->_mouseLocation
                                          modifiers:mods
                                                key:key
                                           scanCode:scancode
@@ -59,7 +59,7 @@ void   charCallback(GLFWwindow* window, unsigned int codepoint)
       return;
 
    event = [[UIUnicodeEvent alloc] initWithWindow:self
-                                    mousePosition:self->_mousePosition
+                                    mouseLocation:self->_mouseLocation
                                         modifiers:self->_modifiers
                                         character:codepoint];
    [self handleEvent:event];
@@ -92,7 +92,7 @@ static void   mouseButtonCallback( GLFWwindow* window,
       return;
 
    event = [[UIMouseButtonEvent alloc] initWithWindow:self
-                                        mousePosition:self->_mousePosition
+                                        mouseLocation:self->_mouseLocation
                                             modifiers:mods
                                                button:button
                                                action:action];
@@ -117,11 +117,14 @@ static void   mouseMoveCallback( GLFWwindow* window,
    fprintf( stderr, "%s %s (%.1f, %.1f)\n", __PRETTY_FUNCTION__, [self cStringDescription], xpos, ypos);
 #endif
 
-   // coordinates are window relative ?
+   //
+   // Coordinates are window relative! So for screen coordinates we'd need
+   // to add the window frame.x/y.
+   //
    // we get not events for the window title bar
    // TODO: we might need to scale the values for DPI or ?
-	self->_mousePosition.x = xpos;
-	self->_mousePosition.y = ypos;
+	self->_mouseLocation.x = xpos;
+	self->_mouseLocation.y = ypos;
 
    //
    // Observed behaviour on linux: Depending on mouse sensitivity, it may
@@ -137,7 +140,7 @@ static void   mouseMoveCallback( GLFWwindow* window,
    //       + event don't leak if someone throws
    //       - latency
    event = [[UIMouseMotionEvent alloc] initWithWindow:self
-                                        mousePosition:self->_mousePosition
+                                        mouseLocation:self->_mouseLocation
                                             modifiers:self->_modifiers
                                          buttonStates:self->_mouseButtonStates];
    [self handleEvent:event];
@@ -177,7 +180,7 @@ static void   mouseScrollCallback( GLFWwindow *window,
       scrollOffset = CGPointMake( -xoffset, -yoffset);
 
    event = [[UIMouseScrollEvent alloc] initWithWindow:self
-                                        mousePosition:self->_mousePosition
+                                        mouseLocation:self->_mouseLocation
                                             modifiers:self->_modifiers
                                          scrollOffset:scrollOffset];
    [self handleEvent:event];
@@ -361,7 +364,7 @@ static void   collect_hit_views( CGRect rect, void *payload, void *userinfo)
    {
       _mulle_pointerarray_init( &views, 16, NULL);
 
-      point = [event mousePosition];
+      point = [event locationInWindow];
 
       //
       // this could be a dragging event though, which needs to be handled

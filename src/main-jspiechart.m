@@ -91,14 +91,12 @@ static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
    MulleMenu          *menuView;
    UIButton           *button;
    MulleMenuButton    *menuButton;
-   MulleWindowPlane   *menuPlane;
    CALayer            *layer;
    CGRect             frame;
    int                i;
    UIWindow           *window;
 
-   window    = [contentPlane window];
-   menuPlane = [window menuPlane];
+   window = [contentPlane window];
 
    frame = [contentPlane bounds];
    assert( frame.size.width > 0.0);

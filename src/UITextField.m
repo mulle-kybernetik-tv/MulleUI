@@ -156,22 +156,16 @@
 {
    id    target;
 
-   target = _mainLayer;
+   target = _titleLayer;
    switch( _cmd)
    {
-   case @selector( isEditable)                : 
-   case @selector( setEditable:)              : 
-
-   case @selector( fontPixelSize)             : 
-   case @selector( setFontPixelSize:)         : 
-
-   case @selector( cursorPosition)            : 
-   case @selector( setCursorPosition:)        :
-
-   case @selector( cString)                   :  
-   case @selector( setCString:)               :  
-   case @selector( setCursorPositionToPoint:) :
-      target = _titleLayer;
+   case @selector( frame)           : 
+   case @selector( setFrame:)       : 
+   case @selector( bounds)          : 
+   case @selector( setBounds:)      : 
+   case @selector( cStringName)     : 
+   case @selector( setCStringName:) :
+      target = _mainLayer;
       break;
    }
    return( mulle_objc_object_inlinecall_variablemethodid( target,

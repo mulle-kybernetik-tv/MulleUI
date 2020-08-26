@@ -250,7 +250,6 @@
 }
 
 
-
 // flat, doesn't recurse
 - (UIView *) subviewAtPoint:(CGPoint) point
 {
@@ -322,26 +321,26 @@
 {
    struct mulle_pointerarrayreverseenumerator   rover;
    UIView                                       *view;
-   BOOL                                          handledEvent;
+   BOOL                                         didHandleEvent;
 
-   view = nil;
    if( _subviews)
    {
       rover = _mulle_pointerarray_reverseenumerate( _subviews);
       while( _mulle_pointerarrayreverseenumerator_next( &rover, (void **) &view))
       {
-         handledEvent = [view handleEvent:event
-                               atPosition:translated] == nil;
-         if( handledEvent)
+         didHandleEvent = [view handleEvent:event
+                                 atPosition:translated] == nil;
+         if( didHandleEvent)
          {
             [self mulleSubviewDidHandleEvent:event];
-            break;
+            mulle_pointerarrayreverseenumerator_done( &rover);
+            return( view);
          }
       }
       mulle_pointerarrayreverseenumerator_done( &rover);
    }
 
-   return( view);
+   return( nil);
 }
 
 
@@ -353,6 +352,8 @@
    struct mulle_pointerarrayenumerator   rover;
    UIView                                *view;
    UIEvent                               *memo;
+
+   assert( event);
 
    if( [self isHidden]) // alpha < 0.01: should we care for events ?
    {
@@ -381,16 +382,22 @@
       return( event);
    }
 
-    // if a subview handled the event, we are done
+   // if a subview handled the event, we are done
    view = [self mulleLetSubviewHandleEvent:event
                       atTranslatedPosition:translated];
    if( view)
+   {
+#ifdef EVENT_DEBUG
+      fprintf( stderr, "Subview %s did consume event\n", [view cStringDescription]);
+#endif      
       return( nil);
+   }
 
    //
    // current position relative to visible bounds
    //
-   [event _setFirstResponderPoint:translated];
+   [event _setTranslatedPoint:translated
+                      forView:self];
    return( [self _handleEvent:event]);
 }
 
@@ -446,10 +453,16 @@
       event = [self responder:responder
                   handleEvent:event];
       if( ! event)
+      {
+#ifdef EVENT_DEBUG
+         fprintf( stderr, "First Responder handled event: %s\n",
+                        [responder cStringDescription]);
+#endif         
          return( event);
+      }
    }
 
-   position = [event mousePosition];
+   position = [event locationInWindow];
    return( [self handleEvent:event
                   atPosition:position]);
 }

@@ -216,7 +216,7 @@ static void   framebufferResizeCallback( GLFWwindow* window, int width, int heig
 
    [self syncFrameWithWindow];
 
-   _mousePosition = CGPointMake( -1.0, -1.0);
+   _mouseLocation = CGPointMake( -1.0, -1.0);
 
    glfwMakeContextCurrent( _window);
    glfwSetWindowUserPointer( _window, self);

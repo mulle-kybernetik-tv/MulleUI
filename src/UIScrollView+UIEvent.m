@@ -97,7 +97,7 @@
    CGPoint   contentOffset;
    CGPoint   diff;
    CGPoint   factor;
-   CGPoint   mousePosition;
+   CGPoint   mouseLocation;
    CGPoint   newContentOffset;
    CGPoint   scale;
    CGPoint   zoomFactor;
@@ -191,17 +191,17 @@
    // ...--------------------+ contentView
    // scrollView             |
    // +----------------+     |
-   // |   *            |     |  * mousePosition in contentView points
+   // |   *            |     |  * mouseLocation in contentView points
    // |                |     |    
    // +----------------+     |
    //                        :
    //
 
    bounds        = [self bounds];
-   mousePosition = [event mousePositionInView:self];
+   mouseLocation = [event mouseLocationInView:self];
 
-   factor.x = mousePosition.x / bounds.size.width;
-   factor.y = mousePosition.y / bounds.size.height;
+   factor.x = mouseLocation.x / bounds.size.width;
+   factor.y = mouseLocation.y / bounds.size.height;
 
    // adjust contentOffset so the center remains stable
    newContentOffset    = contentOffset;
@@ -220,7 +220,7 @@
                      CGPointCStringDescription( newZoomFactor));
 
    fprintf( stderr, "position: %s in %s\n", 
-                     CGPointCStringDescription( mousePosition),
+                     CGPointCStringDescription( mouseLocation),
                      CGRectCStringDescription( bounds));
 
    fprintf( stderr, "bounds: %s -> %s\n", 
@@ -246,7 +246,7 @@
    MulleScrollIndicatorView    *view;
    CGRect                      bounds;
 
-   point = [event mousePositionInView:self];
+   point = [event mouseLocationInView:self];
    view  = (MulleScrollIndicatorView *) [self subviewAtPoint:point];
 
    if( view == _horIndicatorView || view == _verIndicatorView)
@@ -288,7 +288,7 @@
    if( contentSize.width == 0.0 || contentSize.height == 0.0)
       return( nil);
 
-   point = [event mousePositionInView:indicatorView];
+   point = [event mouseLocationInView:indicatorView];
 
    // if click is inside the bubble, then don't do anything visible
    // maybe store offset for positioning in a later drag
@@ -346,7 +346,7 @@
 
    contentOffset = [self contentOffset];
    bounds        = [indicatorView bounds];
-   point         = [event mousePositionInView:indicatorView];
+   point         = [event mouseLocationInView:indicatorView];
 
    // are the viewspace pixels in the same domain ?
    point.x      -= _bubbleDragOffset.x;
@@ -399,9 +399,9 @@
 
    _momentum            = CGPointZero;
    _scrollStartTime     = [event timestamp];
-   _mousePosition       = [event mousePosition];
+   _locationInWindow       = [event locationInWindow];
 
-   MullePointHistoryStart( &_mousePositionHistory, _scrollStartTime, _mousePosition);
+   MullePointHistoryStart( &_locationInWindowHistory, _scrollStartTime, _locationInWindow);
 
    fprintf( stderr, "scrollStartTime: %.2f\n", _scrollStartTime);
 
@@ -414,7 +414,7 @@
 // 
 - (UIEvent *)  rightMouseDragged:(UIMouseMotionEvent *) event 
 {
-   CGPoint   mousePosition;
+   CGPoint   mouseLocation;
    CGPoint   diff;
    CGPoint   zoomFactor;
    CGRect    bounds;
@@ -426,10 +426,10 @@
 #ifdef EVENT_DEBUG
    fprintf( stderr, "%s\n", __PRETTY_FUNCTION__);
 #endif
-   mousePosition        = [event mousePosition];
-   contentMousePosition = [_contentView convertPoint:mousePosition 
+   mouseLocation        = [event locationInWindow];
+   contentMousePosition = [_contentView convertPoint:mouseLocation 
                                             fromView:nil];
-   oldContentMousePosition = [_contentView convertPoint:_mousePosition 
+   oldContentMousePosition = [_contentView convertPoint:_locationInWindow 
                                                fromView:nil];
 
    diff.x = oldContentMousePosition.x - contentMousePosition.x;
@@ -443,13 +443,13 @@
    [self scrollContentOffsetBy:diff];
 
 #ifdef EVENT_DEBUG
-   MullePointHistoryAdd( &_mousePositionHistory, [event timestamp], mousePosition);
+   MullePointHistoryAdd( &_locationInWindowHistory, [event timestamp], mouseLocation);
    fprintf( stderr, "{ timestamp=%.9f, point=%.2f,%2.f (diff=%.2f,%2.f) }\n", 
                   [event timestamp], 
-                  mousePosition.x, mousePosition.y,
+                  mouseLocation.x, mouseLocation.y,
                   diff.x, diff.y);
 #endif
-   _mousePosition = mousePosition;
+   _locationInWindow = mouseLocation;
 
    return( nil);
 }
@@ -459,7 +459,7 @@
 #define SWIPEDURATION         0.05
 
 
-// TODO: fix momentum when zoomed in, probably by using _mousePosition
+// TODO: fix momentum when zoomed in, probably by using _locationInWindow
 //       and history like in the pan code, translated to the contentView
 //       which will implicitly pick up the bounds scaling
 //
@@ -468,7 +468,7 @@
    CAAbsoluteTime                 scrollEndTime;
    CARelativeTime                 scrollDuration;
    CGSize                         scrollAmount;
-   CGPoint                        mousePosition;
+   CGPoint                        mouseLocation;
    struct MullePointHistoryItem   item;
    CARelativeTime                 diff;
 
@@ -485,17 +485,17 @@
 #ifdef SCROLLVIEW_DEBUG
    fprintf( stderr, "scrollEndTime: %.2f\n", scrollEndTime);
 #endif
-   mousePosition = [event mousePosition];
+   mouseLocation = [event locationInWindow];
 
    _momentum          = CGPointZero;
    _momentumTimestamp = scrollEndTime;
 
 #ifdef DEBUG
-   MullePointHistoryPrint( stderr, &_mousePositionHistory);
+   MullePointHistoryPrint( stderr, &_locationInWindowHistory);
 #endif
-   item = MullePointHistoryGetItemForTimestamp( &_mousePositionHistory, scrollEndTime - SWIPEDURATION);
+   item = MullePointHistoryGetItemForTimestamp( &_locationInWindowHistory, scrollEndTime - SWIPEDURATION);
 
-   fprintf( stderr, "%s mousePosition: %s\n", __PRETTY_FUNCTION__, CGPointCStringDescription( mousePosition));
+   fprintf( stderr, "%s mouseLocation: %s\n", __PRETTY_FUNCTION__, CGPointCStringDescription( mouseLocation));
 
    MullePointHistoryItemPrintf( stderr, &item);
 
@@ -519,8 +519,8 @@
    // some value < SWIPEDURATION
    diff  = CATimeSubtract( scrollEndTime, item.timestamp);
 
-   scrollAmount.width  = item.point.x - mousePosition.x;
-   scrollAmount.height = item.point.y - mousePosition.y;
+   scrollAmount.width  = item.point.x - mouseLocation.x;
+   scrollAmount.height = item.point.y - mouseLocation.y;
 
    fprintf( stderr, "scrollAmount: %.2f,%.2f\n", scrollAmount.width, scrollAmount.height);
 

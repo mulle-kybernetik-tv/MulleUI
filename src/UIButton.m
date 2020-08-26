@@ -48,6 +48,7 @@
    [layer setFontPixelSize:frame.size.height / 2];
    [layer setBackgroundColor:getNVGColor( 0x0000000)];
    [layer setTextColor:getNVGColor( 0x000000FF)];
+   [layer setAlignmentMode:CAAlignmentCenter];
    // set this as we are transparent
    [layer setTextBackgroundColor:getNVGColor( 0xFFFF00FF)];
    [layer setHidden:YES];

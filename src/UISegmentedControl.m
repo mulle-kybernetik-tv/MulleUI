@@ -23,19 +23,19 @@
 {
    // figure our which segment the click, was in
    // and select this
-   CGPoint       mousePosition;
+   CGPoint       mouseLocation;
    CGPoint       contentMousePosition;
    NSUInteger    index;
    char          *s;
 
    assert( [self allowsEmptySelection]|| [self numberOfSelectedSegments] > 0);
 
-   mousePosition        = [event mousePosition];
- //  contentMousePosition = [self convertPoint:mousePosition 
+   mouseLocation        = [event locationInWindow];
+ //  contentMousePosition = [self convertPoint:mouseLocation 
  //                                   fromView:nil];
 //
-   contentMousePosition = mousePosition;
-   s = CGPointCStringDescription( mousePosition);
+   contentMousePosition = mouseLocation;
+   s = CGPointCStringDescription( mouseLocation);
    fprintf( stderr, "mouse event: %s\n", s);
    s = CGPointCStringDescription( contentMousePosition);
    fprintf( stderr, "mouse view : %s\n", s);
@@ -44,7 +44,9 @@
    if( index == NSNotFound)
       return( nil);
 
-   [self becomeFirstResponder];
+   if( ! [self isFirstResponder])
+      [self becomeFirstResponder];
+
    [self memorizeSelectedSegments];   
    if( [self allowsMultipleSelection])
    {
@@ -70,15 +72,15 @@
 {
    // figure our which segment the click, was in
    // and select this
-   CGPoint       mousePosition;
+   CGPoint       mouseLocation;
    CGPoint       contentMousePosition;
    NSUInteger    index;
 
-   mousePosition        = [event mousePosition];
-//  contentMousePosition = [self convertPoint:mousePosition 
+   mouseLocation        = [event locationInWindow];
+//  contentMousePosition = [self convertPoint:mouseLocation 
 //                                   fromView:nil];
 //
-   contentMousePosition = mousePosition;
+   contentMousePosition = mouseLocation;
 
    index = [self segmentIndexAtPoint:contentMousePosition];
    if( index == NSNotFound)

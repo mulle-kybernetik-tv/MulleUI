@@ -26,7 +26,7 @@
    // Check that the event didn't hit space inside of the menu, that's not 
    // reacting to events, so we don't close the menu unexpectedly
    //
-   translated = [event _firstResponderPoint];
+   translated = [event _translatedPointForView:self];
    if( [super hitTest:translated
             withEvent:event])
    {

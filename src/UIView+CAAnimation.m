@@ -52,8 +52,8 @@ static inline void   SelfUnlock()
 + (void) load
 {
    mulle_thread_mutex_init( &Self._lock);
-   _mulle_pointerarray_init( &Self._animatedLayers, 16, NULL);
 }
+
 
 + (void) unload
 {
@@ -74,6 +74,7 @@ static inline void   SelfUnlock()
       Self._context           = context;
       _mulle_atomic_pointer_nonatomic_write( &Self._animationState,
                                             (void *) (intptr_t)  UIViewAnimationStarted);
+      
       _mulle_pointerarray_done( &Self._animatedLayers);
       _mulle_pointerarray_init( &Self._animatedLayers, 16, NULL);
 

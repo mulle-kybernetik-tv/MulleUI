@@ -10,8 +10,38 @@
 #include "CGGeometry+CString.h"
 
 
-@implementation UITextField ( UIResponder)
+@implementation UITextField( UIResponder)
 
+- (BOOL) becomeFirstResponder
+{
+   // I think calling this too often is not good, as it does too much
+   assert( ! [self isFirstResponder]);
+
+   if( [super becomeFirstResponder])
+   {
+      [self setSelected:YES];
+      [self reflectState];
+      return( YES);
+   }
+   return( NO);
+}
+
+
+- (BOOL) resignFirstResponder
+{
+   if( [super resignFirstResponder])
+   {
+      [self setSelected:NO];
+      [self reflectState];
+      return( YES);
+   }
+   return( NO);
+}
+
+@end
+
+
+@implementation UITextField ( UIControl)
 
 - (void) reflectState
 {
@@ -56,32 +86,6 @@
 {
    [super mulleToggleHighlightedState];
    [self reflectState];
-}
-
-
-- (BOOL) becomeFirstResponder
-{
-   if( [super becomeFirstResponder])
-   {
-      fprintf( stderr, "become\n");
-      [self setSelected:YES];
-      [self reflectState];
-      return( YES);
-   }
-   return( NO);
-}
-
-
-- (BOOL) resignFirstResponder
-{
-   if( [super resignFirstResponder])
-   {
-      fprintf( stderr, "resign\n");
-      [self setSelected:NO];
-      [self reflectState];
-      return( YES);
-   }
-   return( NO);
 }
 
 //
@@ -158,23 +162,23 @@
 }
 
 
-
 - (UIEvent *) consumeMouseDown:(UIEvent *) event
 {
-   CGPoint   mousePosition;
+   CGPoint   mouseLocation;
 
-   //
-   // TODO: why is the mousePosition for [self superview] seemingly
-   //       wrong ? in main-textfield.m we'd expect to see a difference
-   //       in .x of 200, but get .73
-   //
-   mousePosition = [event mousePositionInView:[self superview]];
-   fprintf( stderr, "a) %s\n", CGPointCStringDescription( mousePosition));
-  
-   mousePosition = [event mousePositionInView:self];
-   fprintf( stderr, "b) %s\n", CGPointCStringDescription( mousePosition));
+   mouseLocation = [event mouseLocationInView:self];
+   fprintf( stderr, "b) %s\n", CGPointCStringDescription( mouseLocation));
 
-   [_titleLayer setCursorPositionToPoint:mousePosition];
+   [_titleLayer setCursorPositionToPoint:mouseLocation];
+   return( nil);
+}
+
+- (UIEvent *) consumeMouseDragged:(UIEvent *) event
+{
+   CGPoint   mouseLocation;
+
+   mouseLocation = [event mouseLocationInView:self];
+   [_titleLayer adjustSelectionToPoint:mouseLocation];
    return( nil);
 }
 

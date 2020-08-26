@@ -37,7 +37,7 @@ typedef UIView   MulleWindowPlane;
 @property( retain) CGContext                  *context;
 @property( retain) id                         userInfo;
 @property( retain) UIPasteboard               *pasteboard;
-@property( assign, readonly) CGPoint          mousePosition;
+@property( assign, readonly) CGPoint          mouseLocation;
 @property( assign, readonly) uint64_t         mouseButtonStates;
 @property( assign, readonly) uint64_t         modifiers;
 @property( assign, readonly) CGFloat          primaryMonitorPPI;

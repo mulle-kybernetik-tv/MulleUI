@@ -34,6 +34,9 @@
 
 - (BOOL) becomeFirstResponder
 {
+   // I think calling this too often is not good, as it does too much
+   assert( ! [self isFirstResponder]);
+      
    if( [super becomeFirstResponder])
    {
       fprintf( stderr, "become\n");
