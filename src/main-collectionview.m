@@ -54,6 +54,8 @@ static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
 }
 
 
+
+
 int   main()
 {
    CGContext   *context;

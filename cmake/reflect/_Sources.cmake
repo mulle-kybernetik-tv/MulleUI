@@ -11,6 +11,7 @@ src/main-buttons.m
 src/main-calculator.m
 src/main-collectionview.m
 src/main-draw.m
+src/main-imageview.m
 src/main-jspiechart.m
 src/main-layer.m
 src/main-many-rectangles.m
@@ -70,6 +71,7 @@ src/MulleStepperLayer.m
 src/MulleTextLayer.m
 src/MulleTextureImage.m
 src/MulleTrackingArea.m
+src/NSIndexPath.m
 src/NSValue+CGGeometry.m
 src/PSTCollectionView/NSIndexPath+PSTCollectionViewAdditions.m
 src/PSTCollectionView/NSString+CGGeometry.m
@@ -89,11 +91,13 @@ src/PSTCollectionView/UIViewController.m
 src/UIApplication.m
 src/UIButton+UIResponder.m
 src/UIButton.m
+src/UICollectionViewCell.m
 src/UICollectionView.m
 src/UIColor.m
 src/UIControl.m
 src/UIEvent.m
 src/UIFont.m
+src/UIImageView.m
 src/UIImage.m
 src/UILabel.m
 src/UIPasteboard.m

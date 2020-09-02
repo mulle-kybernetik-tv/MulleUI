@@ -9,7 +9,7 @@
             "MIMode": "gdb",
             "request": "launch",
             "stopAtEntry": false,
-            "program": "${workspaceFolder}/kitchen/Debug/textfield",
+            "program": "${workspaceFolder}/kitchen/Debug/imageview",
             "args": [],
             "environment": [],
             "cwd": "${workspaceFolder}",

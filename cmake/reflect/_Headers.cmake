@@ -91,6 +91,7 @@ src/MulleStepperLayer.h
 src/MulleTextLayer.h
 src/MulleTextureImage.h
 src/MulleTrackingArea.h
+src/NSIndexPath.h
 src/NSValue+CGGeometry.h
 src/PSTCollectionView/NSIndexPath+PSTCollectionViewAdditions.h
 src/PSTCollectionView/NSString+CGGeometry.h
@@ -113,6 +114,7 @@ src/Roboto-Regular.inc
 src/UIApplication.h
 src/UIButton+UIResponder.h
 src/UIButton.h
+src/UICollectionViewCell.h
 src/UICollectionView.h
 src/UIColor.h
 src/UIControl.h
@@ -120,6 +122,7 @@ src/UIEdgeInsets+CString.h
 src/UIEdgeInsets.h
 src/UIEvent.h
 src/UIFont.h
+src/UIImageView.h
 src/UIImage.h
 src/UILabel.h
 src/UIPasteboard.h

@@ -14,6 +14,8 @@ typedef float   _NVGtransform[ 6];
 struct MulleFrameInfo;
 struct CAAnimationOptions;
 
+
+
 @interface CALayer : NSObject < NSCopying>
 {
    _NVGtransform               _transform;

@@ -74,6 +74,8 @@
       return( YES);
    }
 
+   // TODO: check contentMode and translate/scale accordingly
+
    imageSize = [_image size];
    vg        = [context nvgContext];
    imgPaint  = nvgImagePattern( vg, 0, 0, imageSize.width, imageSize.height, 0.0f/180.0f*NVG_PI, textureId, 1.0);

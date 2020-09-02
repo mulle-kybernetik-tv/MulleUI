@@ -89,6 +89,7 @@ enum UILayoutStrategy
                  
 @property CGFloat              alpha;
 @property UIViewAutoresizing   autoresizingMask; 
+// used with autoresizingMask. Check conflict with contentInsets (not the same)
 @property UIEdgeInsets         margins; 
 
 // possibly UIStackView should store this in an array of its own,
@@ -105,7 +106,7 @@ enum UILayoutStrategy
 
 - (instancetype) initWithFrame:(CGRect) frame;
 
-// designated initializer
+// designated initializer, override this for defaults
 - (instancetype) initWithLayer:(CALayer *) layer;
 
 - (void) mulleAddRetainedLayer:(CALayer *) layer;

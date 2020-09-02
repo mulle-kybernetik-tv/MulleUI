@@ -39,11 +39,11 @@
    Class     cls;
 
    cls   = [[self class] layerClass];
-   layer = [[cls alloc] initWithFrame:frame];
+   layer = [[[cls alloc] initWithFrame:frame] autorelease];
    self  = [self initWithLayer:layer];
-   [layer release];
    return( self);
 }
+
 
 // designated initializer
 - (instancetype) initWithLayer:(CALayer *) layer

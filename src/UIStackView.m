@@ -137,7 +137,6 @@ struct UIStackViewLayoutContext
    mulle_pointerarrayenumerator_done( &rover);
 }
 
-
 //
 // UIStackViewDistributionFill
 //
@@ -371,7 +370,7 @@ struct UIStackViewLayoutContext
    while( _mulle_pointerarrayenumerator_next( &rover, (void **) &view))
    {
       frame = [view frame];
-      if( frame.size.value[ axis] > rowBounds.size.value[ axis] - (column ? spacing.value[ axis] : 0))
+      if( frame.size.value[ axis] > rowBounds.size.value[ axis])
       {
          // start a new row
          column                             = 0;

@@ -2,6 +2,7 @@
 
 #import "UIWindow+UIEvent.h"
 #import "UIView+CGGeometry.h"
+#import "CGGeometry+CString.h"
 
 
 @implementation UIEvent 
