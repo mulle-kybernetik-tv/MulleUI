@@ -1,46 +1,45 @@
-//******************************************************************************
 //
-// Copyright (c) Microsoft. All rights reserved.
-// Copyright (c) 2007 Dirk Theisen
-// Portions Copyright (c) 2013 Peter Steinberger. All rights reserved.
+// Copyright (c) 2020 Nat!, Mulle kybernetiK
 //
-// This code is licensed under the MIT License (MIT).
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-//
-//******************************************************************************
+#ifdef __has_include
+# if __has_include( "NSObject.h")
+#  import "NSObject.h"
+# endif
+#endif
+
 #import "import.h"
 
 
-@interface NSIndexPath : NSObject <NSCopying, MulleObjCImmutable>
+@interface NSIndexPath : NSObject < NSCopying>
 {
-   NSUInteger    *_indexes;
-   NSUInteger    _length;
+   NSUInteger   _length;
+   NSUInteger   _storage[ 1];
 }
 
-
 + (instancetype) indexPathWithIndex:(NSUInteger) index;
-+ (instancetype) indexPathWithIndexes:(NSUInteger *) indexes
++ (instancetype) indexPathWithIndexes:(NSUInteger *) index
                                length:(NSUInteger) length;
-- (instancetype) initWithIndex:(NSUInteger) index;
-- (instancetype) initWithIndexes:(NSUInteger *) indexes
-                          length:(NSUInteger) length;
-- (instancetype) init;
 
++ (instancetype) indexPathForRow:(NSUInteger) row
+                       inSection:(NSUInteger) section;
++ (instancetype) indexPathForItem:(NSUInteger) item 
+                        inSection:(NSUInteger) section;
+
+- (NSUInteger) indexAtPosition:(NSUInteger) index;
+- (void) getIndexes:(NSUInteger *) indexes
+              range:(NSRange) range;
+
+- (void) getIndexes:(NSUInteger *) indexes;
+
+- (NSUInteger) section;
+- (NSUInteger) row;
+- (NSUInteger) item;
 - (NSUInteger) length;
 
-- (NSUInteger) indexAtPosition:(NSUInteger)node;
-- (NSIndexPath *) indexPathByAddingIndex:(NSUInteger)index;
+- (NSComparisonResult) compare:(id) other;
+
+- (NSIndexPath *) indexPathByAddingIndex:(NSUInteger) newIndex;
 - (NSIndexPath *) indexPathByRemovingLastIndex;
-- (void) getIndexes:(NSUInteger *) indexes
-              range:(NSRange)positionRange;
-- (void) getIndexes:(NSUInteger *) indexes;
-- (NSComparisonResult) compare:(NSIndexPath * )indexPath;
+
 
 @end

@@ -26,6 +26,16 @@
 - (void) prepareForReuse
 {
    // clean stuff
+   [self setSelected:NO];
+   [self setHighlighted:NO];
+}
+
+
+- (UIView *) contentView
+{
+   return( self);
 }
 
 @end
+
+

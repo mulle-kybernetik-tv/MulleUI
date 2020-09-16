@@ -44,7 +44,7 @@
 
 @interface UIScrollView : UIView
 {
-	UIScrollContentView         *_contentView;
+	UIView                      *_contentView;
 	MulleScrollIndicatorView    *_horIndicatorView;
 	MulleScrollIndicatorView    *_verIndicatorView;
 
@@ -82,10 +82,10 @@
 - (CGPoint) clampedContentOffset:(CGPoint) offset;
 - (CGRect) clampedContentViewBounds:(CGRect) bounds;
 
++ (UIView *) mulleScrollContentsViewWithFrame:(CGRect) frame;
+
 @end
 
 
 @interface UIScrollContentView : UIView
-{
-}
 @end

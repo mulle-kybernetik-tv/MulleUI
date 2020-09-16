@@ -65,11 +65,15 @@ typedef NSUInteger    UIControlState;
    @property( assign) id  target;                   \
    @property( assign) SEL action;                   \
    @property( assign) UIControlClickHandler  *click
+
 //
-// A UIControl translates event into target/Action or click Events
-// 
+// A UIControl translates event into target/Action or click Events. Though
+// it provides states for selection and highlighting. It does not change them
+// on events by itself (well highlighting it does currently, but should it ?)
+//
 PROTOCOLCLASS_INTERFACE( UIControl, UIResponder)
 
+// TODO: put a userinfo into this ?
 typedef UIEvent   *UIControlClickHandler( id <UIControl> control, 
                                           UIEvent *event);
 

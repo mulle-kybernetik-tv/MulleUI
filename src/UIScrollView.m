@@ -2,9 +2,10 @@
 
 #import "CGContext.h"
 #import "CGGeometry+CString.h"
+#import "UIView+CGGeometry.h"
+#import "UIView+Layout.h"
 #import "UIView+UIEvent.h"
 #import "UIView+UIResponder.h"
-#import "UIView+CGGeometry.h"
 #import "UIView+Yoga.h"
 #import "UIEvent.h"
 #import "UIEdgeInsets.h"
@@ -23,10 +24,23 @@
 
 @implementation UIScrollView 
 
+// UICollectionView wants to use a different view here
++ (UIView *) mulleScrollContentsViewWithFrame:(CGRect) frame
+{
+   UIScrollContentView   *view;
+
+   view = [[[UIScrollContentView alloc] initWithFrame:frame] autorelease];
+   [view setCStringName:"ScrollViewContentView"];
+   return( view);
+}
+
+
 - (id) initWithLayer:(CALayer *) layer
 {
-   assert( ! layer || [layer isKindOfClass:[CALayer class]]);
    CGRect   frame;
+   Class    cls;
+
+   assert( ! layer || [layer isKindOfClass:[CALayer class]]);
 
    self = [super initWithLayer:layer];
    frame = CGRectZero;
@@ -42,8 +56,8 @@
    frame.origin = CGPointZero;
    frame.size   = [layer frame].size;
 
-   _contentView = [[UIScrollContentView alloc] initWithFrame:frame];
-   [_contentView setCStringName:"ScrollViewContentView"];
+   cls          = [self class];
+   _contentView = [[cls mulleScrollContentsViewWithFrame:frame] retain];
 	[self mulleAddRetainedSubview:_contentView];
 
    // hide, and show after relayout
@@ -287,6 +301,7 @@
 	CGRect         bounds;
 	CGRect         horFrame;
 	CGRect         verFrame;
+	CGRect         contentViewFrame;
 	CGFloat        offset;
 	UIEdgeInsets   insets;
    CGFloat        end;
@@ -302,8 +317,13 @@
                   CGRectCStringDescription( bounds));
 #endif
 
+//
 // determined solely by contentSize/offset and own bounds
-	[_contentView setFrame:bounds];
+// putting margins on the contentView is not a good thing though
+//
+	insets           = [_contentView margins];
+	contentViewFrame = UIEdgeInsetsInsetRect( bounds, insets);
+	[_contentView setFrame:contentViewFrame];
 
    end = SCROLLER_OFFSET_END;
    if( [_horIndicatorView isHidden] || [_verIndicatorView isHidden])

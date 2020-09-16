@@ -168,7 +168,7 @@
       target = _mainLayer;
       break;
    }
-   return( mulle_objc_object_inlinecall_variablemethodid( target,
+   return( mulle_objc_object_call_variablemethodid_inline( target,
                                                           (mulle_objc_methodid_t) _cmd,
                                                           param));
 }

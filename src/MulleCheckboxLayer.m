@@ -72,12 +72,15 @@ static char  *cpToUTF8(int cp, char* str)
    if( fontPixelSize == 0.0)
       fontPixelSize = frame.size.height;
 
-   vg     = [context nvgContext];
-	nvgFontSize( vg, fontPixelSize);
-	nvgFontFace( vg, name);
-   nvgTextColor( vg, nvgRGBA(255,255,255,255), [self backgroundColor]); // TODO: use textColor
-   nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
-   nvgText(vg, frame.origin.x + 28, frame.origin.y + frame.size.height * 0.5f, _cString, NULL);
+   vg = [context nvgContext];
+   if( _cString)
+   {
+   	nvgFontSize( vg, fontPixelSize);
+   	nvgFontFace( vg, name);
+      nvgTextColor( vg, nvgRGBA(255,255,255,255), [self backgroundColor]); // TODO: use textColor
+      nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
+      nvgText(vg, frame.origin.x + 28, frame.origin.y + frame.size.height * 0.5f, _cString, NULL);
+   }
 
    bg = nvgBoxGradient(vg, frame.origin.x + 1, frame.origin.y + (int)(frame.size.height * 0.5f) - 9 + 1, 18, 18, 3, 3, nvgRGBA(0, 0, 0, 32), nvgRGBA(0, 0, 0, 92));
    nvgBeginPath(vg);
@@ -92,7 +95,7 @@ static char  *cpToUTF8(int cp, char* str)
 
       nvgFontSize(vg, 40);
       nvgFontFace(vg, name);
-      nvgTextColor( vg, nvgRGBA(255,255,255,255), [self backgroundColor]); // TODO: use textColor
+      nvgTextColor( vg, nvgRGBA(0,32,0,255), [self backgroundColor]); // TODO: use textColor
       nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
       nvgText(vg, frame.origin.x + 9 + 2, frame.origin.y + frame.size.height * 0.5f, cpToUTF8(ICON_CHECK, icon), NULL);
    }

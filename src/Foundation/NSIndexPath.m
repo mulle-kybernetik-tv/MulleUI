@@ -21,118 +21,133 @@
 #include <string.h>
 
 
+@implementation NSObject( NSIndexPath)
+
+- (BOOL) __isNSIndexPath
+{
+   return( NO);
+}
+
+@end
+
+
 @implementation NSIndexPath
 
-+ (NSIndexPath *) indexPathWithIndex:(NSUInteger) index
+- (BOOL) __isNSIndexPath
 {
-    return( [[[self alloc] initWithIndexes:&index
-                                   length:1] autorelease]);
+   return( YES);
 }
 
 
-+ (NSIndexPath *) indexPathWithIndexes:(NSUInteger*) indexes
-                                length:(NSUInteger) length
++ (instancetype) indexPathWithIndex:(NSUInteger) index
 {
-    return( [[[self alloc] initWithIndexes:indexes
-                                    length:length] autorelease]);
+   return( [self indexPathWithIndexes:&index
+                               length:1]);
 }
 
 
-- (instancetype) init
-{
-    return( [self initWithIndexes:NULL
-                          length:0]);
-}
-
-
-- (instancetype) initWithIndex:(NSUInteger) index
-{
-    return( [self initWithIndexes:&index
-                           length:1]);
-}
-
-
-- (instancetype) initWithIndexes:(NSUInteger *) indexes
-                          length:(NSUInteger) length
-{
-   assert( ! length || indexes);
-
-   if( self = [super init])
-   {
-      if( length)
-      {
-         _indexes = MulleObjCObjectAllocateNonZeroedMemory( self, length * sizeof( NSUInteger));
-         _length  = length;
-         memcpy( _indexes, indexes, length * sizeof( NSUInteger));
-      }
-   }
-
-   return( self);
-}
-
-- (instancetype) mulleInitWithIndexes:(NSUInteger *) indexes
++ (instancetype) indexPathWithIndexes:(NSUInteger *) indexes
                                length:(NSUInteger) length
-                             andIndex:(NSUInteger) index
 {
-   assert( ! length || indexes);
+   NSIndexPath   *indexPath;
+   NSUInteger    extra;
 
-   if( self = [super init])
-   {
-      _length  = length + 1;
-      _indexes = MulleObjCObjectAllocateNonZeroedMemory( self, _length * sizeof( NSUInteger));
-      memcpy( _indexes, indexes, length * sizeof( NSUInteger));
-      _indexes[ length] = index;
-   }
+   extra     = length ? (sizeof( NSUInteger) * (length - 1)) : 0;
+   indexPath = [NSAllocateObject( self, extra, NULL) autorelease];
+   indexPath->_length = length;
+   memcpy( indexPath->_storage, indexes, length * sizeof( NSInteger));
+   return( indexPath);
+}
 
-   return( self);
++ (instancetype) mulleIndexPathWithIndexes:(NSUInteger *) indexes
+                                    length:(NSUInteger) length
+                                  andIndex:(NSUInteger) index
+{
+   NSIndexPath   *indexPath;
+   NSUInteger    extra;
+
+   extra     = sizeof( NSUInteger) * length;
+   indexPath = [NSAllocateObject( self, extra, NULL) autorelease];
+   memcpy( indexPath->_storage, indexes, length * sizeof( NSInteger));
+   indexPath->_storage[ length] = index;
+   indexPath->_length = length + 1;
+
+   return( indexPath);
+}
+
+#pragma clang diagnostic ignored  "-Warray-bounds"
+
++ (instancetype) indexPathForRow:(NSUInteger) row
+                       inSection:(NSUInteger) section
+{
+   NSIndexPath   *indexPath;
+
+   indexPath               = [NSAllocateObject( self, sizeof( NSUInteger), NULL) autorelease];
+   indexPath->_length      = 2;
+   indexPath->_storage[ 0] = section;
+   indexPath->_storage[ 1] = row;
+
+   return( indexPath);
 }
 
 
-- (BOOL) isEqual:(id) other
++ (instancetype) indexPathForItem:(NSUInteger) item 
+                        inSection:(NSUInteger) section
 {
-   NSIndexPath  *otherPath;
-   NSUInteger   otherLength;
+   NSIndexPath   *indexPath;
 
-   if( ! [other isKindOfClass:[NSIndexPath class]])
-      return( NO);
-   otherPath = other;
+   indexPath               = [NSAllocateObject( self, sizeof( NSUInteger), NULL) autorelease];
+   indexPath->_length      = 2;
+   indexPath->_storage[ 0] = section;
+   indexPath->_storage[ 1] = item;
 
-   otherLength = [other length];
-   if( otherLength != _length)
-      return( NO);
+   return( indexPath);
+}
 
-   return( memcmp( _indexes, otherPath->_indexes, otherLength * sizeof( NSUInteger)) == 0);
+- (NSUInteger) indexAtPosition:(NSUInteger) index
+{
+   return( index < _length ? _storage[ index] : NSNotFound);
 }
 
 
-- (NSUInteger) indexAtPosition:(NSUInteger) position
+- (void) getIndexes:(NSUInteger *) indexes
+              range:(NSRange) range
 {
-   return( position < _length ? _indexes[ position] : NSNotFound);
+   range = MulleObjCValidateRangeAgainstLength( range, _length);
+   memcpy( indexes, 
+           &_storage[ range.location], 
+           sizeof( NSUInteger) * range.length);
+
 }
 
 
-- (void) getIndexes:(NSUInteger*) indexes
+- (void) getIndexes:(NSUInteger *) indexes
 {
-   memcpy( indexes, _indexes, _length * sizeof( NSUInteger));
+   memcpy( indexes, _storage, sizeof( NSUInteger) * _length);
 }
 
 
-- (NSIndexPath *) indexPathByAddingIndex:(NSUInteger) newIndex
+- (NSUInteger) section
 {
-   assert( newIndex != NSNotFound);
-   return( [[[NSIndexPath alloc] mulleInitWithIndexes:_indexes
-                                               length:_length
-                                             andIndex:newIndex]
-                                                         autorelease]);
+   if( ! _length)
+      abort();
+   return( _storage[ 0]);
 }
 
 
-- (NSIndexPath *) indexPathByRemovingLastIndex
+- (NSUInteger) row
 {
-   if( _length)
-      return( [NSIndexPath indexPathWithIndexes:_indexes
-                                         length:_length - 1]);
-   return( self);
+   if( _length < 2)
+      abort();
+   return( _storage[ 1]);
+}
+
+
+- (NSUInteger) item
+{
+   if( _length < 2)
+      abort();
+   return( _storage[ 1]);
 }
 
 
@@ -142,60 +157,91 @@
 }
 
 
-// TODO: use better hash ?
 - (NSUInteger) hash
 {
-   return( (NSUInteger) _mulle_objc_fnv1a( _indexes, _length * sizeof( NSUInteger)));
-}
-
-
-- (NSComparisonResult) compare:(NSIndexPath *) other
-{
-   NSUInteger   len1;
-   NSUInteger   len2 ;
-   NSUInteger   val1;
-   NSUInteger   val2;
    NSUInteger   i;
+   NSUInteger   hash;
 
-   assert( [other isKindOfClass:[NSIndexPath class]]);
-
-   if( self == other)
-      return( NSOrderedSame);
-   if( ! other)
-      return( NSOrderedDescending);
-
-   len1 = _length;
-   len2 = other->_length;
-
-   for( i = 0; i < len1 && i < len2; i++)
-   {
-      val1 = _indexes[ i];
-      val2 = other->_indexes[ i];
-
-      if( val1 != val2)
-         return( val1 < val2 ? NSOrderedAscending : NSOrderedDescending);
-   }
-
-   if( len1 != len2)
-      return( len1 < len2 ? NSOrderedAscending : NSOrderedDescending);
-   return( NSOrderedSame);
+   hash = 0xc2b2ae35;   // TODO: NAIVE SEED CHECK THAT THIS IS GOOD
+   for( i = 0; i < _length; i++)
+      hash ^= mulle_hash_integer( _storage[ i]);
+   return( hash);
 }
 
 
-- (void) getIndexes:(NSUInteger *) indexes
-              range:(NSRange) range
+- (BOOL) isEqualToIndexPath:(NSIndexPath *) other 
 {
-   if( range.location + range.length > _length || range.length > _length)
-   {
-      fprintf( stderr, "-[%s]: range [%lu, %lu] beyond bounds (%lu)\n",
-                           __FUNCTION__,
-                           (unsigned long) range.location,
-                           (unsigned long) range.length,
-                           (unsigned long) _length);
-      abort();
-   }
+   NSUInteger   otherLength;
 
-   memcpy( indexes, &_indexes[ range.location], range.length * sizeof( NSUInteger));
+   // allow for lazyness
+   otherLength = [other length];
+   if( otherLength != [self length])
+      return( NO);
+
+   return( memcmp( _storage, other->_storage, otherLength * sizeof( NSUInteger)) == 0);
+}
+
+
+- (BOOL) isEqual:(id) other 
+{
+   if( ! [other __isNSIndexPath])
+      return( NO);
+   return( [other isEqualToIndexPath:self]);
+}
+
+//
+// 1.2 is considered larger than 1.1.3
+//
+- (NSComparisonResult) compare:(id) other;
+{
+   NSUInteger   length;
+   NSUInteger   otherLength;
+   NSUInteger   i, n;
+
+   NSParameterAssert( ! other || [other isKindOfClass:[NSIndexPath class]]);
+
+   length      = [self length];
+   otherLength = [other length];
+
+   n = length < otherLength ? length : otherLength;
+   for( i = 0; i < n; i++)
+   {
+      if( _storage[ i] == ((NSIndexPath *) other)->_storage[ i])
+         continue;
+      if( _storage[ i] < ((NSIndexPath *) other)->_storage[ i])
+         return( NSOrderedAscending);
+      return( NSOrderedDescending);
+   }
+   if( length == otherLength)
+      return( NSOrderedSame);
+   if ( length < otherLength)
+      return( NSOrderedAscending);
+   return( NSOrderedDescending);
+}
+
+
+
+- (NSIndexPath *) indexPathByAddingIndex:(NSUInteger) newIndex
+{
+   assert( newIndex != NSNotFound);
+   return( [NSIndexPath mulleIndexPathWithIndexes:_storage
+                                            length:_length
+                                          andIndex:newIndex]);
+}
+
+
+- (NSIndexPath *) indexPathByRemovingLastIndex
+{
+   if( _length)
+      return( [NSIndexPath indexPathWithIndexes:_storage
+                                         length:_length - 1]);
+   return( self);
+}
+
+
+- (id) copy
+{
+   return( [self retain]);
 }
 
 @end

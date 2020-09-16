@@ -30,7 +30,11 @@
 //    remove for os:   `mulle-sourcetree mark Foundation no-os-<osname>`
 # import <Foundation/Foundation.h>   // Foundation
 
-#include "_MulleUI-include.h"
+#ifdef __has_include
+# if __has_include( "_MulleUI-include.h")
+#  include "_MulleUI-include.h"
+# endif
+#endif
 
 
 #endif

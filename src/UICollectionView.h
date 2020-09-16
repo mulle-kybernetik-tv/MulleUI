@@ -5,14 +5,14 @@
 
 #import "import.h"
 
-@class UICollectionView;
-@class UICollectionViewCell;
-@class NSIndexPath;
+#import "UICollectionViewCell.h"
 
+@class UICollectionView;
+@class NSIndexPath;
 
 //
 // Move UICollectionView to MulleUIPlus, which is based on Foundation
-// whereas the other code is from NSArray/NSMutableArray
+// whereas the UIView doesn't really use NSArray/NSMutableArray.
 //
 
 @protocol UICollectionViewDataSource 
@@ -34,25 +34,29 @@
 // it manages them via a data source. The UICollectionView in MulleUI always
 // has only one section. Section 0. There are no adorning views.
 //
-@interface UICollectionView : UIScrollView
+@interface UICollectionView : UIScrollView < UICollectionViewCellDelegate>
 {
    NSMutableDictionary   *_cellClassRegistry;
    NSMutableDictionary   *_cellPool;
+   NSMutableSet          *_selectedIndexes;  // indices ??
 }
 
 @property( assign) id <UICollectionViewDataSource>   dataSource;
 
 @property( retain) Class    cellClass;  // UICollectionViewCell is default
-@property( assign) CGSize   cellSize;
+@property( assign) CGSize   itemSize;
 @property( assign) CGSize   itemSpacing;    
 
 - (void) reloadData;
 
-- (void)     registerClass:(Class)cellClass 
-forCellWithReuseIdentifier:(NSString *)identifier;
+- (void)     registerClass:(Class) cellClass 
+forCellWithReuseIdentifier:(NSString *) identifier;
 
 - (UICollectionViewCell *) 
    dequeueReusableCellWithReuseIdentifier:(NSString *) identifier 
                              forIndexPath:(NSIndexPath *) indexPath;
+
+- (NSArray *) indexPathsForSelectedItems;
+- (NSIndexPath *) indexPathForCell:(UICollectionViewCell *) cell;
 
 @end

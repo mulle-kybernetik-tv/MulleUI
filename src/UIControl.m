@@ -193,6 +193,7 @@ PROTOCOLCLASS_IMPLEMENTATION( UIControl)
    return( nil);
 }
 
+
 - (UIEvent *) mouseExited:(UIEvent *) event
 {
 #ifdef LOG_EVENTS   
@@ -317,6 +318,7 @@ static inline BOOL   getStateBit( UIControl *self, enum UIControlStateBit bit)
 	state = [self state];
 	return( state & bit ? YES : NO);
 }
+
 
 - (void) mulleToggleSelectedState
 {

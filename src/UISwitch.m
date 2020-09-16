@@ -39,19 +39,6 @@
       
    if( [super becomeFirstResponder])
    {
-      fprintf( stderr, "become\n");
-      [self mulleToggleSelectedState];
-      return( YES);
-   }
-   return( NO);
-}
-
-
-- (BOOL) resignFirstResponder
-{
-   if( [super resignFirstResponder])
-   {
-      fprintf( stderr, "resign\n");
       [self mulleToggleSelectedState];
       return( YES);
    }

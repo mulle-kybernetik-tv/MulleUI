@@ -43,20 +43,21 @@ int   main()
    CGRect               frame;
    CGRect               bounds;
    CGContext            *context;
-   UIWindow             *window;
-   UIView               *view;
+   UIApplication        *application;
    UIButton             *button;
-   UILabel              *label;
-   UIStepper            *stepper;
+   UIButton             *inScrollerButton;
    UIButton             *insideButton;
    UIButton             *nestedButton;
-   UIButton             *inScrollerButton;
-   UIButton             *uiButton;
    UIButton             *trackingButton;
-   UISegmentedControl   *segmentedControl;
+   UIButton             *uiButton;
+   UILabel              *label;
    UIScrollView         *scroller;
-   UIApplication        *application;
+   UISegmentedControl   *segmentedControl;
+   UIStepper            *stepper;
+   UISwitch             *switchButton;
    UIView               *contentView;
+   UIView               *view;
+   UIWindow             *window;
 
    /*
     * window and app 
@@ -149,6 +150,19 @@ int   main()
                                          toWindow:window
                                          userInfo:nil];
          [contentView addSubview:trackingButton];
+
+         // [insideButton setClipsSubviews:YES];
+      }
+
+      /* UISwitch */
+      {
+         frame.origin.x    = 20;
+         frame.origin.y   += 100;
+         frame.size.width  = 120;
+         frame.size.height = 44;
+
+         switchButton = [[[UISwitch alloc] initWithFrame:frame] autorelease];
+         [contentView addSubview:switchButton];
 
          // [insideButton setClipsSubviews:YES];
       }

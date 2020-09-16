@@ -321,7 +321,7 @@
 - (void *) forward:(void *) param
 {
    assert( _mainLayer); // window should not forward...
-   return( mulle_objc_object_inlinecall_variablemethodid( _mainLayer,
+   return( mulle_objc_object_call_variablemethodid_inline( _mainLayer,
                                                           (mulle_objc_methodid_t) _cmd,
                                                           param));
 }
