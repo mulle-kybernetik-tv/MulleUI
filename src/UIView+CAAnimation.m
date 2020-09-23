@@ -3,6 +3,7 @@
 #import "import-private.h"
 
 #import "CALayer.h"
+#import "CALayer+CAAnimation.h"
 
 
 @implementation UIView ( CAAnimation)

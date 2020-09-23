@@ -456,7 +456,7 @@
       {
 #ifdef EVENT_DEBUG
          fprintf( stderr, "First Responder handled event: %s\n",
-                        [responder cStringDescription]);
+                        (char *) [responder cStringDescription]);
 #endif         
          return( event);
       }

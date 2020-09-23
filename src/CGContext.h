@@ -162,6 +162,7 @@ struct MulleFrameInfo
    struct mulle__pointermap     *_images;
    struct mulle_map             _fontMap;
    CAAbsoluteTime               _renderStartTimestamp;
+   CAAbsoluteTime               _firstRenderStartTimestamp;
    BOOL                         _isRendering;
 }
 
@@ -176,8 +177,7 @@ struct MulleFrameInfo
 - (void) endRender;
 - (void) resetTransform;
 
-- (CGFont *) fontWithName:(char *) s;
-- (CGFloat) fontScale;
+
 - (CAAbsoluteTime) renderStartTimestamp;
 
 // this will retain the image to maintain an internal mapping of

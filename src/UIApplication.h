@@ -16,3 +16,10 @@
 - (void) terminate;
 
 @end
+
+
+@interface UIApplication( OS)
+
+- (void) os_terminate;
+
+@end

@@ -52,6 +52,7 @@ src/CGAffineTransform.h
 src/CGBase.h
 src/CGColor+MulleObjC.h
 src/CGColor.h
+src/CGContext+CGFont.h
 src/CGContext.h
 src/CGFont.h
 src/CGGeometry+CString.h

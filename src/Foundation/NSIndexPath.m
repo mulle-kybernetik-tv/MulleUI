@@ -164,7 +164,7 @@
 
    hash = 0xc2b2ae35;   // TODO: NAIVE SEED CHECK THAT THIS IS GOOD
    for( i = 0; i < _length; i++)
-      hash ^= mulle_hash_integer( _storage[ i]);
+      hash ^= mulle_integer_hash( _storage[ i]);
    return( hash);
 }
 

@@ -124,7 +124,7 @@
       if( modifiers == 2)
          [self copy];
       return( nil);
-   case 'XS'  :
+   case 'X'  :
       if( modifiers == 2)
          [self cut];
       return( nil);

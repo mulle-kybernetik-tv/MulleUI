@@ -18,6 +18,12 @@
 @interface UIWindow( UIPasteboard)
 
 - (UIPasteboard *) pasteboard;
+
+@end 
+
+
+@interface UIWindow( OSPasteboard)
+
 - (char *) pasteboardCString;
 - (void) setPasteboardCString:(char *) s;
 

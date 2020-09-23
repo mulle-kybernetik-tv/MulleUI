@@ -72,9 +72,7 @@
 - (void) terminate
 {
    mulle_array_reset( &_windows);
-
-	glfwTerminate();
+   [self os_terminate];
 }
-
 
 @end

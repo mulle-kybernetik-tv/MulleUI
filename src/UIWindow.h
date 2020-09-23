@@ -68,3 +68,33 @@ typedef UIView   MulleWindowPlane;
 - (void) dump;
 
 @end
+
+
+@interface UIWindow( OSWindow)
+
++ (void) os_initialize;
++ (CGFloat) os_primaryMonitorPPI;
+
+- (void) os_syncFrameWithWindow;
+- (void *) os_createWindowWithFrame:(CGRect) frame;
+- (CGSize) os_windowSize;
+- (CGSize) os_framebufferSize;
+- (void) os_requestClose;
+- (BOOL) os_windowShouldClose;
+
+- (void) os_setSwapInterval:(NSUInteger) value;
+- (void) os_swapBuffers;
+
+- (CGFloat) os_primaryMonitorRefreshRate;
+
+@end 
+
+
+@interface UIWindow( OSWindowEvents)
+
+- (void) _framebufferResizeCallback:(CGSize) size;
+- (void) _windowResizeCallback:(CGSize) size;
+- (void) _windowRefreshCallback;
+- (void) _windowMoveCallback:(CGPoint) position;
+
+@end

@@ -14,16 +14,40 @@
 
 @implementation UIWindow( UIEvent)
 
-static void   keyCallback( GLFWwindow* window,
-                           int key,
-                           int scancode,
-                           int action,
-                           int mods)
+- (void) waitForEvents:(double) hz
 {
-   UIWindow   *self;
-   UIEvent    *event;
+   if( hz == 0.0)
+      [self os_pollEvents];
+   else
+      [self os_waitEventsTimeout:1.0 / hz];
+}
 
-   self = glfwGetWindowUserPointer( window);
+
+- (void) discardPendingEvents
+{
+   BOOL   old;
+
+   old = _discardEvents;
+   _discardEvents = ~0;  // discard all
+   {
+      [self os_pollEvents];
+   }
+   _discardEvents = old;
+}
+
+
++ (void) sendEmptyEvent
+{
+   [self os_sendEmptyEvent];
+}
+
+
+- (void) _keyCallback:(int) key
+             scancode:(int) scancode
+               action:(int) action
+            modifiers:(int) mods                          
+{
+   UIEvent    *event;
 
 #ifdef CALLBACK_DEBUG
    fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
@@ -44,12 +68,9 @@ static void   keyCallback( GLFWwindow* window,
 }
 
 
-void   charCallback(GLFWwindow* window, unsigned int codepoint)
+- (void) _charCallback:(unsigned int) codepoint
 {
-   UIWindow   *self;
    UIEvent    *event;
-
-   self = glfwGetWindowUserPointer( window);
 
 #ifdef CALLBACK_DEBUG
    fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
@@ -67,16 +88,12 @@ void   charCallback(GLFWwindow* window, unsigned int codepoint)
 }
 
 
-static void   mouseButtonCallback( GLFWwindow* window,
-                                   int button,
-                                   int action,
-                                   int mods)
+- (void) _mouseButtonCallback:(int) button
+                       action:(int) action
+                    modifiers:(int) mods
 {
-   UIWindow   *self;
    UIEvent    *event;
    uint64_t   bit;
-
-   self  = glfwGetWindowUserPointer( window);
 
 #if defined( CALLBACK_DEBUG) || defined( MOUSE_BUTTON_CALLBACK_DEBUG)
    fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
@@ -103,18 +120,13 @@ static void   mouseButtonCallback( GLFWwindow* window,
 }
 
 
-static void   mouseMoveCallback( GLFWwindow* window,
-                                 double xpos,
-                                 double ypos)
+- (void) _mouseMoveCallback:(CGPoint) pos
 {
-   UIWindow   *self;
    UIEvent    *event;
    CGRect     frame;
 
-   self = glfwGetWindowUserPointer( window);
-
 #if defined( CALLBACK_DEBUG) || defined( MOUSE_MOTION_CALLBACK_DEBUG)
-   fprintf( stderr, "%s %s (%.1f, %.1f)\n", __PRETTY_FUNCTION__, [self cStringDescription], xpos, ypos);
+   fprintf( stderr, "%s %s (%.1f, %.1f)\n", __PRETTY_FUNCTION__, [self cStringDescription], pos.x, pos.y);
 #endif
 
    //
@@ -123,8 +135,8 @@ static void   mouseMoveCallback( GLFWwindow* window,
    //
    // we get not events for the window title bar
    // TODO: we might need to scale the values for DPI or ?
-	self->_mouseLocation.x = xpos;
-	self->_mouseLocation.y = ypos;
+	self->_mouseLocation.x = pos.x;
+	self->_mouseLocation.y = pos.y;
 
    //
    // Observed behaviour on linux: Depending on mouse sensitivity, it may
@@ -148,17 +160,12 @@ static void   mouseMoveCallback( GLFWwindow* window,
 }
 
 
-static void   mouseScrollCallback( GLFWwindow *window,
-                                   double xoffset,
-                                   double yoffset)
+- (void) _mouseScrollCallback:(CGPoint) offset
 {
-   UIWindow   *self;
    UIEvent    *event;
    uint64_t   bit;
    CGPoint    scrollOffset;
    CGFloat    sensitivity;
-
-   self  = glfwGetWindowUserPointer( window);
 
 #ifdef CALLBACK_DEBUG
    fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
@@ -170,14 +177,14 @@ static void   mouseScrollCallback( GLFWwindow *window,
    sensitivity = [self scrollWheelSensitivity];
    if( sensitivity != 0.0)
    {
-      xoffset *= sensitivity;
-      yoffset *= sensitivity;
+      offset.x *= sensitivity;
+      offset.y *= sensitivity;
    }
 
    if( [self isScrollWheelNatural])
-      scrollOffset = CGPointMake( xoffset, yoffset);
+      scrollOffset = CGPointMake( offset.x, offset.y);
    else
-      scrollOffset = CGPointMake( -xoffset, -yoffset);
+      scrollOffset = CGPointMake( -offset.y, -offset.y);
 
    event = [[UIMouseScrollEvent alloc] initWithWindow:self
                                         mouseLocation:self->_mouseLocation
@@ -188,47 +195,11 @@ static void   mouseScrollCallback( GLFWwindow *window,
 }
 
 
-- (void) _initEvent
-{
-   glfwSetMouseButtonCallback( _window, mouseButtonCallback);
-   glfwSetCursorPosCallback( _window, mouseMoveCallback);
-   glfwSetKeyCallback( _window, keyCallback);
-   glfwSetCharCallback( _window, charCallback);
-   glfwSetScrollCallback( _window, mouseScrollCallback);
-}
-
 - (id) _firstResponder
 {
    return( _firstResponder);
 }
 
-
-- (void) waitForEvents:(double) hz
-{
-   if( hz == 0.0)
-   	glfwPollEvents();
-   else
-     glfwWaitEventsTimeout( 1.0 / hz);
-}
-
-
-- (void) discardPendingEvents
-{
-   BOOL   old;
-
-   old = _discardEvents;
-   _discardEvents = ~0;  // discard all
-   {
-      glfwPollEvents();
-   }
-   _discardEvents = old;
-}
-
-
-+ (void) sendEmptyEvent
-{
-   glfwPostEmptyEvent();
-}
 
 
 # pragma mark - tracking rects

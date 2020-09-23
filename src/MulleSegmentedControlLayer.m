@@ -1,6 +1,7 @@
 #import "MulleSegmentedControlLayer.h"
 
 #import "CGContext.h"
+#import "CGContext+CGFont.h"
 #import "CGFont.h"
 #import "CGGeometry+CString.h"
 #import "MulleEdgeInsets.h"

@@ -22,16 +22,4 @@
    return( _pasteboard);
 }
 
-
-- (char *) pasteboardCString
-{
-   return( glfwGetClipboardString( _window));	
-}
-
-
-- (void) setPasteboardCString:(char *) s
-{
-   glfwSetClipboardString( _window, s ? s : "");
-}
-
 @end

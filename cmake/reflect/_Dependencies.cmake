@@ -8,7 +8,7 @@ endif()
 
 #
 # Generated from sourcetree: freetype;no-all-load,no-header,no-import,no-inplace,only-liftheaders;freetyped,freetype
-# Disable with: `mulle-sourcetree mark freetype no-link`
+# Disable with: `mulle-sourcetree mark freetype no-header`
 #
 if( NOT FREETYPED_LIBRARY)
    find_library( FREETYPED_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}freetyped${CMAKE_STATIC_LIBRARY_SUFFIX} freetyped ${CMAKE_STATIC_LIBRARY_PREFIX}freetype${CMAKE_STATIC_LIBRARY_SUFFIX} freetype NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
@@ -76,7 +76,7 @@ endif()
 
 #
 # Generated from sourcetree: glfw;no-all-load,no-import;glfw3
-# Disable with: `mulle-sourcetree mark glfw no-link`
+# Disable with: `mulle-sourcetree mark glfw no-header`
 #
 if( NOT GLFW3_LIBRARY)
    find_library( GLFW3_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}glfw3${CMAKE_STATIC_LIBRARY_SUFFIX} glfw3 NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
@@ -144,7 +144,7 @@ endif()
 
 #
 # Generated from sourcetree: mulle-testallocator;no-all-load,no-import,no-singlephase;
-# Disable with: `mulle-sourcetree mark mulle-testallocator no-link`
+# Disable with: `mulle-sourcetree mark mulle-testallocator no-header`
 #
 if( NOT MULLE_TESTALLOCATOR_LIBRARY)
    find_library( MULLE_TESTALLOCATOR_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}mulle-testallocator${CMAKE_STATIC_LIBRARY_SUFFIX} mulle-testallocator NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
@@ -212,7 +212,7 @@ endif()
 
 #
 # Generated from sourcetree: MulleJS;no-singlephase;
-# Disable with: `mulle-sourcetree mark MulleJS no-link`
+# Disable with: `mulle-sourcetree mark MulleJS no-header`
 #
 if( NOT MULLE_JS_LIBRARY)
    find_library( MULLE_JS_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}MulleJS${CMAKE_STATIC_LIBRARY_SUFFIX} MulleJS NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
@@ -297,7 +297,7 @@ endif()
 
 #
 # Generated from sourcetree: Foundation;no-singlephase;
-# Disable with: `mulle-sourcetree mark Foundation no-link`
+# Disable with: `mulle-sourcetree mark Foundation no-header`
 #
 if( NOT FOUNDATION_LIBRARY)
    find_library( FOUNDATION_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}Foundation${CMAKE_STATIC_LIBRARY_SUFFIX} Foundation NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
@@ -382,7 +382,7 @@ endif()
 
 #
 # Generated from sourcetree: Foundation-startup;no-cmakedependency,no-cmakeloader,no-dynamic-link,no-header,no-intermediate-link;
-# Disable with: `mulle-sourcetree mark Foundation-startup no-link`
+# Disable with: `mulle-sourcetree mark Foundation-startup no-header`
 #
 if( NOT FOUNDATION_STARTUP_LIBRARY)
    find_library( FOUNDATION_STARTUP_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}Foundation-startup${CMAKE_STATIC_LIBRARY_SUFFIX} Foundation-startup NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
@@ -417,7 +417,7 @@ endif()
 
 #
 # Generated from sourcetree: mujs;no-all-load,no-bequeath,no-cmakeloader,no-import,no-public,no-singlephase;
-# Disable with: `mulle-sourcetree mark mujs no-link`
+# Disable with: `mulle-sourcetree mark mujs no-header`
 #
 if( NOT MUJS_LIBRARY)
    find_library( MUJS_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}mujs${CMAKE_STATIC_LIBRARY_SUFFIX} mujs NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)

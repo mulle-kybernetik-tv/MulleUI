@@ -3,30 +3,15 @@
 #import "import-private.h"
 
 #import "CGContext.h"
-#include "CGGeometry+CString.h"
-
-#import "CGFont.h"
+#import "CGContext+CGFont.h"
 #import "CGGeometry+CString.h"
 #import "UIImage.h"
 #import "MulleBitmapImage.h"
 #import "MulleTextureImage.h"
 #include <stdio.h>
 
-// #define USE_ANONYMOUS_PRO
 
 
-#ifdef USE_ANONYMOUS_PRO
-# include "anonymous-pro.inc"
-# define FONT_DATA   Anonymous_Pro_ttf
-#else
-# include "Roboto-Regular.inc"
-# define FONT_DATA   Roboto_Regular_ttf
-#endif
-#include "entypo.inc"
-#include "emoji.inc"
-
-
-#define fallback_font_ttf NotoEmoji_Regular_ttf
 #define HAVE_MEM_GRAPH
 
 // #define RENDER_DEBUG
@@ -264,28 +249,6 @@ static char  geometryShaderSource[] =
 
    _currentFrameInfo = *info;
 
-   // > performance measurement
-   if( _currentFrameInfo.isPerfEnabled)
-   {
-      if( _perf.cpuTime == -1.0)
-      {
-         _perf.cpuTime = 0.0;
-
-         initGPUTimer( &_perf.gpuTimer);
-   	   glfwSetTime( 0);
-   	   _perf.prevt = glfwGetTime();
-
-         // render code want sans, so load it (now once)
-         [self fontWithName:"sans"];
-      }
-
-      t           = glfwGetTime();
-      _perf.dt    = t - _perf.prevt;
-      _perf.prevt = t;
-
-      startGPUTimer( &_perf.gpuTimer);
-   }
-   // < performance measurement
 #if RENDER_DEBUG
    if( ! CGSizeEqualToSize( info->frame.size, info->framebufferSize) ||
        ! CGSizeEqualToSize( info->frame.size, info->windowSize) ||
@@ -296,7 +259,30 @@ static char  geometryShaderSource[] =
                CGSizeCStringDescription( info->windowSize));
 #endif
    _renderStartTimestamp = CAAbsoluteTimeNow();
+   if( _renderStartTimestamp == 0.0)
+      _firstRenderStartTimestamp = _renderStartTimestamp;
 
+   // > performance measurement
+   if( _currentFrameInfo.isPerfEnabled)
+   {
+      if( _perf.cpuTime == -1.0)
+      {
+         _perf.cpuTime = 0.0;
+
+         initGPUTimer( &_perf.gpuTimer);
+   	   _perf.prevt = _renderStartTimestamp;
+
+         // render code want sans, so load it (now once)
+         [self fontWithName:"sans"];
+      }
+
+      t           = _renderStartTimestamp;
+      _perf.dt    = t - _perf.prevt;
+      _perf.prevt = t;
+
+      startGPUTimer( &_perf.gpuTimer);
+   }
+   // < performance measurement
    glViewport( 0, 0, info->frame.size.width, info->frame.size.height);
    nvgBeginFrame( _vg, info->frame.size.width,
                        info->frame.size.height,
@@ -328,11 +314,6 @@ static char  geometryShaderSource[] =
 }
 
 
-- (CGFloat) fontScale
-{
-   return( _currentFrameInfo.UIScale.dx * 1.35); // Still true ????
-}
-
 - (struct MulleFrameInfo *) currentFrameInfo
 {
    return( &_currentFrameInfo);
@@ -355,14 +336,14 @@ static char  geometryShaderSource[] =
 
 - (void) endRender
 {
-	float   gpuTimes[3];
-   int     i;
-   int     n;
-   CGFont  *font;
-   GLint   total;
-   GLint   unused;
-   int     y;
-   BOOL    perfEnabled;
+	float            gpuTimes[3];
+   int              i;
+   int              n;
+   GLint            total;
+   GLint            unused;
+   int              y;
+   BOOL             perfEnabled;
+   CAAbsoluteTime   now;
 
    assert( _isRendering);
    perfEnabled = _currentFrameInfo.isPerfEnabled;
@@ -390,8 +371,10 @@ static char  geometryShaderSource[] =
 
    if( perfEnabled)
    {
+      now = CAAbsoluteTimeNow();
+
       // > get performance values for current frame
-      _perf.cpuTime = glfwGetTime() - _perf.prevt;
+      _perf.cpuTime = now - _perf.prevt;
       updateGraph(&_perf.fps, _perf.dt);
       updateGraph(&_perf.cpuGraph, _perf.cpuTime);
 
@@ -412,78 +395,6 @@ static char  geometryShaderSource[] =
       // < get performance values for prcurrentevious frame
    }
 }
-
-
-//
-// TODO: use hash table to keep track of names and avoid duplicate loads of
-//       fonts
-//
-- (CGFont *) fallbackFont
-{
-   CGFont   *font;
-   int      fontIndex;
-
-   font = mulle_map_get( &_fontMap, "fallback");
-   if( font)
-      return( font);
-   
-   fontIndex = nvgCreateFontMem( [self nvgContext], 
-                                 "fallback", 
-                                 fallback_font_ttf, 
-                                 (int) sizeof( fallback_font_ttf), 
-                                 0);   
-   font      = [CGFont fontWithName:"fallback"
-                          fontIndex:fontIndex];  
-
-   mulle_map_insert( &_fontMap, "fallback", font);
-   return( font);
-}
-
-
-- (CGFont *) fontWithName:(char *) s
-{
-   CGFont   *font;
-   CGFont   *fallbackFont;
-   int       fontIndex;
-
-   font = mulle_map_get( &_fontMap, s);
-   if( font)
-      return( font);
-
-   fontIndex = -1;
-   if( ! strcmp( s, "sans"))
-   {
-      fontIndex = nvgCreateFontMem( _vg, 
-                                    s, 
-                                    FONT_DATA, 
-                                    (int) sizeof( FONT_DATA), 
-                                    0);
-   }
-   else
-      if( ! strcmp( s, "icons"))
-      {
-         fontIndex = nvgCreateFontMem( _vg, 
-                                       s, 
-                                       entypo_ttf, 
-                                       (int) sizeof( entypo_ttf), 
-                                       0);         
-      }
-
-   if( fontIndex == -1)
-      abort();
-
-   fallbackFont = [self fallbackFont];
-   if( fallbackFont)
-      nvgAddFallbackFontId( _vg, fontIndex, [fallbackFont fontIndex]);
-
-   font = [CGFont fontWithName:s
-                  fontIndex:fontIndex];
-   assert( font);
-   mulle_map_insert( &_fontMap, s, font);
- 
-   return( font);
-}
-
 
 
 // future, rasterize vector images to bitmaps here

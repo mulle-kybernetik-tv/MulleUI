@@ -34,158 +34,27 @@
 
 @implementation UIWindow
 
-static void   windowMoveCallback( GLFWwindow* window, int xpos, int ypos)
-{
-   UIWindow   *self;
-   CGRect     frame;
-
-   self = glfwGetWindowUserPointer( window);
-
-#ifdef CALLBACK_DEBUG
-   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
-#endif
-
-//   fprintf( stderr, "%p moved: x=%d y=%d\n", self, xpos, ypos);
-
-   frame        = [self frame];
-   frame.origin = CGPointMake( xpos, ypos);
-   [self setFrame:frame];
-   [self setNeedsLayout:YES];
-}
-
-
-static void   windowRefreshCallback( GLFWwindow* window)
-{
-   UIWindow   *self;
-
-   self = glfwGetWindowUserPointer( window);
-
-#ifdef CALLBACK_DEBUG
-   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
-#endif
-
-//   glfwPostEmptyEvent();
-//   [self syncFrame];
-//   [self frameDidChange];
-}
-
-
-// framebufferResize is more interesting though
-static void   windowResizeCallback( GLFWwindow* window, int width, int height)
-{
-   UIWindow   *self;
-
-   self = glfwGetWindowUserPointer( window);
-
-#ifdef CALLBACK_DEBUG
-   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
-#endif
-}
-
-
-static void   framebufferResizeCallback( GLFWwindow* window, int width, int height)
-{
-   UIWindow   *self;
-   CGRect     frame;
-
-   self = glfwGetWindowUserPointer( window);
-
-#ifdef CALLBACK_DEBUG
-   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
-#endif
-
-   fprintf( stderr, "%p resized: w=%d h=%d\n", self, width, height);
-
-   frame       = [self frame];
-   frame.size  = CGSizeMake( width, height);;
-   [self setFrame:frame];
-   [self setNeedsLayout:YES];
-   self->_resizing = YES;
-}
-
 
 + (void) initialize
 {
-   if( ! glfwInit())
-   {
-      fprintf( stderr, "Couldn't get GLFW initialized\n");
-      abort();
-   }
-   // calling glSwapInterval here is too early
+   [self os_initialize];
 }
 
 
 + (CGFloat) primaryMonitorPPI
 {
-   GLFWmonitor      *monitor;
-   GLFWvidmode      *mode;
-   int              h;
-   CGFloat          ppi;
-
-   //
-   monitor = glfwGetPrimaryMonitor();
-   if( ! monitor)
-      return( 0.0);
-
-   h = 0; // for valgrind
-   glfwGetMonitorPhysicalSize( monitor, NULL, &h);
-   if( ! h)
-       return( 0.0);
-
-   mode = (GLFWvidmode *) glfwGetVideoMode( monitor);
-   if( ! mode)
-       return( 0.0);
-
-   // need to convert h in mm to inches
-   ppi = mode->height / (h * 0.03937007874);
-   return( ppi);
+   return( [self os_primaryMonitorPPI]);
 }
 
 
 - (void) syncFrameWithWindow
 {
-   int   xpos;
-   int   ypos;
-   int   width;
-   int   height;
-
-   glfwGetWindowPos( _window, &xpos, &ypos);
-   glfwGetWindowSize( _window, &width, &height);  // just to be sure...
-
-   _frame.origin = CGPointMake( xpos, ypos);
-   _frame.size   = CGSizeMake( width, height);
+   [self os_syncFrameWithWindow];
 }
 
 
 - (id) initWithFrame:(CGRect) frame
 {
-   GLFWmonitor      *monitor;
-   CGFloat          ppi;
-   CGRect           contentRect;
-   int              w;
-   int              h;
-
-#if MULLE_UI_GLVERSION == MULLE_GLES2
-   glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 2);
-	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 0);
-#endif
-#if MULLE_UI_GLVERSION == MULLE_GLES3
-   glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 2);
-   glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#endif
-#if MULLE_UI_GLVERSION == MULLE_GL
-   glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 0);
-   glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#endif
-
-	glfwWindowHint( GLFW_RESIZABLE, GL_TRUE);
-
-   // not super sure about this, but lets try to avoid "old" OpenGL
-   // calls. alas, we are doing OpenGLES 2.0 minimum, so I don't know
-   // if this is useful.
-
    _primaryMonitorPPI = [UIWindow primaryMonitorPPI];
    if( _primaryMonitorPPI == 0.0)
    {
@@ -194,39 +63,20 @@ static void   framebufferResizeCallback( GLFWwindow* window, int width, int heig
       return( nil);
    }
 
-   _window = glfwCreateWindow( (int) frame.size.width,
-                               (int) frame.size.height,
-                               "Demo",
-                               0,
-                               0);
+   _window = [self os_createWindowWithFrame:frame];
    if( ! _window)
    {
-      fprintf( stderr, "glfwCreateWindow failed us\n");
       [self release];
       return( nil);
-//		glfwTerminate();
-//		return( -1);
    }
 
    // assume window has a title bar for contentRect calculation
    // (No difference to frame for me here on Linux)
-   glfwGetWindowSize( _window, &w, &h);
-   assert( (int) frame.size.height == h);
-   assert( (int) frame.size.width == w);
-
    [self syncFrameWithWindow];
+   assert( frame.size.height == _frame.size.height);
+   assert( frame.size.width == _frame.size.width);
 
    _mouseLocation = CGPointMake( -1.0, -1.0);
-
-   glfwMakeContextCurrent( _window);
-   glfwSetWindowUserPointer( _window, self);
-
-   [self _initEvent];
-
-   glfwSetWindowSizeCallback( _window, windowResizeCallback);
-   glfwSetWindowPosCallback( _window, windowMoveCallback);
-   glfwSetFramebufferSizeCallback( _window, framebufferResizeCallback);
-   glfwSetWindowRefreshCallback( _window, windowRefreshCallback);
 
    // initialize various plane for the future, currently only
    // _contentPlane can be used
@@ -259,6 +109,8 @@ static void   framebufferResizeCallback( GLFWwindow* window, int width, int heig
    _scrollWheelSensitivity = 20.0;
 
    [self setNeedsLayout:YES];
+
+   [self os_initEvents];
 
    return( self);
 }
@@ -311,19 +163,15 @@ static void   framebufferResizeCallback( GLFWwindow* window, int width, int heig
 - (void) getFrameInfo:(struct MulleFrameInfo *) info
 {
    float   scale_x, scale_y;
-   int     winWidth, winHeight;
-   int     fbWidth, fbHeight;
 
    assert( info);
 
    // glfwGetWindowContentScale( _window, &scale_x, &scale_y);
    scale_x = 1.0; scale_y = 1.0;
-   glfwGetWindowSize( _window, &winWidth, &winHeight);
-   glfwGetFramebufferSize( _window, &fbWidth, &fbHeight);
 
    info->frame           = _frame;
-   info->windowSize      = CGSizeMake( winWidth, winHeight);
-   info->framebufferSize = CGSizeMake( fbWidth, fbHeight);
+   info->windowSize      = [self os_windowSize];
+   info->framebufferSize = [self os_framebufferSize];
    info->UIScale         = CGVectorMake( scale_x, scale_y);
 	info->pixelRatio      = info->framebufferSize.width / info->windowSize.width;
    info->isPerfEnabled   = NO;
@@ -334,7 +182,7 @@ static void   framebufferResizeCallback( GLFWwindow* window, int width, int heig
 
 - (void) requestClose
 {
-   glfwSetWindowShouldClose( _window, GL_TRUE);
+   [self os_requestClose];
 }
 
 
@@ -348,10 +196,11 @@ static void   framebufferResizeCallback( GLFWwindow* window, int width, int heig
    //
    for(;;)
    {
-      waitEnd = glfwGetTime() + 1.0 / 5.0;
-      glfwWaitEventsTimeout( 1.0 / 5.0);
-      if( waitEnd >= glfwGetTime())
+      waitEnd = CAAbsoluteTimeNow() + 1.0 / 5.0;
+      [self os_waitEventsTimeout:1.0 / 5.0];
+      if( waitEnd >= CAAbsoluteTimeNow())
       {
+         // move to CGContext ?
          glViewport( 0.0, 0.0, _frame.size.width, _frame.size.height);
          _resizing = NO;
          break;
@@ -366,10 +215,6 @@ static void   framebufferResizeCallback( GLFWwindow* window, int width, int heig
 // c) the glitch occurs when there is already drawing on the screen
 // d) the glitch looks like the buffer is cleared and then not swapped
 //
-static void   error_callback(int code, const char* description)
-{
-   fprintf( stderr, "GLFW Error #%d: \"%s\"\n", code, description);
-}
 
 
 - (void) renderLoopWithContext:(CGContext *) context
@@ -378,25 +223,20 @@ static void   error_callback(int code, const char* description)
    struct timespec         end;
    struct timespec         diff;
    struct timespec         sleep;
-   GLFWmonitor             *monitor;
-   GLFWvidmode             *mode;
    long                    nsperframe;
    struct MulleFrameInfo   info;
    CGRect                  oldFrame;
 
 //   _discardEvents = UIEventTypeMotion;
 
-   glfwSetErrorCallback( error_callback);
-   glfwSwapInterval( 0);  // need for smooth pointer/control sync
+   [self os_setSwapInterval:0];  // need for smooth pointer/control sync
 
    // should check the monitor where the window is on really
-   monitor          = glfwGetPrimaryMonitor();
-   mode             = (GLFWvidmode *) glfwGetVideoMode( monitor);
-   info.refreshRate = mode->refreshRate;
+   info.refreshRate = [self os_primaryMonitorRefreshRate];
 
 #ifdef PRINTF_PROFILE_RENDER
-   nsperframe = (1000000000L + (mode->refreshRate - 1)) / mode->refreshRate;
-   fprintf( stderr, "Refresh: %d (%09ld ns/frame)\n", mode->refreshRate, nsperframe);
+   nsperframe = (1000000000L + (info.refreshRate - 1)) / info.refreshRate;
+   fprintf( stderr, "Refresh: %d (%09ld ns/frame)\n", info.refreshRate, nsperframe);
 #endif
 
    // glfwMakeContextCurrent( _window );
@@ -404,19 +244,18 @@ static void   error_callback(int code, const char* description)
    // gut feeling: when we do onw swap buffers first, once, we know we have enough
    // time on the first refresh (didn't work)
    //
-   glfwSwapBuffers( _window);
+   [self os_swapBuffers];
    [context clearFramebuffer];
 
    oldFrame = _frame;
-   while( ! glfwWindowShouldClose( _window))
+   while( ! [self os_windowShouldClose])
    {
       clock_gettime( CLOCK_REALTIME, &start);
 
       [self getFrameInfo:&info];
-      info.isPerfEnabled = NO;
+      info.isPerfEnabled = YES;
 
 #ifdef PRINTF_PROFILE_LAYOUT
-      clock_gettime( CLOCK_REALTIME, &start);
       printf( "@%ld:%09ld layout start\n", start.tv_sec, start.tv_nsec);
 #endif
       /*
@@ -483,7 +322,7 @@ static void   error_callback(int code, const char* description)
                                  end.tv_nsec,
                                  diff.tv_sec ? 9999.9999 : (diff.tv_nsec / (double) nsperframe) - 1);
 #endif
-         glfwSwapBuffers( _window);
+         [self os_swapBuffers];
          _didRender++;
 
 #ifdef ADD_RANDOM_LAG
@@ -581,6 +420,64 @@ static void   error_callback(int code, const char* description)
 {
    return( CGRectMake( 0.0, 0.0, _frame.size.width, _frame.size.height));
 }
+
+//
+// callbacks from window events (via GLFW)
+//
+- (void) _windowResizeCallback:(CGSize) size 
+{
+#ifdef CALLBACK_DEBUG
+   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
+#endif
+}
+
+
+- (void) _framebufferResizeCallback:(CGSize) size 
+{
+   CGRect   frame;
+
+#ifdef CALLBACK_DEBUG
+   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
+#endif
+
+   fprintf( stderr, "%p resized: w=%.1f h=%.1f\n", self, size.width, size.height);
+
+   frame       = [self frame];
+   frame.size  = size;;
+   [self setFrame:frame];
+   [self setNeedsLayout:YES];
+   self->_resizing = YES;
+}
+
+
+- (void) _windowRefreshCallback
+{
+#ifdef CALLBACK_DEBUG
+   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
+#endif
+
+//   glfwPostEmptyEvent();
+//   [self syncFrame];
+//   [self frameDidChange];
+}
+
+
+- (void) _windowMoveCallback:(CGPoint) position
+{
+   CGRect     frame;
+
+#ifdef CALLBACK_DEBUG
+   fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
+#endif
+
+//   fprintf( stderr, "%p moved: x=%d y=%d\n", self, xpos, ypos);
+
+   frame        = [self frame];
+   frame.origin = position;
+   [self setFrame:frame];
+   [self setNeedsLayout:YES];
+}
+
 
 @end
 

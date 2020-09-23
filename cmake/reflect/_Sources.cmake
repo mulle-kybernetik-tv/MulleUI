@@ -37,6 +37,7 @@ src/CAShapeLayer.m
 src/CATime.c
 src/CGAffineTransform.c
 src/CGColor.c
+src/CGContext+CGFont.m
 src/CGContext.m
 src/CGFont.m
 src/CGGeometry+CString.m
@@ -46,6 +47,8 @@ src/CGPath+nanovg.c
 src/Foundation/NSIndexPath.m
 src/Foundation/NSIndexSet.m
 src/Foundation/NSMutableIndexSet.m
+src/GLFW/UIApplication+GLFW.m
+src/GLFW/UIWindow+GLFW.m
 src/MulleBitmapImage.m
 src/MulleCheckboxLayer.m
 src/MulleControlBackgroundImage.m

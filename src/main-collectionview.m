@@ -38,20 +38,19 @@
 
 - (id) initWithFrame:(CGRect) frame 
 {
-    if((self = [super initWithFrame:frame])) 
-    {
-        _label = [[UILabel alloc] initWithFrame:frame];
-        [_label setMargins:UIEdgeInsetsMake( 3, 3, 3, 3)];
-        [_label setAutoresizingMask:UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth];
-        [_label setTextAlignment:UITextAlignmentCenter];
-        [_label setFont:[UIFont boldSystemFontOfSize:40.0]];
-        [_label setBackgroundColor:[UIColor underPageBackgroundColor]];
-        [_label setTextColor:[UIColor blackColor]];
+   if((self = [super initWithFrame:frame])) 
+   {
+      _label = [[UILabel alloc] initWithFrame:frame];
+      [_label setMargins:UIEdgeInsetsMake( 3, 3, 3, 3)];
+      [_label setAutoresizingMask:UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth];
+      [_label setTextAlignment:UITextAlignmentCenter];
+      [_label setFont:[UIFont boldSystemFontOfSize:40.0]];
+      [_label setBackgroundColor:[UIColor underPageBackgroundColor]];
+      [_label setTextColor:[UIColor blackColor]];
 
-        [[self contentView] addSubview:_label];
-        
-    }
-    return self;
+      [[self contentView] addSubview:_label];
+   }
+   return self;
 }
 
 @end
