@@ -30,6 +30,15 @@
 //    remove for os:   `mulle-sourcetree mark Foundation no-os-<osname>`
 # import <Foundation/Foundation.h>   // Foundation
 
+// How to tweak the following MulleObjCBase64Foundation #import
+//    remove:          `mulle-sourcetree mark MulleObjCBase64Foundation no-header`
+//    rename:          `mulle-sde dependency|library set MulleObjCBase64Foundation include whatever.h`
+//    toggle #import:  `mulle-sourcetree mark MulleObjCBase64Foundation [no-]import`
+//    toggle public:   `mulle-sourcetree mark MulleObjCBase64Foundation [no-]public`
+//    toggle optional: `mulle-sourcetree mark MulleObjCBase64Foundation [no-]require`
+//    remove for os:   `mulle-sourcetree mark MulleObjCBase64Foundation no-os-<osname>`
+# import <MulleObjCBase64Foundation/MulleObjCBase64Foundation.h>   // MulleObjCBase64Foundation
+
 #ifdef __has_include
 # if __has_include( "_MulleUI-include.h")
 #  include "_MulleUI-include.h"

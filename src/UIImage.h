@@ -4,8 +4,29 @@
 
 @class CGContext;
 
-
+//
+// An UIImage can retain the file data read or set, so in the event
+// that UIImage returns fileData it will not compress again.
+// If you want to load decoded bitmap data, use MulleBitmapImage
+// directly (see BitmapBytes method)
+//
 @interface UIImage : NSObject 
+{
+   id                       _fileDataSharingObject;
+   struct mulle_data        _fileData;
+   struct mulle_allocator  *_fileDataAllocator;
+}
+
+// if allocator is NULL, data will not be freed
+// otherwise allocator will be used to free. Use &mulle_allocator_stdlib
+// for malloced data
+- (instancetype) initWithMulleData:(struct mulle_data) data
+                         allocator:(struct mulle_allocator *) allocator;
+// data belongs to sharingObject, which will be retained                     
+- (instancetype) initWithMulleData:(struct mulle_data) data
+                     sharingObject:(id) sharingObject;
+
+- (instancetype) initWithContentsOfFileWithFileRepresentationString:(char *) filename;
 
 // this is added as a category by the layer to the specific UIImage subclass
 - (Class) preferredLayerClass;
@@ -29,6 +50,7 @@
 //
 - (UIImage *) imageWithNVGImageFlags:(int) flags;
 
+
 @end
 
 
@@ -38,3 +60,4 @@
 - (CGRect) visibleBounds;
 
 @end
+

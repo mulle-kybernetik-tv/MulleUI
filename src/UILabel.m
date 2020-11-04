@@ -9,12 +9,10 @@
 
 @implementation UILabel : UIView
 
-- (id) initWithFrame:(CGRect) frame
-{
-   MulleTextLayer  *textLayer;
 
-   textLayer = [[[MulleTextLayer alloc] initWithFrame:frame] autorelease];
-   return( [self initWithLayer:textLayer]);
++ (Class) layerClass
+{
+   return( [MulleTextLayer class]);
 }
 
 

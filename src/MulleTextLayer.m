@@ -1,7 +1,11 @@
 #import "MulleTextLayer.h"
 
+#import "MulleTextLayer+Cursor.h"
+#import "MulleTextLayer+Selection.h"
+
 #import "CGContext.h"
 #import "CGContext+CGFont.h"
+#import "CGGeometry+CString.h"
 #import "CGFont.h"
 
 
@@ -12,20 +16,99 @@
    MulleObjCObjectSetDuplicatedCString( self, &_fontName, s);
 }
 
+- (enum MulleTextLayerVerticalAlignmentMode)  mulleVerticalAlignmentMode
+{
+   return( _verticalAlignmentMode);
+}
+
+- (void) mulleSetVerticalAlignmentMode:(enum MulleTextLayerVerticalAlignmentMode) mode
+{
+   _verticalAlignmentMode = mode;
+}
+
+#if 0
+static NSUInteger  count_newlines( mulle_utf8_t *s)
+{
+   mulle_utf32_t    c;
+   mulle_utf32_t    d;
+   NSUInteger       lf;
+
+   // use code from nvg
+   c  = 0;
+   lf = 0;
+   for(;*s;)
+   {
+      d = c;
+      c = mulle_utf8_next_utf32character( &s);
+      switch( c) 
+      {
+      case '\n':		
+          if( d != '\r')
+            ++lf;
+         break;
+
+      case 0x85:		
+      case '\r':		
+         ++lf;
+         break;
+      }
+   } 
+   return( lf);
+}
+#endif
 
 - (void) setCString:(char *) s
 {
+   if( ! s)
+      s = "";
+
+#if 0
+#ifdef NDEBUG   
+   struct mulle_utf_information   info;   
+   // must be valid UTF8
+   mulle_utf8_information( s, -1, &info);
+   if( ! mulle_utf_information_is_valid( info))
+      abort();
+#endif
+   _newlinesInCString = count_newlines( s);
+#endif
    MulleObjCObjectSetDuplicatedCString( self, &_cString, s);
+   _cStringEnd = &_cString[ strlen( _cString)];
+}
+
+
+- (id) init
+{
+   [super init];
+
+   _mulle_structarray_init( &_rowArray, sizeof( NVGtextRow),
+                                        alignof( NVGtextRow),
+                                        0,
+                                        MulleObjCInstanceGetAllocator( self));
+   _mulle_structarray_init( &_rowGlyphArray, sizeof( struct MulleTextLayerRowGlyphs),
+                                             alignof( struct MulleTextLayerRowGlyphs),
+                                             0,
+                                             MulleObjCInstanceGetAllocator( self));
+   return( self);
 }
 
 
 - (void) dealloc 
 {
+   _mulle_structarray_done( &_rowGlyphArray);
+   _mulle_structarray_done( &_rowArray);
+
    MulleObjCObjectDeallocateMemory( self, _fontName);
    MulleObjCObjectDeallocateMemory( self, _cString);
 
    [super dealloc]; 
 }
+
+- (void) getCursorPosition:(struct MulleIntegerPoint *) cursor_p
+{
+   *cursor_p = _cursorPosition;
+}
+
 
 
 /* MEMO: Font/Glyph scaling
@@ -63,149 +146,183 @@
  * split the string for multiple nvgText calls, setting the correct font
  * everytime.
  */
-- (CGFloat) scrollOffsetToMakeCursorVisible
+- (void) resizeRowsTo:(NSUInteger) max
 {
-   CGPoint   offset;
-   CGRect    bounds;
-   CGFloat   min;
-   CGFloat   diff;
+   NSUInteger   n;
+   NSUInteger   diff;
+   NSUInteger   size;
 
-   if( _cursorPosition > _nGlyphs)
-      return( 0.0);
-
-   offset.x = _origin.x + _glyphs[ _cursorPosition].x - 0.5;
-   bounds   = [self bounds];
-   min      = bounds.size.width * 10.0 / 100.0;
-
-   diff = (CGRectGetMinX( bounds) + min) - offset.x;
-   if( diff > 0)
-      return( diff);
-   diff = offset.x - (CGRectGetMaxX( bounds) - min);
-   if( diff > 0)
-      return( -diff);
-   return( 0.0);
+   size  = _mulle_structarray_get_size( &_rowArray);
+   if( max > size)
+   {
+      diff = max - size;
+      _mulle_structarray_advance( &_rowArray, max);
+   }
+   // 
+   _rows  = _mulle_structarray_get( &_rowArray, 0);
+   _nRows = 0;
 }
 
 
-- (void) updateRowsAndGlyphsWithContext:(NVGcontext *) vg
+- (void) resizeRowGlyphsArrayTo:(NSUInteger) max
 {
-	_nRows = nvgTextBreakLines( vg, _cString, NULL, INFINITY, &_row, 1);
+   NSUInteger                       size;
+   NSUInteger                       diff;
+   struct MulleTextLayerRowGlyphs   *p;
+   struct MulleTextLayerRowGlyphs   *sentinel;
 
-   // TODO: make this dynamic in size, should cache this and wipe if
-   //       string changes
-   //       also dependend on text alignment and font changes!
-	_nGlyphs = nvgTextGlyphPositions( vg, 0, 0, _row.start, _row.end, _glyphs, 100);
-   assert( _nGlyphs < 100 - 1);
+   //
+   // The contents of _rowGlyphArray will be reused, as they contain
+   // other mulle_structarrays.
+   //
+   size = _mulle_structarray_get_size( &_rowGlyphArray);
+   if( max > size)
+   {
+      diff     = max - size;
+      p        = _mulle_structarray_advance( &_rowGlyphArray, diff);
+      sentinel = &p[ diff];
+      while( p < sentinel)
+      {
+         _MulleTextLayerRowGlyphsInit( p, MulleObjCInstanceGetAllocator( self));
+         ++p;
+      }
+   }
+   _rowGlyphs = _mulle_structarray_get( &_rowGlyphArray, 0);
+}
+
+
+NSUInteger  
+   MulleNVGglyphPositionSearch( NVGglyphPosition *glyphs,
+                                NSUInteger nGlyphs, 
+                                CGFloat x)
+{
+   NSInteger          first;
+   NSInteger          last;
+   NSInteger          middle;
+   NVGglyphPosition   *p;
+
+   first  = 0;
+   last   = (NSInteger) nGlyphs - 1;   // unsigned not good (need extra if)
+   middle = (first + last) / 2;
+
+   while( first <= last)
+   {
+      p = &glyphs[ middle];
+      if( x >= p->minx && x <= p->maxx)
+         return( middle);
+        
+      if( x > p->minx)
+      {
+         first = middle + 1;
+      }
+      else
+         last = middle - 1;
+
+      middle = (first + last) / 2;
+   }
+
+   return( NSNotFound);
+}
+
+
+- (void) updateRowGlyphsAtIndex:(NSUInteger) i
+                        context:(NVGcontext *) vg
+{
+   NSUInteger                       nGlyphs;
+   NSUInteger                       newSize;
+   NSUInteger                       diff;
+   NSUInteger                       sGlyphs;
+   NSUInteger                       n;
+   struct MulleTextLayerRowGlyphs   *p;
+
+   p       = &_rowGlyphs[ i];
+   nGlyphs = 100 / 2; // start with assumed 100 glyphs for each row
+
+   // our assumed size, the buffer should be larger than this, so we can
+   // figure out if we get truncated due to small a buffer also we need
+   // one extra space for the sentinel node
+   do
+   {
+      sGlyphs = _mulle_structarray_get_size( &p->glyphArray);
+      if( sGlyphs <= nGlyphs + 1) // add sentinel node
+      {
+         newSize = nGlyphs + nGlyphs;
+         if( newSize < 100)
+            newSize = 100;
+         diff     = newSize - sGlyphs;
+         _mulle_structarray_advance( &p->glyphArray, diff);
+         p->glyphs = _mulle_structarray_get( &p->glyphArray, 0);
+         sGlyphs   = newSize;
+      }
+
+      p->nGlyphs = nvgTextGlyphPositions( vg, 0, 0, 
+                                              _rows[ i].start, _rows[ i].end, 
+                                              p->glyphs, sGlyphs);
+   }
+   while( p->nGlyphs >= sGlyphs - 1);  // subtract sentinel node
 
    // put in a node at the sentinel position
-   _glyphs[ _nGlyphs].x = _nGlyphs ? _glyphs[ _nGlyphs - 1].maxx : 0;
+   if( p->nGlyphs)
+      p->glyphs[ p->nGlyphs].x = p->glyphs[ p->nGlyphs - 1].maxx;
+   else
+      p->glyphs[ p->nGlyphs].x = 0;
 
+   p->glyphs[ p->nGlyphs].minx = 0;
+   p->glyphs[ p->nGlyphs].maxx = 0;
+   p->glyphs[ p->nGlyphs].str  = _rows[ i].end;
    // ''   nglyphs == 0, _cursorPositon=={ 0 - 0 }
    // 'A'  nglyphs == 1, _cursorPositon=={ 0 - 1 }  |A or A|
    // 'AB' nglyphs == 2, _cursorPositon=={ 0 - 2 }  |AB or A|B or AB|
 }
 
 
-- (void) drawSelectionWithNVGContext:(NVGcontext *) vg
-                               range:(NSRange) selectionRange
-                            textRange:(NSRange) textRange
+- (void) updateRowsAndGlyphsWithContext:(NVGcontext *) vg
 {
-   NSInteger    leftCharacters;
-   float        xyxy[ 4];
-   CGRect       frame;
+   NSUInteger   max;
+   NSUInteger   i;
+   CGFloat      width;
+   CGFloat      extent;
+   float        bounds[ 4];
 
+   // calculate max visible rows, which is frame.size.height / _lineh , but 
+   // because of partials we add + 2
 
-   frame = [self frame];
+   max = (NSUInteger) ceil( _frame.size.height / _lineh) + 2;
 
-   // draw background for selection, compute area by removing
-   // unselected characters
-   // "a[iiii]a"
-
-  
-   leftCharacters = selectionRange.location - textRange.location;
-
-   switch( _alignmentMode)
+   // produce row information 
+   switch( _lineBreakMode)
    {
-   case CAAlignmentLeft   :
-      {
-         float   offset;
+   case NSLineBreakByWordWrapping :
+      // the width can produce more lines, we assume worst case
+      // we have a string of "max" number of linefeeds, followed by
+      // a last line as one large string without linefeed
+      // We will have to divide this by width to get the extra lengths
+      // also when word wrapping how big can the biggest word be ?
 
-         // 1) get number of characters to the left of selection
-         //    then get the offset in pixels
-         nvgTextBounds( vg, frame.origin.x + _origin.x, 
-                            frame.origin.y + _origin.y, 
-                            _row.start, 
-                            &_row.start[ leftCharacters], 
-                            xyxy);  
-         offset = xyxy[ 2];  
-                      
-         nvgTextBounds( vg, offset,
-                      frame.origin.y + _origin.y, 
-                      &_row.start[ leftCharacters], 
-                      &_row.start[ leftCharacters + selectionRange.length], 
-                      xyxy);
-         break;       
-      } 
+      width   = _frame.size.width;
+      extent  = nvgTextBounds( vg, 0, 0, _cString, _cStringEnd, bounds);
+      // TODO check this is true, probably need to fuzz it
+      max    += ceil( extent / width) + 1;
+      break;
 
-   case CAAlignmentRight  : 
-      {
-         NSUInteger   rightOffset;
-         NSUInteger   rightCharacters;
-         float        offset;
-            // abcdef   0,5  1,3  > 4, 2 ef
-         rightOffset     = selectionRange.location + selectionRange.length;
-         rightCharacters = textRange.length - rightOffset;
-         nvgTextBounds( vg, frame.origin.x + _origin.x, 
-                            0, 
-                            &_row.start[ rightOffset], 
-                            &_row.start[ rightOffset + rightCharacters], 
-                            xyxy);  
-         offset = xyxy[ 0];  
-           
-          // 2) get offset and width of characters of the selection
-         nvgTextBounds( vg, offset,
-                            frame.origin.y + _origin.y, 
-                            &_row.start[ leftCharacters], 
-                            &_row.start[ leftCharacters + selectionRange.length], 
-                            xyxy);                       
-         break;
-      } 
+   default :
+      width = INFINITY;
+      break;
+   }
 
-   case CAAlignmentCenter : 
-      {
-         float    offset;
-         float    width;
+   [self resizeRowsTo:max];
+   [self resizeRowGlyphsArrayTo:max];
 
-         nvgTextBounds( vg, 0, 
-                            0, 
-                            _row.start, 
-                            &_row.start[ leftCharacters], 
-                            xyxy);  
-         offset = xyxy[ 2] - xyxy[ 0];
-         nvgTextBounds( vg, 0,
-                            0, 
-                            &_row.start[ leftCharacters], 
-                            &_row.start[ leftCharacters + selectionRange.length], 
-                            xyxy);
-         width = xyxy[ 2] - xyxy[ 0];
-
-         nvgTextBounds( vg, frame.origin.x + _origin.x,
-                            frame.origin.y + _origin.y, 
-                            _row.start,
-                            _row.end,
-                            xyxy);
-         xyxy[ 0] += offset;
-         xyxy[ 2]  = xyxy[ 0] + width;
-      }
-   }         
-            
-	nvgFillColor( vg, nvgRGBA(127,255,127,255));
-	nvgBeginPath( vg);
-   nvgRect( vg, xyxy[ 0], 
-                xyxy[ 1], 
-                xyxy[ 2] - xyxy[ 0], 
-                _lineh); 
-	nvgFill( vg);  
+   //
+   // Calculate actual amount of rows available
+   // Here the problem is, that we always calculate from the start though
+   // which doesn't work well for middle/bottom...
+   //
+   _nRows = nvgTextBreakLines( vg, _cString, _cStringEnd, width, _rows, max);
+   // produce glyph information for each row
+   for( i = 0; i < _nRows; i++)
+      [self updateRowGlyphsAtIndex:i
+                           context:vg];
 }
 
 
@@ -214,17 +331,19 @@
 - (BOOL) drawContentsInContext:(CGContext *) context
 {
    struct NVGcontext   *vg;
-   CGRect              frame;
-   CGFont              *font;
-   CGFloat             fontPixelSize;
-   char                *name;
+   float               lineh;
    CGColorRef          textBackgroundColor;
-	float               lineh;
+   CGFloat             fontPixelSize;
+   CGFloat             rowsHeight;
+   CGFont              *font;
    CGPoint             cursor;
    CGPoint             offset;
-   NSRange             textRange;
-   NSRange             selectionRange;
+   CGRect              frame;
+   char                *name;
    int                 align;
+   NSRange             selectionRange;
+   NSRange             textRange;
+   NSUInteger          i;
 
    // nothing to draw ? then bail
    if( ! _cString || ! *_cString)
@@ -260,152 +379,146 @@
                             _origin.x = CGRectGetMidX( frame); 
                             break;
    }
+
    nvgTextAlign( vg, align); 
-   _origin.x = _origin.x + _textOffset.x - frame.origin.x;
-   _origin.y = CGRectGetMidY( frame) +_textOffset.y - frame.origin.y;
+   nvgTextMetrics( vg, NULL, NULL, &_lineh);
 
-
-	// The text break API can be used to fill a large buffer of rows,
-	// or to iterate over the text just few lines (or just one) at a time.
-	// The "next" variable of the last returned item tells where to continue.
    [self updateRowsAndGlyphsWithContext:vg];
 
-   // If cursor is visible, keep it always visible
-	if( [self isEditable])
-   {
-      // TODO: could' animate this, not necessarily with CAAnimation
-      //       this is not affecting the _textOffset but just the actual
-      //       drawing (not sure if this is useful or not)
-      _origin.x += [self scrollOffsetToMakeCursorVisible];
-   }
-   textRange      = NSMakeRange( _row.start - _cString, _row.end - _row.start);
-   selectionRange = NSIntersectionRange( textRange, _selection);
+   // now we know the number of rows,
+   // calculate the height of all rows
+   rowsHeight = _lineh * _nRows;
 
-   // Draw the first line only
-   if( _nRows)
+   _origin.x = _origin.x + _textOffset.x - frame.origin.x;
+
+   // If cursor is visible, keep it always visible
+   if( [self isEditable])
+      _origin.x += [self scrollOffsetToMakeCursorVisible];
+ 
+   // set as top aligned
+   switch( _verticalAlignmentMode)
    {
+   case MulleTextVerticalAlignmentTop :
+      _origin.y = _lineh / 2 + _textOffset.y;
+      break;
+      // set as bottom aligned
+   case MulleTextVerticalAlignmentBottom :
+      _origin.y = frame.size.height - rowsHeight + _lineh / 2.0  + _textOffset.y;
+      break;
+      // set as center aligned
+   case MulleTextVerticalAlignmentMiddle :
+      _origin.y = (frame.size.height - rowsHeight) / 2.0 + (_lineh / 2.0) + _textOffset.y;
+      break; 
+   }
+
+   for( i = 0; i < _nRows; i++)
+   {
+      textRange = NSMakeRange( _rows[ i].start - _cString, 
+                               _rows[ i].end - _rows[ i].start);
+
+      // Draw the first line only
       // don't render outside of myself
       nvgIntersectScissor( vg, frame.origin.x, 
                                frame.origin.y, 
                                frame.size.width, 
                                frame.size.height);
- 	   nvgTextMetrics( vg, NULL, NULL, &_lineh);
-		nvgFillColor( vg, nvgRGBA(127,127,255,255));
+      nvgFillColor( vg, nvgRGBA(127,127,255,255));
 
       /*
        * Draw selection
        */
-      if( selectionRange.length)
-         [self drawSelectionWithNVGContext:vg
-                                     range:selectionRange
-                                 textRange:textRange];
-
+      [self drawSelectionWithNVGContext:vg
+                              textRange:textRange
+                                    row:i];
       /*
        * Draw Text
+       * Bug: textBackgroundColor should be selection color if selected
        */
       textBackgroundColor = [self backgroundColor];
       if( CGColorGetAlpha( textBackgroundColor) < 1.0)
          textBackgroundColor = [self textBackgroundColor];
       nvgTextColor( vg, [self textColor], textBackgroundColor); // TODO: use textColor
       nvgText( vg, frame.origin.x + _origin.x, 
-                   frame.origin.y + _origin.y, 
-                   _row.start, 
-                   _row.end);
-
+                   frame.origin.y + _origin.y + (i * _lineh), 
+                   _rows[ i].start, 
+                   _rows[ i].end);
       /*
        * Draw Cursor
        */
-   	if( [self isEditable])
-      {
-         // TODO: make sure we don't crash
-         if( _cursorPosition <= _nGlyphs)
-         {
-            offset.x = _glyphs[ _cursorPosition].x;
-            offset.y = -(_lineh / 2); // depends on alignment, really, use middle here
-               
-   			nvgBeginPath( vg);
-   			nvgFillColor( vg, nvgRGBA(255,0,0,255));
-   			nvgRect( vg, 
-                     frame.origin.x + _origin.x + offset.x - 0.5, 
-                     frame.origin.y + _origin.y + offset.y, 
-                     1, 
-                     _lineh);
-   			nvgFill( vg);
-   		}
-      }
-	}
+      if( [self isEditable])
+         [self drawCursorWithNVGContext:vg
+                                    row:i];
+   }
    return( NO);
 }
 
 
+static size_t   mulle_utf8_utf32length( mulle_utf8_t *s, size_t len)
+{
+   mulle_utf8_t   *start;
+   mulle_utf8_t   *sentinel;
+   size_t          n;
+
+   start    = s;
+   sentinel = &s[ len];
+
+   n = 0;
+   while( s < sentinel)
+   {
+      mulle_utf8_next_utf32character( &s);
+      ++n;
+   }
+   return( n);
+}
+
+
+// point is within bounds
+// we find the range in the cstring 8bit characters we do not
+// interpret UTF8
+//
 - (NSUInteger) characterIndexForPoint:(CGPoint) point
 {
-   CGRect       rect;
-   NSUInteger   i;
+   CGRect                           rect;
+   NSInteger                        y;
+   NSUInteger                       x;
+   CGFloat                          search;
+   struct MulleTextLayerRowGlyphs   *p;
 
-   // TODO: binary search anyone ?
-   for( i = 0; i < _nGlyphs; i++)
-   {
-      rect.origin.x    = _glyphs[ i].x + _origin.x;
-      rect.origin.y    = _origin.y - (_lineh / 2);
-      rect.size.width  = _glyphs[ i + 1].x - _glyphs[ i].x;  // sentinel! node is OK!
-      rect.size.height = _lineh;
+   if( ! _nRows)
+      return( NSNotFound);
 
-      fprintf( stderr, "*** %s %s\n",
-               CGRectCStringDescription( rect),
-               CGPointCStringDescription( point));
-      if( CGRectContainsPoint( rect, point))
-      {
-         rect.size.width  /= 2.0;  // sentinel! node is OK!
-         if( ! CGRectContainsPoint( rect, point))
-            i++;
-         return( i);
-      }
-   }
-   return( NSNotFound);
-}
-
-
-
-- (void) setCursorPositionToPoint:(CGPoint) point 
-{
-   NSUInteger   i;
-
-   i = [self characterIndexForPoint:point];
-   if( i == NSNotFound)
-      return;
-
-   [self setCursorPosition:i];
-   _selection      = NSMakeRange( i, 0);  // memorize start
-   _startSelection = i;
-}
-
-
-// #1 When selecting left, one on the right of the actual 
-//    cursor is being selected
-// #2 When selecting right, there is no way to deselect all
-// 
-
-- (void) adjustSelectionToPoint:(CGPoint) point 
-{
-   NSUInteger   i;
-   
-   i = [self characterIndexForPoint:point];
-   if( i == NSNotFound)
-      return;
-
-   // is cursor to the left ?
-   if( i <= _startSelection)  
-      _selection = NSMakeRange( i, _startSelection - i);
+   // figure out the row that was hit, a row is _lineh and 
+   // drawn at frame.origin.y + _origin.y  + i *_lineh
+   y = (NSInteger) round( (point.y -_origin.y) / _lineh);
+   if( y < 0)
+      y = 0;
    else
-      _selection = NSMakeRange( _startSelection, i - _startSelection);
+      if( y >= _nRows)
+         y = _nRows - 1;
 
-   fprintf( stderr, "Selection: %.*s (%ld, %ld)\n", 
-         (int) _selection.length, &_cString[ _selection.location],
-         (long) _selection.location,
-         (long) _selection.length);
+   p = &_rowGlyphs[ y];
+   // calculate characters up till till this
 
-   [self setCursorPosition:i];
+
+   search  = point.x;
+   search -= _origin.x;
+
+   x = MulleNVGglyphPositionSearch( p->glyphs, p->nGlyphs, search);
+   if( x == NSNotFound)
+   {
+      if( search >= p->glyphs[ p->nGlyphs].x - 0.5)
+         x = p->nGlyphs;
+      else
+         x = 0;
+   }
+   else
+   {
+      // left side/right side (use third, matter of taste)
+      if( search >= p->glyphs[ x].minx + (p->glyphs[ x].maxx - p->glyphs[ x].minx) / 3.0)
+         x++;
+   }
+   return( p->glyphs[ x].str - _cString);  
 }
+
 
 @end

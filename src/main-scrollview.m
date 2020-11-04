@@ -97,7 +97,7 @@ int   main()
    UIScrollView       *scroller;
    UIApplication      *application;
 
-   sealieBitmap = [[[MulleBitmapImage alloc] initWithConstBytes:sealie_bitmap
+   sealieBitmap = [[[MulleBitmapImage alloc] initWithConstBitmapBytes:sealie_bitmap
                                                      bitmapSize:sealie_bitmap_size]
                                                   autorelease];
 

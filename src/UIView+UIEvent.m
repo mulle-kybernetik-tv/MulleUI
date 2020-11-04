@@ -393,6 +393,15 @@
       return( nil);
    }
 
+   if( ! [self isUserInteractionEnabled]) // alpha < 0.01: should we care for events ?
+   {
+      // TODO: check if event type is of type user interaction
+#ifdef EVENT_DEBUG
+      fprintf( stderr, "User interaction disabled on view %s\n", [self cStringDescription]);
+#endif
+      return( event);
+   }
+
    //
    // current position relative to visible bounds
    //

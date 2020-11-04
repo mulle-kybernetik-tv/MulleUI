@@ -57,7 +57,8 @@ struct CAAnimationOptions;
 
 + (instancetype) layerWithFrame:(CGRect) frame;
 
-- (instancetype) init;
+
+- (instancetype) init; // designated
 - (instancetype) initWithFrame:(CGRect) frame;
 
 - (BOOL) drawInContext:(CGContext *) ctx;

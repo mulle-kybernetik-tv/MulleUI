@@ -42,17 +42,17 @@ void   setupScene( UIWindow *window, CGContext *context)
    [window addSubview:stackView];
 
    {
-      image = [[[MulleBitmapImage alloc] initWithConstBytes:sealie_bitmap
-                                                 bitmapSize:sealie_bitmap_size]
-                                                   autorelease];
+      image = [[[MulleBitmapImage alloc] initWithConstBitmapBytes:sealie_bitmap
+                                                       bitmapSize:sealie_bitmap_size]
+                                                         autorelease];
 
       view  = [[[UIImageView alloc] initWithImage:image] autorelease];
       [stackView addSubview:view];
    }
 
    {
-      image = [[[MulleBitmapImage alloc] initWithConstBytes:turtle_bitmap
-                                                 bitmapSize:turtle_bitmap_size]
+      image = [[[MulleBitmapImage alloc] initWithConstBitmapBytes:turtle_bitmap
+                                                       bitmapSize:turtle_bitmap_size]
                                                   autorelease];
 
       view  = [[[UIImageView alloc] initWithImage:image] autorelease];
@@ -60,7 +60,7 @@ void   setupScene( UIWindow *window, CGContext *context)
    }
 
    {
-      image = [[[MulleBitmapImage alloc] initWithConstBytes:viech_bitmap
+      image = [[[MulleBitmapImage alloc] initWithConstBitmapBytes:viech_bitmap
                                                  bitmapSize:viech_bitmap_size]
                                                      autorelease];
 

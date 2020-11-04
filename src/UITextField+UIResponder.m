@@ -7,6 +7,8 @@
 
 #import "UIEvent.h"
 #import "MulleTextLayer.h"
+#import "MulleTextLayer+Cursor.h"
+#import "MulleTextLayer+Selection.h"
 #include "CGGeometry+CString.h"
 
 
@@ -95,18 +97,21 @@
 //
 - (UIEvent *) consumeKeyDown:(UIEvent *) event
 {
-   UIKeyboardEvent   *keyEvent = (UIKeyboardEvent *) event;
-   NSInteger         pos;
-   NSInteger         max;
-   NSUInteger        key;
-   NSUInteger        modifiers;
+   UIKeyboardEvent            *keyEvent = (UIKeyboardEvent *) event;
+   struct MulleIntegerPoint   pos;
+   struct MulleIntegerPoint   max;
+   NSUInteger                 key;
+   NSUInteger                 modifiers;
 
    fprintf( stderr, "key: %ld scanCode: %ld modifiers: %ld\n", 
                         (long) [keyEvent key], 
                         (long) [keyEvent scanCode],
                         (long) [keyEvent modifiers]);
 
-   pos       = [self cursorPosition];
+   [self getCursorPosition:&pos];
+
+   NSLog( @"read cursor: %lu/%lu", (long) pos.x, (long) pos.y);
+
    key       = [keyEvent key];
    modifiers = [keyEvent modifiers];
    switch( key)
@@ -133,15 +138,15 @@
       [self backspaceCharacter]; 
       return( nil);
 
-   case 262 :  pos++; break; // cursor right
-   case 263 :  --pos; break; // cursor left
+   case 262 :  pos.x++; break; // cursor right
+   case 263 :  --pos.x; break; // cursor left
    }
 
-   if( pos < 0)
-      pos = 0;
+   if( (NSInteger) pos.x < 0)
+      pos.x = 0;
    max = [self maxCursorPosition];
-   if( pos > max)
-      pos = max;
+   if( pos.x > max.x)
+      pos.x = max.x;
    [self setCursorPosition:pos];
 
    return( nil);
@@ -170,15 +175,22 @@
    fprintf( stderr, "b) %s\n", CGPointCStringDescription( mouseLocation));
 
    [_titleLayer setCursorPositionToPoint:mouseLocation];
+   [_titleLayer startSelectionAtPoint:mouseLocation];
+
    return( nil);
 }
 
+
 - (UIEvent *) consumeMouseDragged:(UIEvent *) event
 {
-   CGPoint   mouseLocation;
+   CGPoint                     mouseLocation;
+   struct MulleIntegerPoint    cursor;
 
    mouseLocation = [event mouseLocationInView:self];
    [_titleLayer adjustSelectionToPoint:mouseLocation];
+
+   cursor = [_titleLayer cursorPositionForPoint:mouseLocation];
+   [_titleLayer setCursorPosition:cursor];   
    return( nil);
 }
 
