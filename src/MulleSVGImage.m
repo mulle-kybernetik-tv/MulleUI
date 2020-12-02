@@ -72,8 +72,6 @@
 }
 
 
-
-
 - (void) dealloc
 {
    nsvgDelete( _NSVGImage);
@@ -105,6 +103,7 @@
 	NSVGshape  *shape;
    CGRect     bounds;
    CGRect     box;
+   CGFloat    overdraw;
 
    bounds = CGRectNull;
 	for( shape = _NSVGImage->shapes; shape != NULL; shape = shape->next) 
@@ -112,10 +111,11 @@
 	   if( ! (shape->flags & NSVG_FLAGS_VISIBLE))
    	   continue;
 
-      box.origin.x    = shape->bounds[ 0];
-      box.origin.y    = shape->bounds[ 1];
-      box.size.width  = shape->bounds[ 2] - box.origin.x + 1;
-      box.size.height = shape->bounds[ 3] - box.origin.y + 1;
+      overdraw        = shape->strokeWidth / 2.0;
+      box.origin.x    = shape->bounds[ 0] - overdraw;
+      box.origin.y    = shape->bounds[ 1] - overdraw;
+      box.size.width  = shape->bounds[ 2] - shape->bounds[ 0] + 1 + shape->strokeWidth;
+      box.size.height = shape->bounds[ 3] - shape->bounds[ 1] + 1 + shape->strokeWidth;
 #if 0
       fprintf( stderr, "+ %.1f,%.1f,%.1f,%.1f\n", 
                         box.origin.x,
@@ -125,11 +125,13 @@
 #endif                        
       bounds = CGRectUnion( bounds, box);
    }
+#if 0   
    fprintf( stderr, "visibleBounds= %.1f,%.1f,%.1f,%.1f\n", 
                      bounds.origin.x,
                      bounds.origin.y,
                      bounds.size.width,
                      bounds.size.height);
+#endif                     
    return( bounds);
 }
 

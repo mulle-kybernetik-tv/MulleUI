@@ -12,9 +12,5 @@
 #import "import.h"
 
 
-@interface UITextView( Markdown)
-
-- (NSArray *) textLines;
-- (NSArray *) images;
-
+@interface UITextView( UIEvent)
 @end

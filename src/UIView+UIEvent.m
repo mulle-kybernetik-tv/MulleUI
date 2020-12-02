@@ -265,6 +265,26 @@
 }
 
 
+- (CALayer *) layerAtPoint:(CGPoint) point
+{
+   struct mulle_pointerarrayreverseenumerator   rover;
+   CALayer                                      *layer;
+   CGRect                                       frame;
+
+   frame    = [self frame];
+   point.x += frame.origin.x;
+   point.y += frame.origin.y;
+  
+   rover = mulle_pointerarray_reverseenumerate( _layers);
+   while( _mulle_pointerarrayreverseenumerator_next( &rover, (void **) &layer))
+      if( CGRectContainsPoint( [layer frame], point))
+         break;
+   mulle_pointerarrayreverseenumerator_done( &rover);
+   return( layer);
+}
+
+
+
 - (UIEvent *) _handleEvent:(UIEvent *) event
 {
    if( [self isUserInteractionEnabled] == NO)

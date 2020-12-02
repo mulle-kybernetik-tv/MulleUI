@@ -74,6 +74,7 @@
    return( 0.0);
 }
 
+
 - (NSUInteger) characterIndexForCursor:(struct MulleIntegerPoint) cursor 
 {
    struct MulleTextLayerRowGlyphs   *p;
@@ -86,18 +87,18 @@
    if( cursor.x > p->nGlyphs)
       return( NSNotFound);   
    glyph = &p->glyphs[ cursor.x];
-   return( glyph->str - _cString);
+   return( glyph->str - (char *) _data.characters);
 }
 
 
 - (struct MulleIntegerPoint) cursorPositionForPoint:(CGPoint) point
 {
+   CGFloat                          search;
    CGRect                           rect;
-   struct MulleIntegerPoint         cursor;
    NSInteger                        x;
    NSInteger                        y;
+   struct MulleIntegerPoint         cursor;
    struct MulleTextLayerRowGlyphs   *p;
-   CGFloat                          search;
 
    // figure out the row that was hit, a row is _lineh and 
    // drawn at frame.origin.y + _origin.y  + i *_lineh

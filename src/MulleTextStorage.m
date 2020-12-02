@@ -35,12 +35,12 @@ static NSData   *dataByEscapingFirstCharacterOfData( NSData *obj)
       escapeCode = "&excl;";
       length     = strlen( "&excl;");
       break;  
-
+#ifdef ESCAPE_AMP   
    case '&' :
       escapeCode = "&amp;";
       length     = strlen( "&amp;");
       break;
-
+#endif
    default : 
       return( obj);  
    }
@@ -76,12 +76,14 @@ static NSData   *dataByUnescapingFirstCharacterOfData( NSData *obj)
       c      = '!';
       length = 6;
    }
+
+#ifdef ESCAPE_AMP   
    if( text.length >= 5 && ! strncmp( text.bytes, "&amp;", 5))
    {
       c      = '&';
       length = 5;
    }
-
+#endif
    if( ! c)
       return( obj);
 
@@ -238,6 +240,7 @@ static NSData   *dataByUnescapingFirstCharacterOfData( NSData *obj)
    NSMutableArray      *images;
    NSMutableData       *textData;
    struct mulle_data   svg_data;
+   struct mulle_data   png_data;
    id                  obj;
    char                lf[ 2];
    char                *tmp;
@@ -279,14 +282,23 @@ static NSData   *dataByUnescapingFirstCharacterOfData( NSData *obj)
    imageNr = 0;
    for( image in _images)
    {
-      // dump image data into a line
+      // dump image data into a line (always as PNG)
       // [image_%ld]: data:image/png;base64 <base64> <nl>
 
       if( [image isKindOfClass:[MulleBitmapImage class]])
       {
+         // TODO: save jpg in original format as well
          tmp = MulleObjC_asprintf( "[image_%ld]: data:image/png;base64,", (long) imageNr);
          // <base64> 
-         data       = UIImagePNGRepresentation( image);
+         if( [image fileEncoding] == UIImageDataEncodingPNG)
+         {
+            png_data = [image mulleData];
+            data     = [[[NSData alloc] mulleInitWithBytesNoCopy:png_data.bytes
+                                                          length:png_data.length
+                                                   sharingObject:image] autorelease];
+         }
+         else
+            data = UIImagePNGRepresentation( image);
       }
       else
       {
@@ -312,6 +324,12 @@ static NSData   *dataByUnescapingFirstCharacterOfData( NSData *obj)
 }
 
 
+- (UIImage *) imageForNumber:(NSNumber *) nr 
+{
+   return( [_images objectAtIndex:[nr unsignedIntegerValue]]);
+}
+
+
 - (void *) forward:(void *) param
 {
    assert( _lines); // window should not forward...
@@ -319,6 +337,7 @@ static NSData   *dataByUnescapingFirstCharacterOfData( NSData *obj)
                                                           (mulle_objc_methodid_t) _cmd,
                                                           param));
 }
+
 
 
 @end

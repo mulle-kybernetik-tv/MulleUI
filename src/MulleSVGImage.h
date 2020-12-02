@@ -9,7 +9,7 @@ struct NSVGimage;
 // SVGImage keeps a copy of the original SVG by default (if available)
 @interface MulleSVGImage : UIImage
 {
-	struct NSVGimage         *_NSVGImage;
+	struct NSVGimage   *_NSVGImage;
 }
 
 - (instancetype) initWithNSVGImage:(struct NSVGimage *) image

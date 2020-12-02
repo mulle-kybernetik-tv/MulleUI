@@ -64,9 +64,11 @@ src/Foundation/NSIndexPath.h
 src/Foundation/NSIndexSet.h
 src/Foundation/NSMutableIndexSet.h
 src/Ghostscript_Tiger-svg.inc
+src/MulleBitmapImage+PNG.h
 src/MulleBitmapImage.h
 src/MulleCheckboxLayer.h
 src/MulleControlBackgroundImage.h
+src/MulleCursor.h
 src/MulleEdgeInsets+CString.h
 src/MulleEdgeInsets+MulleObjC.h
 src/MulleEdgeInsets.h
@@ -88,7 +90,10 @@ src/MulleScrollIndicatorView.h
 src/MulleSegmentedControlLayer.h
 src/MulleSliderLayer.h
 src/MulleStepperLayer.h
+src/MulleTextLayer+Cursor.h
+src/MulleTextLayer+Selection.h
 src/MulleTextLayer.h
+src/MulleTextStorage.h
 src/MulleTextureImage.h
 src/MulleTrackingArea.h
 src/NSValue+CGGeometry.h
@@ -105,8 +110,10 @@ src/UIEdgeInsets+CString.h
 src/UIEdgeInsets.h
 src/UIEvent.h
 src/UIFont.h
+src/UIImage+NSData.h
 src/UIImageView.h
 src/UIImage.h
+src/UILabel+UIEvent.h
 src/UILabel.h
 src/UIPasteboard.h
 src/UIResponder.h
@@ -119,6 +126,8 @@ src/UIStepper.h
 src/UISwitch.h
 src/UITextField+UIResponder.h
 src/UITextField.h
+src/UITextView+UIEvent.h
+src/UITextView.h
 src/UIView+CAAnimation.h
 src/UIView+CGGeometry.h
 src/UIView+Layout.h
@@ -150,6 +159,7 @@ src/mulle-timeval.h
 src/nanoperf.h
 src/nanovg+CString.h
 src/sealie-bitmap.inc
+src/stb_image_write.h
 src/tiger-svg.inc
 src/turtle-bitmap.inc
 src/version.h

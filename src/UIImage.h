@@ -4,6 +4,16 @@
 
 @class CGContext;
 
+// currently supported types, not very expandable...
+enum UIImageDataEncoding
+{
+   UIImageDataEncodingUnknown = 0,
+   UIImageDataEncodingPNG,
+   UIImageDataEncodingJPG,
+   UIImageDataEncodingBMP,
+   UIImageDataEncodingSVG
+};
+
 //
 // An UIImage can retain the file data read or set, so in the event
 // that UIImage returns fileData it will not compress again.
@@ -12,9 +22,10 @@
 //
 @interface UIImage : NSObject 
 {
-   id                       _fileDataSharingObject;
-   struct mulle_data        _fileData;
-   struct mulle_allocator  *_fileDataAllocator;
+   id                             _fileDataSharingObject;
+   struct mulle_data              _fileData;
+   struct mulle_allocator        *_fileDataAllocator;
+   enum UIImageDataEncoding       _fileEncoding; 
 }
 
 // if allocator is NULL, data will not be freed
@@ -50,6 +61,9 @@
 //
 - (UIImage *) imageWithNVGImageFlags:(int) flags;
 
+- (enum UIImageDataEncoding) fileEncoding;
+// TODO: rename to fileData or mulleFileData or so
+- (struct mulle_data) mulleData;
 
 @end
 
@@ -61,3 +75,5 @@
 
 @end
 
+
+enum UIImageDataEncoding   UIImageDataEncodingFromMulleData(struct mulle_data data);

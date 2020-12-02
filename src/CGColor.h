@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include <assert.h>
 
 
 typedef NVGcolor   CGColorRef;
@@ -47,10 +48,10 @@ static inline CGColorRef   MulleColorCreateRandomOpaque()
 
 static inline CGColorRef CGColorCreateGenericRGB( CGFloat red, CGFloat green, CGFloat blue, CGFloat alpha)
 {
-      return( nvgRGBA( (uint32_t) round( 0xff * red),
-                       (uint32_t) round( 0xff * green),
-                       (uint32_t) round( 0xff * blue),
-                       (uint32_t) round( 0xff * alpha)));
+   return( nvgRGBA( (uint32_t) round( 0xff * red),
+                    (uint32_t) round( 0xff * green),
+                    (uint32_t) round( 0xff * blue),
+                    (uint32_t) round( 0xff * alpha)));
 }
 
 
@@ -82,6 +83,15 @@ static inline CGFloat   CGColorGetAlpha( CGColorRef color)
 {
    return( color.a);
 }
+
+
+static inline CGColorRef   CGColorDim( CGColorRef color, CGFloat factor)
+{
+   assert( factor > 0.0 && factor < 1.0);
+   color.a = color.a * factor;
+   return( color);
+}
+
 
 static inline int   MulleColorIsTransparent( CGColorRef color)
 {

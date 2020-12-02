@@ -39,11 +39,12 @@
 
 - (mulle_int_size) intSize;
 
-- (void *) bytes;
-- (NSUInteger) length;
-- (struct mulle_data)  mulleData;
 
 // derive and image with different flags for NVG,
 - (UIImage *) imageWithNVGImageFlags:(int) flags;
 
+- (void *) bytes;
+
 @end
+
+enum UIImageDataEncoding   MulleBitmapImageDataEncodingFromMulleData(struct mulle_data data);

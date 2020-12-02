@@ -24,6 +24,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 
 // TODO: move elsewhere
+// TODO: rename to mulle_intsize
 typedef struct mulle_int_size
 {
    int   width;
@@ -32,6 +33,7 @@ typedef struct mulle_int_size
 
 
 // TODO: move elsewhere
+// TODO: rename to mulle_bitmapsize
 typedef struct mulle_bitmap_size
 {
    struct mulle_int_size   size;

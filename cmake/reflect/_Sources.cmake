@@ -24,6 +24,8 @@ src/main-springs-and-struts.m
 src/main-stackview.m
 src/main-svg.m
 src/main-textfield.m
+src/main-textstorage.m
+src/main-textview.m
 src/main-viewconversion.m
 )
 
@@ -49,6 +51,7 @@ src/Foundation/NSIndexSet.m
 src/Foundation/NSMutableIndexSet.m
 src/GLFW/UIApplication+GLFW.m
 src/GLFW/UIWindow+GLFW.m
+src/MulleBitmapImage+PNG.m
 src/MulleBitmapImage.m
 src/MulleCheckboxLayer.m
 src/MulleControlBackgroundImage.m
@@ -71,7 +74,10 @@ src/MulleScrollIndicatorView.m
 src/MulleSegmentedControlLayer.m
 src/MulleSliderLayer.m
 src/MulleStepperLayer.m
+src/MulleTextLayer+Cursor.m
+src/MulleTextLayer+Selection.m
 src/MulleTextLayer.m
+src/MulleTextStorage.m
 src/MulleTextureImage.m
 src/MulleTrackingArea.m
 src/NSValue+CGGeometry.m
@@ -85,8 +91,10 @@ src/UIColor.m
 src/UIControl.m
 src/UIEvent.m
 src/UIFont.m
+src/UIImage+NSData.m
 src/UIImageView.m
 src/UIImage.m
+src/UILabel+UIEvent.m
 src/UILabel.m
 src/UIPasteboard.m
 src/UIResponder.m
@@ -99,6 +107,8 @@ src/UIStepper.m
 src/UISwitch.m
 src/UITextField+UIResponder.m
 src/UITextField.m
+src/UITextView+UIEvent.m
+src/UITextView.m
 src/UIView+CAAnimation.m
 src/UIView+CGGeometry.m
 src/UIView+Layout.m

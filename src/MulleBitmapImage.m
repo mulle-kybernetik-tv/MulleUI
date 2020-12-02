@@ -18,7 +18,7 @@ struct mulle_allocator    stbi_allocator;  // no contents
 
 
 - (instancetype) initWithMulleData:(struct mulle_data) data 
-                         allocator:(struct mulle_allocator *) allocator
+                          allocator:(struct mulle_allocator *) allocator
 {
    int   w;
    int   h;
@@ -38,6 +38,8 @@ struct mulle_allocator    stbi_allocator;  // no contents
    _bitmapSize.size.height     = h;
    _bitmapSize.colorComponents = n;
 
+   _fileEncoding = MulleBitmapImageDataEncodingFromMulleData( data);
+
 	return( self);
 }
 
@@ -53,12 +55,47 @@ struct mulle_allocator    stbi_allocator;  // no contents
 }
 
 
+enum UIImageDataEncoding   MulleBitmapImageDataEncodingFromMulleData(struct mulle_data data)
+{
+   // can't do this, because stbi__context is unavailable as are the
+   // various test methods
+
+   // https://en.wikipedia.org/wiki/Portable_Network_Graphics
+   static uint8_t   png_header[] = { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0xA };
+   uint8_t          *start;
+   uint8_t          *end;
+
+   if( data.length > sizeof( png_header) && 
+      ! memcmp( data.bytes, png_header, sizeof( png_header)))
+   {      
+      return( UIImageDataEncodingPNG);
+   }
+   
+   // https://stackoverflow.com/questions/4550296/how-to-identify-contents-of-a-byte-is-a-jpeg
+   if( data.length > 4)
+   {
+      start = data.bytes;
+      end   = &start[ data.length];
+      if( start[ 0] == 0xFF && start[ 1] == 0xD8 &&
+          end[ -2] == 0xFF && end[ -1] == 0xD9)
+      {
+         return( UIImageDataEncodingJPG);
+      }
+
+      if( start[ 0] == 'B' && start[ 1] == 'M')
+         return( UIImageDataEncodingBMP);
+   }
+
+   return( UIImageDataEncodingUnknown);
+}
+
+
 //
 // here bytes is a loaded stbi_image already (?)
 // so we don't have any fileData!
 //
 - (instancetype) initWithConstBitmapBytes:(const void *) bytes 
-                               bitmapSize:(mulle_bitmap_size) bitmapSize
+                               bitmapSize:(struct mulle_bitmap_size) bitmapSize
 {
    _image = (void *) bytes;
 	if( ! _image) 
@@ -108,6 +145,12 @@ struct mulle_allocator    stbi_allocator;  // no contents
 }
 
 
+- (void *) bytes
+{
+   return( _image);
+}
+
+
 - (CGSize) size
 {
    return( CGSizeMake( _bitmapSize.size.width, _bitmapSize.size.height));
@@ -131,12 +174,6 @@ struct mulle_allocator    stbi_allocator;  // no contents
 - (mulle_int_size) intSize
 {
    return( _bitmapSize.size);
-}
-
-
-- (mulle_bitmap_size) bitmapSize
-{
-   return( _bitmapSize);
 }
 
 

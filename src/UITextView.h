@@ -14,7 +14,12 @@
 //
 #import "UIControl.h"
 
+#import "MulleCursorProtocol.h"
+
+
 @class MulleTextLayer;
+@class MulleTextStorage;
+
 
 //
 // IDEA 1:
@@ -61,51 +66,34 @@
 // height information and feed the UITextView with the appropriate textlayers.
 // Textlayers that are scrolled off, can be reclaimed.
 //
-@interface UITextView : UIView < UIControl>
+@interface UITextView : UIView < MulleCursor>
 {
-   UIControlIvars;
-
-   MulleTextLayer   *_titleLayer;
-   CALayer          *_titleBackgroundLayer;
+   MulleTextStorage   *_textStorage;
+   NSUInteger         _startSelection;
 }
 
+MULLE_CURSOR_PROPERTIES;
 
-UIControlProperties;
+// one image is one character long. The selection spans multiple layers.
+@property( assign) NSRange    selection;
 
-- (void) setTitleCString:(char *) s;
-- (char *) titleCString;
 
-// UIControlState can be:
-//
-//    UIControlStateNormal
-//    UIControlStateSelected
-//    UIControlStateNormal|UIControlStateDisabled
-//    UIControlStateSelected|UIControlStateDisabled
-//
-// Highlighting will use the inverse of the current selection state
-//
+- (void) setTextData:(NSData *) data;
 
-- (void) setupLayersWithFrame:(CGRect) frame;
-- (void) layoutLayersWithFrame:(CGRect) frame;
 
-// subclasses can style by overriding these
-+ (MulleTextLayer *) titleLayerWithFrame:(CGRect) rect;
-+ (CALayer *) mulleTitleBackgroundLayerWithFrame:(CGRect) rect;
+- (void) startSelectionAtPoint:(CGPoint) mouseLocation;
+- (void) adjustSelectionToPoint:(CGPoint) mouseLocation;
 
-- (CGRect) mulleInsetTextLayerFrameWithFrame:(CGRect) frame;
-
-- (void) insertCharacter:(unichar) c;
-
-- (void) paste;
+- (struct MulleIntegerPoint) cursorPositionForPoint:(CGPoint) point;
+- (void) setCursorPositionToPoint:(CGPoint) point;
+- (void) setCursorPosition:(struct MulleIntegerPoint) point;
 
 @end
 
 
 @interface UITextView ( Forward)
 
-@property( assign) NSUInteger  cursorPosition;
-
-- (void) insertCharacter:(unichar) c;
-- (void) backspaceCharacter;
+- (NSData *) textData;
+- (NSArray *) images;
 
 @end

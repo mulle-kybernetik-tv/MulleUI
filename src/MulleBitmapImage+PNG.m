@@ -18,6 +18,7 @@
 {
    return( [self initWithBytes:[data bytes]
                         length:[data length]
+                     allocator:NULL
                  nvgImageFlags:0]);
 }
 

@@ -11,6 +11,68 @@
 
 @implementation MulleTextLayer : CALayer
 
+- (void) setUTF8Data:(struct mulle_utf8data) data
+{
+   struct mulle_allocator  *allocator;
+   mulle_utf8_t            *p;
+   NSUInteger               length;
+
+   if( data.characters == _data.characters)
+      return;
+
+   allocator = MulleObjCInstanceGetAllocator( self);
+   length    = data.length;
+   if( length)
+      if( ! data.characters[ length - 1])
+         --length;
+  
+   // don't want two trailing zeroes in incoming data
+   assert( ! length || data.characters[ length - 1]);
+  
+   p = mulle_allocator_malloc( allocator, length + 1);
+   memcpy( p, data.characters, length);
+   p[ length] = 0;
+
+   mulle_allocator_free( allocator, _data.characters);
+
+   _data.characters = p;
+   _data.length     = length;
+}
+
+
+- (struct mulle_utf8data) UTF8Data
+{
+   return( _data);
+}
+
+
+- (char *) cString  // will be a copy if internal data has no trailing zero byte
+{
+   return( (char *) _data.characters);
+}
+
+
+- (void) setCString:(char *) s
+{
+   if( ! s)
+      s = "";
+
+#if 0
+#ifdef NDEBUG   
+   struct mulle_utf_information   info;   
+   // must be valid UTF8
+   mulle_utf8_information( s, -1, &info);
+   if( ! mulle_utf_information_is_valid( info))
+      abort();
+#endif
+   _newlinesInCString = count_newlines( s);
+#endif
+
+    MulleObjCObjectSetDuplicatedCString( self, &_data.characters, s);
+   _data.length = strlen( s);
+}
+
+
 - (void) setFontName:(char *) s
 {
    MulleObjCObjectSetDuplicatedCString( self, &_fontName, s);
@@ -57,30 +119,16 @@ static NSUInteger  count_newlines( mulle_utf8_t *s)
 }
 #endif
 
-- (void) setCString:(char *) s
-{
-   if( ! s)
-      s = "";
-
-#if 0
-#ifdef NDEBUG   
-   struct mulle_utf_information   info;   
-   // must be valid UTF8
-   mulle_utf8_information( s, -1, &info);
-   if( ! mulle_utf_information_is_valid( info))
-      abort();
-#endif
-   _newlinesInCString = count_newlines( s);
-#endif
-   MulleObjCObjectSetDuplicatedCString( self, &_cString, s);
-   _cStringEnd = &_cString[ strlen( _cString)];
-}
 
 
 - (id) init
 {
    [super init];
 
+   _textColor           = MulleColorCreate( 0x000000FF);
+   _textBackgroundColor = MulleColorCreate( 0xFFFFFFFF);
+   _selectionColor      = MulleColorCreate( 0x7FFF7F7F);
+   
    _mulle_structarray_init( &_rowArray, sizeof( NVGtextRow),
                                         alignof( NVGtextRow),
                                         0,
@@ -99,7 +147,7 @@ static NSUInteger  count_newlines( mulle_utf8_t *s)
    _mulle_structarray_done( &_rowArray);
 
    MulleObjCObjectDeallocateMemory( self, _fontName);
-   MulleObjCObjectDeallocateMemory( self, _cString);
+   MulleObjCObjectDeallocateMemory( self, _data.characters);
 
    [super dealloc]; 
 }
@@ -300,7 +348,11 @@ NSUInteger
       // also when word wrapping how big can the biggest word be ?
 
       width   = _frame.size.width;
-      extent  = nvgTextBounds( vg, 0, 0, _cString, _cStringEnd, bounds);
+      extent  = nvgTextBounds( vg, 0, 
+                                   0, 
+                                   _data.characters, 
+                                   &_data.characters[ _data.length], 
+                                   bounds);
       // TODO check this is true, probably need to fuzz it
       max    += ceil( extent / width) + 1;
       break;
@@ -318,7 +370,11 @@ NSUInteger
    // Here the problem is, that we always calculate from the start though
    // which doesn't work well for middle/bottom...
    //
-   _nRows = nvgTextBreakLines( vg, _cString, _cStringEnd, width, _rows, max);
+   _nRows = nvgTextBreakLines( vg, _data.characters, 
+                                   &_data.characters[ _data.length],
+                                   width, 
+                                   _rows, 
+                                   max);
    // produce glyph information for each row
    for( i = 0; i < _nRows; i++)
       [self updateRowGlyphsAtIndex:i
@@ -346,7 +402,7 @@ NSUInteger
    NSUInteger          i;
 
    // nothing to draw ? then bail
-   if( ! _cString || ! *_cString)
+   if( ! _data.length)
       return( NO);
 
    font  = [context fontWithName:_fontName ? _fontName : "sans"];
@@ -413,7 +469,7 @@ NSUInteger
 
    for( i = 0; i < _nRows; i++)
    {
-      textRange = NSMakeRange( _rows[ i].start - _cString, 
+      textRange = NSMakeRange( _rows[ i].start - (char *) _data.characters, 
                                _rows[ i].end - _rows[ i].start);
 
       // Draw the first line only
@@ -422,7 +478,7 @@ NSUInteger
                                frame.origin.y, 
                                frame.size.width, 
                                frame.size.height);
-      nvgFillColor( vg, nvgRGBA(127,127,255,255));
+      // nvgFillColor( vg, nvgRGBA(127,127,255,255));
 
       /*
        * Draw selection
@@ -442,6 +498,7 @@ NSUInteger
                    frame.origin.y + _origin.y + (i * _lineh), 
                    _rows[ i].start, 
                    _rows[ i].end);
+
       /*
        * Draw Cursor
        */
@@ -517,7 +574,7 @@ static size_t   mulle_utf8_utf32length( mulle_utf8_t *s, size_t len)
       if( search >= p->glyphs[ x].minx + (p->glyphs[ x].maxx - p->glyphs[ x].minx) / 3.0)
          x++;
    }
-   return( p->glyphs[ x].str - _cString);  
+   return( p->glyphs[ x].str - (char *) _data.characters);  
 }
 
 

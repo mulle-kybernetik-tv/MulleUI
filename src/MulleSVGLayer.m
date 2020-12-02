@@ -38,36 +38,54 @@ static NVGcolor getSVGColor(uint32_t color)
    if( ! (self = [super init]))
       return( self);
    
-   _image         = [image retain];  // ownership transfer
+   _image          = [image retain];  // ownership transfer
 
-   _bounds        = [_image visibleBounds];
-   _offset.x      = -_bounds.origin.x;
-   _offset.y      = -_bounds.origin.y;
-   _bounds.origin = CGPointMake( 0.0f, 0.0f);
+   _bounds         = [_image visibleBounds];
+   _offset.x       = -_bounds.origin.x;
+   _offset.y       = -_bounds.origin.y;
+   _bounds.origin  = CGPointMake( 0.0f, 0.0f);
+   _selectionColor = MulleColorCreate( 0x7FFF7F7F);
 
    return( self);
 }
 
 
-- (BOOL) drawInContext:(CGContext *) context 
+- (instancetype) initWithImage:(UIImage *) image
+{
+	if( image && ! [image isKindOfClass:[MulleSVGImage class]])
+   {
+      [self release];
+      return( self);
+   }
+	
+   return( [self initWithSVGImage:(MulleSVGImage *) image]);
+}
+
+
+- (BOOL) drawContentsInContext:(CGContext *) context
 {
    NSVGimage     *image;
 	NSVGshape     *shape;
 	NSVGpath      *path;
+   CGColorRef    color;
+
    int           i;
 	float         *p;
    CGPoint       scale;
    NVGcontext    *vg;
-      
-   if( ! [super drawInContext:context])
-      return( NO);
+   CGRect        frame;
+   CGRect        rect;
 
    image = [(MulleSVGImage *) _image NSVGImage];
    if ( ! image)
-      return( YES);
+      return( NO);
 
-   vg = [context nvgContext];
-   nvgTranslate( vg, _offset.x, _offset.y);
+   vg    = [context nvgContext];
+  
+   frame = [self frame];
+ 
+   nvgTranslate( vg, frame.origin.x, frame.origin.y);
+   nvgTranslate( vg, 0 /* -_offset.x */, _offset.y); /// hacked to negative
    nvgBezierTessellation( vg, NVG_TESS_AFD); // patched nanovg function
 
    for( shape = image->shapes; shape != NULL; shape = shape->next) 
@@ -75,9 +93,17 @@ static NVGcolor getSVGColor(uint32_t color)
 	   if( ! (shape->flags & NSVG_FLAGS_VISIBLE))
    	   continue;
 
-	   nvgFillColor( vg, getSVGColor( shape->fill.color));
-	   nvgStrokeColor( vg, getSVGColor( shape->stroke.color));
 	   nvgStrokeWidth( vg, shape->strokeWidth);
+
+      color = getSVGColor( shape->fill.color);
+      if( _selected)
+         color = CGColorDim( color, 0.5);
+	   nvgFillColor( vg, color);
+      
+      color = getSVGColor( shape->stroke.color);
+      if( _selected)
+         color = CGColorDim( color, 0.5);
+	   nvgStrokeColor( vg, color);
 
 	   for( path = shape->paths; path != NULL; path = path->next) 
 	   {
@@ -100,6 +126,22 @@ static NVGcolor getSVGColor(uint32_t color)
 			   nvgStroke( vg);
 	   }
 	}
+
+   if( _selected)
+   {
+      rect = [_image visibleBounds];
+
+      // MEMO: wenn man den nvgBeginPath weglaesst, dann klippt das rect gegen
+      // den letzten shape, was ev. ganz nuetzlich mal sein kann.
+		nvgBeginPath( vg);
+      nvgRect( vg, rect.origin.x,
+                   rect.origin.y,
+                   rect.size.width,
+                   rect.size.height);
+
+  	   nvgFillColor( vg, _selectionColor);
+	   nvgFill( vg);
+   }
    return( YES);
 }
 
@@ -110,5 +152,19 @@ static NVGcolor getSVGColor(uint32_t color)
    bounds = [_image visibleBounds];
    return( bounds);
 }
+
+- (NSUInteger) characterIndexForPoint:(CGPoint) point
+{
+   // TODO: HACK!!!
+   return( 1);
+}
+
+
+- (struct MulleIntegerPoint) cursorPositionForPoint:(CGPoint) mouseLocation
+{
+   // TODO: HACK!!!
+   return( MulleIntegerPointMake( 1, 0));
+}
+
 
 @end

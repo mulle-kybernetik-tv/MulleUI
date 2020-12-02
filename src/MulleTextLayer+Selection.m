@@ -41,7 +41,7 @@
    rect.size.width  = p->glyphs[ x + selectionRange.length].x - p->glyphs[ x].x;
    rect.size.height = _lineh;
 
-   nvgFillColor( vg, nvgRGBA(127,255,127,255));
+   nvgFillColor( vg, _selectionColor);
    nvgBeginPath( vg);
    nvgRect( vg, rect.origin.x, rect.origin.y, rect.size.width, rect.size.height); 
    nvgFill( vg);  
@@ -162,11 +162,13 @@
       _selection = NSMakeRange( i, _startSelection - i);
    else
       _selection = NSMakeRange( _startSelection, i - _startSelection);
-
+#if 0
    fprintf( stderr, "Selection: %.*s (%ld, %ld)\n", 
-         (int) _selection.length, &_cString[ _selection.location],
+         (int) _selection.length, &_data.characters[ _selection.location],
          (long) _selection.location,
          (long) _selection.length);
+
+#endif
 }
 
 @end

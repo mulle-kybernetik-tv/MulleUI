@@ -9,6 +9,9 @@
 
 #import "import.h"
 
+
+@class UIImage;
+
 //
 // The storage for text and images of a UITextView.
 // The persistance format is markdown with embedded images
@@ -28,5 +31,7 @@
 - (NSData *) textData;
 
 @property( relationship, retain) NSArray  *images;
+
+- (UIImage *) imageForNumber:(NSNumber *) nr;
 
 @end

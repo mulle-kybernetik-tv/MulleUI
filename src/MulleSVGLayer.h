@@ -2,6 +2,8 @@
 
 #import "CGBase.h"
 
+#import "MulleCursorProtocol.h"
+
 
 @class MulleSVGImage;
 
@@ -16,12 +18,18 @@
 //
 // It seems wise to pre-render SVG layers into bitmaps
 //
-@interface MulleSVGLayer : CALayer <CAImageLayer>
+@interface MulleSVGLayer : CALayer <CAImageLayer, MulleCursor>
 {
 	UIImage   *_image;
    CGPoint   _offset;
 }
 
+MULLE_CURSOR_PROPERTIES;
+
+@property( assign, getter=isSelected) BOOL   selected;
+@property( observable) CGColorRef            selectionColor;
+
+- (instancetype) initWithImage:(UIImage *) image;
 - (instancetype) initWithSVGImage:(MulleSVGImage *) image;
 
 @end

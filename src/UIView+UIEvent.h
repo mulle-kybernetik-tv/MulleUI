@@ -19,6 +19,7 @@
 - (UIEvent *) _handleEvent:(UIEvent *) event;
 
 - (UIView *) subviewAtPoint:(CGPoint) point;
+- (CALayer *) layerAtPoint:(CGPoint) point;
 
 @end
 

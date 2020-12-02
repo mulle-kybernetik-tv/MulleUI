@@ -11,6 +11,8 @@
 {
    _fileData          = data;
    _fileDataAllocator = allocator;
+   _fileEncoding      = UIImageDataEncodingFromMulleData( data);
+   
    return( self);
 }
 
@@ -21,6 +23,16 @@
    _fileDataSharingObject = [sharingObject retain];
    return( [self initWithMulleData:data
                          allocator:NULL]);
+}
+
+
+enum UIImageDataEncoding   UIImageDataEncodingFromMulleData(struct mulle_data data)
+{
+   // could be more clever...
+   if( data.length > 4 && ! strncmp( data.bytes, "<svg", 4))
+      return( UIImageDataEncodingSVG);
+
+   return( UIImageDataEncodingUnknown);
 }
 
 
@@ -102,6 +114,11 @@
    if( flags == [self nvgImageFlags])
       return( self);
    return( nil);
+}
+
+- (enum UIImageDataEncoding) fileEncoding
+{
+   return( _fileEncoding);
 }
 
 @end

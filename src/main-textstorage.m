@@ -1,6 +1,7 @@
 #import "import-private.h"
 
 #import "MulleTextStorage.h"
+#import "UIImage.h"
 
 
 
@@ -29,22 +30,32 @@ int   main()
    MulleTextStorage   *storage;
    NSData             *data;
    NSData             *data2;
+   id                 line;
 
    storage = [MulleTextStorage object];
    data    = [NSData dataWithBytes:demo_md
-                            length:strlen( demo_md) - 1];
+                            length:strlen( demo_md)];
    [storage setTextData:data];
 
    data2 = [storage textData];
    if( ! [data isEqualToData:data2])
    {
-      fprintf( stderr, "original: (%d)\n------------\n%.*s\n------------\n\n", 
+      fprintf( stderr, "original: (%d)\n============\n%.*s\n============\n\n", 
                (int) [data length], 
                (int) [data length], [data bytes]);
-      fprintf( stderr, "failed  : (%d)\n------------\n%.*s\n------------\n\n", 
+      fprintf( stderr, "failed  : (%d)\n============\n%.*s\n============\n\n", 
                (int) [data2 length],
                (int) [data2 length], [data2 bytes]);
+      fprintf( stderr, "end\n");
       return( 1);
+   }
+
+   for( line in storage)
+   {
+      if( [line isKindOfClass:[NSNumber class]])
+         printf( "image #%ld\n", (long) [line longValue]);
+      else
+         printf( "text: %.*s\n", (int) [line length], [line bytes]);
    }
 
    return( 0);

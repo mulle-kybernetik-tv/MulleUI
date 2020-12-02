@@ -1,5 +1,7 @@
 #import "CALayer.h"
 
+#import "MulleCursorProtocol.h"
+
 // not a string in MulleUI
 // TODO: rename or at least alias the k constants
 typedef enum CATextLayerAlignmentMode
@@ -23,45 +25,6 @@ typedef enum MulleTextLayerVerticalAlignmentMode
    MulleTextVerticalAlignmentTop,
    MulleTextVerticalAlignmentBottom
 } MulleTextLayerVerticalAlignmentMode;
-
-
-struct MulleIntegerPoint
-{
-	NSUInteger    x;
-	NSUInteger    y;
-};
-
-static inline 
-   struct MulleIntegerPoint   MulleIntegerPointMake( NSUInteger x, NSUInteger y)
-{
-   struct MulleIntegerPoint   point;
-
-   point.x = x;
-   point.y = y;
-   return( point);
-}
-
-static inline NSUInteger   MulleIntegerPointGetX( struct MulleIntegerPoint point)
-{
-   return( point.x);
-}
-
-static inline NSUInteger   MulleIntegerPointGetY( struct MulleIntegerPoint point)
-{
-   return( point.y);
-}
-
-static inline NSUInteger   MulleIntegerPointGetColumn( struct MulleIntegerPoint point)
-{
-   return( point.x);
-}
-
-
-static inline NSUInteger   MulleIntegerPointGetRow( struct MulleIntegerPoint point)
-{
-   return( point.y);
-}
-
 
 
 struct MulleTextLayerRowGlyphs
@@ -117,7 +80,7 @@ NSUInteger   MulleNVGglyphPositionSearch( NVGglyphPosition *glyphs,
    // values exist after a frame is drawn,
    // will change on next redraw possibly
 @private
-   char                            *_cStringEnd;
+   struct mulle_utf8data           _data;
 	struct mulle_structarray        _rowArray;
    NVGtextRow                      *_rows;
    NSUInteger                      _nRows;   
@@ -134,15 +97,23 @@ NSUInteger   MulleNVGglyphPositionSearch( NVGglyphPosition *glyphs,
 
 @property( assign) char     *fontName;
 @property( assign) CGFloat  fontPixelSize;
-@property( assign) char     *cString;
+
+// incoming data need not be zero terminated
+- (void) setUTF8Data:(struct mulle_utf8data) data;
+// returned data is zero terminated but does not show it in length
+- (struct mulle_utf8data) UTF8Data;
+
+- (char *) cString;  
+- (void) setCString:(char *) s;
 
 //
 // The selection of the UTF8 characters: the selection must not
 // split graphemes and combined emoji. But MulleTextLayer won't check that.
 //
-@property( assign) NSRange          selection;
+@property( assign) NSRange          selection; 
+@property( observable) CGColorRef   selectionColor;
 @property( observable) CGColorRef   textColor;
-@property( observable) CGPoint      textOffset;
+@property( observable) CGPoint      textOffset; // in pixels
 
 // for cleartype it's important to know the color the text is drawn on
 // if the layer backgroundColor is transparent, use this color to supply
@@ -151,10 +122,10 @@ NSUInteger   MulleNVGglyphPositionSearch( NVGglyphPosition *glyphs,
 @property( assign) enum CATextLayerAlignmentMode   alignmentMode;
 @property( assign) NSLineBreakMode                 lineBreakMode;
 
-// if editable and in focus, will draw a caret/cursor
-@property( assign, getter=isEditable) BOOL           editable;
 @property( assign, getter=isMultiLineEnabled) BOOL   multiLineEnabled;
 
+// if editable and in focus, will draw a caret/cursor
+@property( assign, getter=isEditable) BOOL           editable;
 // cursor position as row/column
 @property( assign) struct MulleIntegerPoint          cursorPosition;
 
