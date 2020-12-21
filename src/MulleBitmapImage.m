@@ -17,42 +17,58 @@ struct mulle_allocator    stbi_allocator;  // no contents
 }
 
 
-- (instancetype) initWithMulleData:(struct mulle_data) data 
-                          allocator:(struct mulle_allocator *) allocator
-{
-   int   w;
-   int   h;
-   int   n;
 
-	_image = stbi_load_from_memory( data.bytes, (int) data.length, &w, &h, &n, 4);
+//
+// here bytes is a loaded stbi_image already (?)
+// so we don't have any fileData!
+//
+- (instancetype) initWithConstRGBA:(const void *) bytes 
+                        bitmapSize:(struct mulle_bitmap_size) bitmapSize
+{
+   _image = (void *) bytes;
 	if( ! _image) 
    {
       [self release];
       return( nil);
    }
 
-   self = [super initWithMulleData:data
-                         allocator:allocator];
-
-   _bitmapSize.size.width      = w;
-   _bitmapSize.size.height     = h;
-   _bitmapSize.colorComponents = n;
-
-   _fileEncoding = MulleBitmapImageDataEncodingFromMulleData( data);
+   _dontFreeImage = YES;
+   _bitmapSize    = bitmapSize;
 
 	return( self);
-}
+}    
 
-- (instancetype) initWithMulleData:(struct mulle_data) data 
-                         allocator:(struct mulle_allocator *) allocator
+
+// here bytes is a loaded stbi_image already (?)
+- (instancetype) initWithConstRGBA:(const void *) bytes 
+                        bitmapSize:(mulle_bitmap_size) bitmapSize
                      nvgImageFlags:(int) flags
 {
-   self = [self initWithMulleData:data
-                        allocator:allocator];
+   self = [self initWithConstRGBA:bytes
+                       bitmapSize:bitmapSize];
    if( self)
       _nvgImageFlags = flags;
    return( self);
-}
+} 
+
+
+- (instancetype) initWithRGBAMulleData:(struct mulle_data) data 
+                            bitmapSize:(mulle_bitmap_size) bitmapSize
+                             allocator:(struct mulle_allocator *) allocator
+                         nvgImageFlags:(int) flags
+{
+   self = [self initWithConstRGBA:(const void *) data.bytes
+                       bitmapSize:bitmapSize
+                    nvgImageFlags:flags];
+   if( self)
+   {
+      _fileData           = data;
+      _fileDataAllocator  = allocator;
+      _fileEncoding       = UIImageDataEncodingRGBA;
+   }
+
+   return( self);
+} 
 
 
 enum UIImageDataEncoding   MulleBitmapImageDataEncodingFromMulleData(struct mulle_data data)
@@ -90,34 +106,38 @@ enum UIImageDataEncoding   MulleBitmapImageDataEncodingFromMulleData(struct mull
 }
 
 
-//
-// here bytes is a loaded stbi_image already (?)
-// so we don't have any fileData!
-//
-- (instancetype) initWithConstBitmapBytes:(const void *) bytes 
-                               bitmapSize:(struct mulle_bitmap_size) bitmapSize
+- (instancetype) initWithFileMulleData:(struct mulle_data) data 
+                             allocator:(struct mulle_allocator *) allocator
 {
-   _image = (void *) bytes;
-	if( ! _image) 
+   int   w;
+   int   h;
+   int   n;
+
+	_image = stbi_load_from_memory( data.bytes, (int) data.length, &w, &h, &n, 4);
+	if( ! _image || ! w || ! h || ! n) 
    {
       [self release];
       return( nil);
    }
 
-   _dontFreeImage = YES;
-   _bitmapSize    = bitmapSize;
+   self = [super initWithFileMulleData:data
+                             allocator:allocator];
+
+   _bitmapSize.size.width      = w;
+   _bitmapSize.size.height     = h;
+   _bitmapSize.colorComponents = n;
+
+   _fileEncoding = MulleBitmapImageDataEncodingFromMulleData( data);
 
 	return( self);
-}    
+}
 
-
-// here bytes is a loaded stbi_image already (?)
-- (instancetype) initWithConstBitmapBytes:(const void *) bytes 
-                               bitmapSize:(mulle_bitmap_size) bitmapSize
-                            nvgImageFlags:(int) flags
+- (instancetype) initWithFileMulleData:(struct mulle_data) data 
+                             allocator:(struct mulle_allocator *) allocator
+                         nvgImageFlags:(int) flags
 {
-   self = [self initWithConstBitmapBytes:bytes
-                              bitmapSize:bitmapSize];
+   self = [self initWithFileMulleData:data
+                            allocator:allocator];
    if( self)
       _nvgImageFlags = flags;
    return( self);

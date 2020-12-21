@@ -16,24 +16,29 @@
 
 - (id) initWithPNGData:(NSData *) data
 {
-   return( [self initWithBytes:[data bytes]
-                        length:[data length]
-                     allocator:NULL
-                 nvgImageFlags:0]);
+   return( [self initWithMulleData:mulle_data_make( [data bytes], [data length])
+                         allocator:NULL
+                     nvgImageFlags:0]);
 }
-
 
 
 - (BOOL) writeToPNGFileWithSystemRepresentation:(char *) filename
 {
-   int   rval;
-  
+   int                        rval;
+   struct mulle_bitmap_size   bitmapSize;
+   void                       *image;
+
+   bitmapSize = [self bitmapSize];
+   image      = [self image];
+   if( ! image)
+      return( NO);
+
    rval = stbi_write_png( filename, 
-                          _bitmapSize.size.width, 
-                          _bitmapSize.size.height, 
+                          bitmapSize.size.width, 
+                          bitmapSize.size.height, 
                           4, 
-                          _image, 
-                          _bitmapSize.size.width * _bitmapSize.colorComponents);
+                          image, 
+                          bitmapSize.size.width * bitmapSize.colorComponents);
    return( rval != 0);
 }        
 
@@ -49,19 +54,26 @@ static void   appendData(void *context, void *data, int size)
 
 - (NSData *) PNGData
 {
-   int             rval;
-   NSMutableData   *buffer;
-   NSUInteger      lineLength;
+   int                        rval;
+   NSMutableData              *buffer;
+   NSUInteger                 lineLength;
+   void                       *image;
+   struct mulle_bitmap_size   bitmapSize;
 
-   lineLength = _bitmapSize.size.width * _bitmapSize.colorComponents;
+   image = [self image];
+   if( ! image)
+      return( nil);
 
-   buffer = [NSMutableData dataWithCapacity:1024 + _bitmapSize.size.width * lineLength];
+   bitmapSize = [self bitmapSize];
+   lineLength = bitmapSize.size.width * bitmapSize.colorComponents;
+
+   buffer = [NSMutableData dataWithCapacity:1024 + bitmapSize.size.width * lineLength];
    rval   = stbi_write_png_to_func( appendData, 
                                     buffer, 
-                                    _bitmapSize.size.width, 
-                                    _bitmapSize.size.height, 
+                                    bitmapSize.size.width, 
+                                    bitmapSize.size.height, 
                                     4, 
-                                    _image, 
+                                    image, 
                                     lineLength);
    if( rval == 0)
       return( nil);

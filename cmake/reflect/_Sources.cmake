@@ -17,6 +17,7 @@ src/main-layer.m
 src/main-many-rectangles.m
 src/main-path.m
 src/main-remove-from-area.m
+src/main-render-png.m
 src/main-rowcolumn.m
 src/main-scrollview.m
 src/main-slider.m
@@ -33,6 +34,7 @@ set( SOURCES
 nanovg/src/nanovg.c
 src/CAAnimationGroup.m
 src/CAAnimation.m
+src/CAGradientLayer.m
 src/CALayer+CAAnimation.m
 src/CALayer.m
 src/CAShapeLayer.m
@@ -53,6 +55,7 @@ src/GLFW/UIApplication+GLFW.m
 src/GLFW/UIWindow+GLFW.m
 src/MulleBitmapImage+PNG.m
 src/MulleBitmapImage.m
+src/_MulleBitmapImage.m
 src/MulleCheckboxLayer.m
 src/MulleControlBackgroundImage.m
 src/MulleEdgeInsets+CString.m
@@ -61,10 +64,13 @@ src/MulleImageLayer.m
 src/MulleJS+Canvas.m
 src/MulleJS+Math.m
 src/MulleJS+MulleUI.m
+src/MulleKeyboardEventConsumer.m
+src/MulleLayout.c
 src/MulleMenuButton.m
 src/MulleMenu+UIEvent.m
 src/MulleMenu.m
 src/MulleObjectArray.m
+src/MullePaint.m
 src/MullePopUpButton+MulleMenu.m
 src/MullePopUpButton+UIEvent.m
 src/MullePopUpButton.m
@@ -107,6 +113,7 @@ src/UIStepper.m
 src/UISwitch.m
 src/UITextField+UIResponder.m
 src/UITextField.m
+src/UITextView+Cursor.m
 src/UITextView+UIEvent.m
 src/UITextView.m
 src/UIView+CAAnimation.m
@@ -132,6 +139,7 @@ src/mulle-quadtree.m
 src/nanoperf.m
 src/nanosvg.m
 src/nanovg+CString.m
+src/x.m
 src/yoga/YGEnums.c
 src/yoga/YGNodeList.c
 src/yoga/Yoga.c

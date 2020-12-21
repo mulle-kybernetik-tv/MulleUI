@@ -8,7 +8,7 @@
 # endif
 #endif
 
-// we wan't "import.h" always anyway
+// we want "import.h" always anyway
 #import "import.h"
 
 
@@ -49,7 +49,7 @@ typedef enum
 // You do not need not to call super in UIView subclasses, if you manually
 // layout everything
 // 
-//- (void) layoutSubviews;
+- (void) layoutSubviews;
 
 - (void) startLayoutWithFrameInfo:(struct MulleFrameInfo *) info;
 - (void) layout;

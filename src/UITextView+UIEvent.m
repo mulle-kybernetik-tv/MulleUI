@@ -40,4 +40,26 @@
    return( nil);
 }
 
+
+
+- (UIEvent *) keyDown:(UIEvent *) event
+{
+   // handled by MulleKeyboardEventConsumer
+   return( [self consumeKeyDown:event]);
+}
+
+
+- (UIEvent *) unicodeCharacter:(UIEvent *) event
+{
+   UIUnicodeEvent *unicodeEvent = (UIUnicodeEvent *) event;
+   int   c;
+
+   fprintf( stderr, "character: %ld\n", 
+                        (long) [unicodeEvent character]);
+
+   c = [unicodeEvent character];
+   [self insertCharacter:c];
+   return( nil);
+}
+
 @end

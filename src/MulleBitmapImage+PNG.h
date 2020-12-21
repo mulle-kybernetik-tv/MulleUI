@@ -8,7 +8,7 @@
 # endif
 #endif
 
-// we wan't "import.h" always anyway
+// we want "import.h" always anyway
 #import "import.h"
 
 //

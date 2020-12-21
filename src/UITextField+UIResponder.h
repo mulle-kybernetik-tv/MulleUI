@@ -8,11 +8,19 @@
 # endif
 #endif
 
-// we wan't "import.h" always anyway
+// we want "import.h" always anyway
 #import "import.h"
 
 
-@interface UITextField( UIResponder)
+
+#ifdef __has_include
+# if __has_include( "MulleKeyboardEventConsumer.h")
+#  import "MulleKeyboardEventConsumer.h"
+# endif
+#endif
+
+
+@interface UITextField( UIResponder) < MulleKeyboardEventConsumer>
 
 - (void) reflectState;
 

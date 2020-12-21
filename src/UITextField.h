@@ -68,6 +68,7 @@ UIControlProperties;
 - (void) insertCharacter:(unichar) c;
 - (void) backspaceCharacter;
 
+// use this for a compiler bug work around (?)
 - (void) getCursorPosition:(struct MulleIntegerPoint *) cursor_p;
 
 @end

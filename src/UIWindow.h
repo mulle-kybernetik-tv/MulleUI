@@ -7,6 +7,7 @@ struct MulleFrameInfo;
 typedef UIView   MulleWindowPlane;
 
 @class UIPasteboard;
+@class UIEvent;
 
 
 //
@@ -34,29 +35,39 @@ typedef UIView   MulleWindowPlane;
    BOOL               _resizing;
 }
 
-@property( retain) CGContext                  *context;
-@property( retain) id                         userInfo;
-@property( retain) UIPasteboard               *pasteboard;
-@property( assign, readonly) CGPoint          mouseLocation;
-@property( assign, readonly) uint64_t         mouseButtonStates;
-@property( assign, readonly) uint64_t         modifiers;
-@property( assign, readonly) CGFloat          primaryMonitorPPI;
-@property( assign) CGFloat                    scrollWheelSensitivity;
+@property( retain) CGContext            *context;
+@property( retain) id                   userInfo;
+@property( retain) UIPasteboard         *pasteboard;
+@property( assign, readonly) CGPoint    mouseLocation;
+@property( assign, readonly) uint64_t   mouseButtonStates;
+@property( assign, readonly) uint64_t   modifiers;
+@property( assign, readonly) CGFloat    primaryMonitorPPI;
+@property( assign) CGFloat              scrollWheelSensitivity;
 
 @property( assign, getter=isScrollWheelNatural) BOOL scrollWheelNatural;
 
 // nanovg will be done here, here is good time to do plain
-// OpenGL calls
+// OpenGL calls, endRender won't have happened yet
 @property void   (*drawWindowCallback)( UIWindow *window, 
+                                        CGContext *context,
                                         struct MulleFrameInfo *info);
-- (void) renderLoopWithContext:(CGContext *) context;
-- (void) requestClose;
+@property UIEvent  *(*keyEventCallback)( UIWindow *window, 
+                                         UIEvent *event);
 
 @property( readonly, assign) MulleWindowPlane   *alertPlane;
 @property( readonly, assign) MulleWindowPlane   *dragAndDropPlane;
 @property( readonly, assign) MulleWindowPlane   *menuPlane;
 @property( readonly, assign) MulleWindowPlane   *toolTipPlane;
 @property( readonly, assign) MulleWindowPlane   *contentPlane;
+
+
+- (void) renderLoopWithContext:(CGContext *) context;
+- (void) renderFrameWithContext:(CGContext *) context
+                      frameInfo:(struct MulleFrameInfo *) info;
+
+- (void) requestClose;
+
+- (void) getFrameInfo:(struct MulleFrameInfo *) info;
 
 + (CGFloat) primaryMonitorPPI;
 

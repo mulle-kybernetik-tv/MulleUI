@@ -13,12 +13,17 @@
 #define _MulleUI_include_private_h__
 
 // How to tweak the following mujs #include
-//    remove:          `mulle-sourcetree mark mujs no-header`
-//    rename:          `mulle-sde dependency|library set mujs include whatever.h`
-//    toggle #import:  `mulle-sourcetree mark mujs [no-]import`
-//    toggle public:   `mulle-sourcetree mark mujs [no-]public`
-//    toggle optional: `mulle-sourcetree mark mujs [no-]require`
-//    remove for os:   `mulle-sourcetree mark mujs no-os-<osname>`
-# include <mujs.h>   // mujs
+//    remove:             `mulle-sourcetree mark mujs no-header`
+//    rename:             `mulle-sde dependency|library set mujs include whatever.h`
+//    toggle #import:     `mulle-sourcetree mark mujs [no-]import`
+//    toggle localheader: `mulle-sourcetree mark mujs [no-]localheader`
+//    toggle public:      `mulle-sourcetree mark mujs [no-]public`
+//    toggle optional:    `mulle-sourcetree mark mujs [no-]require`
+//    remove for os:      `mulle-sourcetree mark mujs no-os-<osname>`
+# if defined( __has_include) && __has_include("mujs.h")
+#   include "mujs.h"   // mujs
+# else
+#   include <mujs.h>   // mujs
+# endif
 
 #endif

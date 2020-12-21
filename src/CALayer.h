@@ -10,6 +10,7 @@ typedef float   _NVGtransform[ 6];
 @class CGContext;
 @class CAAnimation;
 @class MulleAnimationDelegate;
+@class MullePaint;
 
 struct MulleFrameInfo;
 struct CAAnimationOptions;
@@ -79,6 +80,10 @@ struct CAAnimationOptions;
 - (void) setTransform:(_NVGtransform) transform
               scissor:(NVGscissor *) scissor;
 
+
+- (void) fillBackgroundInContext:(CGContext *) context
+                           color:(CGColorRef) color
+                           paint:(MullePaint *) paint;
 
 @end
 

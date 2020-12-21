@@ -13,6 +13,7 @@
 @class CGContext;
 @class UIWindow;
 @class MulleImageLayer;
+@class MulleTextureImage;
 
 struct MulleFrameInfo;
 
@@ -125,6 +126,10 @@ enum UILayoutStrategy
 - (void) renderWithContext:(CGContext *) context;
 - (void) animateWithAbsoluteTime:(CAAbsoluteTime) renderTime;
 - (void) willAnimateWithAbsoluteTime:(CAAbsoluteTime) renderTime;
+
+- (MulleTextureImage *) textureImageWithContext:(CGContext *) context
+                                      frameInfo:(struct MulleFrameInfo *) info
+                                        options:(NSUInteger) options;
 
 - (NSInteger) getLayers:(CALayer **) buf
                  length:(NSUInteger) length;

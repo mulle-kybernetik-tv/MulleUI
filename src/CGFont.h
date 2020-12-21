@@ -14,10 +14,10 @@
 @property( assign) int   fontIndex;  // NVG index
 
 + (instancetype) fontWithName:(char *) name
-                    fontIndex:(int)fontIndex;
+                    fontIndex:(int) fontIndex;
                      
 - (instancetype) initWithName:(char *) name
-                    fontIndex:(int)fontIndex;
+                    fontIndex:(int) fontIndex;
 
 
 @end

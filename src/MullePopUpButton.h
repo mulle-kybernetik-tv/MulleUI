@@ -33,7 +33,7 @@
 
 @property( retain) MulleMenu   *menu;
 
-- (id) representedValue;
+//- (id) representedValue;
 
 - (void) removeAllItems;
 - (void) addMenuItemWithTitleCString:(char *) s

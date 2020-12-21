@@ -4,29 +4,37 @@
 
 #import "import-private.h"
 
+#import "MulleBitmapImage.h"
+
 
 @implementation MulleTextureImage
 
-- (instancetype) initWithSize:(CGSize) size
-                      options:(NSUInteger) options
-                      context:(CGContext *) context
+- (instancetype) initWithBitmapSize:(mulle_bitmap_size) bitmapSize
+                            context:(CGContext *) context
+                            options:(NSUInteger) options
 {
    assert( context && [context isKindOfClass:[CGContext class]]);
 
    // TODO: would like to move this code to CGContext
-   _framebuffer = nvgluCreateFramebuffer( [context nvgContext], size.width, size.height, options);
-   if( ! _framebuffer)
+   _image = nvgluCreateFramebuffer( [context nvgContext], 
+                                    bitmapSize.size.width, 
+                                    bitmapSize.size.height, 
+                                    options);
+   if( ! _image)
    {
       [self release];
       return( nil);
    }
 
+   //
+   // Image is dependent on the graphics context, and can't live without it
+   // TextureImage is threfore retained by the context and not the other way
+   // (how long does the context live though)
+   //
+   _context       = context;
+   _bitmapSize    = bitmapSize;
+   _nvgImageFlags = options;
 
-   //
-   // image is dependent on the graphics context, and can't live without it
-   //
-   _context = context;
-   _size    = size;
    return( self);
 }
 
@@ -35,16 +43,61 @@
 {
    if( context != _context)
       return( -1);
-   return( ((NVGLUframebuffer *) _framebuffer)->image);
+   return( ((NVGLUframebuffer *) _image)->image);
 }
 
 
 - (void) finalize
 {
-   [_context removeFramebufferImage:self];   
-   if( _framebuffer)
-   	nvgluDeleteFramebuffer((NVGLUframebuffer *) _framebuffer);   
+   [_context removeFramebufferImage:self]; 
+   _context = nil;  
+
+   if( _image)
+   {
+   	nvgluDeleteFramebuffer((NVGLUframebuffer *) _image);   
+      _image = nil;
+   }
    [super finalize];
+}
+
+- (void *) framebuffer
+{
+   return( _image);
+}
+
+- (void *) image
+{
+   return( NULL);
+}
+
+
+- (MulleBitmapImage *) bitmapImage
+{
+   struct mulle_data           data;
+   MulleBitmapImage            *bitmapImage;
+   struct mulle_bitmap_size    bitmapSize;
+
+   bitmapSize                 = _bitmapSize;
+   bitmapSize.colorComponents = 4;
+
+   data.length = bitmapSize.size.width * bitmapSize.size.height * 4;
+   data.bytes  = mulle_allocator_malloc( &mulle_stdlib_allocator, data.length);
+   memset( data.bytes, 0xFF, data.length);
+   
+   nvgluBindFramebuffer( [self framebuffer]);
+      glReadPixels( 0, 0,
+                   bitmapSize.size.width,
+                   bitmapSize.size.height,
+                   GL_RGBA,
+    	             GL_UNSIGNED_BYTE,
+    	             data.bytes);
+   nvgluBindFramebuffer( NULL);   
+
+   bitmapImage = [[MulleBitmapImage alloc] initWithRGBAMulleData:data 
+                                                     bitmapSize:bitmapSize
+                                                      allocator:&mulle_stdlib_allocator
+                                                  nvgImageFlags:_nvgImageFlags];
+   return( [bitmapImage autorelease]);
 }
 
 @end

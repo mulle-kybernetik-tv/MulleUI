@@ -8,7 +8,7 @@
 # endif
 #endif
 
-// we wan't "import.h" always anyway
+// we want "import.h" always anyway
 #import "import.h"
 
 /*
@@ -16,15 +16,26 @@
  * and _rowGlyphs[ y].glyphs[ x]. Each _rowGlyphs has a sentinel glyph,
  * for the end of line.
  */
+struct MulleCursorUTF8Data
+{
+   struct mulle_utf8data    dataUpToCursor;
+   struct mulle_utf8data    dataAfterCursor;
+};
+
+
 @interface MulleTextLayer( Cursor)
 
-- (CGFloat) scrollOffsetToMakeCursorVisible;
+- (CGFloat) offsetNeededToMakeCursorVisible;
 - (void) drawCursorWithNVGContext:(NVGcontext *) vg
                               row:(NSUInteger) i;
 
 // point is within bounds
 - (struct MulleIntegerPoint) cursorPositionForPoint:(CGPoint) point;
 - (NSUInteger) characterIndexForCursor:(struct MulleIntegerPoint) cursor;
+
+// point is in pixels starting from 0,0
+- (CGPoint) pointOverCursorPosition:(struct MulleIntegerPoint) cursor;
+- (CGPoint) pointUnderCursorPosition:(struct MulleIntegerPoint) cursor;
 
 // point is within bounds
 - (void) setCursorPositionToPoint:(CGPoint) point;
@@ -36,6 +47,8 @@
  */
 - (void) insertCharacter:(unichar) c;
 - (void) backspaceCharacter;
+
+- (struct MulleCursorUTF8Data) cursorUTF8Data;
 
 @end
 

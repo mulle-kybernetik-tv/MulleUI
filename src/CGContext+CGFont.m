@@ -32,6 +32,12 @@
 }
 
 
+- (void) resetFontCache
+{
+   mulle_map_reset( &_fontMap);
+}
+
+
 //
 // TODO: use hash table to keep track of names and avoid duplicate loads of
 //       fonts
@@ -95,7 +101,7 @@
       nvgAddFallbackFontId( _vg, fontIndex, [fallbackFont fontIndex]);
 
    font = [CGFont fontWithName:s
-                  fontIndex:fontIndex];
+                     fontIndex:fontIndex];
    assert( font);
    mulle_map_insert( &_fontMap, s, font);
  

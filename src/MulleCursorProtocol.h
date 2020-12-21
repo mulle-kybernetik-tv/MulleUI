@@ -3,6 +3,7 @@
 //
 #import "import.h"
 
+#import "CGGeometry.h"
 
 
 struct MulleIntegerPoint
@@ -58,5 +59,9 @@ static inline NSUInteger   MulleIntegerPointGetRow( struct MulleIntegerPoint poi
 MULLE_CURSOR_PROPERTIES;
 
 - (struct MulleIntegerPoint) cursorPositionForPoint:(CGPoint) mouseLocation;
+- (void) getCursorPosition:(struct MulleIntegerPoint *) p_cursor;
+
+- (CGFloat) offsetNeededToMakeCursorVisible;
+- (struct MulleIntegerPoint) maxCursorPosition;
 
 @end 

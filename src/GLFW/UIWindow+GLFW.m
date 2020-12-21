@@ -228,6 +228,9 @@ static void   error_callback(int code, const char* description)
       return( NULL);
    }
 
+   // this is basically the "rendezvous" point where nanoVG latches unto
+   // its also the receiver for OpenGL calls. That's why we need a window
+   // to draw stuff
    glfwMakeContextCurrent( window);
    glfwSetWindowUserPointer( window, self);
   

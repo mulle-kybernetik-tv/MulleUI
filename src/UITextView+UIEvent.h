@@ -8,9 +8,16 @@
 # endif
 #endif
 
-// we wan't "import.h" always anyway
+// we want "import.h" always anyway
 #import "import.h"
 
 
-@interface UITextView( UIEvent)
+#ifdef __has_include
+# if __has_include( "MulleKeyboardEventConsumer.h")
+#  import "MulleKeyboardEventConsumer.h"
+# endif
+#endif
+
+
+@interface UITextView( UIEvent) < MulleKeyboardEventConsumer >
 @end

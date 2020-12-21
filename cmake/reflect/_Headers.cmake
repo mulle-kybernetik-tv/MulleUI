@@ -44,6 +44,7 @@ nanovg/src/stb_image.h
 nanovg/src/stb_truetype.h
 src/CAAnimationGroup.h
 src/CAAnimation.h
+src/CAGradientLayer.h
 src/CALayer+CAAnimation.h
 src/CALayer.h
 src/CAShapeLayer.h
@@ -66,9 +67,10 @@ src/Foundation/NSMutableIndexSet.h
 src/Ghostscript_Tiger-svg.inc
 src/MulleBitmapImage+PNG.h
 src/MulleBitmapImage.h
+src/_MulleBitmapImage.h
 src/MulleCheckboxLayer.h
 src/MulleControlBackgroundImage.h
-src/MulleCursor.h
+src/MulleCursorProtocol.h
 src/MulleEdgeInsets+CString.h
 src/MulleEdgeInsets+MulleObjC.h
 src/MulleEdgeInsets.h
@@ -76,10 +78,13 @@ src/MulleImageLayer.h
 src/MulleJS+Canvas.h
 src/MulleJS+Math.h
 src/MulleJS+MulleUI.h
+src/MulleKeyboardEventConsumer.h
+src/MulleLayout.h
 src/MulleMenuButton.h
 src/MulleMenu+UIEvent.h
 src/MulleMenu.h
 src/MulleObjectArray.h
+src/MullePaint.h
 src/MullePointHistory.h
 src/MullePopUpButton+MulleMenu.h
 src/MullePopUpButton+UIEvent.h
@@ -126,6 +131,7 @@ src/UIStepper.h
 src/UISwitch.h
 src/UITextField+UIResponder.h
 src/UITextField.h
+src/UITextView+Cursor.h
 src/UITextView+UIEvent.h
 src/UITextView.h
 src/UIView+CAAnimation.h

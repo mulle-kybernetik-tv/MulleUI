@@ -167,7 +167,8 @@
    assert( info);
 
    // glfwGetWindowContentScale( _window, &scale_x, &scale_y);
-   scale_x = 1.0; scale_y = 1.0;
+   scale_x = 1.0; 
+   scale_y = 1.0;
 
    info->frame           = _frame;
    info->windowSize      = [self os_windowSize];
@@ -176,6 +177,7 @@
 	info->pixelRatio      = info->framebufferSize.width / info->windowSize.width;
    info->isPerfEnabled   = NO;
    info->renderFrame     = _didRender;
+
    // does not do refreshRate yet, the renderloop does this
 }
 
@@ -215,19 +217,95 @@
 // c) the glitch occurs when there is already drawing on the screen
 // d) the glitch looks like the buffer is cleared and then not swapped
 //
+- (void) renderFrameWithContext:(CGContext *) context
+                      frameInfo:(struct MulleFrameInfo *) info 
+{
+   struct timespec   diff;
+   struct timespec   start;
+   struct timespec   end;
+   struct timespec   sleep;
+   long              nsperframe;
+
+   clock_gettime( CLOCK_REALTIME, &start);
+
+#ifdef PRINTF_PROFILE_LAYOUT
+      printf( "@%ld:%09ld layout start\n", start.tv_sec, start.tv_nsec);
+#endif
+   /*
+    * Layout and animate
+    */
+   @autoreleasepool
+   {
+      CAAbsoluteTime   renderTime;
+
+      renderTime = CAAbsoluteTimeWithTimespec( start);
+      [self willAnimateWithAbsoluteTime:renderTime];
+
+      // do this before the animation step, as this will generate animations
+#if LAYOUT_ANIMATIONS
+      [self startLayoutWithFrameInfo:info];
+#endif
+      [self layoutIfNeeded];
+
+#if LAYOUT_ANIMATIONS
+      [self endLayout];
+#endif
+      [self animateWithAbsoluteTime:renderTime];
+   }
+
+#ifdef PRINTF_PROFILE_LAYOUT
+   clock_gettime( CLOCK_REALTIME, &end);
+   diff = timespec_sub( end, start);
+   printf( "@%ld:%09ld lavout end, elapsed : %09ld\n", end.tv_sec, end.tv_nsec,
+                                                  diff.tv_sec ? 999999999 : diff.tv_nsec);
+#endif
+
+#ifdef PRINTF_PROFILE_RENDER
+   clock_gettime( CLOCK_REALTIME, &start);
+   printf( "@%ld:%09ld render start\n", start.tv_sec, start.tv_nsec);
+#endif
+
+   /*
+    * Render
+    */
+   @autoreleasepool
+   {
+      // nvgGlobalCompositeOperation( ctxt->vg, NVG_ATOP);
+
+      [self updateRenderCachesWithContext:context
+                                frameInfo:info];
+
+      [context startRenderWithFrameInfo:info];
+      [self renderWithContext:context];
+
+      if( _drawWindowCallback)
+         (*_drawWindowCallback)( self, context, info);
+
+      [context endRender];
+   }
+#ifdef PRINTF_PROFILE_RENDER
+   clock_gettime( CLOCK_REALTIME, &end);
+   diff = timespec_diff( start, end);
+   nsperframe = (1000000000L + (info.refreshRate - 1)) / info.refreshRate;
+   if( diff.tv_sec > 0 || diff.tv_nsec >= nsperframe)
+      fprintf( stderr, "frame #%ld: @%ld:%09ld render end, OVERFLW %.4f frames\n",
+                           _didRender,
+                           end.tv_sec,
+                           end.tv_nsec,
+                           diff.tv_sec ? 9999.9999 : (diff.tv_nsec / (double) nsperframe) - 1);
+#endif
+}
 
 
 - (void) renderLoopWithContext:(CGContext *) context
 {
-   struct timespec         start;
-   struct timespec         end;
-   struct timespec         diff;
-   struct timespec         sleep;
-   long                    nsperframe;
-   struct MulleFrameInfo   info;
-   CGRect                  oldFrame;
-
-//   _discardEvents = UIEventTypeMotion;
+   struct MulleFrameInfo         info;
+   struct timespec               diff;
+   struct timespec               start;
+   struct timespec               end;
+   struct timespec               sleep;
+   long                          nsperframe;
+   CGRect                        oldFrame;
 
    [self os_setSwapInterval:0];  // need for smooth pointer/control sync
 
@@ -239,6 +317,7 @@
    fprintf( stderr, "Refresh: %d (%09ld ns/frame)\n", info.refreshRate, nsperframe);
 #endif
 
+   // this is done during open already
    // glfwMakeContextCurrent( _window );
    //
    // gut feeling: when we do onw swap buffers first, once, we know we have enough
@@ -247,99 +326,41 @@
    [self os_swapBuffers];
    [context clearFramebuffer];
 
-   oldFrame = _frame;
+   oldFrame           = _frame;
+   info.isPerfEnabled = YES;
+
    while( ! [self os_windowShouldClose])
    {
-      clock_gettime( CLOCK_REALTIME, &start);
+      [self getFrameInfo:&info];  // retrieve newest geometry
+      [self renderFrameWithContext:context
+                         frameInfo:&info];
 
-      [self getFrameInfo:&info];
-      info.isPerfEnabled = YES;
+      [self os_swapBuffers];
+      _didRender++;
 
-#ifdef PRINTF_PROFILE_LAYOUT
-      printf( "@%ld:%09ld layout start\n", start.tv_sec, start.tv_nsec);
-#endif
-      /*
-       * Layout and animate
-       */
-      @autoreleasepool
+#ifdef DEBUG
+      if( ! CGRectEqualToRect( _frame, oldFrame))
       {
-         CAAbsoluteTime   renderTime;
-
-         renderTime = CAAbsoluteTimeWithTimespec( start);
-         [self willAnimateWithAbsoluteTime:renderTime];
-
-         // do this before the animation step, as this will generate animations
-#if LAYOUT_ANIMATIONS
-         [self startLayoutWithFrameInfo:&info];
-#endif
-         [self layoutIfNeeded];
-         if( ! CGRectEqualToRect( _frame, oldFrame))
-         {
-            [self dump];
-            oldFrame = _frame;
-         }
-#if LAYOUT_ANIMATIONS
-         [self endLayout];
-#endif
-         [self animateWithAbsoluteTime:renderTime];
+         [self dump];
+         oldFrame = _frame;
       }
-
-#ifdef PRINTF_PROFILE_LAYOUT
-      clock_gettime( CLOCK_REALTIME, &end);
-      diff = timespec_sub( end, start);
-      printf( "@%ld:%09ld lavout end, elapsed : %09ld\n", end.tv_sec, end.tv_nsec,
-                                                  diff.tv_sec ? 999999999 : diff.tv_nsec);
 #endif
-
-#ifdef PRINTF_PROFILE_RENDER
-      clock_gettime( CLOCK_REALTIME, &start);
-      printf( "@%ld:%09ld render start\n", start.tv_sec, start.tv_nsec);
-#endif
-      /*
-       * Render
-       */
-      @autoreleasepool
-      {
-         // nvgGlobalCompositeOperation( ctxt->vg, NVG_ATOP);
-
-         [self updateRenderCachesWithContext:context
-                                   frameInfo:&info];
-
-         [context startRenderWithFrameInfo:&info];
-         [self renderWithContext:context];
-         [context endRender];
-
-         if( _drawWindowCallback)
-            (*_drawWindowCallback)( self, &info);
-
-#ifdef PRINTF_PROFILE_RENDER
-         clock_gettime( CLOCK_REALTIME, &end);
-         diff = timespec_diff( start, end);
-         if( diff.tv_sec > 0 || diff.tv_nsec >= nsperframe)
-            fprintf( stderr, "frame #%ld: @%ld:%09ld render end, OVERFLW %.4f frames\n",
-                                 _didRender,
-                                 end.tv_sec,
-                                 end.tv_nsec,
-                                 diff.tv_sec ? 9999.9999 : (diff.tv_nsec / (double) nsperframe) - 1);
-#endif
-         [self os_swapBuffers];
-         _didRender++;
 
 #ifdef ADD_RANDOM_LAG
-         sleep.tv_sec  = 0.0;
-         sleep.tv_nsec = nsperframe / 10 * (rand() % 100);
-         nanosleep( &sleep, NULL);
+      sleep.tv_sec  = 0.0;
+      sleep.tv_nsec = nsperframe / 10 * (rand() % 100);
+      nanosleep( &sleep, NULL);
 #endif
 
-         //
-         // GL_COLOR_BUFFER_BIT brauchen wir, wenn wir nicht selber per
-         // Hand abschnittsweise löschen
-         // GL_STENCIL_BUFFER_BIT braucht nanovg
-         // GL_DEPTH_BUFFER_BIT ?
-         //
-         // glClearColor( 1.0 - _didRender / 120.0, 1.0 - _didRender / 120.0, 1.0 - _didRender / 240.0, 0.0f );
-         [context clearFramebuffer];
-      }
+      //
+      // GL_COLOR_BUFFER_BIT brauchen wir, wenn wir nicht selber per
+      // Hand abschnittsweise löschen
+      // GL_STENCIL_BUFFER_BIT braucht nanovg
+      // GL_DEPTH_BUFFER_BIT ?
+      //
+      // glClearColor( 1.0 - _didRender / 120.0, 1.0 - _didRender / 120.0, 1.0 - _didRender / 240.0, 0.0f );
+      [context clearFramebuffer];
+
 #ifdef PRINTF_PROFILE_RENDER
       clock_gettime( CLOCK_REALTIME, &end);
       diff = timespec_sub( end, start);

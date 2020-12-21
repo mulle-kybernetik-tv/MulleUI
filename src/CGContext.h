@@ -144,7 +144,7 @@ struct MulleFrameInfo
    CGFloat       pixelRatio;
    NSUInteger    renderFrame;      // current frame nr (can wrap)
    NSUInteger    refreshRate;      // often 60 Hz
-   BOOL          isPerfEnabled;
+   BOOL          isPerfEnabled;    // move out ??
 };
 
 //
@@ -189,8 +189,8 @@ struct MulleFrameInfo
 - (void) getCurrentFrameInfo:(struct MulleFrameInfo *) info;
 - (struct MulleFrameInfo *) currentFrameInfo;
 
-- (MulleTextureImage *) framebufferImageWithSize:(CGSize) size
-                                         options:(NSUInteger) options;
+- (MulleTextureImage *) framebufferImageWithBitmapSize:(struct mulle_bitmap_size) size
+                                               options:(NSUInteger) options;
 - (void) removeFramebufferImage:(UIImage *) image;
 
 @end

@@ -15,6 +15,7 @@
 #import "UIColor.h"
 #import "UIView+UIEvent.h"
 #import "UIView+Layout.h"
+#import "mulle-pointerarray+ObjC.h"
 
 #include <stdio.h>
 
@@ -56,8 +57,56 @@
                                                           param));
 }
 
+//
+// As we will only display a part of the MulleTextStorage in the future, 
+// there is no 
+// clean way to reconstitute the original from the storages in MulleTextLayer
+// and the image layers.
+// But we can update parts of MulleTextStorage with the contents.
+//
+- (void) updateTextStorage
+{
+   struct mulle_pointerarrayenumerator   rover;
+   CALayer                               *layer;
+   Class                                 textLayerClass;
+   NSUInteger                            offset;
+   MulleTextLayer                        *textLayer;
+   struct mulle_utf8data                 utf8data;
+   NSData                                *data;
 
-- (void) setTextData:(NSData *) data
+   // we aren't really doing layout of subviews here, but it seems to be 
+   // a good time for setting selection and cursor
+
+   textLayerClass = [MulleTextLayer class];
+
+   offset = 0; // future scroll offset
+
+   rover = mulle_pointerarray_enumerate( _layers);
+   while( _mulle_pointerarrayenumerator_next( &rover, (void **) &layer))
+   {
+      if( [layer isKindOfClass:textLayerClass]) 
+      {
+         textLayer = (MulleTextLayer *) layer;
+         utf8data  = [textLayer UTF8Data];
+         data      = [NSData dataWithMulleData:mulle_utf8data_as_data( utf8data)];
+         [_textStorage replaceObjectAtIndex:offset
+                                 withObject:data];
+      }   
+      offset++;
+   }
+   _mulle_pointerarrayenumerator_done( &rover);
+}
+
+
+- (void) removeAllSublayers
+{
+   // mainlayer stays
+   mulle_pointerarray_release_all( _layers);
+   mulle_pointerarray_reset( _layers);   
+} 
+
+
+- (void) reflectTextStorage
 {
    Class             nsNumberClass;
    NSUInteger        i;
@@ -70,14 +119,13 @@
    CGRect            layerFrame;
    id                line;
 
-   [_textStorage setTextData:data];
+   [self removeAllSublayers];
 
-   // [self removeAllViews]; 
    textViewFrame          = [self frame];
    layerFrame.origin      = textViewFrame.origin;
    layerFrame.size.width  = textViewFrame.size.width;
    layerFrame.size.height = 0.0;
-   nsNumberClass = [NSNumber class];
+   nsNumberClass          = [NSNumber class];
 
    for( line in _textStorage)
    {
@@ -122,6 +170,13 @@
     
       [self addLayer:layer];  
    }
+}
+
+
+- (void) setTextData:(NSData *) data
+{
+   [_textStorage setTextData:data];
+   [self reflectTextStorage];
 }
 
 //
@@ -220,12 +275,32 @@
    [self reflectSelection];
 }
 
+
 - (void) setCursorPosition:(struct MulleIntegerPoint) point
 {
    _cursorPosition = point;
    [self reflectCursor];
 }
 
+
+- (CALayer *) layerAtRow:(NSUInteger) row 
+{
+   CALayer     *layer;
+   NSUInteger  n;
+
+   n   = mulle_pointerarray_get_count( _layers);
+   if( row >= n)
+      return( nil);
+
+   layer = _mulle_pointerarray_get( _layers, row);
+   return( layer);
+}
+
+
+- (NSUInteger) numberOfRows
+{
+   return( mulle_pointerarray_get_count( _layers));
+}
 
 
 - (NSUInteger) rowOfLayer:(CALayer *) search 
@@ -342,45 +417,6 @@
 }
 
 
-- (struct MulleIntegerPoint) cursorPositionForPoint:(CGPoint) mouseLocation
-{
-   CALayer <MulleCursor>      *layer;
-   NSUInteger                 row;
-   struct MulleIntegerPoint   cursor;
-   CGRect                     frame;
-   CGRect                     layerFrame;
-   CGPoint                    point;
-
-   layer = (id) [self layerAtPoint:mouseLocation];
-   if( ! layer)
-      return( MulleIntegerPointMake( -1, -1));
-
-   frame      = [self frame];
-   layerFrame = [layer frame];
-   point.x = mouseLocation.x;
-   point.y = mouseLocation.y - (layerFrame.origin.y - frame.origin.y);
-
-   cursor   = [layer cursorPositionForPoint:point];
-   if( cursor.x == -1)
-      return( MulleIntegerPointMake( -1, -1));
-     
-   row      = [self rowOfLayer:layer];
-   cursor.y += row;
-
-   return( cursor);
-}
-
-
-- (void) setCursorPositionToPoint:(CGPoint) mouseLocation
-{
-   struct MulleIntegerPoint   cursor;
-
-   cursor = [self cursorPositionForPoint:mouseLocation];
-   if( cursor.x == -1)
-      return;
-
-   [self setCursorPosition:cursor];
-}
 
 
 @end

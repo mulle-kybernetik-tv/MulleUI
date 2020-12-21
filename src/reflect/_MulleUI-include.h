@@ -13,21 +13,31 @@
 #define _MulleUI_include_h__
 
 // How to tweak the following glfw #include
-//    remove:          `mulle-sourcetree mark glfw no-header`
-//    rename:          `mulle-sde dependency|library set glfw include whatever.h`
-//    toggle #import:  `mulle-sourcetree mark glfw [no-]import`
-//    toggle public:   `mulle-sourcetree mark glfw [no-]public`
-//    toggle optional: `mulle-sourcetree mark glfw [no-]require`
-//    remove for os:   `mulle-sourcetree mark glfw no-os-<osname>`
-# include <GLFW/glfw3.h>   // glfw
+//    remove:             `mulle-sourcetree mark glfw no-header`
+//    rename:             `mulle-sde dependency|library set glfw include whatever.h`
+//    toggle #import:     `mulle-sourcetree mark glfw [no-]import`
+//    toggle localheader: `mulle-sourcetree mark glfw [no-]localheader`
+//    toggle public:      `mulle-sourcetree mark glfw [no-]public`
+//    toggle optional:    `mulle-sourcetree mark glfw [no-]require`
+//    remove for os:      `mulle-sourcetree mark glfw no-os-<osname>`
+# if defined( __has_include) && __has_include("glfw3.h")
+#   include "glfw3.h"   // glfw
+# else
+#   include <GLFW/glfw3.h>   // glfw
+# endif
 
 // How to tweak the following mulle-testallocator #include
-//    remove:          `mulle-sourcetree mark mulle-testallocator no-header`
-//    rename:          `mulle-sde dependency|library set mulle-testallocator include whatever.h`
-//    toggle #import:  `mulle-sourcetree mark mulle-testallocator [no-]import`
-//    toggle public:   `mulle-sourcetree mark mulle-testallocator [no-]public`
-//    toggle optional: `mulle-sourcetree mark mulle-testallocator [no-]require`
-//    remove for os:   `mulle-sourcetree mark mulle-testallocator no-os-<osname>`
-# include <mulle-testallocator/mulle-testallocator.h>   // mulle-testallocator
+//    remove:             `mulle-sourcetree mark mulle-testallocator no-header`
+//    rename:             `mulle-sde dependency|library set mulle-testallocator include whatever.h`
+//    toggle #import:     `mulle-sourcetree mark mulle-testallocator [no-]import`
+//    toggle localheader: `mulle-sourcetree mark mulle-testallocator [no-]localheader`
+//    toggle public:      `mulle-sourcetree mark mulle-testallocator [no-]public`
+//    toggle optional:    `mulle-sourcetree mark mulle-testallocator [no-]require`
+//    remove for os:      `mulle-sourcetree mark mulle-testallocator no-os-<osname>`
+# if defined( __has_include) && __has_include("mulle-testallocator.h")
+#   include "mulle-testallocator.h"   // mulle-testallocator
+# else
+#   include <mulle-testallocator/mulle-testallocator.h>   // mulle-testallocator
+# endif
 
 #endif

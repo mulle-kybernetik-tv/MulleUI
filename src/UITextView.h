@@ -88,6 +88,14 @@ MULLE_CURSOR_PROPERTIES;
 - (void) setCursorPositionToPoint:(CGPoint) point;
 - (void) setCursorPosition:(struct MulleIntegerPoint) point;
 
+- (CALayer <MulleCursor> *) layerAtRow:(NSUInteger) row;
+- (NSUInteger) rowOfLayer:(CALayer *) search;
+- (NSUInteger) numberOfRows;
+
+- (void) updateTextStorage;
+// changes textStorage and then reflects it back
+- (void) insertNewlineAtCursorPosition;
+
 @end
 
 

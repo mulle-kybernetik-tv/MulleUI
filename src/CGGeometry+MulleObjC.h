@@ -12,7 +12,7 @@ static inline void   MulleObjectSetBOOL( id obj, SEL sel, BOOL value)
 
 static inline BOOL   MulleObjectGetBOOL( id obj, SEL sel)
 {
-   return( (BOOL) mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, obj));
+   return( (BOOL) (intptr_t) mulle_objc_object_call( obj, (mulle_objc_methodid_t) sel, obj));
 }
 
 

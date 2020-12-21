@@ -49,12 +49,12 @@ typedef enum
    CGRectMaxYEdge 
 } CGRectEdge;
 
-const CGRect CGRectInfinite;
-const CGPoint CGPointZero;
-const CGRect CGRectZero;
-const CGSize CGSizeZero;
-const CGRect CGRectNull;
-const CGVector CGVectorZero;  // compatible ?
+extern const CGRect CGRectInfinite;
+extern const CGPoint CGPointZero;
+extern const CGRect CGRectZero;
+extern const CGSize CGSizeZero;
+extern const CGRect CGRectNull;
+extern const CGVector CGVectorZero;  // compatible ?
 
 /**
 @Status Interoperable

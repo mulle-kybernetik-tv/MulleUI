@@ -17,7 +17,7 @@
 
 
 - (instancetype) initWithNSVGImage:(struct NSVGimage *) image
-                         mulleData:(struct mulle_data) data
+                     fileMulleData:(struct mulle_data) data
                          allocator:(struct mulle_allocator *) allocator
 {
    if( ! image)
@@ -26,8 +26,8 @@
       return( nil);
    }
 
-   self = [super initWithMulleData:data
-                         allocator:allocator];
+   self = [super initWithFileMulleData:data
+                             allocator:allocator];
    assert( self);
    
    _NSVGImage = image;  // ownership transfer
@@ -35,8 +35,8 @@
 }
 
 
-- (instancetype) initWithMulleData:(struct mulle_data) data
-                         allocator:(struct mulle_allocator *) allocator
+- (instancetype) initWithFileMulleData:(struct mulle_data) data
+                            allocator:(struct mulle_allocator *) allocator
 {	
    NSVGimage   *image;
    BOOL        hasZero;

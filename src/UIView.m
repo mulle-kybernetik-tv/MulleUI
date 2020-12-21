@@ -153,7 +153,7 @@
 
    subviews = [self _subviews];
    index    = _mulle_pointerarray_find( subviews, view);
-   fprintf( stderr, "%llx\n", (long long) index);
+//   fprintf( stderr, "index of existing view: %llx\n", (long long) index);
 
    assert( _mulle_pointerarray_find( subviews, view) == mulle_not_found_e);
    _mulle_pointerarray_add( subviews, view);
@@ -820,16 +820,22 @@
 }
 
 
-
-- (UIImage *) textureImageWithContext:(CGContext *) context
-                            frameInfo:(struct MulleFrameInfo *) info
-                              options:(NSUInteger) options
+//
+// This must not be called, if context is currently rendering (at least for
+// now) as we are starting an offline render.
+//
+- (MulleTextureImage *) textureImageWithContext:(CGContext *) context
+                                      frameInfo:(struct MulleFrameInfo *) info
+                                        options:(NSUInteger) options
 {
-   struct MulleFrameInfo   renderInfo;
-   MulleTextureImage       *image;
-   CGRect                  frame;
+   struct MulleFrameInfo      renderInfo;
+   MulleTextureImage          *image;
+   CGRect                     frame;
+   struct mulle_bitmap_size   bitmapSize;
+   NVGcontext                 *vg;
 
-   frame = [self frame];
+   frame.origin = CGPointZero;
+   frame.size   = [self frame].size;
 
    renderInfo.frame                  = frame;
    renderInfo.windowSize             = frame.size;
@@ -839,23 +845,55 @@
    renderInfo.pixelRatio             = info->pixelRatio;
    renderInfo.isPerfEnabled          = NO;
 
-   image = [context framebufferImageWithSize:renderInfo.framebufferSize
-                                     options:options];
-   if( image)
+   bitmapSize.size.width      = (int) (renderInfo.framebufferSize.width + 0.5);
+   bitmapSize.size.height     = (int) (renderInfo.framebufferSize.height + 0.5);
+   bitmapSize.colorComponents = 4;
+
+   image = [context framebufferImageWithBitmapSize:bitmapSize
+                                            options:options];
+   if( ! image)
+      return( image);
+
+   // render view into a framebuffer tied to the texture
+   nvgluBindFramebuffer( [image framebuffer]);
+   @autoreleasepool
    {
-      // Draw some stuff to an FBO as a test
-      nvgluBindFramebuffer( [image framebuffer]);
-      @autoreleasepool
+      [context startRenderWithFrameInfo:&renderInfo];
+      [context clearFramebuffer];
+
+      vg = [context nvgContext];
+      // translate to 0.0 ? scale to fit ?
+      if( options & NVG_IMAGE_FLIPY)
       {
-         [context startRenderWithFrameInfo:&renderInfo];
-         [context clearFramebuffer];
-         // translate to 0.0 ? scale to fit ?
-         nvgTranslate( [context nvgContext], -frame.origin.x, -frame.origin.y);
-         [self renderWithContext:context];
-         [context endRender];
+         nvgScale( vg, 1.0, -1.0);
+         nvgTranslate( vg, -frame.origin.x, -frame.origin.y - frame.size.height);
       }
-      nvgluBindFramebuffer( NULL);
+      else
+         nvgTranslate( vg, -frame.origin.x, -frame.origin.y);
+
+      [self renderWithContext:context];
+#if 0
+      nvgBeginPath( vg);
+      nvgRoundedRect( vg, frame.origin.x,
+                          frame.origin.y,
+                          frame.size.width,
+                          frame.size.height,
+                          10);
+      nvgFillColor(vg, nvgRGBA(220,160,0,255));
+      nvgFill( vg);
+
+      nvgCreateFont( vg, "foo", "Anonymous Pro.ttf");
+      nvgFontFace( vg, "foo");
+      nvgFontSize( vg, 64);
+      nvgTextColor( vg, nvgRGBA(0,0,0,255), nvgRGBA(220,160,0,255)); // TODO: use textColor
+      nvgText( vg, frame.origin.x + frame.size.width / 2.0,
+                   frame.origin.y + frame.size.height / 2.0,
+                   "XXXX", NULL);
+#endif
+      [context endRender];
    }
+   nvgluBindFramebuffer( NULL);
+
    return( image);
 }
 

@@ -8,6 +8,7 @@
 #import "UIImage.h"
 #import "UIImage+NSData.h"
 #import "MulleSVGImage.h"
+#import "MulleBitmapImage.h"
 #import "MulleBitmapImage+PNG.h"
 
 
@@ -223,7 +224,6 @@ static NSData   *dataByUnescapingFirstCharacterOfData( NSData *obj)
 }
 
 
-
 //
 // Convert internal representation to a minimal markdown text
 // Main problem with minimal markdown text is, that the user can type
@@ -324,11 +324,30 @@ static NSData   *dataByUnescapingFirstCharacterOfData( NSData *obj)
 }
 
 
+- (void) insertObject:(id) obj 
+              atIndex:(NSUInteger) index 
+{
+   NSParameterAssert( [obj isKindOfClass:[NSNumber class]] ||
+                      [obj isKindOfClass:[NSData class]]);
+   [_lines insertObject:obj
+                atIndex:index];
+}
+
+
+- (void) replaceObjectAtIndex:(id) obj 
+                      atIndex:(NSUInteger) index 
+{
+   NSParameterAssert( [obj isKindOfClass:[NSNumber class]] ||
+                      [obj isKindOfClass:[NSData class]]);
+   [_lines replaceObjectAtIndex:index
+                     withObject:obj];
+}
+
+
 - (UIImage *) imageForNumber:(NSNumber *) nr 
 {
    return( [_images objectAtIndex:[nr unsignedIntegerValue]]);
 }
-
 
 - (void *) forward:(void *) param
 {

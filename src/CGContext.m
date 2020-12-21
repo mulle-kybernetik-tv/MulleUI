@@ -105,14 +105,19 @@ static char  geometryShaderSource[] =
 - (id) init
 {
 #ifdef NANOVG_GL3_IMPLEMENTATION
-	_vg  = nvgCreateGL3( NVG_ANTIALIAS | NVG_STENCIL_STROKES);
+	_vg  = nvgCreateGL3( NVG_ANTIALIAS | NVG_STENCIL_STROKES
 #endif
 #ifdef NANOVG_GLES2_IMPLEMENTATION
-	_vg  = nvgCreateGLES2( NVG_ANTIALIAS | NVG_STENCIL_STROKES);
+	_vg  = nvgCreateGLES2( NVG_ANTIALIAS | NVG_STENCIL_STROKES
 #endif
 #ifdef NANOVG_GLES3_IMPLEMENTATION
-	_vg  = nvgCreateGLES3( NVG_ANTIALIAS | NVG_STENCIL_STROKES);
+	_vg  = nvgCreateGLES3( NVG_ANTIALIAS | NVG_STENCIL_STROKES
 #endif
+#if DEBUG
+   | NVG_DEBUG
+#endif
+   );
+
    if( ! _vg)
    {
       [self release];
@@ -164,6 +169,7 @@ static char  geometryShaderSource[] =
    return( _vg);
 }
 
+
 - (void) _freeImages
 {
    struct mulle__pointermapenumerator  rover;
@@ -179,6 +185,7 @@ static char  geometryShaderSource[] =
    {
       image     = pair->key;
       [image autorelease];
+
       textureId = (int) (intptr_t) pair->value;
       nvgDeleteImage( _vg, textureId);
    }
@@ -459,22 +466,22 @@ static char  geometryShaderSource[] =
 }
 
 
-- (MulleTextureImage *) framebufferImageWithSize:(CGSize) size
-                                         options:(NSUInteger) options
+- (MulleTextureImage *) framebufferImageWithBitmapSize:(struct mulle_bitmap_size) size
+                                               options:(NSUInteger) options
 {
    MulleTextureImage   *image;
 
-   image = [[[MulleTextureImage alloc] initWithSize:size
-                                            options:options
-                                            context:self] autorelease];
+   image = [[MulleTextureImage alloc] initWithBitmapSize:size
+                                                 context:self
+                                                 options:options];
    if( ! image)
       return( nil);
 
    if( ! _framebufferImages)
       _framebufferImages = mulle_pointerarray_create( NULL);
 
-   [image retain];
    _mulle_pointerarray_add( _framebufferImages, image);
+
    return( image);
 }
 

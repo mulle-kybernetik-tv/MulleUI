@@ -123,17 +123,36 @@
 }
 
 
+- (void) getCursorPosition:(struct MulleIntegerPoint *) p_point
+{
+   p_point->x = _image ? 1 : 0;
+   p_point->y = 0;
+}
+
+
 - (NSUInteger) characterIndexForPoint:(CGPoint) point
 {
    // TODO: HACK!!!
-   return( 1);
+   return( _image ? 1 : 0);
 }
+
 
 - (struct MulleIntegerPoint) cursorPositionForPoint:(CGPoint) mouseLocation
 {
    // TODO: HACK!!!
-   return( MulleIntegerPointMake( 1, 0));
+   return( MulleIntegerPointMake( _image ? 1 : 0, 0));
 }
 
+
+- (CGFloat) offsetNeededToMakeCursorVisible
+{
+   return( 0.0);
+}
+
+
+- (struct MulleIntegerPoint) maxCursorPosition
+{
+   return( MulleIntegerPointMake( _image ? 1 : 0, 0));
+}
 
 @end

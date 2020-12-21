@@ -8,6 +8,7 @@
 #import "nanovg+CString.h"
 #import "UIView+CAAnimation.h"
 #import "MulleEdgeInsets.h"
+#import "MullePaint.h"
 
 
 #pragma clang diagnostic ignored "-Wparentheses"
@@ -82,7 +83,9 @@
 }
 
 
-- (BOOL) drawBackgroundInContext:(CGContext *) context
+- (void) fillBackgroundInContext:(CGContext *) context
+                           color:(CGColorRef) color
+                           paint:(MullePaint *) paint
 {
    NVGcontext     *vg;
    CGPoint        tl;
@@ -90,29 +93,17 @@
    CGRect         frame;
    CGFloat        borderWidth;
    MulleEdgeInsets   insets;
-
-   // if transparent, just don't draw anything
-   if( MulleColorIsTransparent( _backgroundColor))
-      return( NO);
-
+  
    // if there is a border to be drawn, then we use antialias
    // otherwise we don't and only draw to the middle of the border
-
    vg = [context nvgContext];
+
 
    //
    // fill and border are drawn as frame
    // contents in bounds of superview
    //
    frame  = [self frame];
-
-   borderWidth = [self borderWidth];
-   if( borderWidth > 0.1)
-   {
-      insets = MulleEdgeInsetsMake( borderWidth / 2, borderWidth / 2,  borderWidth / 2, borderWidth / 2);
-      frame  = MulleEdgeInsetsInsetRect( insets, frame);
-      nvgShapeAntiAlias( vg, 0);
-   }
 
    //
    // if the stroke is alpha, it will have to render over pixels
@@ -123,20 +114,47 @@
    br.x = tl.x + frame.size.width;
    br.y = tl.y + frame.size.height;
 
-   if( tl.x <= br.x || tl.y <= br.y)
-   {
-      // fill
-      nvgBeginPath( vg);
-      nvgRoundedRect( vg, frame.origin.x,
-                          frame.origin.y,
-                          frame.size.width,
-                          frame.size.height,
-                          _cornerRadius);
-      nvgFillColor(vg, _backgroundColor);
-      nvgFill( vg);
-   }
-   nvgShapeAntiAlias( vg, 1);
+   if( tl.x > br.x && tl.y > br.y)
+      return;
 
+   // calc border out from fill, but don't draw
+   borderWidth = [self borderWidth];
+   if( borderWidth > 0.1)
+   {
+      insets = MulleEdgeInsetsMake( borderWidth / 2, 
+                                    borderWidth / 2,  
+                                    borderWidth / 2, 
+                                    borderWidth / 2);
+      frame  = MulleEdgeInsetsInsetRect( insets, frame);
+      nvgShapeAntiAlias( vg, 0);
+   }      
+   // fill
+   nvgBeginPath( vg);
+   nvgRoundedRect( vg, frame.origin.x,
+                       frame.origin.y,
+                       frame.size.width,
+                       frame.size.height,
+                       _cornerRadius);
+   if( paint)
+      nvgFillPaint(vg, [paint nvgPaint]);
+   else
+      nvgFillColor(vg, color);
+   nvgFill( vg);
+
+   nvgShapeAntiAlias( vg, 1);
+}
+
+
+
+- (BOOL) drawBackgroundInContext:(CGContext *) context
+{
+   // if transparent, just don't draw anything
+   if( MulleColorIsTransparent( _backgroundColor))
+      return( NO);
+   
+   [self fillBackgroundInContext:context
+                           color:_backgroundColor
+                           paint:nil];
    return( NO);
 }
 

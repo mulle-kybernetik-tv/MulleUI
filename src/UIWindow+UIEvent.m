@@ -57,14 +57,16 @@
    if( self->_discardEvents & UIEventTypePresses)
       return;
 
-   event = [[UIKeyboardEvent alloc] initWithWindow:self
-                                     mouseLocation:self->_mouseLocation
-                                         modifiers:mods
-                                               key:key
-                                          scanCode:scancode
-                                            action:action];
-   [self handleEvent:event];
-   [event release];
+   event = [[[UIKeyboardEvent alloc] initWithWindow:self
+                                      mouseLocation:self->_mouseLocation
+                                          modifiers:mods
+                                                key:key
+                                           scanCode:scancode
+                                             action:action] autorelease];
+   if( self->_keyEventCallback)
+      event = (*self->_keyEventCallback)( self, event);
+   if( event)
+      [self handleEvent:event];
 }
 
 

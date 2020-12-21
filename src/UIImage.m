@@ -6,8 +6,8 @@
 @implementation UIImage 
 
 
-- (instancetype) initWithMulleData:(struct mulle_data) data
-                         allocator:(struct mulle_allocator *) allocator
+- (instancetype) initWithFileMulleData:(struct mulle_data) data
+                             allocator:(struct mulle_allocator *) allocator
 {
    _fileData          = data;
    _fileDataAllocator = allocator;
@@ -17,12 +17,12 @@
 }
 
 
-- (instancetype) initWithMulleData:(struct mulle_data) data
-                     sharingObject:(id) sharingObject
+- (instancetype) initWithFileMulleData:(struct mulle_data) data
+                         sharingObject:(id) sharingObject
 {
    _fileDataSharingObject = [sharingObject retain];
-   return( [self initWithMulleData:data
-                         allocator:NULL]);
+   return( [self initWithFileMulleData:data
+                             allocator:NULL]);
 }
 
 
@@ -64,8 +64,8 @@ enum UIImageDataEncoding   UIImageDataEncodingFromMulleData(struct mulle_data da
       return( nil);
    }
 
-   return( [self initWithMulleData:data
-                         allocator:allocator]);   
+   return( [self initWithFileMulleData:data
+                             allocator:allocator]);   
 }
 
 

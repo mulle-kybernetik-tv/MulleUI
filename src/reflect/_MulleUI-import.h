@@ -13,31 +13,46 @@
 #define _MulleUI_import_h__
 
 // How to tweak the following MulleJS #import
-//    remove:          `mulle-sourcetree mark MulleJS no-header`
-//    rename:          `mulle-sde dependency|library set MulleJS include whatever.h`
-//    toggle #import:  `mulle-sourcetree mark MulleJS [no-]import`
-//    toggle public:   `mulle-sourcetree mark MulleJS [no-]public`
-//    toggle optional: `mulle-sourcetree mark MulleJS [no-]require`
-//    remove for os:   `mulle-sourcetree mark MulleJS no-os-<osname>`
-# import <MulleJS/MulleJS.h>   // MulleJS
+//    remove:             `mulle-sourcetree mark MulleJS no-header`
+//    rename:             `mulle-sde dependency|library set MulleJS include whatever.h`
+//    toggle #import:     `mulle-sourcetree mark MulleJS [no-]import`
+//    toggle localheader: `mulle-sourcetree mark MulleJS [no-]localheader`
+//    toggle public:      `mulle-sourcetree mark MulleJS [no-]public`
+//    toggle optional:    `mulle-sourcetree mark MulleJS [no-]require`
+//    remove for os:      `mulle-sourcetree mark MulleJS no-os-<osname>`
+# if defined( __has_include) && __has_include("MulleJS.h")
+#   import "MulleJS.h"   // MulleJS
+# else
+#   import <MulleJS/MulleJS.h>   // MulleJS
+# endif
 
 // How to tweak the following Foundation #import
-//    remove:          `mulle-sourcetree mark Foundation no-header`
-//    rename:          `mulle-sde dependency|library set Foundation include whatever.h`
-//    toggle #import:  `mulle-sourcetree mark Foundation [no-]import`
-//    toggle public:   `mulle-sourcetree mark Foundation [no-]public`
-//    toggle optional: `mulle-sourcetree mark Foundation [no-]require`
-//    remove for os:   `mulle-sourcetree mark Foundation no-os-<osname>`
-# import <Foundation/Foundation.h>   // Foundation
+//    remove:             `mulle-sourcetree mark Foundation no-header`
+//    rename:             `mulle-sde dependency|library set Foundation include whatever.h`
+//    toggle #import:     `mulle-sourcetree mark Foundation [no-]import`
+//    toggle localheader: `mulle-sourcetree mark Foundation [no-]localheader`
+//    toggle public:      `mulle-sourcetree mark Foundation [no-]public`
+//    toggle optional:    `mulle-sourcetree mark Foundation [no-]require`
+//    remove for os:      `mulle-sourcetree mark Foundation no-os-<osname>`
+# if defined( __has_include) && __has_include("Foundation.h")
+#   import "Foundation.h"   // Foundation
+# else
+#   import <Foundation/Foundation.h>   // Foundation
+# endif
 
 // How to tweak the following MulleObjCBase64Foundation #import
-//    remove:          `mulle-sourcetree mark MulleObjCBase64Foundation no-header`
-//    rename:          `mulle-sde dependency|library set MulleObjCBase64Foundation include whatever.h`
-//    toggle #import:  `mulle-sourcetree mark MulleObjCBase64Foundation [no-]import`
-//    toggle public:   `mulle-sourcetree mark MulleObjCBase64Foundation [no-]public`
-//    toggle optional: `mulle-sourcetree mark MulleObjCBase64Foundation [no-]require`
-//    remove for os:   `mulle-sourcetree mark MulleObjCBase64Foundation no-os-<osname>`
-# import <MulleObjCBase64Foundation/MulleObjCBase64Foundation.h>   // MulleObjCBase64Foundation
+//    remove:             `mulle-sourcetree mark MulleObjCBase64Foundation no-header`
+//    rename:             `mulle-sde dependency|library set MulleObjCBase64Foundation include whatever.h`
+//    toggle #import:     `mulle-sourcetree mark MulleObjCBase64Foundation [no-]import`
+//    toggle localheader: `mulle-sourcetree mark MulleObjCBase64Foundation [no-]localheader`
+//    toggle public:      `mulle-sourcetree mark MulleObjCBase64Foundation [no-]public`
+//    toggle optional:    `mulle-sourcetree mark MulleObjCBase64Foundation [no-]require`
+//    remove for os:      `mulle-sourcetree mark MulleObjCBase64Foundation no-os-<osname>`
+# if defined( __has_include) && __has_include("MulleObjCBase64Foundation.h")
+#   import "MulleObjCBase64Foundation.h"   // MulleObjCBase64Foundation
+# else
+#   import <MulleObjCBase64Foundation/MulleObjCBase64Foundation.h>   // MulleObjCBase64Foundation
+# endif
 
 #ifdef __has_include
 # if __has_include( "_MulleUI-include.h")

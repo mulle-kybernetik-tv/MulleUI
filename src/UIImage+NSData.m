@@ -9,16 +9,16 @@
 
 @implementation UIImage ( NSData)
 
-- (instancetype) initWithData:(NSData *) data
+- (instancetype) initWithFileData:(NSData *) data
 {
-   return( [self initWithMulleData:[data mulleData]
-                     sharingObject:data]);
+   return( [self initWithFileMulleData:[data mulleData]
+                          sharingObject:data]);
 }
 
-+ (instancetype) imageWithData:(NSData *) data
++ (instancetype) imageWithFileData:(NSData *) data
 {
-   return( [[[self alloc] initWithMulleData:[data mulleData]
-                              sharingObject:data] autorelease]);
+   return( [[[self alloc] initWithFileMulleData:[data mulleData]
+                                  sharingObject:data] autorelease]);
 }
 
 @end

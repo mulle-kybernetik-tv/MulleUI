@@ -10,6 +10,12 @@
 
 @implementation MulleTextLayer ( Cursor)
 
+- (void) getCursorPosition:(struct MulleIntegerPoint *) p_cursor 
+{
+   *p_cursor = _cursorPosition;
+}
+
+
 - (void) drawCursorWithNVGContext:(NVGcontext *) vg
                               row:(NSUInteger) i
 {
@@ -42,7 +48,7 @@
    }
 }
 
-- (CGFloat) scrollOffsetToMakeCursorVisible
+- (CGFloat) offsetNeededToMakeCursorVisible
 {
    CGPoint                          offset;
    CGRect                           bounds;
@@ -91,6 +97,40 @@
 }
 
 
+- (CGPoint) pointOverCursorPosition:(struct MulleIntegerPoint) cursor
+{
+   struct MulleTextLayerRowGlyphs   *p;
+
+   if( cursor.y < 0 || cursor.y >= _nRows)
+      return( CGPointMake( -1, -1));
+
+   p = &_rowGlyphs[ cursor.y];
+   if( cursor.x < 0 || cursor.x > p->nGlyphs)
+      return( CGPointMake( -1, -1));
+
+   return( CGPointMake( _origin.x + p->glyphs[ cursor.x].x, 
+                        _origin.y - 1.0));
+}
+
+
+- (CGPoint) pointUnderCursorPosition:(struct MulleIntegerPoint) cursor
+{
+   struct MulleTextLayerRowGlyphs   *p;
+   CGFloat                          h;
+
+   if( cursor.y < 0 || cursor.y >= _nRows)
+      return( CGPointMake( -1, -1));
+
+   p = &_rowGlyphs[ cursor.y];
+   if( cursor.x < 0 || cursor.x > p->nGlyphs)
+      return( CGPointMake( -1, -1));
+
+   return( CGPointMake( _origin.x + p->glyphs[ cursor.x].x, 
+                        _origin.y + 0.0));
+}
+
+
+
 - (struct MulleIntegerPoint) cursorPositionForPoint:(CGPoint) point
 {
    CGFloat                          search;
@@ -103,7 +143,7 @@
    // figure out the row that was hit, a row is _lineh and 
    // drawn at frame.origin.y + _origin.y  + i *_lineh
    y = (NSInteger) round( (point.y -_origin.y) / _lineh);
-   if( y < 0 || y > _nRows)
+   if( y < 0 || y >= _nRows)
    {
       y = NSNotFound;
       return( MulleIntegerPointMake( NSNotFound, NSNotFound));
@@ -174,8 +214,8 @@
    struct MulleIntegerPoint   cursorPosition;
    NSUInteger                 pos;
 
-   cursorPosition = [self cursorPosition];
-   pos            = [self characterIndexForCursor:cursorPosition];
+   [self getCursorPosition:&cursorPosition];
+   pos = [self characterIndexForCursor:cursorPosition];
    if( pos == NSNotFound)
       return;
 
@@ -192,6 +232,10 @@
    [self setCursorPosition:cursorPosition];
 }
 
+- (void) enterOrReturn 
+{
+   // don't talk to a delegate, you are a layer!
+}
 
 // cursor position is in Unicode characters...
 - (void) backspaceCharacter
@@ -201,11 +245,10 @@
    NSUInteger                 pos1;
    NSUInteger                 pos2;
 
-   cursorPosition = [self cursorPosition];
+   [self getCursorPosition:&cursorPosition];
    if( cursorPosition.x == NSNotFound)
       return;
 
-   cursorPosition = [self cursorPosition];
    pos2           = [self characterIndexForCursor:cursorPosition];
    --cursorPosition.x; // need to move line up if hitting 0
    pos1           = [self characterIndexForCursor:cursorPosition];
@@ -215,5 +258,21 @@
    [self setCString:s];
    [self setCursorPosition:cursorPosition];
 }
+
+
+- (struct MulleCursorUTF8Data) cursorUTF8Data
+{
+   struct MulleCursorUTF8Data  info;
+   NSUInteger                  offset;
+   struct MulleIntegerPoint    cursorPosition;
+
+   [self getCursorPosition:&cursorPosition];
+   offset = [self characterIndexForCursor:cursorPosition]; 
+
+   info.dataUpToCursor  = mulle_utf8data_make( _data.characters, offset);
+   info.dataAfterCursor = mulle_utf8data_make( &_data.characters[ offset], _data.length);
+   return( info);
+}
+
 
 @end

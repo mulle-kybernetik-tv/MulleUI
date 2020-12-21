@@ -1,35 +1,33 @@
-#import "UIImage.h"
+#import "_MulleBitmapImage.h"
 
 #import "CGGeometry.h"
+
+
 
 
 //
 // A bitmap image is not yet a texture, when loaded. So you can use it 
 // without a NVG context. By default we keep the original incoming data
 // so when asked for it, we do not suffer back and forth compression lossage
-//
-@interface MulleBitmapImage : UIImage < NSCopying>
+// Everything is RGBA currently
+@interface MulleBitmapImage : _MulleBitmapImage < NSCopying>
 {
    id         _imageSharingObject;
-   void      *_image;
    BOOL       _dontFreeImage;
 }
 
-@property( readonly) struct mulle_bitmap_size   bitmapSize;
-// NVGImageFlags are use for repetitive patterns
-@property( readonly) int                        nvgImageFlags;
+// methods with RGBA are unwrapped, uncompressed binary RGBA data
+- (instancetype) initWithFileMulleData:(struct mulle_data) data 
+                             allocator:(struct mulle_allocator *) allocator
+                         nvgImageFlags:(int) flags;
 
-- (instancetype) initWithBytes:(void *) bytes 
-                        length:(NSUInteger) length
-                     allocator:(struct mulle_allocator *) allocator
-                 nvgImageFlags:(int) flags;
-                     
-// const meaning readonly memory 
-- (instancetype) initWithConstBitmapBytes:(const void *) bytes 
-                         bitmapSize:(mulle_bitmap_size) bitmapSize
-                      nvgImageFlags:(int) flags;
-- (instancetype) initWithConstBitmapBytes:(const void *) bytes 
-                         bitmapSize:(mulle_bitmap_size) bitmapSize;
+// Other methods expect PNG or JPG data
+                // const meaning readonly memory 
+- (instancetype) initWithConstRGBA:(const void *) bytes 
+                        bitmapSize:(mulle_bitmap_size) bitmapSize
+                     nvgImageFlags:(int) flags;
+- (instancetype) initWithConstRGBA:(const void *) bytes 
+                        bitmapSize:(mulle_bitmap_size) bitmapSize;
 
 - (instancetype) initWithContentsOfFileWithFileRepresentationString:(char *) s
                                                       nvgImageFlags:(int) flags;

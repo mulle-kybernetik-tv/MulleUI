@@ -68,7 +68,7 @@
    _newlinesInCString = count_newlines( s);
 #endif
 
-    MulleObjCObjectSetDuplicatedCString( self, &_data.characters, s);
+    MulleObjCObjectSetDuplicatedCString( self, (char **) &_data.characters, s);
    _data.length = strlen( s);
 }
 
@@ -151,12 +151,6 @@ static NSUInteger  count_newlines( mulle_utf8_t *s)
 
    [super dealloc]; 
 }
-
-- (void) getCursorPosition:(struct MulleIntegerPoint *) cursor_p
-{
-   *cursor_p = _cursorPosition;
-}
-
 
 
 /* MEMO: Font/Glyph scaling
@@ -350,8 +344,8 @@ NSUInteger
       width   = _frame.size.width;
       extent  = nvgTextBounds( vg, 0, 
                                    0, 
-                                   _data.characters, 
-                                   &_data.characters[ _data.length], 
+                                   (void *) _data.characters, 
+                                   (void *) &_data.characters[ _data.length], 
                                    bounds);
       // TODO check this is true, probably need to fuzz it
       max    += ceil( extent / width) + 1;
@@ -370,8 +364,8 @@ NSUInteger
    // Here the problem is, that we always calculate from the start though
    // which doesn't work well for middle/bottom...
    //
-   _nRows = nvgTextBreakLines( vg, _data.characters, 
-                                   &_data.characters[ _data.length],
+   _nRows = nvgTextBreakLines( vg, (void *) _data.characters, 
+                                   (void *) &_data.characters[ _data.length],
                                    width, 
                                    _rows, 
                                    max);
@@ -408,7 +402,8 @@ NSUInteger
    font  = [context fontWithName:_fontName ? _fontName : "sans"];
    name  = [font name];  // get actual name, which could have different address
    frame = [self frame];
-
+   frame = MulleEdgeInsetsInsetRect( _insets, frame);
+   
    fontPixelSize = [self fontPixelSize];
    if( fontPixelSize == 0.0)
       fontPixelSize = (int) frame.size.height;
@@ -449,21 +444,36 @@ NSUInteger
 
    // If cursor is visible, keep it always visible
    if( [self isEditable])
-      _origin.x += [self scrollOffsetToMakeCursorVisible];
+      _origin.x += [self offsetNeededToMakeCursorVisible];
  
-   // set as top aligned
+   // this is top aligned as default, other alignments use this as well
+   _origin.y = _lineh / 2 + _textOffset.y; 
    switch( _verticalAlignmentMode)
    {
    case MulleTextVerticalAlignmentTop :
-      _origin.y = _lineh / 2 + _textOffset.y;
       break;
       // set as bottom aligned
    case MulleTextVerticalAlignmentBottom :
-      _origin.y = frame.size.height - rowsHeight + _lineh / 2.0  + _textOffset.y;
+      _origin.y += frame.size.height - rowsHeight;
       break;
-      // set as center aligned
+
    case MulleTextVerticalAlignmentMiddle :
-      _origin.y = (frame.size.height - rowsHeight) / 2.0 + (_lineh / 2.0) + _textOffset.y;
+      // for middle align only, we figure out the text box to get it nice 
+      // looking if we are single line. It will jump if there are edits though
+      // (make it optional via property if this annoys)
+      if( _nRows == 1)
+      {
+         float    bounds[ 4];
+
+         nvgTextBounds( vg, 0.0, 0.0, 
+                            (void *) _data.characters, 
+                            (void *) &_data.characters[ _data.length], 
+                            bounds);
+         _origin.y -= bounds[ 1] / 2.0;
+         _origin.y += (frame.size.height - (bounds[ 3] - bounds[ 1])) / 2.0;      
+      }
+      else
+         _origin.y += (frame.size.height - rowsHeight) / 2.0;
       break; 
    }
 

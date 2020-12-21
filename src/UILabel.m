@@ -41,7 +41,7 @@
 }
 
 
-- (void) setFontPixelSize:(CGFloat) points
+- (void) setFontSize:(CGFloat) points
 {
    MulleTextLayer  *layer;
    CGFloat         ppi;
@@ -55,6 +55,7 @@
       ppi = [UIWindow primaryMonitorPPI];
    if( ! ppi)
       ppi = 100;
+   // pixel per inch, points are 1/72 inch
    [layer setFontPixelSize:points * ppi / 72.0];
 }
 

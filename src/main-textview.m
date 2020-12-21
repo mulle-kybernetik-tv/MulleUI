@@ -16,6 +16,8 @@
 
 static char   *demo_md =
 "Markdown with an embedded image\n"
+"If you have a question about the Objective-C language or about\n"
+"mulle-objc, mulle-sde etc, ask away in the chat.\n"
 "\n"
 "![][image_0]\n"
 "\n"

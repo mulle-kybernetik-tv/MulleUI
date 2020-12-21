@@ -90,67 +90,8 @@
    [self reflectState];
 }
 
-//
-// The key events are checked for special keys only, like backspace or
-// cursor keys. (Or CTRL-A / CTRL-E). Actual text input is being taken
-// though Unicode events
-//
-- (UIEvent *) consumeKeyDown:(UIEvent *) event
-{
-   UIKeyboardEvent            *keyEvent = (UIKeyboardEvent *) event;
-   struct MulleIntegerPoint   pos;
-   struct MulleIntegerPoint   max;
-   NSUInteger                 key;
-   NSUInteger                 modifiers;
 
-   fprintf( stderr, "key: %ld scanCode: %ld modifiers: %ld\n", 
-                        (long) [keyEvent key], 
-                        (long) [keyEvent scanCode],
-                        (long) [keyEvent modifiers]);
-
-   [self getCursorPosition:&pos];
-
-   NSLog( @"read cursor: %lu/%lu", (long) pos.x, (long) pos.y);
-
-   key       = [keyEvent key];
-   modifiers = [keyEvent modifiers];
-   switch( key)
-   {
-   default   :
-      return( nil);
-
-   // TODO: these should be global (MENU ?) events!!
-   //       so actually pass the event back up
-   case 'V'  :
-      if( modifiers == 2) // 2  is CONTROL (linux)
-         [self paste];
-      return( nil);
-   case 'C'  :
-      if( modifiers == 2)
-         [self copy];
-      return( nil);
-   case 'X'  :
-      if( modifiers == 2)
-         [self cut];
-      return( nil);
-
-   case 259  :  
-      [self backspaceCharacter]; 
-      return( nil);
-
-   case 262 :  pos.x++; break; // cursor right
-   case 263 :  --pos.x; break; // cursor left
-   }
-
-   if( (NSInteger) pos.x < 0)
-      pos.x = 0;
-   max = [self maxCursorPosition];
-   if( pos.x > max.x)
-      pos.x = max.x;
-   [self setCursorPosition:pos];
-
-   return( nil);
-}
+// consumeKeyDown handled by MulleKeyboardEventConsumer
 
 
 - (UIEvent *) consumeUnicodeCharacter:(UIEvent *) event

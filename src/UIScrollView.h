@@ -44,7 +44,7 @@
 
 @interface UIScrollView : UIView
 {
-	UIView                      *_contentView;
+	UIScrollContentView         *_contentView;
 	MulleScrollIndicatorView    *_horIndicatorView;
 	MulleScrollIndicatorView    *_verIndicatorView;
 

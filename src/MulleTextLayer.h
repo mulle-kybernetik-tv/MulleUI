@@ -1,5 +1,6 @@
 #import "CALayer.h"
 
+#import "MulleEdgeInsets.h"
 #import "MulleCursorProtocol.h"
 
 // not a string in MulleUI
@@ -95,8 +96,9 @@ NSUInteger   MulleNVGglyphPositionSearch( NVGglyphPosition *glyphs,
    enum MulleTextLayerVerticalAlignmentMode   _verticalAlignmentMode;
 }
 
-@property( assign) char     *fontName;
-@property( assign) CGFloat  fontPixelSize;
+@property( assign) char             *fontName;
+@property( assign) CGFloat          fontPixelSize;
+@property( assign) MulleEdgeInsets  insets;
 
 // incoming data need not be zero terminated
 - (void) setUTF8Data:(struct mulle_utf8data) data;
@@ -128,8 +130,6 @@ NSUInteger   MulleNVGglyphPositionSearch( NVGglyphPosition *glyphs,
 @property( assign, getter=isEditable) BOOL           editable;
 // cursor position as row/column
 @property( assign) struct MulleIntegerPoint          cursorPosition;
-
-- (void) getCursorPosition:(struct MulleIntegerPoint *) cursor_p;
 
 -(enum MulleTextLayerVerticalAlignmentMode)  mulleVerticalAlignmentMode;
 -(void) mulleSetVerticalAlignmentMode:(enum MulleTextLayerVerticalAlignmentMode) mode;

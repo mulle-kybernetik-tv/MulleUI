@@ -8,6 +8,7 @@
 enum UIImageDataEncoding
 {
    UIImageDataEncodingUnknown = 0,
+   UIImageDataEncodingRGBA,    // unwrapped and uncompressed 
    UIImageDataEncodingPNG,
    UIImageDataEncodingJPG,
    UIImageDataEncodingBMP,
@@ -31,11 +32,11 @@ enum UIImageDataEncoding
 // if allocator is NULL, data will not be freed
 // otherwise allocator will be used to free. Use &mulle_allocator_stdlib
 // for malloced data
-- (instancetype) initWithMulleData:(struct mulle_data) data
-                         allocator:(struct mulle_allocator *) allocator;
+- (instancetype) initWithFileMulleData:(struct mulle_data) data
+                             allocator:(struct mulle_allocator *) allocator;
 // data belongs to sharingObject, which will be retained                     
-- (instancetype) initWithMulleData:(struct mulle_data) data
-                     sharingObject:(id) sharingObject;
+- (instancetype) initWithFileMulleData:(struct mulle_data) data
+                         sharingObject:(id) sharingObject;
 
 - (instancetype) initWithContentsOfFileWithFileRepresentationString:(char *) filename;
 

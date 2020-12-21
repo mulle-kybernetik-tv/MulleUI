@@ -7,6 +7,7 @@
 
 @class MulleSVGImage;
 
+// Should be a subclass of MulleImageLayer really...
 //
 // Rendering the Ghostscript Tiger with the current setup is too slow
 // for reliable 60fps, if two tigers are drawn. It can do it sometimes,
