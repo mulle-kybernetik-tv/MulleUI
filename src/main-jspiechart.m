@@ -37,7 +37,7 @@ static UIEvent   *buttonClicked( id <UIControl> control, UIEvent *event)
 {
    fprintf( stderr, "%s\n", __PRETTY_FUNCTION__);
 
-   javascript = [(UIButton *) control titleCString];
+   javascript = [[(MullePopUpButton *) control clickedButton] titleCString];
    return( nil);
 }
 
@@ -62,7 +62,7 @@ BOOL  drawStuff( CALayer *layer,
 
    @autoreleasepool
    {
-      [context fontWithName:"sans"];
+      [context fontWithNameCString:"sans"];
       js = [MulleJS object];
       [js setObject:context
              forKey:@"CGContext"];
@@ -104,7 +104,7 @@ static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
    assert( frame.size.width  > 0.0);
 
    rootView  = [UIView mulleViewWithFrame:CGRectZero];
-   [rootView setCStringName:"RootView"];
+   [rootView setDebugNameCString:"RootView"];
    [rootView setBackgroundColor:getNVGColor( 0xFFFFFFFF)];
    [rootView setAutoresizingMask:UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth];
 
@@ -114,7 +114,7 @@ static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
 
    displayView  = [UIView mulleViewWithFrame:CGRectZero];
    [displayView setBackgroundColor:getNVGColor( 0x00007FFF)];
-   [displayView setCStringName:"DisplayView"];
+   [displayView setDebugNameCString:"DisplayView"];
    [displayView setMargins:UIEdgeInsetsMake( 10, 10, 10, 10)];
    [displayView setAutoresizingMask:UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth];
 

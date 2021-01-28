@@ -11,6 +11,38 @@
 
 @implementation MulleTextLayer : CALayer
 
+- (CGFloat) fontAscender
+{
+   return( _ascender);
+}
+
+
+- (CGFloat) fontDescender
+{
+   return( _descender);
+}
+
+
+- (CGFloat) fontLineHeight
+{
+   return( _lineh);
+}
+
+
+- (CGFloat) fontBaseline
+{
+   return( _lineh - _descender);
+}
+
+
+- (void) getFontTextBounds:(CGFloat [4]) bounds
+{
+   bounds[ 0] = _textBounds[ 0];
+   bounds[ 1] = _textBounds[ 1];
+   bounds[ 2] = _textBounds[ 2];
+   bounds[ 3] = _textBounds[ 3];
+}
+
 - (void) setUTF8Data:(struct mulle_utf8data) data
 {
    struct mulle_allocator  *allocator;
@@ -25,10 +57,10 @@
    if( length)
       if( ! data.characters[ length - 1])
          --length;
-  
+
    // don't want two trailing zeroes in incoming data
    assert( ! length || data.characters[ length - 1]);
-  
+
    p = mulle_allocator_malloc( allocator, length + 1);
    memcpy( p, data.characters, length);
    p[ length] = 0;
@@ -58,8 +90,8 @@
       s = "";
 
 #if 0
-#ifdef NDEBUG   
-   struct mulle_utf_information   info;   
+#ifdef NDEBUG
+   struct mulle_utf_information   info;
    // must be valid UTF8
    mulle_utf8_information( s, -1, &info);
    if( ! mulle_utf_information_is_valid( info))
@@ -88,6 +120,7 @@
    _verticalAlignmentMode = mode;
 }
 
+
 #if 0
 static NSUInteger  count_newlines( mulle_utf8_t *s)
 {
@@ -102,19 +135,19 @@ static NSUInteger  count_newlines( mulle_utf8_t *s)
    {
       d = c;
       c = mulle_utf8_next_utf32character( &s);
-      switch( c) 
+      switch( c)
       {
-      case '\n':		
+      case '\n':
           if( d != '\r')
             ++lf;
          break;
 
-      case 0x85:		
-      case '\r':		
+      case 0x85:
+      case '\r':
          ++lf;
          break;
       }
-   } 
+   }
    return( lf);
 }
 #endif
@@ -128,7 +161,7 @@ static NSUInteger  count_newlines( mulle_utf8_t *s)
    _textColor           = MulleColorCreate( 0x000000FF);
    _textBackgroundColor = MulleColorCreate( 0xFFFFFFFF);
    _selectionColor      = MulleColorCreate( 0x7FFF7F7F);
-   
+
    _mulle_structarray_init( &_rowArray, sizeof( NVGtextRow),
                                         alignof( NVGtextRow),
                                         0,
@@ -141,15 +174,32 @@ static NSUInteger  count_newlines( mulle_utf8_t *s)
 }
 
 
-- (void) dealloc 
+- (void) _doneRowGlyphs
 {
+   struct MulleTextLayerRowGlyphs   *p;
+   struct MulleTextLayerRowGlyphs   *sentinel;
+
+   p        = _mulle_structarray_get( &_rowGlyphArray, 0);
+   sentinel = &p [ _mulle_structarray_get_count( &_rowGlyphArray)];
+   while( p < sentinel)
+   {
+      MulleTextLayerRowGlyphsDone( p);
+      ++p;
+   }
+
    _mulle_structarray_done( &_rowGlyphArray);
+}
+
+
+- (void) dealloc
+{
+   [self _doneRowGlyphs];
    _mulle_structarray_done( &_rowArray);
 
    MulleObjCObjectDeallocateMemory( self, _fontName);
    MulleObjCObjectDeallocateMemory( self, _data.characters);
 
-   [super dealloc]; 
+   [super dealloc];
 }
 
 
@@ -184,7 +234,7 @@ static NSUInteger  count_newlines( mulle_utf8_t *s)
  * By experiment, if running cleartype it makes no use to turn of cleartype
  * for monochrome or grayscale only fonts.
  *
- * Since emojis could be used from a fallback font, it maybe necessary to 
+ * Since emojis could be used from a fallback font, it maybe necessary to
  * split the string for multiple nvgText calls, setting the correct font
  * everytime.
  */
@@ -200,7 +250,7 @@ static NSUInteger  count_newlines( mulle_utf8_t *s)
       diff = max - size;
       _mulle_structarray_advance( &_rowArray, max);
    }
-   // 
+   //
    _rows  = _mulle_structarray_get( &_rowArray, 0);
    _nRows = 0;
 }
@@ -233,9 +283,9 @@ static NSUInteger  count_newlines( mulle_utf8_t *s)
 }
 
 
-NSUInteger  
+NSUInteger
    MulleNVGglyphPositionSearch( NVGglyphPosition *glyphs,
-                                NSUInteger nGlyphs, 
+                                NSUInteger nGlyphs,
                                 CGFloat x)
 {
    NSInteger          first;
@@ -252,7 +302,7 @@ NSUInteger
       p = &glyphs[ middle];
       if( x >= p->minx && x <= p->maxx)
          return( middle);
-        
+
       if( x > p->minx)
       {
          first = middle + 1;
@@ -297,8 +347,8 @@ NSUInteger
          sGlyphs   = newSize;
       }
 
-      p->nGlyphs = nvgTextGlyphPositions( vg, 0, 0, 
-                                              _rows[ i].start, _rows[ i].end, 
+      p->nGlyphs = nvgTextGlyphPositions( vg, 0, 0,
+                                              _rows[ i].start, _rows[ i].end,
                                               p->glyphs, sGlyphs);
    }
    while( p->nGlyphs >= sGlyphs - 1);  // subtract sentinel node
@@ -324,14 +374,19 @@ NSUInteger
    NSUInteger   i;
    CGFloat      width;
    CGFloat      extent;
-   float        bounds[ 4];
 
-   // calculate max visible rows, which is frame.size.height / _lineh , but 
+   // calculate max visible rows, which is frame.size.height / _lineh , but
    // because of partials we add + 2
 
    max = (NSUInteger) ceil( _frame.size.height / _lineh) + 2;
 
-   // produce row information 
+   // calculate this always, as _textBounds can be useful later on as well
+   extent  = nvgTextMinimalBounds( vg, 0,
+                                       0,
+                                       (void *) _data.characters,
+                                       (void *) &_data.characters[ _data.length],
+                                       _textBounds);
+   // produce row information
    switch( _lineBreakMode)
    {
    case NSLineBreakByWordWrapping :
@@ -342,11 +397,6 @@ NSUInteger
       // also when word wrapping how big can the biggest word be ?
 
       width   = _frame.size.width;
-      extent  = nvgTextBounds( vg, 0, 
-                                   0, 
-                                   (void *) _data.characters, 
-                                   (void *) &_data.characters[ _data.length], 
-                                   bounds);
       // TODO check this is true, probably need to fuzz it
       max    += ceil( extent / width) + 1;
       break;
@@ -364,10 +414,10 @@ NSUInteger
    // Here the problem is, that we always calculate from the start though
    // which doesn't work well for middle/bottom...
    //
-   _nRows = nvgTextBreakLines( vg, (void *) _data.characters, 
+   _nRows = nvgTextBreakLines( vg, (void *) _data.characters,
                                    (void *) &_data.characters[ _data.length],
-                                   width, 
-                                   _rows, 
+                                   width,
+                                   _rows,
                                    max);
    // produce glyph information for each row
    for( i = 0; i < _nRows; i++)
@@ -385,6 +435,7 @@ NSUInteger
    CGColorRef          textBackgroundColor;
    CGFloat             fontPixelSize;
    CGFloat             rowsHeight;
+   CGFloat             baseline;
    CGFont              *font;
    CGPoint             cursor;
    CGPoint             offset;
@@ -399,11 +450,11 @@ NSUInteger
    if( ! _data.length)
       return( NO);
 
-   font  = [context fontWithName:_fontName ? _fontName : "sans"];
-   name  = [font name];  // get actual name, which could have different address
+   font  = [context fontWithNameCString:_fontName ? _fontName : "sans"];
+   name  = [font nameCString];  // get actual name, which could have different address
    frame = [self frame];
    frame = MulleEdgeInsetsInsetRect( _insets, frame);
-   
+
    fontPixelSize = [self fontPixelSize];
    if( fontPixelSize == 0.0)
       fontPixelSize = (int) frame.size.height;
@@ -413,82 +464,108 @@ NSUInteger
    nvgFontSize( vg, fontPixelSize);
    nvgFontFace( vg, name);
 
-   //
-   // The alignment is needed first because it changes the origin
-   // and also affects the nvg text calculations
-   //
-   align = NVG_ALIGN_MIDDLE;
+   // I see no difference with different alignment options, for the metrics
+   nvgTextMetrics( vg, &_ascender, &_descender, &_lineh);
+   baseline = - _descender;
+
    switch( _alignmentMode)
    {
-   case CAAlignmentLeft   : align |= NVG_ALIGN_LEFT; 
-                            _origin.x = CGRectGetMinX( frame); 
+   case CAAlignmentLeft   : align = NVG_ALIGN_LEFT;
+                            _origin.x = CGRectGetMinX( frame) - frame.origin.x;
                             break;
-   case CAAlignmentRight  : align |= NVG_ALIGN_RIGHT; 
-                            _origin.x = CGRectGetMaxX( frame); 
+   case CAAlignmentRight  : align = NVG_ALIGN_RIGHT;
+                            _origin.x = CGRectGetMaxX( frame) - frame.origin.x;
                             break;
-   case CAAlignmentCenter : align |= NVG_ALIGN_CENTER; 
-                            _origin.x = CGRectGetMidX( frame); 
+   case CAAlignmentCenter : align = NVG_ALIGN_CENTER;
+                            _origin.x = CGRectGetMidX( frame) - frame.origin.x;
                             break;
    }
 
-   nvgTextAlign( vg, align); 
-   nvgTextMetrics( vg, NULL, NULL, &_lineh);
-
+   //
+   // We always draw from the top, except if we are just a oneliner. Then
+   // we use nvg vertical text alignment.
+   //
+   // The alignment is needed ASAP, because it changes the origin
+   // and also affects the nvg text calculations for the horizontal plane.
+   //
+   nvgTextAlign( vg, align | NVG_ALIGN_BASELINE);
    [self updateRowsAndGlyphsWithContext:vg];
-
    // now we know the number of rows,
    // calculate the height of all rows
-   rowsHeight = _lineh * _nRows;
+   rowsHeight  = _lineh * _nRows;
 
-   _origin.x = _origin.x + _textOffset.x - frame.origin.x;
+   if( _nRows <= 1)
+   {
+      switch( _verticalAlignmentMode)
+      {
+      case MulleTextVerticalAlignmentTop :
+         _origin.y = _ascender;
+         break;
+      case MulleTextVerticalAlignmentBottom :
+         _origin.y = _frame.size.height + _descender;  // _descender is neg.!
+         break;
+      case MulleTextVerticalAlignmentMiddle :
+         _origin.y = (_frame.size.height + _ascender + _descender) / 2.0;
+         break;
+      case MulleTextVerticalAlignmentBaseline :
+         _origin.y = _frame.size.height / 2.0;
+         break;
+      case MulleTextVerticalAlignmentBoundsMiddle :
+         // the _textBounds values are inverted _ascender and descender
+         _origin.y = (_frame.size.height + -_textBounds[ 1] + -_textBounds[ 3]) / 2.0;
+      }
+   }
+   else
+   {
+      // this is top aligned as default, other alignments use this as well
+      switch( _verticalAlignmentMode)
+      {
+         // set as bottom aligned
+      case MulleTextVerticalAlignmentTop :
+         _origin.y = _ascender;
+         break;
+
+      case MulleTextVerticalAlignmentBottom :
+         _origin.y = frame.size.height - rowsHeight + _ascender;
+         break;
+
+      // the baseline alignment for multiple lines doesn't seem useful,
+      // yet for visual stability we need to produce something
+
+      case MulleTextVerticalAlignmentMiddle :
+         _origin.y = (frame.size.height - rowsHeight) / 2.0 + _ascender;
+         break;
+
+      case MulleTextVerticalAlignmentBoundsMiddle   :
+      case MulleTextVerticalAlignmentBaseline :
+         // if odd rows the baseline of the middle is in the center
+         // otherwise same as "middle"
+         if( _nRows & 1)
+            _origin.y = (frame.size.height - rowsHeight + _lineh) / 2.0;
+         else
+            _origin.y = (frame.size.height - rowsHeight) / 2.0 + _ascender;
+      }
+   }
 
    // If cursor is visible, keep it always visible
    if( [self isEditable])
       _origin.x += [self offsetNeededToMakeCursorVisible];
- 
-   // this is top aligned as default, other alignments use this as well
-   _origin.y = _lineh / 2 + _textOffset.y; 
-   switch( _verticalAlignmentMode)
-   {
-   case MulleTextVerticalAlignmentTop :
-      break;
-      // set as bottom aligned
-   case MulleTextVerticalAlignmentBottom :
-      _origin.y += frame.size.height - rowsHeight;
-      break;
 
-   case MulleTextVerticalAlignmentMiddle :
-      // for middle align only, we figure out the text box to get it nice 
-      // looking if we are single line. It will jump if there are edits though
-      // (make it optional via property if this annoys)
-      if( _nRows == 1)
-      {
-         float    bounds[ 4];
-
-         nvgTextBounds( vg, 0.0, 0.0, 
-                            (void *) _data.characters, 
-                            (void *) &_data.characters[ _data.length], 
-                            bounds);
-         _origin.y -= bounds[ 1] / 2.0;
-         _origin.y += (frame.size.height - (bounds[ 3] - bounds[ 1])) / 2.0;      
-      }
-      else
-         _origin.y += (frame.size.height - rowsHeight) / 2.0;
-      break; 
-   }
+   _origin.x += _textOffset.x;
+   _origin.y += _textOffset.y;
 
    for( i = 0; i < _nRows; i++)
    {
-      textRange = NSMakeRange( _rows[ i].start - (char *) _data.characters, 
+      textRange = NSMakeRange( _rows[ i].start - (char *) _data.characters,
                                _rows[ i].end - _rows[ i].start);
 
-      // Draw the first line only
-      // don't render outside of myself
-      nvgIntersectScissor( vg, frame.origin.x, 
-                               frame.origin.y, 
-                               frame.size.width, 
-                               frame.size.height);
-      // nvgFillColor( vg, nvgRGBA(127,127,255,255));
+   // Draw the first line only
+   // don't render outside of myself
+   nvgIntersectScissor( vg, frame.origin.x,
+                            frame.origin.y,
+                            frame.size.width,
+                            frame.size.height);
+   //   // nvgFillColor( vg, nvgRGBA(127,127,255,255));
 
       /*
        * Draw selection
@@ -504,9 +581,9 @@ NSUInteger
       if( CGColorGetAlpha( textBackgroundColor) < 1.0)
          textBackgroundColor = [self textBackgroundColor];
       nvgTextColor( vg, [self textColor], textBackgroundColor); // TODO: use textColor
-      nvgText( vg, frame.origin.x + _origin.x, 
-                   frame.origin.y + _origin.y + (i * _lineh), 
-                   _rows[ i].start, 
+      nvgText( vg, frame.origin.x + _origin.x,
+                   frame.origin.y + _origin.y + (i * _lineh),
+                   _rows[ i].start,
                    _rows[ i].end);
 
       /*
@@ -554,7 +631,7 @@ static size_t   mulle_utf8_utf32length( mulle_utf8_t *s, size_t len)
    if( ! _nRows)
       return( NSNotFound);
 
-   // figure out the row that was hit, a row is _lineh and 
+   // figure out the row that was hit, a row is _lineh and
    // drawn at frame.origin.y + _origin.y  + i *_lineh
    y = (NSInteger) round( (point.y -_origin.y) / _lineh);
    if( y < 0)
@@ -584,8 +661,33 @@ static size_t   mulle_utf8_utf32length( mulle_utf8_t *s, size_t len)
       if( search >= p->glyphs[ x].minx + (p->glyphs[ x].maxx - p->glyphs[ x].minx) / 3.0)
          x++;
    }
-   return( p->glyphs[ x].str - (char *) _data.characters);  
+   return( p->glyphs[ x].str - (char *) _data.characters);
 }
 
+
+char   *CATextLayerAlignmentModeCStringDescription( enum CATextLayerAlignmentMode mode)
+{
+   switch( mode)
+   {
+   case CAAlignmentLeft   : return( "CAAlignmentLeft");
+   case CAAlignmentRight  : return( "CAAlignmentRight");
+   case CAAlignmentCenter : return( "CAAlignmentCenter");
+   }
+   return( "???");
+}
+
+
+char   *MulleTextLayerVerticalAlignmentModeCStringDescription( enum MulleTextLayerVerticalAlignmentMode mode)
+{
+   switch( mode)
+   {
+   case MulleTextVerticalAlignmentMiddle   : return( "MulleTextVerticalAlignmentMiddle");
+   case MulleTextVerticalAlignmentBaseline : return( "MulleTextVerticalAlignmentBaseline");
+   case MulleTextVerticalAlignmentBoundsMiddle   : return( "MulleTextVerticalAlignmentBoundsMiddle");
+   case MulleTextVerticalAlignmentTop      : return( "MulleTextVerticalAlignmentTop");
+   case MulleTextVerticalAlignmentBottom   : return( "MulleTextVerticalAlignmentBottom");
+   }
+   return( "???");
+}
 
 @end

@@ -46,7 +46,7 @@ static char  *cpToUTF8(int cp, char* str)
    MulleObjCObjectSetDuplicatedCString( self, &_cString, s);
 }
 
-- (void) dealloc 
+- (void) dealloc
 {
    MulleObjCObjectDeallocateMemory( self, _fontName);
    MulleObjCObjectDeallocateMemory( self, _cString);
@@ -64,8 +64,8 @@ static char  *cpToUTF8(int cp, char* str)
    NVGpaint            bg;
    struct NVGcontext   *vg;
 
-   font = [context fontWithName:_fontName ? _fontName : "sans"];
-   name = [font name];  // get actual name, which could have different address
+   font = [context fontWithNameCString:_fontName ? _fontName : "sans"];
+   name = [font nameCString];  // get actual name, which could have different address
 
    frame = [self frame];
 
@@ -91,8 +91,8 @@ static char  *cpToUTF8(int cp, char* str)
 
    if( [self isChecked])
    {
-      font = [context fontWithName:"icons"];
-      name = [font name];  // get actual name, which could have different address
+      font = [context fontWithNameCString:"icons"];
+      name = [font nameCString];  // get actual name, which could have different address
 
       nvgFontSize(vg, 40);
       nvgFontFace(vg, name);

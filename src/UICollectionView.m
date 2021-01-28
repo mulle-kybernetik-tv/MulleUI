@@ -18,11 +18,11 @@
 + (UIView *) mulleScrollContentsViewWithFrame:(CGRect) frame
 {
    UIStackView   *view;
-   CGFloat       minimumInteritemSpacing; 
+   CGFloat       minimumInteritemSpacing;
    CGFloat       minimumLineSpacing;
 
    view = [[[UIStackView alloc] initWithFrame:frame] autorelease];
-   [view setCStringName:"ScrollViewContentStackView"];
+   [view setDebugNameCString:"ScrollViewContentStackView"];
    [view setDistribution:MulleStackViewDistributionFillRowColumn];
    [view setAxis:UILayoutConstraintAxisHorizontal];
 
@@ -31,20 +31,20 @@
 
    // T  L  B  R  : how is with insets
    // L  T  R  B  : how i think it is, because of CGRect
-   // T  R  B  L  : clockwise would be cool 
-   [view setContentInsets:UIEdgeInsetsMake( minimumLineSpacing, 
-                                            minimumInteritemSpacing, 
-                                            minimumLineSpacing, 
+   // T  R  B  L  : clockwise would be cool
+   [view setContentInsets:UIEdgeInsetsMake( minimumLineSpacing,
+                                            minimumInteritemSpacing,
+                                            minimumLineSpacing,
                                             minimumInteritemSpacing)];
    return( view);
 }
 
 
-- (instancetype) initWithLayer:(CALayer *) layer 
+- (instancetype) initWithLayer:(CALayer *) layer
 {
    self = [super initWithLayer:layer];
    if( self)
-      _itemSize = CGSizeMake( 50, 50);   
+      _itemSize = CGSizeMake( 50, 50);
    return( self);
 }
 
@@ -67,7 +67,7 @@
 }
 
 
-- (void)     registerClass:(Class) cellClass 
+- (void)     registerClass:(Class) cellClass
 forCellWithReuseIdentifier:(NSString *)identifier
 {
    if( ! _cellClassRegistry)
@@ -77,7 +77,7 @@ forCellWithReuseIdentifier:(NSString *)identifier
                           forKey:identifier];
 }
 
-- (void) discardCell:(UICollectionViewCell *) cell 
+- (void) discardCell:(UICollectionViewCell *) cell
 {
    NSMutableArray  *pool;
    NSString        *identifier;
@@ -103,8 +103,8 @@ forCellWithReuseIdentifier:(NSString *)identifier
 }
 
 
-- (UICollectionViewCell *) 
-   dequeueReusableCellWithReuseIdentifier:(NSString *) identifier 
+- (UICollectionViewCell *)
+   dequeueReusableCellWithReuseIdentifier:(NSString *) identifier
                              forIndexPath:(NSIndexPath *) indexPath
 {
    NSMutableArray        *pool;
@@ -135,10 +135,10 @@ forCellWithReuseIdentifier:(NSString *)identifier
    frame.origin = CGPointMake( 0, 0);
    frame.size   = [self itemSize];
    [cell setFrame:frame];
-   
+
    return( cell);
 }
-    
+
 
 // TODO: move this elsewhere ??
 - (void) removeAllCells
@@ -159,21 +159,21 @@ forCellWithReuseIdentifier:(NSString *)identifier
 
    // clean all subviews out now
    mulle_pointerarray_release_all( contentView->_subviews);
-   mulle_pointerarray_reset( contentView->_subviews);    
+   mulle_pointerarray_reset( contentView->_subviews);
 }
 
 
 
-- (void) _setSelectedIndexPath:(NSIndexPath *) indexPath 
+- (void) _setSelectedIndexPath:(NSIndexPath *) indexPath
 {
    if( ! _selectedIndexes)
       _selectedIndexes = [NSMutableSet new];
    [_selectedIndexes addObject:indexPath];
 }
 
-- (void) _removeSelectedIndexPath:(NSIndexPath *) indexPath 
+- (void) _removeSelectedIndexPath:(NSIndexPath *) indexPath
 {
-   [_selectedIndexes removeObject:indexPath];   
+   [_selectedIndexes removeObject:indexPath];
 }
 
 
@@ -186,7 +186,7 @@ forCellWithReuseIdentifier:(NSString *)identifier
    NSIndexPath            *indexPath;
    UIView                 *contentView;
    UICollectionViewCell   *cell;
-   
+
    [self removeAllCells];
 
    contentView = [self contentView];
@@ -212,7 +212,7 @@ forCellWithReuseIdentifier:(NSString *)identifier
          [cell setIndexPath:indexPath];
          if( [cell isSelected])
             [self _setSelectedIndexPath:indexPath];
-         
+
          [contentView addSubview:cell];
       }
    }
@@ -292,7 +292,7 @@ forCellWithReuseIdentifier:(NSString *)identifier
                      invertIntersectionTest:NO];
    [_contentView setSubviews:&array];
    mulle_pointerarray_done( &array);
-#endif   
+#endif
 }
 
 
@@ -312,7 +312,7 @@ forCellWithReuseIdentifier:(NSString *)identifier
 
 
 - (void)       cell:(UICollectionViewCell *) cell
-   didChangeStateTo:(UIControlState) state 
+   didChangeStateTo:(UIControlState) state
           fromState:(UIControlState) oldState
 {
    NSIndexPath   *indexPath;

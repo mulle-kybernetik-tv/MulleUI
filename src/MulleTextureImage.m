@@ -16,9 +16,9 @@
    assert( context && [context isKindOfClass:[CGContext class]]);
 
    // TODO: would like to move this code to CGContext
-   _image = nvgluCreateFramebuffer( [context nvgContext], 
-                                    bitmapSize.size.width, 
-                                    bitmapSize.size.height, 
+   _image = nvgluCreateFramebuffer( [context nvgContext],
+                                    bitmapSize.size.width,
+                                    bitmapSize.size.height,
                                     options);
    if( ! _image)
    {
@@ -49,21 +49,23 @@
 
 - (void) finalize
 {
-   [_context removeFramebufferImage:self]; 
-   _context = nil;  
+   [_context removeFramebufferImage:self];
+   _context = nil;
 
    if( _image)
    {
-   	nvgluDeleteFramebuffer((NVGLUframebuffer *) _image);   
+   	nvgluDeleteFramebuffer((NVGLUframebuffer *) _image);
       _image = nil;
    }
    [super finalize];
 }
 
+
 - (void *) framebuffer
 {
    return( _image);
 }
+
 
 - (void *) image
 {
@@ -76,24 +78,30 @@
    struct mulle_data           data;
    MulleBitmapImage            *bitmapImage;
    struct mulle_bitmap_size    bitmapSize;
+   void                        *framebuffer;
 
+   framebuffer = [self framebuffer];
+   if( ! framebuffer)
+      return( nil);
    bitmapSize                 = _bitmapSize;
    bitmapSize.colorComponents = 4;
 
    data.length = bitmapSize.size.width * bitmapSize.size.height * 4;
    data.bytes  = mulle_allocator_malloc( &mulle_stdlib_allocator, data.length);
    memset( data.bytes, 0xFF, data.length);
-   
-   nvgluBindFramebuffer( [self framebuffer]);
+
+   nvgluBindFramebuffer( framebuffer);
+   {
       glReadPixels( 0, 0,
                    bitmapSize.size.width,
                    bitmapSize.size.height,
                    GL_RGBA,
     	             GL_UNSIGNED_BYTE,
     	             data.bytes);
-   nvgluBindFramebuffer( NULL);   
+   }
+   nvgluBindFramebuffer( NULL);
 
-   bitmapImage = [[MulleBitmapImage alloc] initWithRGBAMulleData:data 
+   bitmapImage = [[MulleBitmapImage alloc] initWithRGBACData:data
                                                      bitmapSize:bitmapSize
                                                       allocator:&mulle_stdlib_allocator
                                                   nvgImageFlags:_nvgImageFlags];

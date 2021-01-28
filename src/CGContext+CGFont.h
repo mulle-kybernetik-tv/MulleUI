@@ -15,12 +15,21 @@
 @interface CGContext( CGFont)
 
 - (CGFont *) fallbackFont;
-- (CGFont *) fontWithName:(char *) s;
-- (CGFont *) fontWithName:(char *) s;
+- (CGFont *) fontWithNameCString:(char *) s;
 - (CGFloat) fontScale;
 
-// experimental
-- (void) resetFontCache;
+- (void) _initFontCache;
+- (void) _doneFontCache;
+- (void) _resetFontCache;
 
+/*
+ * Fill fontCache with fonts, don't use during draws as it does I/O
+ */
+- (void) addFontWithContentsOfFileWithFileRepresentationString:(char *) filename
+                                               fontNameCString:(char *) name;
+- (void) addFontWithCData:(struct mulle_data) data 
+          fontNameCString:(char *) name;
 @end
+
+
 

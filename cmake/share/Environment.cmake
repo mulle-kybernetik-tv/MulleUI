@@ -24,8 +24,28 @@ if( NOT __ENVIRONMENT__CMAKE__)
    #
    #
    #
+   #
+   #
+   #
    if( NOT MULLE_VIRTUAL_ROOT)
-      set( MULLE_VIRTUAL_ROOT "${PROJECT_SOURCE_DIR}")
+      set( MULLE_VIRTUAL_ROOT "$ENV{MULLE_VIRTUAL_ROOT}")
+      if( NOT MULLE_VIRTUAL_ROOT)
+         set( MULLE_VIRTUAL_ROOT "${PROJECT_SOURCE_DIR}")
+      endif()
+   endif()
+
+   if( NOT DEPENDENCY_DIR)
+      set( DEPENDENCY_DIR "$ENV{DEPENDENCY_DIR}")
+      if( NOT DEPENDENCY_DIR)
+         set( DEPENDENCY_DIR "${MULLE_VIRTUAL_ROOT}/dependency")
+      endif()
+   endif()
+
+   if( NOT ADDICTION_DIR)
+      set( ADDICTION_DIR "$ENV{ADDICTION_DIR}")
+      if( NOT ADDICTION_DIR)
+         set( ADDICTION_DIR "${MULLE_VIRTUAL_ROOT}/addiction")
+      endif()
    endif()
 
    # get MULLE_SDK_PATH into cmake list form
@@ -36,19 +56,10 @@ if( NOT __ENVIRONMENT__CMAKE__)
    if( NOT MULLE_SDK_PATH)
       string( REPLACE ":" ";" MULLE_SDK_PATH "$ENV{MULLE_SDK_PATH}")
 
-      set( TMP_DEPENDENCY_DIR "$ENV{DEPENDENCY_DIR}")
-      if( NOT TMP_DEPENDENCY_DIR)
-         set( TMP_DEPENDENCY_DIR "${MULLE_VIRTUAL_ROOT}/dependency")
-      endif()
-      set( TMP_ADDICTION_DIR "$ENV{ADDICTION_DIR}")
-      if( NOT TMP_ADDICTION_DIR)
-         set( TMP_ADDICTION_DIR "${MULLE_VIRTUAL_ROOT}/addiction")
-      endif()
-
       if( NOT MULLE_SDK_PATH)
          set( MULLE_SDK_PATH
-            "${TMP_DEPENDENCY_DIR}"
-            "${TMP_ADDICTION_DIR}"
+            "${DEPENDENCY_DIR}"
+            "${ADDICTION_DIR}"
          )
       endif()
    else()
@@ -192,6 +203,7 @@ if( NOT __ENVIRONMENT__CMAKE__)
    message( STATUS "CMAKE_PREFIX_PATH=\"${CMAKE_PREFIX_PATH}\"" )
    message( STATUS "CMAKE_INSTALL_PREFIX=\"${CMAKE_INSTALL_PREFIX}\"" )
 
+   # these generate -isystem arguments, that add to the system search path
    include_directories( BEFORE SYSTEM
       ${TMP_INCLUDE_DIRS}
    )

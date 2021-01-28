@@ -78,7 +78,7 @@ static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
    assert( frame.size.width  > 0.0);
 
    rootView  = [[[UIView alloc] initWithFrame:CGRectZero] autorelease];
-   [rootView setCStringName:"RootView"];
+   [rootView setDebugNameCString:"RootView"];
    [rootView setBackgroundColor:getNVGColor( 0xFFFF00FF)];
    [rootView setAutoresizingMask:UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth];
 
@@ -89,7 +89,7 @@ static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
 
    displayView  = [[[UIView alloc] initWithFrame:frame] autorelease];
    [displayView setBackgroundColor:getNVGColor( 0xFF7F7FFF)];
-   [displayView setCStringName:"DisplayView"];
+   [displayView setDebugNameCString:"DisplayView"];
    [displayView setMargins:UIEdgeInsetsMake( 10, 10, 0, 10)];
    [displayView setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
 
@@ -115,7 +115,7 @@ static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
    // bottom margin can expand there
    //
    [keyboardView setContentInsets:UIEdgeInsetsMake( 10, 10, 0, 10)];
-   [keyboardView setCStringName:"KeyboardView"];
+   [keyboardView setDebugNameCString:"KeyboardView"];
 
    [rootView addSubview:keyboardView];
 
@@ -126,7 +126,7 @@ static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
       frame = CGRectMake( 0, 0, 0, 0);
       rowView  = [[[UIStackView alloc] initWithFrame:frame] autorelease];
       sprintf( name, "rowView %ld", i);
-      [rootView setCStringName:name];
+      [rootView setDebugNameCString:name];
       [rowView setBackgroundColor:MulleColorCreateRandom( 0xFF0000FF, 0x00FFFF00)];
       [rowView setDistribution:UIStackViewDistributionFillEqually];
 

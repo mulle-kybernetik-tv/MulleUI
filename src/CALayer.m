@@ -52,7 +52,7 @@
    CAAnimation                           *animation;
 
    allocator = MulleObjCInstanceGetAllocator( self);
-   mulle_allocator_free( allocator, _cStringName);
+   mulle_allocator_free( allocator, _debugNameCString);
 
    rover = mulle_pointerarray_enumerate( &_animations);
    while( _mulle_pointerarrayenumerator_next( &rover, (void **) &animation))
@@ -93,7 +93,7 @@
    CGRect         frame;
    CGFloat        borderWidth;
    MulleEdgeInsets   insets;
-  
+
    // if there is a border to be drawn, then we use antialias
    // otherwise we don't and only draw to the middle of the border
    vg = [context nvgContext];
@@ -121,13 +121,13 @@
    borderWidth = [self borderWidth];
    if( borderWidth > 0.1)
    {
-      insets = MulleEdgeInsetsMake( borderWidth / 2, 
-                                    borderWidth / 2,  
-                                    borderWidth / 2, 
+      insets = MulleEdgeInsetsMake( borderWidth / 2,
+                                    borderWidth / 2,
+                                    borderWidth / 2,
                                     borderWidth / 2);
       frame  = MulleEdgeInsetsInsetRect( insets, frame);
       nvgShapeAntiAlias( vg, 0);
-   }      
+   }
    // fill
    nvgBeginPath( vg);
    nvgRoundedRect( vg, frame.origin.x,
@@ -151,7 +151,7 @@
    // if transparent, just don't draw anything
    if( MulleColorIsTransparent( _backgroundColor))
       return( NO);
-   
+
    [self fillBackgroundInContext:context
                            color:_backgroundColor
                            paint:nil];
@@ -320,7 +320,7 @@ static void   resetTransformAndScissor( CALayer *self, NVGcontext *vg)
 #endif
 
    nvgTranslate( vg, frame.origin.x, frame.origin.y);
-#if 1
+#if 0
    nvgIntersectScissor( vg, 0.0,
                             0.0,
                             frame.size.width,
@@ -400,7 +400,7 @@ static void   resetTransformAndScissor( CALayer *self, NVGcontext *vg)
    // nil out references to outside memory
    copy->_snapshot    = nil;
    _mulle_pointerarray_init( &copy->_animations, 0, NULL);
-   copy->_cStringName = NULL;
+   copy->_debugNameCString = NULL;
 
    return( copy);
 }
@@ -420,7 +420,7 @@ static void   resetTransformAndScissor( CALayer *self, NVGcontext *vg)
 }
 
 
-- (void) setCStringName:(char *) s
+- (void) setDebugNameCString:(char *) s
 {
    struct mulle_allocator  *allocator;
 
@@ -428,8 +428,8 @@ static void   resetTransformAndScissor( CALayer *self, NVGcontext *vg)
    if( s)
       s = mulle_allocator_strdup( allocator, s);
 
-   mulle_allocator_free( allocator, _cStringName);
-   _cStringName = s;
+   mulle_allocator_free( allocator, _debugNameCString);
+   _debugNameCString = s;
 }
 
 
@@ -445,7 +445,7 @@ static void   resetTransformAndScissor( CALayer *self, NVGcontext *vg)
    sprintf( buf, "%p",  self);
 
    format = "<%s %s>";
-   len    = _cStringName ? strlen( _cStringName) : 0;
+   len    = _debugNameCString ? strlen( _debugNameCString) : 0;
    if( len)
    {
       format = "<%s %s \"%s\">";
@@ -453,7 +453,7 @@ static void   resetTransformAndScissor( CALayer *self, NVGcontext *vg)
    }
    len    += strlen( s) + strlen( buf) + 4; // < "">\0"
    result  = mulle_malloc( len);
-   sprintf( result, format, s, buf, _cStringName);
+   sprintf( result, format, s, buf, _debugNameCString);
    MulleObjCAutoreleaseAllocation( result, NULL);
 
    return( result);

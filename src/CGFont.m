@@ -8,40 +8,40 @@
 // CGFont needs the CGContext for fontloading and will only be valid for
 // that context
 //
-@implementation CGFont 
+@implementation CGFont
 
-- (instancetype) initWithName:(char *) name
-                    fontIndex:(int) fontIndex
+- (instancetype) initWithNameCString:(char *) name
+                           fontIndex:(int) fontIndex
 {
-	if( _fontIndex == -1) 
+	if( _fontIndex == -1)
    {
       [self release];
       return( nil);
 	}
 
-   [self setName:name];
+   [self setNameCString:name];
 	_fontIndex = fontIndex;
    return( self);
 }
 
 
-+ (instancetype) fontWithName:(char *) name
-                    fontIndex:(int) fontIndex
++ (instancetype) fontWithNameCString:(char *) name
+                           fontIndex:(int) fontIndex
 {
-   return( [[[self alloc] initWithName:name
-                             fontIndex:fontIndex] autorelease]);
-}  
-
-
-- (void) setName:(char *) s
-{
-   MulleObjCObjectSetDuplicatedCString( self, &_name, s);
+   return( [[[self alloc] initWithNameCString:name
+                                   fontIndex:fontIndex] autorelease]);
 }
 
 
-- (void) dealloc 
+- (void) setNameCString:(char *) s
 {
-   MulleObjCObjectDeallocateMemory( self, _name);
+   MulleObjCObjectSetDuplicatedCString( self, &_nameCString, s);
+}
+
+
+- (void) dealloc
+{
+   MulleObjCObjectDeallocateMemory( self, _nameCString);
    [super dealloc];
 }
 

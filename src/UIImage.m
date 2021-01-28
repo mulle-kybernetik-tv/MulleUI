@@ -3,30 +3,30 @@
 #import "CGContext.h"
 
 
-@implementation UIImage 
+@implementation UIImage
 
 
-- (instancetype) initWithFileMulleData:(struct mulle_data) data
+- (instancetype) initWithFileCData:(struct mulle_data) data
                              allocator:(struct mulle_allocator *) allocator
 {
    _fileData          = data;
    _fileDataAllocator = allocator;
-   _fileEncoding      = UIImageDataEncodingFromMulleData( data);
-   
+   _fileEncoding      = UIImageDataEncodingFromCData( data);
+
    return( self);
 }
 
 
-- (instancetype) initWithFileMulleData:(struct mulle_data) data
+- (instancetype) initWithFileCData:(struct mulle_data) data
                          sharingObject:(id) sharingObject
 {
    _fileDataSharingObject = [sharingObject retain];
-   return( [self initWithFileMulleData:data
+   return( [self initWithFileCData:data
                              allocator:NULL]);
 }
 
 
-enum UIImageDataEncoding   UIImageDataEncodingFromMulleData(struct mulle_data data)
+enum UIImageDataEncoding   UIImageDataEncodingFromCData(struct mulle_data data)
 {
    // could be more clever...
    if( data.length > 4 && ! strncmp( data.bytes, "<svg", 4))
@@ -45,7 +45,7 @@ enum UIImageDataEncoding   UIImageDataEncodingFromMulleData(struct mulle_data da
 
 	fp = fopen( filename, "r");
 	if( ! fp)
-   { 
+   {
       [self release];
       return( nil);
    }
@@ -59,17 +59,17 @@ enum UIImageDataEncoding   UIImageDataEncodingFromMulleData(struct mulle_data da
    fclose( fp);
 
    if( actual_length != data.length)
-   { 
+   {
       [self release];
       return( nil);
    }
 
-   return( [self initWithFileMulleData:data
-                             allocator:allocator]);   
+   return( [self initWithFileCData:data
+                             allocator:allocator]);
 }
 
 
-- (void) dealloc 
+- (void) dealloc
 {
    if( _fileDataAllocator)
       mulle_allocator_free( _fileDataAllocator, _fileData.bytes);
@@ -79,7 +79,7 @@ enum UIImageDataEncoding   UIImageDataEncodingFromMulleData(struct mulle_data da
 }
 
 
-- (struct mulle_data) mulleData
+- (struct mulle_data) cData
 {
    return( _fileData);
 }
@@ -88,7 +88,7 @@ enum UIImageDataEncoding   UIImageDataEncodingFromMulleData(struct mulle_data da
 - (void) clearData
 {
    if( _fileDataAllocator)
-      mulle_allocator_free( _fileDataAllocator, _fileData.bytes);	
+      mulle_allocator_free( _fileDataAllocator, _fileData.bytes);
    _fileData = mulle_data_make( 0, 0);
 }
 

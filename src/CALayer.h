@@ -44,7 +44,7 @@ struct CAAnimationOptions;
 
 // non-observable
 @property BOOL       hidden;
-@property char       *cStringName;
+@property char       *debugNameCString;  // useful for debugging
 
 // return YES if you changed transform or scissor
 @property BOOL       (*drawContentsCallback)( CALayer *layer,

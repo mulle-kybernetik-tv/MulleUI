@@ -8,7 +8,7 @@
 enum UIImageDataEncoding
 {
    UIImageDataEncodingUnknown = 0,
-   UIImageDataEncodingRGBA,    // unwrapped and uncompressed 
+   UIImageDataEncodingRGBA,    // unwrapped and uncompressed
    UIImageDataEncodingPNG,
    UIImageDataEncodingJPG,
    UIImageDataEncodingBMP,
@@ -21,21 +21,21 @@ enum UIImageDataEncoding
 // If you want to load decoded bitmap data, use MulleBitmapImage
 // directly (see BitmapBytes method)
 //
-@interface UIImage : NSObject 
+@interface UIImage : NSObject
 {
    id                             _fileDataSharingObject;
    struct mulle_data              _fileData;
    struct mulle_allocator        *_fileDataAllocator;
-   enum UIImageDataEncoding       _fileEncoding; 
+   enum UIImageDataEncoding       _fileEncoding;
 }
 
 // if allocator is NULL, data will not be freed
 // otherwise allocator will be used to free. Use &mulle_allocator_stdlib
 // for malloced data
-- (instancetype) initWithFileMulleData:(struct mulle_data) data
+- (instancetype) initWithFileCData:(struct mulle_data) data
                              allocator:(struct mulle_allocator *) allocator;
-// data belongs to sharingObject, which will be retained                     
-- (instancetype) initWithFileMulleData:(struct mulle_data) data
+// data belongs to sharingObject, which will be retained
+- (instancetype) initWithFileCData:(struct mulle_data) data
                          sharingObject:(id) sharingObject;
 
 - (instancetype) initWithContentsOfFileWithFileRepresentationString:(char *) filename;
@@ -46,13 +46,13 @@ enum UIImageDataEncoding
 - (int) textureIDWithContext:(CGContext *) context;
 
 //
-// Textures (images) in NVG can be created with different flags, for example 
-// REPEAT_X andREPEAT_Y. When we are asking the CGContext for a textureID 
+// Textures (images) in NVG can be created with different flags, for example
+// REPEAT_X andREPEAT_Y. When we are asking the CGContext for a textureID
 // for an image this will create such a NVG texture. As the context cashes the
 // textureID for each UIImage it's simplest to store the nvgImageFlags here
 // (readonly) and to clone UIImages for different flags. The actual image
 // data can be shared w/o a problem. The default is 0:
-// 
+//
 - (int) nvgImageFlags;
 
 //
@@ -63,8 +63,8 @@ enum UIImageDataEncoding
 - (UIImage *) imageWithNVGImageFlags:(int) flags;
 
 - (enum UIImageDataEncoding) fileEncoding;
-// TODO: rename to fileData or mulleFileData or so
-- (struct mulle_data) mulleData;
+// TODO: rename to fileData or cFileData or so
+- (struct mulle_data) cData;
 
 @end
 
@@ -77,4 +77,4 @@ enum UIImageDataEncoding
 @end
 
 
-enum UIImageDataEncoding   UIImageDataEncodingFromMulleData(struct mulle_data data);
+enum UIImageDataEncoding   UIImageDataEncodingFromCData(struct mulle_data data);

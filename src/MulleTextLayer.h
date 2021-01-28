@@ -15,18 +15,24 @@ typedef enum CATextLayerAlignmentMode
    // kCAAlignmentNatural,
 } CATextLayerAlignmentMode;
 
+char   *CATextLayerAlignmentModeCStringDescription( enum CATextLayerAlignmentMode mode);
+
 
 #define kCAAlignmentLeft    CAAlignmentLeft
 #define kCAAlignmentRight   CAAlignmentRight
 #define kCAAlignmentCenter  CAAlignmentCenter
-  
+
 typedef enum MulleTextLayerVerticalAlignmentMode
 {
    MulleTextVerticalAlignmentMiddle = 0,  // default
+   MulleTextVerticalAlignmentBaseline,
+   MulleTextVerticalAlignmentBoundsMiddle,      // only for single line
    MulleTextVerticalAlignmentTop,
    MulleTextVerticalAlignmentBottom
 } MulleTextLayerVerticalAlignmentMode;
 
+
+char   *MulleTextLayerVerticalAlignmentModeCStringDescription( enum MulleTextLayerVerticalAlignmentMode mode);
 
 struct MulleTextLayerRowGlyphs
 {
@@ -36,7 +42,7 @@ struct MulleTextLayerRowGlyphs
 };
 
 
-typedef enum NSLineBreakMode 
+typedef enum NSLineBreakMode
 {
    NSLineBreakByClipping,
    NSLineBreakByWordWrapping
@@ -49,8 +55,8 @@ static inline void   _MulleTextLayerRowGlyphsInit( struct MulleTextLayerRowGlyph
 {
    _mulle_structarray_init( &p->glyphArray, sizeof( NVGglyphPosition),
                                             alignof( NVGglyphPosition),
-                                            0, 
-                                            allocator); 
+                                            0,
+                                            allocator);
    p->glyphs  = 0;
    p->nGlyphs = 0;
 }
@@ -59,21 +65,21 @@ static inline void   _MulleTextLayerRowGlyphsInit( struct MulleTextLayerRowGlyph
 static inline void   MulleTextLayerRowGlyphsDone( struct MulleTextLayerRowGlyphs *p)
 {
    if( p)
-      _mulle_structarray_done( &p->glyphArray); 
+      _mulle_structarray_done( &p->glyphArray);
 }
 
 
 // search for 'x' position in row glyphs
 NSUInteger   MulleNVGglyphPositionSearch( NVGglyphPosition *glyphs,
-                                          NSUInteger nGlyphs, 
+                                          NSUInteger nGlyphs,
                                           CGFloat x);
 
 //
 // Though the MulleTextLayer can do multiple lines, the number of lines it
-// can usefully do is restricted. It chiefly does it for the sake of 
+// can usefully do is restricted. It chiefly does it for the sake of
 // UILabel, which gives it multiple lines in a "cString" separated by '\n'
-// It is not suitable for text with more than a screenful of lines. This is 
-// because it has no scrolling smarts and because it expensively recalculates 
+// It is not suitable for text with more than a screenful of lines. This is
+// because it has no scrolling smarts and because it expensively recalculates
 // all the glyphs of the text.
 //
 @interface MulleTextLayer  : CALayer
@@ -84,14 +90,17 @@ NSUInteger   MulleNVGglyphPositionSearch( NVGglyphPosition *glyphs,
    struct mulle_utf8data           _data;
 	struct mulle_structarray        _rowArray;
    NVGtextRow                      *_rows;
-   NSUInteger                      _nRows;   
+   NSUInteger                      _nRows;
 
-	struct mulle_structarray        _rowGlyphArray; 
+	struct mulle_structarray        _rowGlyphArray;
    struct MulleTextLayerRowGlyphs  *_rowGlyphs;
 
    CGPoint                         _origin;
    CGFloat                         _lineh;
+   CGFloat                         _ascender;
+   CGFloat                         _descender;
    NSUInteger                      _startSelection;
+   float                           _textBounds[ 4];
 
    enum MulleTextLayerVerticalAlignmentMode   _verticalAlignmentMode;
 }
@@ -105,14 +114,14 @@ NSUInteger   MulleNVGglyphPositionSearch( NVGglyphPosition *glyphs,
 // returned data is zero terminated but does not show it in length
 - (struct mulle_utf8data) UTF8Data;
 
-- (char *) cString;  
+- (char *) cString;
 - (void) setCString:(char *) s;
 
 //
 // The selection of the UTF8 characters: the selection must not
 // split graphemes and combined emoji. But MulleTextLayer won't check that.
 //
-@property( assign) NSRange          selection; 
+@property( assign) NSRange          selection;
 @property( observable) CGColorRef   selectionColor;
 @property( observable) CGColorRef   textColor;
 @property( observable) CGPoint      textOffset; // in pixels
@@ -131,8 +140,13 @@ NSUInteger   MulleNVGglyphPositionSearch( NVGglyphPosition *glyphs,
 // cursor position as row/column
 @property( assign) struct MulleIntegerPoint          cursorPosition;
 
--(enum MulleTextLayerVerticalAlignmentMode)  mulleVerticalAlignmentMode;
--(void) mulleSetVerticalAlignmentMode:(enum MulleTextLayerVerticalAlignmentMode) mode;
+- (CGFloat) fontAscender;
+- (CGFloat) fontDescender;
+- (CGFloat) fontLineHeight;
+- (void) getFontTextBounds:(CGFloat [4]) bounds;
+
+- (enum MulleTextLayerVerticalAlignmentMode)  mulleVerticalAlignmentMode;
+- (void) mulleSetVerticalAlignmentMode:(enum MulleTextLayerVerticalAlignmentMode) mode;
 
 - (NSUInteger) characterIndexForPoint:(CGPoint) point;
 

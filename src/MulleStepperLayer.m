@@ -8,7 +8,7 @@
 @implementation MulleStepperLayer : CALayer
 
 
-- (void) setName:(char *) s
+- (void) setFontNameCString:(char *) s
 {
    MulleObjCObjectSetDuplicatedCString( self, &_fontName, s);
 }
@@ -20,12 +20,12 @@
 }
 
 
-- (void) dealloc 
+- (void) dealloc
 {
    MulleObjCObjectDeallocateMemory( self, _fontName);
    MulleObjCObjectDeallocateMemory( self, _cString);
 
-   [super dealloc]; 
+   [super dealloc];
 }
 
 
@@ -57,10 +57,10 @@
 
    // draw surrounding box and the divider
    nvgBeginPath( vg);
-   nvgRoundedRect( vg, frame.origin.x, 
-                       frame.origin.y, 
-                       frame.size.width - strokeWidth, 
-                       frame.size.height - strokeWidth, 
+   nvgRoundedRect( vg, frame.origin.x,
+                       frame.origin.y,
+                       frame.size.width - strokeWidth,
+                       frame.size.height - strokeWidth,
                        2.0);
 
    midX = frame2.origin.x - strokeWidth / 2.0;
@@ -72,8 +72,8 @@
 
    // draw two text labels in each side
 
-   font = [context fontWithName:_fontName ? _fontName : "sans"];
-   name = [font name];  // get actual name, which could have different address
+   font = [context fontWithNameCString:_fontName ? _fontName : "sans"];
+   name = [font nameCString];  // get actual name, which could have different address
 
    fontPixelSize = [self fontPixelSize];
    if( fontPixelSize == 0.0)

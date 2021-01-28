@@ -12,7 +12,7 @@
 #import "MulleScrollIndicatorView.h"
 
 
-// #define LAYOUT_DEBUG    
+// #define LAYOUT_DEBUG
 // #define EVENT_DEBUG
 // #define MOMENTUM_DEBUG
 
@@ -22,7 +22,7 @@
 #define SCROLLER_OFFSET_END_ALONE	SCROLLER_WIDTH
 
 
-@implementation UIScrollView 
+@implementation UIScrollView
 
 // UICollectionView wants to use a different view here
 + (UIView *) mulleScrollContentsViewWithFrame:(CGRect) frame
@@ -30,7 +30,7 @@
    UIScrollContentView   *view;
 
    view = [[[UIScrollContentView alloc] initWithFrame:frame] autorelease];
-   [view setCStringName:"ScrollViewContentView"];
+   [view setDebugNameCString:"ScrollViewContentView"];
    return( view);
 }
 
@@ -49,10 +49,10 @@
    _showsHorizontalScrollIndicator = YES;
    _showsVerticalScrollIndicator   = YES;
 
-/* 
+/*
    the code depends on the layout being called before the render at least
    once
- */ 
+ */
    frame.origin = CGPointZero;
    frame.size   = [layer frame].size;
 
@@ -86,12 +86,12 @@
 	bounds = [_contentView bounds];
 #ifdef LAYOUT_DEBUG
 	fprintf( stderr, "bounds %s -> ", CGRectCStringDescription( bounds));
-#endif   
+#endif
 	bounds.origin.x = -offset.x;
 	bounds.origin.y = -offset.y;
 #ifdef LAYOUT_DEBUG
 	fprintf( stderr, "%s\n", CGRectCStringDescription( bounds));
-#endif   
+#endif
 	[_contentView setBounds:bounds];
 }
 
@@ -123,7 +123,7 @@
 	return( _verIndicatorView);
 }
 
-- (CGRect) clampedContentViewBounds:(CGRect) bounds 
+- (CGRect) clampedContentViewBounds:(CGRect) bounds
 {
    CGRect   frame;
    CGRect   oldBounds;
@@ -157,7 +157,7 @@
 }
 
 
-- (CGPoint) clampedContentOffset:(CGPoint) offset 
+- (CGPoint) clampedContentOffset:(CGPoint) offset
 {
 	CGPoint   newOffset;
    CGSize    contentSize;
@@ -174,11 +174,11 @@
 }
 
 
-- (void) scrollContentOffsetBy:(CGPoint) diff 
+- (void) scrollContentOffsetBy:(CGPoint) diff
 {
 	CGPoint   offset;
 	CGPoint   newOffset;
-      
+
    offset      = [self contentOffset];
 	newOffset.x = offset.x + diff.x;
 	newOffset.y = offset.y + diff.y;
@@ -209,12 +209,12 @@
    // diff is 0        : friction is 1
    // diff is 0.5/60.0 : friction is (1-0.95) * diff + 0.95
    // diff is 1.0/60.0 : friction is 0.95
-   // diff is 2.0/60.0 : friction is (1-0.95) * diff + 0.95 
+   // diff is 2.0/60.0 : friction is (1-0.95) * diff + 0.95
 
-   diff     = diff / HZ60; 
+   diff     = diff / HZ60;
    friction = 1 - (1 - DRAGFACTOR) * diff;
 
-   _momentum.x *= friction;  
+   _momentum.x *= friction;
    _momentum.y *= friction;
    if( fabs( _momentum.x) < 0.01)
       _momentum.x = 0.0;
@@ -223,16 +223,16 @@
 
 #ifdef MOMENTUM_DEBUG
    if( _momentum.x != 0.0 || _momentum.y != 0.0)
-      fprintf( stderr, "momentum: %.2f,%.2f [d:%.4f f:%.4f] @%.4f\n", 
-                                    _momentum.x, _momentum.y, 
+      fprintf( stderr, "momentum: %.2f,%.2f [d:%.4f f:%.4f] @%.4f\n",
+                                    _momentum.x, _momentum.y,
                                     diff, friction,
                                     CAAbsoluteTimeNow());
-#endif                                    
+#endif
    _momentumTimestamp = now;
 
 	offset      = [self contentOffset];
 
-   newOffset.x = offset.x + _momentum.x; 
+   newOffset.x = offset.x + _momentum.x;
    newOffset.y = offset.y + _momentum.y;
 
    if( ! CGPointEqualToPoint( offset, newOffset))
@@ -287,7 +287,7 @@
 }
 
 
-- (void) willAnimateWithAbsoluteTime:(CAAbsoluteTime) now 
+- (void) willAnimateWithAbsoluteTime:(CAAbsoluteTime) now
 {
    [self applyMomentumToContentWithAbsoluteTime:now];
    [self setupIndicatorViews];
@@ -295,7 +295,7 @@
 
 
 // TODO: if there is only a vertical indicator, enlarge it so that it takes
-//       up empty space otherwise used by the horizontal indicator 
+//       up empty space otherwise used by the horizontal indicator
 - (void) layoutSubviews
 {
 	CGRect         bounds;
@@ -312,7 +312,7 @@
 
 #ifdef LAYOUT_DEBUG
    fprintf( stderr, "%s %s bounds: %s\n",
-   					__PRETTY_FUNCTION__, 
+   					__PRETTY_FUNCTION__,
                   [self cStringDescription],
                   CGRectCStringDescription( bounds));
 #endif
@@ -339,7 +339,7 @@
 
 #ifdef LAYOUT_DEBUG
    fprintf( stderr, "%s %s bounds: %s\n",
-   					__PRETTY_FUNCTION__, 
+   					__PRETTY_FUNCTION__,
                   [_horIndicatorView cStringDescription],
                   CGRectCStringDescription( horFrame));
 #endif
@@ -353,7 +353,7 @@
 
 #ifdef LAYOUT_DEBUG
    fprintf( stderr, "%s %s bounds: %s\n",
-   					__PRETTY_FUNCTION__, 
+   					__PRETTY_FUNCTION__,
                   [_verIndicatorView cStringDescription],
                   CGRectCStringDescription( verFrame));
 #endif
@@ -361,7 +361,7 @@
 }
 
 
-- (void) scrollRectToVisible:(CGRect) rect 
+- (void) scrollRectToVisible:(CGRect) rect
                     animated:(BOOL) animated
 {
 }

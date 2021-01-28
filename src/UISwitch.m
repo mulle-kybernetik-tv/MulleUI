@@ -3,7 +3,7 @@
 #import "MulleCheckboxLayer.h"
 
 
-@implementation UISwitch 
+@implementation UISwitch
 
 - (id) initWithFrame:(CGRect) frame
 {
@@ -14,12 +14,12 @@
 }
 
 
-- (void) setCStringName:(char *) s 
+- (void) setDebugNameCString:(char *) s
 {
    // ignore
 }
 
-- (void) setState:(UIControlState) state 
+- (void) setState:(UIControlState) state
 {
    MulleCheckboxLayer  *layer;
 
@@ -27,7 +27,7 @@
       return;
 
    _state = state;
-  
+
    layer = (MulleCheckboxLayer *) _mainLayer;
    [layer setChecked:[self isSelected]];
 }
@@ -36,7 +36,7 @@
 {
    // I think calling this too often is not good, as it does too much
    assert( ! [self isFirstResponder]);
-      
+
    if( [super becomeFirstResponder])
    {
       [self mulleToggleSelectedState];

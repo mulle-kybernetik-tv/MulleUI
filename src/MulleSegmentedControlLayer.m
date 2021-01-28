@@ -39,8 +39,8 @@
    return( self->_n);
 }
 
-- (void) insertSegmentWithTitleCString:(char *) title 
-                               atIndex:(NSUInteger) segment 
+- (void) insertSegmentWithTitleCString:(char *) title
+                               atIndex:(NSUInteger) segment
                               animated:(BOOL )animated
 {
    NSUInteger               size;
@@ -63,8 +63,8 @@
       self->_size = size;
    }
 
-   memmove( &self->_segments[ segment + 1], 
-            &self->_segments[ segment], 
+   memmove( &self->_segments[ segment + 1],
+            &self->_segments[ segment],
             (self->_n - segment) * sizeof( struct MulleUISegment));
 
    self->_segments[ segment].title   = mulle_allocator_strdup( allocator, title);
@@ -73,9 +73,9 @@
    self->_segments[ segment].backgroundColor = [self backgroundColor];
    self->_segments[ segment].selectionBackgroundColor = [self selectedSegmentTintColor];
    self->_n++;
-}                         
+}
 
-- (void) setContentOffset:(CGSize) offset 
+- (void) setContentOffset:(CGSize) offset
         forSegmentAtIndex:(NSUInteger) segment
 {
    if( segment >= self->_n)
@@ -84,7 +84,7 @@
    self->_segments[ segment].offset = offset;
 }
 
-- (void) setBackgroundColor:(CGColorRef) color 
+- (void) setBackgroundColor:(CGColorRef) color
           forSegmentAtIndex:(NSUInteger) segment
 {
    if( segment >= self->_n)
@@ -155,7 +155,7 @@
 - (void) deselectSegmentAtIndex:(NSUInteger) index
 {
    if( index >= self->_n)
-      abort();   
+      abort();
    _segments[ index].isSelected = NO;
 }
 
@@ -183,7 +183,7 @@
 }
 
 
-- (NSUInteger) segmentIndexAtPoint:(CGPoint) point 
+- (NSUInteger) segmentIndexAtPoint:(CGPoint) point
 {
    NSUInteger   i;
 
@@ -238,8 +238,8 @@ static inline int   is_only_segment( NSUInteger i, NSUInteger n)
    struct NVGcontext   *vg;
    NSUInteger          i;
    CGColorRef          color;
-   MulleEdgeInsets        insets;
-   
+   MulleEdgeInsets     insets;
+
    if( ! _n)
       return( NO);
 
@@ -273,9 +273,9 @@ static inline int   is_only_segment( NSUInteger i, NSUInteger n)
 
          nvgFillColor( vg, color);
 
-         topLeftRadius     = 
+         topLeftRadius     =
          topRightRadius    =
-         bottomRightRadius = 
+         bottomRightRadius =
          bottomLeftRadius  = 0.0;
 
          if( is_first_segment( i, _n))
@@ -283,11 +283,11 @@ static inline int   is_only_segment( NSUInteger i, NSUInteger n)
          else
             if( is_last_segment( i, _n))
                topRightRadius = bottomRightRadius = _cornerRadius;
-      
+
          nvgBeginPath( vg);
-         nvgRoundedRectVarying( vg, _segments[ i].frame.origin.x, 
-                      _segments[ i].frame.origin.y, 
-                      _segments[ i].frame.size.width, 
+         nvgRoundedRectVarying( vg, _segments[ i].frame.origin.x,
+                      _segments[ i].frame.origin.y,
+                      _segments[ i].frame.size.width,
                       _segments[ i].frame.size.height,
                       topLeftRadius,
                       topRightRadius,
@@ -302,10 +302,10 @@ static inline int   is_only_segment( NSUInteger i, NSUInteger n)
    //
    {
       nvgBeginPath( vg);
-      nvgRoundedRect( vg, frame.origin.x, 
-                          frame.origin.y, 
-                          frame.size.width, 
-                          frame.size.height, 
+      nvgRoundedRect( vg, frame.origin.x,
+                          frame.origin.y,
+                          frame.size.width,
+                          frame.size.height,
                            _cornerRadius);
    }
 
@@ -331,8 +331,8 @@ static inline int   is_only_segment( NSUInteger i, NSUInteger n)
    // draw text labels in each segment
    //
    {
-      font = [context fontWithName:_fontName ? _fontName : "sans"];
-      name = [font name];  // get actual name, which could have different address
+      font = [context fontWithNameCString:_fontName ? _fontName : "sans"];
+      name = [font nameCString];  // get actual name, which could have different address
 
       fontPixelSize = [self fontPixelSize];
       if( fontPixelSize == 0.0)
@@ -355,8 +355,8 @@ static inline int   is_only_segment( NSUInteger i, NSUInteger n)
          nvgTextColor( vg, [self textColor], color); // TODO: use textColor
 
          // center screen in the middle, for that we specify the center point
-      	nvgText( vg, _segments[i].frame.origin.x + (_segments[ i].offset.width * 2)  + _segments[i].frame.size.width / 2.0, 
-                      _segments[i].frame.origin.y + (_segments[ i].offset.height * 2) + _segments[i].frame.size.height / 2.0, 
+      	nvgText( vg, _segments[i].frame.origin.x + (_segments[ i].offset.width * 2)  + _segments[i].frame.size.width / 2.0,
+                      _segments[i].frame.origin.y + (_segments[ i].offset.height * 2) + _segments[i].frame.size.height / 2.0,
                       _segments[ i].title, NULL);
       }
    }

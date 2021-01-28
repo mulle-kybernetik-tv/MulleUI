@@ -1,9 +1,17 @@
+#define _GNU_SOURCE // for strrchr
 #import "UIFont.h"
 
 #import "CGFont.h"
 
 
 @implementation UIFont
+
+
++ (instancetype) fontWithNameCString:(char *) name
+{
+   return( [self fontWithNameCString:name
+                                size:12.0]);
+}
 
 
 + (instancetype) fontWithNameCString:(char *) name 

@@ -10,6 +10,7 @@
 
 #define DISCLOSURE_WIDTH  24.0
 
+
 @implementation MullePopUpButton
 
 #define T_MARGIN   5
@@ -23,8 +24,8 @@
    double         borderWidth;
 
    borderWidth = [_titleBackgroundLayer borderWidth];
-   insets      = UIEdgeInsetsMake( borderWidth / 2 + T_MARGIN, 
-                                   borderWidth / 2 + L_MARGIN, 
+   insets      = UIEdgeInsetsMake( borderWidth / 2 + T_MARGIN,
+                                   borderWidth / 2 + L_MARGIN,
                                    borderWidth / 2 + B_MARGIN,
                                    borderWidth / 2 + R_MARGIN);
 
@@ -32,7 +33,7 @@
 }
 
 
-/* Selection and highlight colors are currently hardcoded in 
+/* Selection and highlight colors are currently hardcoded in
  * UIButton+UIResponder.
  */
 - (CALayer *) mulleDisclosureLayerWithFrame:(CGRect) frame
@@ -43,19 +44,19 @@
    CGRect          rect;
 
    layer = [CAShapeLayer layerWithFrame:frame];
-   
+
    path  = CGPathCreate( MulleObjCInstanceGetAllocator( self));
 
    rect.origin      = frame.origin;
-   rect.size.width  = DISCLOSURE_WIDTH; 
+   rect.size.width  = DISCLOSURE_WIDTH;
    rect.size.height = frame.size.height;
 
-   rect = [self mulleInsetDisclosureTriangleWithFrame:rect]; 
+   rect = [self mulleInsetDisclosureTriangleWithFrame:rect];
 
    CGPathMoveToPoint( path, NULL, CGRectGetMinX( rect), rect.origin.y);
-   CGPathAddLineToPoint( path, NULL, CGRectGetMidX( rect), 
+   CGPathAddLineToPoint( path, NULL, CGRectGetMidX( rect),
                                      rect.origin.y + rect.size.height);
-   CGPathAddLineToPoint( path, NULL, CGRectGetMaxX( rect), 
+   CGPathAddLineToPoint( path, NULL, CGRectGetMaxX( rect),
                                      rect.origin.y);
    CGPathCloseSubpath( path);
 
@@ -70,7 +71,7 @@
    [layer setStrokeColor:[_titleBackgroundLayer borderColor]];
    [layer setFillColor:getNVGColor( 0x3F1F1FFF)];
 
-   [layer setCStringName:"UIButton disclosureLayer"];
+   [layer setDebugNameCString:"UIButton disclosureLayer"];
    return( layer);
 }
 
@@ -86,10 +87,9 @@
    rect.size.width  = DISCLOSURE_WIDTH;
    rect.size.height = frame.size.height;
    _disclosureLayer = [self mulleDisclosureLayerWithFrame:frame];
-  
+
    [self addLayer:_disclosureLayer];
 }
-
 
 
 - (CGRect) mulleInsetTextLayerFrameWithFrame:(CGRect) frame
@@ -111,11 +111,18 @@
    [_disclosureLayer setFrame:frame];
 }
 
-- (void) setTitlesCStrings:(char **) titles 
+
+- (void) setTitlesCStrings:(char **) titles
                      count:(NSUInteger) count
 {
    _titles      = titles;
    _titlesCount = count;
+}
+
+
+- (MulleMenuButton *) clickedButton
+{
+   return( _clickedButton);
 }
 
 @end

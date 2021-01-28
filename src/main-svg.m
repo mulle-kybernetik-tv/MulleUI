@@ -38,7 +38,7 @@ static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
    fprintf( stderr, "tigerSVGImage: %p\n", tigerSVGImage);
 
    tigerLayer = [[[MulleSVGLayer alloc] initWithSVGImage:tigerSVGImage] autorelease];
-   [tigerLayer setCStringName:"tiger"];
+   [tigerLayer setDebugNameCString:"tiger"];
    fprintf( stderr, "layer: %p\n", tigerLayer);
 
    [tigerLayer setFrame:CGRectZero];
@@ -56,7 +56,7 @@ static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
 //   [yoga setMarginTop:YGPercentValue( 5.0)];
    [yoga setEnabled:YES];
    [yoga setWidth:YGPercentValue( 100.0)];
-   [yoga setHeight:YGPercentValue( 100.0)]; 
+   [yoga setHeight:YGPercentValue( 100.0)];
    [view setNeedsLayout];
 
    yoga = [contentPlane yoga];
@@ -74,7 +74,7 @@ int  main()
    UIApplication   *application;
 
       /*
-       * window and app 
+       * window and app
        */
    mulle_testallocator_initialize();
    mulle_default_allocator = mulle_testallocator;
@@ -106,6 +106,6 @@ int  main()
          ./kitchen/Debug/calculator
    */
 
-   mulle_testallocator_reset();   
+   mulle_testallocator_reset();
   }
 

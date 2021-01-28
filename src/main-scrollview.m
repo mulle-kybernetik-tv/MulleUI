@@ -118,7 +118,7 @@ int   main()
 
    // BUTTON IN SCROLLVIEW
    buttonLayer = [[[MulleImageLayer alloc] initWithImage:turtleBitmap] autorelease];
-   // [buttonLayer setCStringName:"button"];
+   // [buttonLayer setDebugNameCString:"button"];
    frame.origin       = CGPointMake( 0.0 * SCALE, 0.0 * SCALE);
    frame.size.width   = 320 * SCALE * 10;
    frame.size.height  = 200 * SCALE * 10;

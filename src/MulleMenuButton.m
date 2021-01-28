@@ -23,7 +23,7 @@
    [layer setBorderWidth:1.0];
    [layer setBorderColor:getNVGColor( 0x7F7FFFFF)];
    [layer setCornerRadius:0.0];
-   [layer setCStringName:"UIButton titleBackgroundLayer"];
+   [layer setDebugNameCString:"UIButton titleBackgroundLayer"];
    return( layer);
 }
 

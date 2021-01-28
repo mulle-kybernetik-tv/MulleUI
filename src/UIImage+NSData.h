@@ -14,7 +14,8 @@
 
 @interface UIImage( NSData)
 
-+ (instancetype) imageWithData:(NSData *) data;
-- (instancetype) initWithData:(NSData *) data;
+// FileData is kept as read/only
++ (instancetype) imageWithFileData:(NSData *) data;
+- (instancetype) initWithFileData:(NSData *) data;
 
 @end

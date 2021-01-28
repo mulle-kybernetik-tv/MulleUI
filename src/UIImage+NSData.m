@@ -11,14 +11,14 @@
 
 - (instancetype) initWithFileData:(NSData *) data
 {
-   return( [self initWithFileMulleData:[data mulleData]
+   return( [self initWithFileCData:[data cData]
                           sharingObject:data]);
 }
 
 + (instancetype) imageWithFileData:(NSData *) data
 {
-   return( [[[self alloc] initWithFileMulleData:[data mulleData]
-                                  sharingObject:data] autorelease]);
+   return( [[[self alloc] initWithFileCData:[data cData]
+                              sharingObject:data] autorelease]);
 }
 
 @end

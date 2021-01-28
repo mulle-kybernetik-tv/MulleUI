@@ -28,8 +28,7 @@
 //
 // forward this action to our target/action and clickHandler customers
 // because we don't have an event, we send "nil"
-// We forward the menubutton as the sender, ATM. This is wrong the receiver
-// should ask the MullePopUpButton for the selected title or value...
+// The sender is the actual button clicked, not the menu
 //
 - (void) menuButtonClicked:(id) sender
 {
@@ -37,18 +36,22 @@
    SEL                    sel;
    MulleMenu              *menu;
 
-   click = [self click];
-   if( click)
-      (*click)( sender, nil);
-
-   if( (sel = [self action]))
+   _clickedButton = sender;
    {
-      [[self target] performSelector:sel
-                          withObject:sender];
+      click = [self click];
+      if( click)
+         (*click)( self, nil);
+
+      if( (sel = [self action]))
+      {
+         [[self target] performSelector:sel
+                           withObject:self];
+      }
    }
+   _clickedButton = nil;
 
    menu = [self menu];
-   [menu setHidden:YES];   
+   [menu setHidden:YES];
 }
 
 

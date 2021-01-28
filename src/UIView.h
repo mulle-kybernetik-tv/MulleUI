@@ -22,32 +22,32 @@ struct MulleFrameInfo;
 // the main layer which is bottom-most defines the geometry
 // the UIView must have a mainLayer which is responsible for the "background"
 // other layers are composited on top of it
-// Then the subviews are drawn/composited on those (these are scaled and 
+// Then the subviews are drawn/composited on those (these are scaled and
 // transformed)
 //
 struct MulleClickDragDifferentiator
 {
    CARelativeTime   _mouseMotionSuppressionDelay;  // config value
 
-   CAAbsoluteTime   _suppressUntilTimestamp; 
+   CAAbsoluteTime   _suppressUntilTimestamp;
 };
 
 //
 // This is restricted to h/v resizing to indicate flexibility
-// The MulleUIViewAutoresizingStop preempts recursive autoresize by 
+// The MulleUIViewAutoresizingStop preempts recursive autoresize by
 // the layouter.
-// 
+//
 enum UIViewAutoresizing
-{   
+{
    UIViewAutoresizingNone                 = 0x00,
    UIViewAutoresizingFlexibleWidth        = 0x10,
    UIViewAutoresizingFlexibleHeight       = 0x20,
    MulleUIViewAutoresizingIgnoreMargins   = 0x40,
-   MulleUIViewAutoresizingStickToTop      = 0x100,   
-   MulleUIViewAutoresizingStickToBottom   = 0x200,  
-   MulleUIViewAutoresizingStickToLeft     = 0x400,  
-   MulleUIViewAutoresizingStickToRight    = 0x800,  
-   MulleUIViewAutoresizingStickToCenter   = 0xF00  
+   MulleUIViewAutoresizingStickToTop      = 0x100,
+   MulleUIViewAutoresizingStickToBottom   = 0x200,
+   MulleUIViewAutoresizingStickToLeft     = 0x400,
+   MulleUIViewAutoresizingStickToRight    = 0x800,
+   MulleUIViewAutoresizingStickToCenter   = 0xF00
 };
 
 typedef NSUInteger   UIViewAutoresizing;
@@ -72,10 +72,10 @@ enum UILayoutStrategy
    // ivars for Yoga
    id <NSArray,NSFastEnumeration>   _subviewsArrayProxy;
    YGLayout                         *_yoga;
-   
+
    struct MulleTrackingAreaArray    _trackingAreas;
 
-   MulleImageLayer                  *_cacheLayer; 
+   MulleImageLayer                  *_cacheLayer;
 
    struct MulleClickDragDifferentiator  _clickOrDrag;
 }
@@ -87,16 +87,16 @@ enum UILayoutStrategy
 @property BOOL   needsLayout;   // use setNeedsLayout for marking
 @property BOOL   needsCaching;
 @property BOOL   needsDisplay;  // a NOP for compatiblity
-                 
+
 @property CGFloat              alpha;
-@property UIViewAutoresizing   autoresizingMask; 
+@property UIViewAutoresizing   autoresizingMask;
 // used with autoresizingMask. Check conflict with contentInsets (not the same)
-@property UIEdgeInsets         margins; 
+@property UIEdgeInsets         margins;
 
 // possibly UIStackView should store this in an array of its own,
 // but then it has to sync with removeFromSubviews: but here the view
 // should clear itself, if added to a superview...
-@property CGSize               mulleLayoutSize; // used by UIStackView and other layouters to remember the original size 
+@property CGSize               mulleLayoutSize; // used by UIStackView and other layouters to remember the original size
 
 - (void) setNeedsDisplay;
 - (void) setNeedsCaching;  // wipes the _cacheLayer and asks for a new one to be drawn
@@ -119,7 +119,7 @@ enum UILayoutStrategy
 
 - (CALayer *) layer;
 
-- (void) addSubviewsIntersectingRect:(CGRect) rect 
+- (void) addSubviewsIntersectingRect:(CGRect) rect
                       toPointerArray:(struct mulle_pointerarray *) views
               invertIntersectionTest:(BOOL) flag;
 
@@ -134,11 +134,13 @@ enum UILayoutStrategy
 - (NSInteger) getLayers:(CALayer **) buf
                  length:(NSUInteger) length;
 - (NSInteger) getSubviews:(UIView **) buf
-                   length:(NSUInteger) length;           
+                   length:(NSUInteger) length;
 
 - (UIWindow *) window;
-- (UIView *) mulleWindowPlane; // window plane a view resides in 
+- (UIView *) mulleWindowPlane; // window plane a view resides in
 - (UIView *) superview;
+
+- (CGFloat) pixelsPerInchOfPrimaryMonitor;
 
 // UNUSED ??
 - (CGRect) clipRect;
@@ -147,7 +149,7 @@ enum UILayoutStrategy
 
 - (void) updateRenderCachesWithContext:(CGContext *) context
                              frameInfo:(struct MulleFrameInfo *) info;
-                             
+
 // view must be part of window view hierarchy, for these function to work
 // properly
 - (struct MulleTrackingArea *) addTrackingAreaWithRect:(CGRect) rect
@@ -173,7 +175,7 @@ enum UILayoutStrategy
 - (void) setBounds:(CGRect) rect;
 - (CGRect) frame;
 
-// resist the temptation to call [self setNeedsLayout:YES] in setFrame: 
+// resist the temptation to call [self setNeedsLayout:YES] in setFrame:
 // as this will lead to unwanted recursion
 - (void) setFrame:(CGRect) rect;
 
@@ -185,8 +187,8 @@ enum UILayoutStrategy
 - (CGColorRef) borderColor;
 - (CGFloat) borderWidth;
 - (CGFloat) cornerRadius;
-- (char *) cStringName;
-- (void) setCStringName:(char *) s;
+- (char *) debugNameCString;
+- (void) setDebugNameCString:(char *) s;
 
 @end
 
@@ -195,6 +197,6 @@ enum UILayoutStrategy
 @interface UIView( Internals)
 
 - (struct mulle_pointerarray *) _layers;
-- (struct mulle_pointerarray *) _subviews; 
+- (struct mulle_pointerarray *) _subviews;
 
 @end

@@ -78,12 +78,13 @@ int   main()
          frame.origin.y   = 10;
 
          textField = [[[UITextField alloc] initWithFrame:frame] autorelease];
-         [textField setCString:"TextField"];
+         [textField setCString:"TextFyeld"];
          // TODO: this is apparently ignored!!! why ?? (because the prototype
          //       was missing!)
          [textField setFontPixelSize:60.0];
          [textField setCursorPosition:MulleIntegerPointMake( 2, 0)];
          [textField setAlignmentMode:CAAlignmentRight];
+         [textField mulleSetVerticalAlignmentMode:MulleTextVerticalAlignmentBottom];
          [textField setEditable:YES];
 #if 0      
          [textField setTextOffset:CGPointMake( 80.0, 0.0)];

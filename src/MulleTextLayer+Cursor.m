@@ -15,6 +15,13 @@
    *p_cursor = _cursorPosition;
 }
 
+// ------------------------------
+// 
+//
+//
+// -------------------------------
+//
+// -------------------------------
 
 - (void) drawCursorWithNVGContext:(NVGcontext *) vg
                               row:(NSUInteger) i
@@ -23,6 +30,8 @@
    struct MulleTextLayerRowGlyphs   *p;
    NSUInteger                       x;
    CGPoint                          offset;
+   CGFloat                          h;
+   CGFloat                          y;
 
    if( MulleIntegerPointGetRow( _cursorPosition) != i)
       return;
@@ -35,15 +44,22 @@
    if( x <= p->nGlyphs)
    {
       offset.x = p->glyphs[ x].x;
+      h = _lineh;
+      y = 0.0f;
+      if( h >= 8.0f)
+      {
+         h -= 2;
+         y  = 1;
+      }
       offset.y = -(_lineh / 2); // depends on alignment, really, use middle here
          
       nvgBeginPath( vg);
       nvgFillColor( vg, nvgRGBA(255,0,0,255));
       nvgRect( vg, 
                frame.origin.x + _origin.x + offset.x - 0.5, 
-               frame.origin.y + _origin.y + offset.y, 
+               frame.origin.y + _origin.y - _ascender + y, 
                1, 
-               _lineh);
+               h);
       nvgFill( vg);
    }
 }

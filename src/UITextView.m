@@ -22,7 +22,7 @@
 
 @implementation UITextView
 
-- (instancetype) initWithLayer:(CALayer *) layer 
+- (instancetype) initWithLayer:(CALayer *) layer
 {
    self = [super initWithLayer:layer];
    if( self)
@@ -31,7 +31,7 @@
 }
 
 
-- (void) finalize 
+- (void) finalize
 {
    [_textStorage autorelease];
    _textStorage = nil;
@@ -58,8 +58,8 @@
 }
 
 //
-// As we will only display a part of the MulleTextStorage in the future, 
-// there is no 
+// As we will only display a part of the MulleTextStorage in the future,
+// there is no
 // clean way to reconstitute the original from the storages in MulleTextLayer
 // and the image layers.
 // But we can update parts of MulleTextStorage with the contents.
@@ -74,7 +74,7 @@
    struct mulle_utf8data                 utf8data;
    NSData                                *data;
 
-   // we aren't really doing layout of subviews here, but it seems to be 
+   // we aren't really doing layout of subviews here, but it seems to be
    // a good time for setting selection and cursor
 
    textLayerClass = [MulleTextLayer class];
@@ -84,14 +84,14 @@
    rover = mulle_pointerarray_enumerate( _layers);
    while( _mulle_pointerarrayenumerator_next( &rover, (void **) &layer))
    {
-      if( [layer isKindOfClass:textLayerClass]) 
+      if( [layer isKindOfClass:textLayerClass])
       {
          textLayer = (MulleTextLayer *) layer;
          utf8data  = [textLayer UTF8Data];
-         data      = [NSData dataWithMulleData:mulle_utf8data_as_data( utf8data)];
+         data      = [NSData dataWithCData:mulle_utf8data_as_data( utf8data)];
          [_textStorage replaceObjectAtIndex:offset
                                  withObject:data];
-      }   
+      }
       offset++;
    }
    _mulle_pointerarrayenumerator_done( &rover);
@@ -102,8 +102,8 @@
 {
    // mainlayer stays
    mulle_pointerarray_release_all( _layers);
-   mulle_pointerarray_reset( _layers);   
-} 
+   mulle_pointerarray_reset( _layers);
+}
 
 
 - (void) reflectTextStorage
@@ -148,13 +148,13 @@
          }
 
          layerFrame.size     = [image size];
-         layerFrame.origin.x = textViewFrame.origin.x + 
+         layerFrame.origin.x = textViewFrame.origin.x +
                                (textViewFrame.size.width - layerFrame.size.width) / 2.0;
       }
       else
       {
          textLayer = [[[MulleTextLayer alloc] initWithFrame:CGRectZero] autorelease];
-         [textLayer setUTF8Data:mulle_data_as_utf8data( [line mulleData])];
+         [textLayer setUTF8Data:mulle_data_as_utf8data( [line cData])];
          [textLayer setFontPixelSize:20.0];
          [textLayer setBackgroundColor:[UIColor yellowColor]];
          [textLayer setTextBackgroundColor:[UIColor yellowColor]];
@@ -167,8 +167,8 @@
       }
 
       [layer setFrame:layerFrame];
-    
-      [self addLayer:layer];  
+
+      [self addLayer:layer];
    }
 }
 
@@ -181,7 +181,7 @@
 
 //
 // If the textStorage changes, this will mean that the selection is invalid
-// as it could be splitting UTF8 seqeuences. If the whole textStorage is 
+// as it could be splitting UTF8 seqeuences. If the whole textStorage is
 // replaced, it will be very, very hard to keep a selection alive.
 //
 - (void) reflectSelection
@@ -196,8 +196,8 @@
    NSRange                               intersection;
    MulleTextLayer                        *textLayer;
    MulleImageLayer                       *imageLayer;
-   
-   // we aren't really doing layout of subviews here, but it seems to be 
+
+   // we aren't really doing layout of subviews here, but it seems to be
    // a good time for setting selection and cursor
 
    textLayerClass = [MulleTextLayer class];
@@ -207,7 +207,7 @@
    rover = mulle_pointerarray_enumerate( _layers);
    while( _mulle_pointerarrayenumerator_next( &rover, (void **) &layer))
    {
-      if( [layer isKindOfClass:textLayerClass]) 
+      if( [layer isKindOfClass:textLayerClass])
       {
          textLayer    = (MulleTextLayer *) layer;
          length       = [textLayer UTF8Data].length;
@@ -219,16 +219,16 @@
             intersection.location = 0;
          [textLayer setSelection:intersection];
          offset += length;
-      }   
+      }
       else
       {
          // MulleSVGLayer is compatible with MulleImageLayer with regard to
          // selection
          imageLayer   = (MulleImageLayer *) layer;
          [imageLayer setSelected:NSLocationInRange( offset, _selection)];
-         offset += 1;         
+         offset += 1;
          // MulleSVGLayer or MulleImageLayer
-      }  
+      }
    }
    _mulle_pointerarrayenumerator_done( &rover);
 }
@@ -244,7 +244,7 @@
    NSUInteger                            row;
    NSRange                               layerRange;
    NSRange                               intersection;
-   
+
    row   = 0;
    rover = mulle_pointerarray_enumerate( _layers);
    while( _mulle_pointerarrayenumerator_next( &rover, (void **) &layer))
@@ -254,7 +254,7 @@
          [layer setEditable:YES];
          [layer setCursorPosition:MulleIntegerPointMake( _cursorPosition.x, 0)];
       }
-      else  
+      else
          [layer setEditable:NO];
       row += 1;
    }
@@ -283,7 +283,7 @@
 }
 
 
-- (CALayer *) layerAtRow:(NSUInteger) row 
+- (CALayer *) layerAtRow:(NSUInteger) row
 {
    CALayer     *layer;
    NSUInteger  n;
@@ -303,7 +303,7 @@
 }
 
 
-- (NSUInteger) rowOfLayer:(CALayer *) search 
+- (NSUInteger) rowOfLayer:(CALayer *) search
 {
    struct mulle_pointerarrayenumerator   rover;
    CALayer                               *layer;
@@ -316,7 +316,7 @@
       if( layer == search)
          break;
 
-      row += 1;         
+      row += 1;
    }
    _mulle_pointerarrayenumerator_done( &rover);
 
@@ -324,7 +324,7 @@
 }
 
 
-- (NSUInteger) offsetOfLayer:(CALayer *) search 
+- (NSUInteger) offsetOfLayer:(CALayer *) search
 {
    struct mulle_pointerarrayenumerator   rover;
    NSUInteger                            length;
@@ -342,16 +342,16 @@
       if( layer == search)
          break;
 
-      if( [layer isKindOfClass:textLayerClass]) 
+      if( [layer isKindOfClass:textLayerClass])
       {
          textLayer = (MulleTextLayer *) layer;
          length    = [textLayer UTF8Data].length;
          offset   += length;
-      }   
+      }
       else
       {
-         offset += 1;         
-      }  
+         offset += 1;
+      }
    }
    _mulle_pointerarrayenumerator_done( &rover);
 
@@ -378,7 +378,7 @@
    offset = [self offsetOfLayer:layer];
    i     += offset;
 
-   _startSelection = i;   
+   _startSelection = i;
    [self setSelection:NSMakeRange( i, 0)];  // memorize start
 
  //  [layer setBackgroundColor:[UIColor redColor]];
@@ -403,12 +403,12 @@
    i     += offset;
 
    // is cursor to the left ?
-   if( i <= _startSelection)  
+   if( i <= _startSelection)
       [self setSelection:NSMakeRange( i, _startSelection - i)];
    else
       [self setSelection:NSMakeRange( _startSelection, i - _startSelection)];
 #if 0
-   fprintf( stderr, "Selection: %.*s (%ld, %ld)\n", 
+   fprintf( stderr, "Selection: %.*s (%ld, %ld)\n",
          (int) _selection.length, &_data.characters[ _selection.location],
          (long) _selection.location,
          (long) _selection.length);

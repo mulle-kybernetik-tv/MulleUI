@@ -54,6 +54,8 @@
 
 
 - (id) initWithFrame:(CGRect) frame
+        titleCString:(char *) title
+           styleMask:(NSUInteger) styleMask
 {
    _primaryMonitorPPI = [UIWindow primaryMonitorPPI];
    if( _primaryMonitorPPI == 0.0)
@@ -63,7 +65,9 @@
       return( nil);
    }
 
-   _window = [self os_createWindowWithFrame:frame];
+   _window = [self os_createWindowWithFrame:frame
+                               titleCString:title
+                                  styleMask:styleMask];
    if( ! _window)
    {
       [self release];
@@ -83,28 +87,30 @@
    frame.origin = CGPointZero;
 
    _contentPlane = [[[UIView alloc] initWithFrame:frame] autorelease];
-   [_contentPlane setCStringName:"Window/ContentPlane"];
+   [_contentPlane setDebugNameCString:"Window/ContentPlane"];
    [self addSubview:_contentPlane];
 
    _toolTipPlane = [[[UIView alloc] initWithFrame:frame] autorelease];
-   [_toolTipPlane setCStringName:"Window/ToolTipPlane"];
+   [_toolTipPlane setDebugNameCString:"Window/ToolTipPlane"];
    [self addSubview:_toolTipPlane];
    [_toolTipPlane setHidden:YES];
 
    _menuPlane = [[[UIView alloc] initWithFrame:frame] autorelease];
-   [_menuPlane setCStringName:"Window/MenuPlane"];
+   [_menuPlane setDebugNameCString:"Window/MenuPlane"];
    [self addSubview:_menuPlane];
    [_menuPlane setHidden:YES];
 
    _dragAndDropPlane = [[[UIView alloc] initWithFrame:frame] autorelease];
-   [_dragAndDropPlane setCStringName:"Window/DragAndDropPlane"];
+   [_dragAndDropPlane setDebugNameCString:"Window/DragAndDropPlane"];
    [self addSubview:_dragAndDropPlane];
    [_dragAndDropPlane setHidden:YES];
 
    _alertPlane = [[[UIView alloc] initWithFrame:frame] autorelease];
-   [_alertPlane setCStringName:"Window/AlertPlane"];
+   [_alertPlane setDebugNameCString:"Window/AlertPlane"];
    [_alertPlane setHidden:YES];
    [self addSubview:_alertPlane];
+
+   _renderContextLock = [NSLock new];
 
    _scrollWheelSensitivity = 20.0;
 
@@ -113,6 +119,25 @@
    [self os_initEvents];
 
    return( self);
+}
+
+
+- (id) initWithFrame:(CGRect) frame
+{
+   return( [self initWithFrame:frame
+                     styleMask:0]);
+}
+
+
+- (CGContext *) createContext 
+{
+   CGContext  *context;
+
+   [self os_startRender];
+   context = [CGContext object];
+   [self os_endRender];
+
+   return( context);
 }
 
 
@@ -135,6 +160,8 @@
 
    mulle_quadtree_destroy( _quadtree);
 
+   [_renderContextLock release];
+
    // TODO: delete window ?
    [super dealloc];
 }
@@ -155,10 +182,12 @@
    return( 1.0);
 }
 
+
 - (void) addLayer:(CALayer *) layer
 {
    abort();
 }
+
 
 - (void) getFrameInfo:(struct MulleFrameInfo *) info
 {
@@ -167,7 +196,7 @@
    assert( info);
 
    // glfwGetWindowContentScale( _window, &scale_x, &scale_y);
-   scale_x = 1.0; 
+   scale_x = 1.0;
    scale_y = 1.0;
 
    info->frame           = _frame;
@@ -218,7 +247,7 @@
 // d) the glitch looks like the buffer is cleared and then not swapped
 //
 - (void) renderFrameWithContext:(CGContext *) context
-                      frameInfo:(struct MulleFrameInfo *) info 
+                      frameInfo:(struct MulleFrameInfo *) info
 {
    struct timespec   diff;
    struct timespec   start;
@@ -239,9 +268,17 @@
       CAAbsoluteTime   renderTime;
 
       renderTime = CAAbsoluteTimeWithTimespec( start);
+
+      if( _willAnimateCallback)
+         (*_willAnimateCallback)( self, context, info, renderTime);
+
+      // this must run before layouting
       [self willAnimateWithAbsoluteTime:renderTime];
 
-      // do this before the animation step, as this will generate animations
+      if( _willLayoutCallback)
+         (*_willLayoutCallback)( self, context, info, renderTime);
+
+      // do layout before the animation step, as this will generate animations
 #if LAYOUT_ANIMATIONS
       [self startLayoutWithFrameInfo:info];
 #endif
@@ -250,7 +287,14 @@
 #if LAYOUT_ANIMATIONS
       [self endLayout];
 #endif
+
+      if( _didLayoutCallback)
+         (*_didLayoutCallback)( self, context, info, renderTime);
+
       [self animateWithAbsoluteTime:renderTime];
+
+      if( _didAnimateCallback)
+         (*_didAnimateCallback)( self, context, info, renderTime);
    }
 
 #ifdef PRINTF_PROFILE_LAYOUT
@@ -278,8 +322,8 @@
       [context startRenderWithFrameInfo:info];
       [self renderWithContext:context];
 
-      if( _drawWindowCallback)
-         (*_drawWindowCallback)( self, context, info);
+      if( _didRenderCallback)
+         (*_didRenderCallback)( self, context, info);
 
       [context endRender];
    }
@@ -297,7 +341,9 @@
 }
 
 
+// 0 is forever
 - (void) renderLoopWithContext:(CGContext *) context
+             maxFramesToRender:(NSUInteger) maxFrames
 {
    struct MulleFrameInfo         info;
    struct timespec               diff;
@@ -306,7 +352,12 @@
    struct timespec               sleep;
    long                          nsperframe;
    CGRect                        oldFrame;
+   NSUInteger                    frames;
 
+   // take renderlock here, relinquish later when wating for events
+   // or when someone closes the window
+
+   [self os_startRender];
    [self os_setSwapInterval:0];  // need for smooth pointer/control sync
 
    // should check the monitor where the window is on really
@@ -328,9 +379,14 @@
 
    oldFrame           = _frame;
    info.isPerfEnabled = YES;
+   frames             = 0;
 
    while( ! [self os_windowShouldClose])
    {
+      if( maxFrames && frames == maxFrames)
+         break;
+      ++frames;
+
       [self getFrameInfo:&info];  // retrieve newest geometry
       [self renderFrameWithContext:context
                          frameInfo:&info];
@@ -338,20 +394,11 @@
       [self os_swapBuffers];
       _didRender++;
 
-#ifdef DEBUG
-      if( ! CGRectEqualToRect( _frame, oldFrame))
-      {
-         [self dump];
-         oldFrame = _frame;
-      }
-#endif
-
 #ifdef ADD_RANDOM_LAG
       sleep.tv_sec  = 0.0;
       sleep.tv_nsec = nsperframe / 10 * (rand() % 100);
       nanosleep( &sleep, NULL);
 #endif
-
       //
       // GL_COLOR_BUFFER_BIT brauchen wir, wenn wir nicht selber per
       // Hand abschnittsweise löschen
@@ -360,6 +407,15 @@
       //
       // glClearColor( 1.0 - _didRender / 120.0, 1.0 - _didRender / 120.0, 1.0 - _didRender / 240.0, 0.0f );
       [context clearFramebuffer];
+      [self os_endRender];
+
+#ifdef DEBUG
+      if( ! CGRectEqualToRect( _frame, oldFrame))
+      {
+         [self dump];
+         oldFrame = _frame;
+      }
+#endif
 
 #ifdef PRINTF_PROFILE_RENDER
       clock_gettime( CLOCK_REALTIME, &end);
@@ -372,6 +428,7 @@
       clock_gettime( CLOCK_REALTIME, &start);
       printf( "@%ld:%09ld events start\n", start.tv_sec, start.tv_nsec);
 #endif
+
 
       /*
        * Event handling
@@ -392,9 +449,19 @@
       printf( "@%ld:%09ld events end, elapsed : %09ld\n", end.tv_sec, end.tv_nsec,
                                                   diff.tv_sec ? 999999999 : diff.tv_nsec);
 #endif
+      [self os_startRender];
 
    }
+   [self os_endRender];
+
    [self dump];
+}
+
+
+- (void) renderLoopWithContext:(CGContext *) context
+{
+   [self renderLoopWithContext:context 
+             maxFramesToRender:0];
 }
 
 
@@ -445,7 +512,7 @@
 //
 // callbacks from window events (via GLFW)
 //
-- (void) _windowResizeCallback:(CGSize) size 
+- (void) _windowResizeCallback:(CGSize) size
 {
 #ifdef CALLBACK_DEBUG
    fprintf( stderr, "%s %s\n", __PRETTY_FUNCTION__, [self cStringDescription]);
@@ -453,7 +520,7 @@
 }
 
 
-- (void) _framebufferResizeCallback:(CGSize) size 
+- (void) _framebufferResizeCallback:(CGSize) size
 {
    CGRect   frame;
 
@@ -498,7 +565,6 @@
    [self setFrame:frame];
    [self setNeedsLayout:YES];
 }
-
 
 @end
 

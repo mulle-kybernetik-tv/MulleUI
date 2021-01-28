@@ -153,6 +153,16 @@ struct MulleFrameInfo
 // other textures around. Each frame is encloded in a
 // startRender and an endRender. frames can't be nested.
 //
+// A window can deal in theory with multiple contexts... 
+// The glfw window is necessary to the set the current OpenGL context. 
+// Therefore there is a 1:1 relationship between a context and a window. A
+// thread can have multiple contexts though. But each context needs to be
+// switched in and out. This is done with [UIWindow os_startRender]. The 
+// nanovg context is tied to the OpenGL context. Effectively you have to 
+// enclose drawing calls and OpenGL state calls with 
+// os_startRender/os_endRender. This is locking, so that there is no
+// accidental switching.
+//
 @interface CGContext : NSObject
 {
 	struct NVGcontext            *_vg;
@@ -180,8 +190,13 @@ struct MulleFrameInfo
 
 - (CAAbsoluteTime) renderStartTimestamp;
 
-// this will retain the image to maintain an internal mapping of
-// image to textureID
+//
+// Maintain an internal mapping of image to textureID, the textureID is
+// only valid for the duration of the CGContext. An UIImage that has been
+// registered should unregister before dieing, because it's address might
+// be reused. Also the texture leaks...
+// TODO: can't have UIImage HERE. Must be CGImage
+//
 - (int) registerTextureIDForImage:(UIImage *) image;
 - (void) unregisterTextureIDForImage:(UIImage *) image;
 
@@ -191,7 +206,7 @@ struct MulleFrameInfo
 
 - (MulleTextureImage *) framebufferImageWithBitmapSize:(struct mulle_bitmap_size) size
                                                options:(NSUInteger) options;
-- (void) removeFramebufferImage:(UIImage *) image;
+- (void) removeFramebufferImage:(MulleTextureImage *) image;
 
 @end
 

@@ -13,7 +13,7 @@ struct mulle_allocator    stbi_allocator;  // no contents
 + (void) initialize
 {
 	stbi_set_unpremultiply_on_load(1);
-	stbi_convert_iphone_png_to_rgb(1);   
+	stbi_convert_iphone_png_to_rgb(1);
 }
 
 
@@ -22,11 +22,11 @@ struct mulle_allocator    stbi_allocator;  // no contents
 // here bytes is a loaded stbi_image already (?)
 // so we don't have any fileData!
 //
-- (instancetype) initWithConstRGBA:(const void *) bytes 
+- (instancetype) initWithConstRGBA:(const void *) bytes
                         bitmapSize:(struct mulle_bitmap_size) bitmapSize
 {
    _image = (void *) bytes;
-	if( ! _image) 
+	if( ! _image)
    {
       [self release];
       return( nil);
@@ -36,11 +36,11 @@ struct mulle_allocator    stbi_allocator;  // no contents
    _bitmapSize    = bitmapSize;
 
 	return( self);
-}    
+}
 
 
 // here bytes is a loaded stbi_image already (?)
-- (instancetype) initWithConstRGBA:(const void *) bytes 
+- (instancetype) initWithConstRGBA:(const void *) bytes
                         bitmapSize:(mulle_bitmap_size) bitmapSize
                      nvgImageFlags:(int) flags
 {
@@ -49,10 +49,10 @@ struct mulle_allocator    stbi_allocator;  // no contents
    if( self)
       _nvgImageFlags = flags;
    return( self);
-} 
+}
 
 
-- (instancetype) initWithRGBAMulleData:(struct mulle_data) data 
+- (instancetype) initWithRGBACData:(struct mulle_data) data
                             bitmapSize:(mulle_bitmap_size) bitmapSize
                              allocator:(struct mulle_allocator *) allocator
                          nvgImageFlags:(int) flags
@@ -68,10 +68,10 @@ struct mulle_allocator    stbi_allocator;  // no contents
    }
 
    return( self);
-} 
+}
 
 
-enum UIImageDataEncoding   MulleBitmapImageDataEncodingFromMulleData(struct mulle_data data)
+enum UIImageDataEncoding   MulleBitmapImageDataEncodingFromCData(struct mulle_data data)
 {
    // can't do this, because stbi__context is unavailable as are the
    // various test methods
@@ -81,12 +81,12 @@ enum UIImageDataEncoding   MulleBitmapImageDataEncodingFromMulleData(struct mull
    uint8_t          *start;
    uint8_t          *end;
 
-   if( data.length > sizeof( png_header) && 
+   if( data.length > sizeof( png_header) &&
       ! memcmp( data.bytes, png_header, sizeof( png_header)))
-   {      
+   {
       return( UIImageDataEncodingPNG);
    }
-   
+
    // https://stackoverflow.com/questions/4550296/how-to-identify-contents-of-a-byte-is-a-jpeg
    if( data.length > 4)
    {
@@ -106,7 +106,7 @@ enum UIImageDataEncoding   MulleBitmapImageDataEncodingFromMulleData(struct mull
 }
 
 
-- (instancetype) initWithFileMulleData:(struct mulle_data) data 
+- (instancetype) initWithFileCData:(struct mulle_data) data
                              allocator:(struct mulle_allocator *) allocator
 {
    int   w;
@@ -114,29 +114,29 @@ enum UIImageDataEncoding   MulleBitmapImageDataEncodingFromMulleData(struct mull
    int   n;
 
 	_image = stbi_load_from_memory( data.bytes, (int) data.length, &w, &h, &n, 4);
-	if( ! _image || ! w || ! h || ! n) 
+	if( ! _image || ! w || ! h || ! n)
    {
       [self release];
       return( nil);
    }
 
-   self = [super initWithFileMulleData:data
+   self = [super initWithFileCData:data
                              allocator:allocator];
 
    _bitmapSize.size.width      = w;
    _bitmapSize.size.height     = h;
    _bitmapSize.colorComponents = n;
 
-   _fileEncoding = MulleBitmapImageDataEncodingFromMulleData( data);
+   _fileEncoding = MulleBitmapImageDataEncodingFromCData( data);
 
 	return( self);
 }
 
-- (instancetype) initWithFileMulleData:(struct mulle_data) data 
+- (instancetype) initWithFileCData:(struct mulle_data) data
                              allocator:(struct mulle_allocator *) allocator
                          nvgImageFlags:(int) flags
 {
-   self = [self initWithFileMulleData:data
+   self = [self initWithFileCData:data
                             allocator:allocator];
    if( self)
       _nvgImageFlags = flags;
@@ -150,7 +150,7 @@ enum UIImageDataEncoding   MulleBitmapImageDataEncodingFromMulleData(struct mull
    self = [self initWithContentsOfFileWithFileRepresentationString:filename];
    if( self)
       _nvgImageFlags = flags;
- 
+
 	return( self);
 }
 

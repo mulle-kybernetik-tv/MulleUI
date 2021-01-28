@@ -16,26 +16,14 @@
 }
 
 
-- (void) setCStringName:(char *) s
-{
-   // ignore
-}
-
 - (CGFloat) fontSize
 {
    MulleTextLayer  *layer;
    CGFloat         pixelsize;
    CGFloat         ppi;
-   UIWindow        *window;
 
-   layer  = (MulleTextLayer *) _mainLayer;
-   window = [self window];
-   if( window)
-      ppi = [window primaryMonitorPPI];
-   else
-      ppi = [UIWindow primaryMonitorPPI];   
-   if( ! ppi)
-      ppi = 100;
+   layer     = (MulleTextLayer *) _mainLayer;
+   ppi       = [self pixelsPerInchOfPrimaryMonitor];
    pixelsize = [layer fontPixelSize];
    return( pixelsize * 72.0 / ppi);
 }
@@ -45,18 +33,32 @@
 {
    MulleTextLayer  *layer;
    CGFloat         ppi;
-   UIWindow        *window;
 
    layer  = (MulleTextLayer *) _mainLayer;
-   window = [self window];
-   if( window)
-      ppi = [window primaryMonitorPPI];
-   else
-      ppi = [UIWindow primaryMonitorPPI];
-   if( ! ppi)
-      ppi = 100;
+   ppi    = [self pixelsPerInchOfPrimaryMonitor];
    // pixel per inch, points are 1/72 inch
    [layer setFontPixelSize:points * ppi / 72.0];
+}
+
+
+- (void) setFont:(UIFont *) font
+{
+   CGFloat         ppi;
+   MulleTextLayer  *layer;
+
+   layer  = (MulleTextLayer *) _mainLayer;
+   [layer setFontName:[font fontName]];
+   // TODO: figure out pointSize vs pixelSize
+   ppi = [self pixelsPerInchOfPrimaryMonitor];
+   [layer setFontPixelSize:[font pointSize] / 72.0 * ppi];
+}
+
+
+- (UIFont *) font
+{
+   // TODO: figure out pointSize vs pixelSize
+   return( [UIFont fontWithNameCString:[self fontName]
+                                  size:[self fontPixelSize]]);
 }
 
 
@@ -70,21 +72,6 @@
    return( mulle_objc_object_call_variablemethodid_inline( _mainLayer,
                                                     (mulle_objc_methodid_t) _cmd,
                                                     param));
-}
-
-
-- (void) setFont:(UIFont *) font
-{
-   [self setFontName:[font fontName]];
-   // TODO: figure out pointSize vs pixelSize
-   [self setFontPixelSize:[font pointSize]];
-}
-
-- (UIFont *) font
-{
-   // TODO: figure out pointSize vs pixelSize
-   return( [UIFont fontWithNameCString:[self fontName]
-                                  size:[self fontPixelSize]]);
 }
 
 @end

@@ -38,8 +38,8 @@ static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
    assert( frame.size.width  > 0.0);
 
    rootView  = [[[UIStackView alloc] initWithFrame:CGRectZero] autorelease];
-   [rootView setCStringName:"RootView"];
-   [rootView setBackgroundColor:getNVGColor( 0xFFFF00FF)]; 
+   [rootView setDebugNameCString:"RootView"];
+   [rootView setBackgroundColor:getNVGColor( 0xFFFF00FF)];
    [rootView setAutoresizingMask:UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth];
    [rootView setAxis:UILayoutConstraintAxisVertical];
    [rootView setDistribution:UIStackViewDistributionFillEqually];
@@ -67,7 +67,7 @@ static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
       //
       [stackView setDistribution:j];
       [stackView setContentInsets:UIEdgeInsetsMake( 10, 10, 10, 10)];
-      [stackView setCStringName:"stackView"];
+      [stackView setDebugNameCString:"stackView"];
       [stackView setAlignment:UIStackViewAlignmentCenter];
       [stackView setAxis:UILayoutConstraintAxisHorizontal];
 
@@ -104,7 +104,7 @@ int  main()
    UIApplication   *application;
 
       /*
-       * window and app 
+       * window and app
        */
 
    /* move singleton outside of test allocator code */
@@ -140,6 +140,6 @@ int  main()
          ./kitchen/Debug/calculator
    */
 
-   mulle_testallocator_reset();   
+   mulle_testallocator_reset();
 }
 

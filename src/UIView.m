@@ -327,6 +327,30 @@
 }
 
 
+- (BOOL) respondsToSelector:(SEL) sel
+{
+   if( [super respondsToSelector:sel])
+      return( YES);
+   return( [_mainLayer respondsToSelector:sel]);
+}
+
+
+- (CGFloat) pixelsPerInchOfPrimaryMonitor
+{
+   CGFloat     ppi;
+   UIWindow   *window;
+
+   window = [self window];
+   if( window)
+      ppi = [window primaryMonitorPPI];
+   else
+      ppi = [UIWindow primaryMonitorPPI];
+   if( ! ppi)
+      ppi = 100.0f;
+   return( ppi);
+}
+
+
 //// conveniences
 //- (void) setBackgroundColor:(CGColorRef) color
 //{
@@ -400,7 +424,7 @@
    sprintf( buf, "%p",  self);
 
    format = "<%s %s>";
-   name   = [_mainLayer cStringName];
+   name   = [_mainLayer debugNameCString];
    len    = name ? strlen( name) : 0;
    if( len)
    {
@@ -551,6 +575,8 @@
    CGRect          clipRect;
    CGFloat         alpha;
 
+   assert( context);
+   
    frame = [self frame];
    if( frame.size.width <= 0.0 || frame.size.height <= 0.0)
    {
@@ -850,7 +876,7 @@
    bitmapSize.colorComponents = 4;
 
    image = [context framebufferImageWithBitmapSize:bitmapSize
-                                            options:options];
+                                           options:options];
    if( ! image)
       return( image);
 

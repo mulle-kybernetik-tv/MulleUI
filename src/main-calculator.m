@@ -37,8 +37,8 @@ static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
    assert( frame.size.width  > 0.0);
 
    rootView  = [[[UIView alloc] initWithFrame:CGRectZero] autorelease];
-   [rootView setCStringName:"RootView"];
-   [rootView setBackgroundColor:getNVGColor( 0xFFFF00FF)]; 
+   [rootView setDebugNameCString:"RootView"];
+   [rootView setBackgroundColor:getNVGColor( 0xFFFF00FF)];
    yoga = [rootView yoga];
    [yoga setEnabled:YES];
    [yoga setWidth:YGPercentValue(100.0)];
@@ -47,8 +47,8 @@ static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
 
    // LCD Display container
    displayView  = [[[UIView alloc] initWithFrame:CGRectZero] autorelease];
-   [displayView setBackgroundColor:getNVGColor( 0xFF7F7FFF)]; 
-   [displayView setCStringName:"DisplayView"];
+   [displayView setBackgroundColor:getNVGColor( 0xFF7F7FFF)];
+   [displayView setDebugNameCString:"DisplayView"];
 
    yoga = [displayView yoga];
    [yoga setEnabled:YES];
@@ -57,14 +57,14 @@ static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
    [yoga setMarginLeft:YGPointValue( 10.0)];
    [yoga setMarginTop:YGPointValue( 10.0)];
    [yoga setMarginRight:YGPointValue( 10.0)];
-   [yoga setMarginBottom:YGPointValue( 0.0)];   
-  
+   [yoga setMarginBottom:YGPointValue( 0.0)];
+
    [rootView addSubview:displayView];
 
    // Keyboard container
    keyboardView = [[[UIView alloc] initWithFrame:CGRectZero] autorelease];
    [keyboardView setBackgroundColor:getNVGColor( 0x0000FFFF)]; // blue
-   [keyboardView setCStringName:"KeyboardView"];
+   [keyboardView setDebugNameCString:"KeyboardView"];
 
    yoga = [keyboardView yoga];
    [yoga setEnabled:YES];
@@ -73,7 +73,7 @@ static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
    [yoga setMarginLeft:YGPointValue( 10.0)];
    [yoga setMarginTop:YGPointValue( 10.0)];
    [yoga setMarginRight:YGPointValue( 10.0)];
-   [yoga setMarginBottom:YGPointValue( 10.0)];   
+   [yoga setMarginBottom:YGPointValue( 10.0)];
    [yoga setFlexGrow:1.0];  // for this container
 
    // kids are layed out vertically,
@@ -95,7 +95,7 @@ static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
       frame = CGRectMake( 0, 0, 0, 0);
       rowView  = [[[UIView alloc] initWithFrame:frame] autorelease];
       [rowView setBackgroundColor:MulleColorCreateRandom( 0xFF0000FF, 0x00FFFF00)];
- 
+
       yoga = [rowView yoga];
       [yoga setEnabled:YES];
 
@@ -175,7 +175,7 @@ static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
 //         [yoga setMarginStart:YGPointValue(10.0)];
 //         [yoga setMarginEnd:YGPointValue(10.0)];
 //         [yoga setMarginHorizontal:YGPointValue(10.0)];
-//         [yoga setMarginVertical:YGPointValue(10.0)];       
+//         [yoga setMarginVertical:YGPointValue(10.0)];
 
          [rowView addSubview:view];
       }
@@ -200,7 +200,7 @@ int  main()
    UIApplication   *application;
 
       /*
-       * window and app 
+       * window and app
        */
 
    /* move singleton outside of test allocator code */
@@ -236,6 +236,6 @@ int  main()
          ./kitchen/Debug/calculator
    */
 
-   mulle_testallocator_reset();   
+   mulle_testallocator_reset();
   }
 

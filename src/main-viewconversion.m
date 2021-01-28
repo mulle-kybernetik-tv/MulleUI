@@ -15,10 +15,10 @@ static void   print( UIView *a,
                        toView:b];
    printf( "%s <%s [f:%s b:%s]> -> <%s [f:%s b:%s]> : %s\n",
       CGRectCStringDescription( rect),
-      [a cStringName],
+      [a debugNameCString],
       CGRectCStringDescription( [a frame]),
       CGRectCStringDescription( [a bounds]),
-      [b cStringName],
+      [b debugNameCString],
       CGRectCStringDescription( [b frame]),
       CGRectCStringDescription( [b bounds]),
       CGRectCStringDescription( converted));
@@ -57,9 +57,9 @@ int   main()
    [a addSubview:b];
    [b addSubview:c];
 
-   [a setCStringName:"a"];
-   [b setCStringName:"b"];
-   [c setCStringName:"c"];
+   [a setDebugNameCString:"a"];
+   [b setDebugNameCString:"b"];
+   [c setDebugNameCString:"c"];
 
    rect = CGRectMake( 0, 0, 1, 1);
 

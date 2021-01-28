@@ -23,7 +23,7 @@ static NSData   *dataByEscapingFirstCharacterOfData( NSData *obj)
    struct mulle_data   text;
    char                *escapeCode;
 
-   text = [obj mulleData];
+   text = [obj cData];
 
    switch( *(char *) text.bytes)
    {
@@ -35,15 +35,15 @@ static NSData   *dataByEscapingFirstCharacterOfData( NSData *obj)
    case '!' :
       escapeCode = "&excl;";
       length     = strlen( "&excl;");
-      break;  
-#ifdef ESCAPE_AMP   
+      break;
+#ifdef ESCAPE_AMP
    case '&' :
       escapeCode = "&amp;";
       length     = strlen( "&amp;");
       break;
 #endif
-   default : 
-      return( obj);  
+   default :
+      return( obj);
    }
 
    data = [NSMutableData dataWithBytes:escapeCode
@@ -61,7 +61,7 @@ static NSData   *dataByUnescapingFirstCharacterOfData( NSData *obj)
    struct mulle_data   text;
    char                c;
 
-   text = [obj mulleData];
+   text = [obj cData];
 
    if( *(char *) text.bytes != '&')
       return( obj);
@@ -78,7 +78,7 @@ static NSData   *dataByUnescapingFirstCharacterOfData( NSData *obj)
       length = 6;
    }
 
-#ifdef ESCAPE_AMP   
+#ifdef ESCAPE_AMP
    if( text.length >= 5 && ! strncmp( text.bytes, "&amp;", 5))
    {
       c      = '&';
@@ -121,7 +121,7 @@ static NSData   *dataByUnescapingFirstCharacterOfData( NSData *obj)
 
 
 //
-// convert minimal markdown text to internal representation 
+// convert minimal markdown text to internal representation
 //
 - (void) setTextData:(NSData *) data
 {
@@ -144,7 +144,7 @@ static NSData   *dataByUnescapingFirstCharacterOfData( NSData *obj)
    sepData = [NSData dataWithBytes:lf
                             length:lf_len];
 
-   // TODOs: 
+   // TODOs:
    ignoreText = NO;
    datas      = [data mulleComponentsSeparatedByData:sepData];
    for( obj in datas)
@@ -152,7 +152,7 @@ static NSData   *dataByUnescapingFirstCharacterOfData( NSData *obj)
       // look for ![][image_     as image marker
       // look for [image_        as image data marker
       // look for & as eca
-      text = [obj mulleData];
+      text = [obj cData];
       if( text.length >= 1)
       {
          switch( *(char *) text.bytes)
@@ -200,7 +200,7 @@ static NSData   *dataByUnescapingFirstCharacterOfData( NSData *obj)
                base64Data = [NSData dataWithBytes:s
                                            length:text.length - (s - (char *) text.bytes)];
                imageData  = [base64Data base64DecodedData];
-               image      = [MulleBitmapImage imageWithData:imageData];
+               image      = [MulleBitmapImage imageWithFileData:imageData];
                [_images addObject:image];
                continue;
             }
@@ -211,7 +211,7 @@ static NSData   *dataByUnescapingFirstCharacterOfData( NSData *obj)
                base64Data = [NSData dataWithBytes:s
                                            length:text.length - (s - (char *) text.bytes)];
                imageData  = [base64Data base64DecodedData];
-               image      = [MulleSVGImage imageWithData:imageData];
+               image      = [MulleSVGImage imageWithFileData:imageData];
                [_images addObject:image];
                continue;
             }
@@ -231,7 +231,7 @@ static NSData   *dataByUnescapingFirstCharacterOfData( NSData *obj)
 //
 - (NSData *) textData
 {
-   NSMutableData       *data;
+   NSData              *data;
    NSData              *base64Data;
    Class               imageClass;
    Class               numberClass;
@@ -257,7 +257,7 @@ static NSData   *dataByUnescapingFirstCharacterOfData( NSData *obj)
       if( [obj isKindOfClass:numberClass])
       {
          imageNr = [obj integerValue];
-         if( imageNr >= [_images count]) 
+         if( imageNr >= [_images count])
          {
             // image not there anymore (panic when debugging)
             abort();
@@ -265,13 +265,13 @@ static NSData   *dataByUnescapingFirstCharacterOfData( NSData *obj)
 
          // ![][image_%ld]
          tmp = MulleObjC_asprintf( "![][image_%ld]", (long) imageNr);
-         [textData appendBytes:tmp 
+         [textData appendBytes:tmp
                         length:strlen( tmp)];
       }
       else
       {
          NSParameterAssert( [obj isKindOfClass:[NSData class]]);
-     
+
          obj = dataByEscapingFirstCharacterOfData( obj);
          [textData appendData:obj];
       }
@@ -289,10 +289,10 @@ static NSData   *dataByUnescapingFirstCharacterOfData( NSData *obj)
       {
          // TODO: save jpg in original format as well
          tmp = MulleObjC_asprintf( "[image_%ld]: data:image/png;base64,", (long) imageNr);
-         // <base64> 
+         // <base64>
          if( [image fileEncoding] == UIImageDataEncodingPNG)
          {
-            png_data = [image mulleData];
+            png_data = [image cData];
             data     = [[[NSData alloc] mulleInitWithBytesNoCopy:png_data.bytes
                                                           length:png_data.length
                                                    sharingObject:image] autorelease];
@@ -305,13 +305,13 @@ static NSData   *dataByUnescapingFirstCharacterOfData( NSData *obj)
          assert( [image isKindOfClass:[MulleSVGImage class]]);
 
          tmp = MulleObjC_asprintf( "[image_%ld]: data:image/svg+xml;base64,", (long) imageNr);
-         // <base64> 
-         svg_data = [(MulleSVGImage *) image mulleData];
-         data     = [NSData dataWithMulleData:svg_data];
+         // <base64>
+         svg_data = [(MulleSVGImage *) image cData];
+         data     = [NSData dataWithCData:svg_data];
       }
 
       base64Data = [data base64EncodedDataWithMaxLineWidth:0];
-      [textData appendBytes:tmp 
+      [textData appendBytes:tmp
                      length:strlen( tmp)];
       [textData appendData:base64Data];
       // <nl>
@@ -324,8 +324,8 @@ static NSData   *dataByUnescapingFirstCharacterOfData( NSData *obj)
 }
 
 
-- (void) insertObject:(id) obj 
-              atIndex:(NSUInteger) index 
+- (void) insertObject:(id) obj
+              atIndex:(NSUInteger) index
 {
    NSParameterAssert( [obj isKindOfClass:[NSNumber class]] ||
                       [obj isKindOfClass:[NSData class]]);
@@ -334,8 +334,8 @@ static NSData   *dataByUnescapingFirstCharacterOfData( NSData *obj)
 }
 
 
-- (void) replaceObjectAtIndex:(id) obj 
-                      atIndex:(NSUInteger) index 
+- (void) replaceObjectAtIndex:(id) obj
+                      atIndex:(NSUInteger) index
 {
    NSParameterAssert( [obj isKindOfClass:[NSNumber class]] ||
                       [obj isKindOfClass:[NSData class]]);
@@ -344,7 +344,7 @@ static NSData   *dataByUnescapingFirstCharacterOfData( NSData *obj)
 }
 
 
-- (UIImage *) imageForNumber:(NSNumber *) nr 
+- (UIImage *) imageForNumber:(NSNumber *) nr
 {
    return( [_images objectAtIndex:[nr unsignedIntegerValue]]);
 }

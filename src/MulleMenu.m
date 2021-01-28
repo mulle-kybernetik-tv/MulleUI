@@ -73,14 +73,14 @@
       autoresizingMask:(UIViewAutoresizing) autoresizingMask
 {
    // increase size for top/down layout, later in -layout
-   // shrink size to fit   
+   // shrink size to fit
    if( view == _scrollView)
    {
       bounds.size.height = 1000000.0; // large...
       [_scrollView setContentSize:bounds.size];
    }
 
-   [super layoutSubview:view 
+   [super layoutSubview:view
                inBounds:bounds
        autoresizingMask:autoresizingMask];
 }
@@ -152,6 +152,5 @@
       [self addMenuButton:menuButton];
    }
 }
-
 
 @end

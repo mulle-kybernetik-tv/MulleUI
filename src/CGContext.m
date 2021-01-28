@@ -16,22 +16,9 @@
 
 // #define RENDER_DEBUG
 
-
 @implementation CGContext
 
-static struct mulle_container_keyvaluecallback   c_string_to_object_callback;
-
-+ (void) initialize
-{
-   c_string_to_object_callback = (struct mulle_container_keyvaluecallback)
-   {
-      .keycallback   = mulle_container_keycallback_copied_cstring,
-      .valuecallback = *MulleObjCContainerValueRetainCallback
-   };
-}
-
-
-- (void) initPerformanceCounters
+- (void) _initPerformanceCounters
 {
 	initGraph( &_perf.fps,      GRAPH_RENDER_FPS, "Frame Time");
 	initGraph( &_perf.cpuGraph, GRAPH_RENDER_MS, "CPU Time");
@@ -155,11 +142,9 @@ static char  geometryShaderSource[] =
    }
 #endif
 */
-   [self initPerformanceCounters];
-   _mulle_map_init( &_fontMap,
-                    8,
-                    &c_string_to_object_callback,
-                    MulleObjCInstanceGetAllocator( self));
+   [self _initPerformanceCounters];
+   [self _initFontCache];
+
    return( self);
 }
 
@@ -170,59 +155,10 @@ static char  geometryShaderSource[] =
 }
 
 
-- (void) _freeImages
-{
-   struct mulle__pointermapenumerator  rover;
-   struct mulle_pointerpair            *pair;
-   UIImage                             *image;
-   int                                 textureId;
-
-   if( ! _images)
-      return;
-
-   rover = mulle__pointermap_enumerate( _images);
-   while( (pair = _mulle__pointermapenumerator_next( &rover)))
-   {
-      image     = pair->key;
-      [image autorelease];
-
-      textureId = (int) (intptr_t) pair->value;
-      nvgDeleteImage( _vg, textureId);
-   }
-   mulle__pointermapenumerator_done( &rover);
-
-   _mulle__pointermap_destroy( _images, MulleObjCInstanceGetAllocator( self));
-   _images = NULL;
-}
-
-
-- (void) _freeFramebufferImages
-{
-   struct mulle_pointerarrayenumerator  rover;
-   UIImage                             *image;
-
-   rover = mulle_pointerarray_enumerate( _framebufferImages);
-   while( _mulle_pointerarrayenumerator_next( &rover, (void **) &image))
-      [image autorelease];
-   mulle_pointerarrayenumerator_done( &rover);
-
-   mulle_pointerarray_destroy( _framebufferImages);
-   _framebufferImages = NULL;
-}
-
-
-- (void) finalize
-{
-   _mulle_map_done( &_fontMap);
-
-   [self _freeImages];
-   [self _freeFramebufferImages];
-   [super finalize];
-}
-
-
 - (void) dealloc
 {
+   [self _doneFontCache];
+
 #ifdef NANOVG_GL3_IMPLEMENTATION
 	nvgDeleteGL3( _vg);
 #endif
@@ -232,6 +168,7 @@ static char  geometryShaderSource[] =
 
    [super dealloc];
 }
+
 
 - (void) clearFramebuffer
 {
@@ -280,7 +217,7 @@ static char  geometryShaderSource[] =
    	   _perf.prevt = _renderStartTimestamp;
 
          // render code want sans, so load it (now once)
-         [self fontWithName:"sans"];
+         [self fontWithNameCString:"sans"];
       }
 
       t           = _renderStartTimestamp;
@@ -441,7 +378,6 @@ static char  geometryShaderSource[] =
                                    [(MulleBitmapImage *) image bytes]);
 //   fprintf( stderr, "textureid: %d\n", textureId);
 
-   [image retain];
    _mulle__pointermap_set( _images, image, (void *) (intptr_t) textureId, allocator);
    return( textureId);
 }
@@ -461,7 +397,6 @@ static char  geometryShaderSource[] =
    textureId = (int) (intptr_t) value;
    nvgDeleteImage( _vg, textureId);
 
-   [image autorelease];
    _mulle__pointermap_remove( _images, image, MulleObjCInstanceGetAllocator( self));
 }
 
@@ -471,15 +406,15 @@ static char  geometryShaderSource[] =
 {
    MulleTextureImage   *image;
 
-   image = [[MulleTextureImage alloc] initWithBitmapSize:size
-                                                 context:self
-                                                 options:options];
+   image = [[[MulleTextureImage alloc] initWithBitmapSize:size
+                                                  context:self
+                                                  options:options] autorelease];
    if( ! image)
       return( nil);
 
+   // images are not retained!
    if( ! _framebufferImages)
       _framebufferImages = mulle_pointerarray_create( NULL);
-
    _mulle_pointerarray_add( _framebufferImages, image);
 
    return( image);
@@ -497,8 +432,64 @@ static char  geometryShaderSource[] =
    if( index == mulle_not_found_e)
       return;
 
-   [image autorelease];
    _mulle_pointerarray_set( _framebufferImages, index, NULL);
+}
+
+
+- (void) _unmapImages
+{
+   struct mulle__pointermapenumerator  rover;
+   struct mulle_pointerpair            *pair;
+   UIImage                             *image;
+   int                                 textureId;
+
+   if( ! _images)
+      return;
+
+   rover = mulle__pointermap_enumerate( _images);
+   while( (pair = _mulle__pointermapenumerator_next( &rover)))
+   {
+      // we just remove the textureIDs and wipeout the mapping
+      textureId = (int) (intptr_t) pair->value;
+      nvgDeleteImage( _vg, textureId);
+   }
+   mulle__pointermapenumerator_done( &rover);
+
+   _mulle__pointermap_destroy( _images, MulleObjCInstanceGetAllocator( self));
+   _images = NULL;
+}
+
+
+- (void) _finalizeFramebufferImages
+{
+   struct mulle_pointerarrayenumerator  rover;
+   UIImage                             *image;
+
+   if( ! _framebufferImages)
+      return;
+
+   rover = mulle_pointerarray_enumerate( _framebufferImages);
+   while( _mulle_pointerarrayenumerator_next( &rover, (void **) &image))
+   {
+      // call finalize on these as they are effectively dead now
+      [image finalize];
+   }
+   mulle_pointerarrayenumerator_done( &rover);
+
+   mulle_pointerarray_destroy( _framebufferImages);
+   _framebufferImages = NULL;
+}
+
+
+- (void) finalize
+{
+   assert( ! _isRendering);
+
+   [self _resetFontCache];
+   [self _unmapImages];
+   [self _finalizeFramebufferImages];
+
+   [super finalize];
 }
 
 @end

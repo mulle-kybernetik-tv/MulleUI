@@ -17,7 +17,7 @@
 
 
 - (instancetype) initWithNSVGImage:(struct NSVGimage *) image
-                     fileMulleData:(struct mulle_data) data
+                         fileCData:(struct mulle_data) data
                          allocator:(struct mulle_allocator *) allocator
 {
    if( ! image)
@@ -26,18 +26,18 @@
       return( nil);
    }
 
-   self = [super initWithFileMulleData:data
+   self = [super initWithFileCData:data
                              allocator:allocator];
    assert( self);
-   
+
    _NSVGImage = image;  // ownership transfer
    return( self);
 }
 
 
-- (instancetype) initWithFileMulleData:(struct mulle_data) data
+- (instancetype) initWithFileCData:(struct mulle_data) data
                             allocator:(struct mulle_allocator *) allocator
-{	
+{
    NSVGimage   *image;
    BOOL        hasZero;
    char        *tmp;
@@ -60,7 +60,7 @@
    mulle_free( tmp);
 
    self = [self initWithNSVGImage:image
-                        mulleData:data
+                        fileCData:data
                         allocator:allocator];
    return( self);
 }
@@ -76,7 +76,7 @@
 {
    nsvgDelete( _NSVGImage);
    if( _fileDataAllocator)
-      mulle_allocator_free( _fileDataAllocator, _fileData.bytes);	
+      mulle_allocator_free( _fileDataAllocator, _fileData.bytes);
    [super dealloc];
 }
 
@@ -89,12 +89,12 @@
    size.height = _NSVGImage->height;
 
 #if DEBUG
-   fprintf( stderr, "%s size= %.1f,%.1f\n", 
+   fprintf( stderr, "%s size= %.1f,%.1f\n",
                      __PRETTY_FUNCTION__,
                      size.width,
                      size.height);
-#endif                        
-   return( size);  
+#endif
+   return( size);
 }
 
 
@@ -106,7 +106,7 @@
    CGFloat    overdraw;
 
    bounds = CGRectNull;
-	for( shape = _NSVGImage->shapes; shape != NULL; shape = shape->next) 
+	for( shape = _NSVGImage->shapes; shape != NULL; shape = shape->next)
 	{
 	   if( ! (shape->flags & NSVG_FLAGS_VISIBLE))
    	   continue;
@@ -117,21 +117,21 @@
       box.size.width  = shape->bounds[ 2] - shape->bounds[ 0] + 1 + shape->strokeWidth;
       box.size.height = shape->bounds[ 3] - shape->bounds[ 1] + 1 + shape->strokeWidth;
 #if 0
-      fprintf( stderr, "+ %.1f,%.1f,%.1f,%.1f\n", 
+      fprintf( stderr, "+ %.1f,%.1f,%.1f,%.1f\n",
                         box.origin.x,
                         box.origin.y,
                         box.size.width,
                         box.size.height);
-#endif                        
+#endif
       bounds = CGRectUnion( bounds, box);
    }
-#if 0   
-   fprintf( stderr, "visibleBounds= %.1f,%.1f,%.1f,%.1f\n", 
+#if 0
+   fprintf( stderr, "visibleBounds= %.1f,%.1f,%.1f,%.1f\n",
                      bounds.origin.x,
                      bounds.origin.y,
                      bounds.size.width,
                      bounds.size.height);
-#endif                     
+#endif
    return( bounds);
 }
 

@@ -13,7 +13,7 @@ struct NSVGimage;
 }
 
 - (instancetype) initWithNSVGImage:(struct NSVGimage *) image
-                         mulleData:(struct mulle_data) data
+                         fileCData:(struct mulle_data) data
                          allocator:(struct mulle_allocator *) allocator;
 
 - (struct NSVGimage *) NSVGImage;

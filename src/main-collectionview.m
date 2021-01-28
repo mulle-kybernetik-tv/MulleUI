@@ -27,18 +27,18 @@
 #define SCALE     2.0
 
 
-@interface TextCollectionViewCell : UICollectionViewCell 
+@interface TextCollectionViewCell : UICollectionViewCell
 
 @property( assign) UILabel  *label;
 
 @end
 
 
-@implementation TextCollectionViewCell 
+@implementation TextCollectionViewCell
 
-- (id) initWithFrame:(CGRect) frame 
+- (id) initWithFrame:(CGRect) frame
 {
-   if((self = [super initWithFrame:frame])) 
+   if((self = [super initWithFrame:frame]))
    {
       _label = [[UILabel alloc] initWithFrame:frame];
       [_label setMargins:UIEdgeInsetsMake( 3, 3, 3, 3)];
@@ -72,14 +72,14 @@
 }
 
 
-- (NSInteger) collectionView:(UICollectionView *)collectionView 
+- (NSInteger) collectionView:(UICollectionView *)collectionView
       numberOfItemsInSection:(NSInteger) section
 {
    assert( section == 0);
    return( [_objects count]);
 }
 
-- (UICollectionViewCell *) collectionView:(UICollectionView *) collectionView 
+- (UICollectionViewCell *) collectionView:(UICollectionView *) collectionView
                    cellForItemAtIndexPath:(NSIndexPath *) indexPath
 {
    TextCollectionViewCell   *cell;
@@ -87,7 +87,7 @@
    id                       obj;
    char                     buf[ 64];
 
-   cell = (TextCollectionViewCell *) 
+   cell = (TextCollectionViewCell *)
             [collectionView dequeueReusableCellWithReuseIdentifier:@"whatever"
                                                       forIndexPath:indexPath];
    NSParameterAssert( [cell isKindOfClass:[TextCollectionViewCell class]]);
@@ -97,10 +97,10 @@
    [[cell label] setCString:[[obj description] UTF8String]];
    [cell setBackgroundColor:[UIColor redColor]];
 
-   sprintf( buf, "Cell %lu.%lu", 
+   sprintf( buf, "Cell %lu.%lu",
                   (unsigned long) [indexPath section],
                   (unsigned long) [indexPath item]);
-   [cell setCStringName:buf];
+   [cell setDebugNameCString:buf];
    return( cell);
 }
 
@@ -151,12 +151,12 @@ static UIEvent   *remove_button_callback( UIButton *button, UIEvent *event)
 
    indexes = [collectionView indexPathsForSelectedItems];
    indexes = [indexes sortedArrayUsingSelector:@selector( compare:)];
-  
+
    rover = [indexes reverseObjectEnumerator];
    while( indexPath = [rover nextObject])
    {
       NSCParameterAssert( [indexPath isKindOfClass:[NSIndexPath class]]);
-      
+
       item = [indexPath item];
       [objects removeObjectAtIndex:item];
    }
@@ -185,7 +185,7 @@ static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
    [collectionView setContentSize:CGSizeMake( frame.size.width, frame.size.height)];
    [collectionView setItemSize:CGSizeMake( 350, 80)];
    [contentPlane addSubview:collectionView];
-   
+
    contentView = [collectionView contentView];
 
    dataSource  = [DataSource object];
@@ -232,7 +232,7 @@ int   main()
    UIWindow    *window;
 
    /*
-    * window and app 
+    * window and app
     */
    window  = [[[UIWindow alloc] initWithFrame:CGRectMake( 0.0, 0.0, 400.0 * SCALE, 300.0 * SCALE)] autorelease];
    assert( window);

@@ -1,0 +1,54 @@
+#! /usr/bin/env bash
+
+
+r_escaped_singlequotes()
+{
+   local quote="'"
+
+   RVAL="${*//${quote}/${quote}\"${quote}\"${quote}}"
+}
+
+r_concat()
+{
+   local separator="${3:- }"
+
+   if [ -z "${1}" ]
+   then
+      RVAL="${2}"
+   else
+      if [ -z "${2}" ]
+      then
+         RVAL="${1}"
+      else
+         RVAL="${1}${separator}${2}"
+      fi
+   fi
+}
+
+
+
+
+
+PATH=".:$PATH"
+
+README="${1:-README.md}"
+
+NAME="`./parse-readme-md name "${README}" `"
+EMOJI="`./parse-readme-md emoji "${README}" `"
+
+TEXT=
+
+capture=""
+
+
+# here IFS= is correct not $'\n' as it snarfs up empty newlines
+IFS=
+set -f
+for line in `./parse-readme-md text "${README}" `
+do
+   r_escaped_singlequotes "${line}"
+   r_concat "${TEXT}" "'${RVAL}'"
+   TEXT="${RVAL}"
+done
+
+eval ./kitchen/Debug/render-png "'${NAME}'" "'${EMOJI}'" ${TEXT}

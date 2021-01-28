@@ -20,7 +20,7 @@ include( Dependencies)
 
 add_library( MulleUI OBJECT ${SOURCES})
 
-# Overwrite rule generated MAIN_SOURCES, because we don't want all the 
+# Overwrite rule generated MAIN_SOURCES, because we don't want all the
 # demos built all the time
 
 set( MAIN_SOURCES
@@ -29,14 +29,15 @@ set( MAIN_SOURCES
 #src/main-calculator.m
 #src/main-collectionview.m
 #src/main-draw.m
-src/main-fbo.m
+#src/main-fbo.m
+#src/main-label.m
 #src/main-imageview.m
 #src/main-jspiechart.m
 #src/main-layer.m
 #src/main-many-rectangles.m
 #src/main-path.m
 #src/main-remove-from-area.m
-src/main-render-png.m
+#src/main-render-png.m
 #src/main-rowcolumn.m
 #src/main-scrollview.m
 #src/main-slider.m
@@ -47,6 +48,7 @@ src/main-render-png.m
 #src/main-textstorage.m
 src/main-textview.m
 #src/main-viewconversion.m
+src/main-windows.m
 )
 
 foreach( MAIN_SOURCE ${MAIN_SOURCES})
@@ -55,10 +57,10 @@ foreach( MAIN_SOURCE ${MAIN_SOURCES})
    string( LENGTH "${MAIN_SOURCE}" MAIN_SOURCE_LENGTH)
    math( EXPR MAIN_SOURCE_LENGTH "${MAIN_SOURCE_LENGTH} - 11")
    string( SUBSTRING "${MAIN_SOURCE}" 9 ${MAIN_SOURCE_LENGTH} EXECUTABLE_NAME)
-   
+
    set( SOURCES ${MAIN_SOURCE})
    set( OTHER_EXECUTABLE_OBJECT_FILES $<TARGET_OBJECTS:MulleUI>)
-  
+
    include( Executable)
    include( InstallExecutable)
    include( FinalOutput OPTIONAL)

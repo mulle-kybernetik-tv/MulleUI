@@ -28,13 +28,13 @@
    layer = [[[MulleTextLayer alloc] initWithFrame:frame] autorelease];
 
    //
-   // if we composite on top of an image and leave the background 
+   // if we composite on top of an image and leave the background
    // transparent, then the cleartype font looks very ugly. It needs a
    // solid background. (White on black seems best ?)
    //
    // Idea: text layer could shrink to minimum required size and then center
    //       itself.
-   // 
+   //
    //       Do not use cleartype font for UIButton, if the background is not
    //       opaque ?
    //
@@ -44,7 +44,7 @@
    //
    // Even with pixel size full frame, we won't cover the button. I suspect
    // because the font leaves vertical room for a previous row of text
-   // Fontsize is probably usefully set by the user anyway 
+   // Fontsize is probably usefully set by the user anyway
    [layer setFontPixelSize:frame.size.height / 2];
    [layer setBackgroundColor:getNVGColor( 0x0000000)];
    [layer setTextColor:getNVGColor( 0x000000FF)];
@@ -56,7 +56,7 @@
    return( layer);
 }
 
-/* Selection and highlight colors are currently hardcoded in 
+/* Selection and highlight colors are currently hardcoded in
  * UIButton+UIResponder.
  */
 + (CALayer *) mulleTitleBackgroundLayerWithFrame:(CGRect) frame
@@ -71,7 +71,7 @@
    [layer setBorderWidth:BORDER_WIDTH];
    [layer setBorderColor:getNVGColor( 0x7F7FFFFF)];
    [layer setCornerRadius:CORNER_RADIUS];
-   [layer setCStringName:"UIButton titleBackgroundLayer"];
+   [layer setDebugNameCString:"UIButton titleBackgroundLayer"];
    return( layer);
 }
 
@@ -82,16 +82,16 @@
    cls = [self class];
 
    _titleBackgroundLayer = [cls mulleTitleBackgroundLayerWithFrame:frame];
-   [_titleBackgroundLayer setCStringName:"UIButton titleBackgroundLayer"];
+   [_titleBackgroundLayer setDebugNameCString:"UIButton titleBackgroundLayer"];
    [self addLayer:_titleBackgroundLayer];
 
    _titleLayer = [cls titleLayerWithFrame:frame];
-   [_titleLayer setCStringName:"UIButton titleLayer"];
+   [_titleLayer setDebugNameCString:"UIButton titleLayer"];
    [self addLayer:_titleLayer];
 }
 
 
-- (instancetype) initWithLayer:(CALayer *) layer 
+- (instancetype) initWithLayer:(CALayer *) layer
 {
    CGRect         frame;
    CGRect         textLayerFrame;
@@ -128,7 +128,7 @@
    s = [_titleLayer cString];
 
    visible = s && *s;
-   
+
    [_titleLayer setHidden:! visible];
    [_titleBackgroundLayer setHidden:! visible];
    [_titleLayer setCString:visible ? s : ""];
@@ -189,8 +189,8 @@
    double         borderWidth;
 
    borderWidth = [_titleBackgroundLayer borderWidth];
-   insets = UIEdgeInsetsMake( borderWidth / 2 + TEXT_MARGIN, 
-                              borderWidth / 2 + TEXT_MARGIN, 
+   insets = UIEdgeInsetsMake( borderWidth / 2 + TEXT_MARGIN,
+                              borderWidth / 2 + TEXT_MARGIN,
                               borderWidth / 2 + TEXT_MARGIN,
                               borderWidth / 2 + TEXT_MARGIN);
 
@@ -202,7 +202,7 @@
 {
    CGRect   textLayerFrame;
 
-   textLayerFrame = [self mulleInsetTextLayerFrameWithFrame:frame];   
+   textLayerFrame = [self mulleInsetTextLayerFrameWithFrame:frame];
    [_titleLayer setFrame:textLayerFrame];
    [_titleBackgroundLayer setFrame:frame];
 }

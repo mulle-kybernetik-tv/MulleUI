@@ -193,6 +193,8 @@ static void   error_callback(int code, const char* description)
 
 
 - (void *) os_createWindowWithFrame:(CGRect) frame
+                       titleCString:(char *) title
+                          styleMask:(NSUInteger) styleMask
 {
    void   *window;
 
@@ -211,7 +213,10 @@ static void   error_callback(int code, const char* description)
    glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 #endif
 
-	glfwWindowHint( GLFW_RESIZABLE, GL_TRUE);
+   if( styleMask & MulleWindowStyleMaskResizable)
+   	glfwWindowHint( GLFW_RESIZABLE, GL_TRUE);
+   if( styleMask & MulleWindowStyleMaskInvisible)
+   	glfwWindowHint( GLFW_VISIBLE, GL_FALSE);
 
    // not super sure about this, but lets try to avoid "old" OpenGL
    // calls. alas, we are doing OpenGLES 2.0 minimum, so I don't know
@@ -219,7 +224,7 @@ static void   error_callback(int code, const char* description)
 
    window = glfwCreateWindow( (int) frame.size.width,
                               (int) frame.size.height,
-                              "Demo",
+                              title ? title : "",
                               0,
                               0);
    if( ! window)
@@ -231,10 +236,25 @@ static void   error_callback(int code, const char* description)
    // this is basically the "rendezvous" point where nanoVG latches unto
    // its also the receiver for OpenGL calls. That's why we need a window
    // to draw stuff
-   glfwMakeContextCurrent( window);
+   //
    glfwSetWindowUserPointer( window, self);
   
    return( window);
+}
+
+
+- (void) os_startRender
+{
+   // lock ?
+   [_renderContextLock lock];
+   glfwMakeContextCurrent( _window);
+}
+
+
+- (void) os_endRender
+{
+   glfwMakeContextCurrent( NULL);
+   [_renderContextLock unlock];
 }
 
 
@@ -306,10 +326,21 @@ static void   error_callback(int code, const char* description)
 }
 
 
-
 + (void) os_sendEmptyEvent
 {
    glfwPostEmptyEvent();
+}
+
+
+- (void) os_show
+{
+   glfwShowWindow( _window);
+}
+
+
+- (void) os_hide
+{
+   glfwHideWindow( _window);
 }
 
 

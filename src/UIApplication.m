@@ -12,7 +12,7 @@
    allocator = MulleObjCInstanceGetAllocator( self);
    mulle_array_init( &_windows,
                      2,
-                     &NSObjectMapKeyCallBacks,
+                     MulleObjCContainerKeyRetainCallback,
                      allocator);
    return( self);
 }
@@ -24,6 +24,7 @@
    [super dealloc];
 }
 
+
 - (NSInteger) _indexOfWindow:(UIWindow *) window
 {
    uintptr_t   found;
@@ -34,6 +35,7 @@
 
    return( found == mulle_not_found_e ? NSNotFound : (NSInteger) found);
 }
+
 
 - (NSInteger) getWindows:(UIWindow **) buf
                   length:(NSUInteger) length

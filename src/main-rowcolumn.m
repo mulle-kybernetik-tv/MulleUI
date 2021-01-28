@@ -28,8 +28,8 @@ static void   setupSceneInContentPlane( MulleWindowPlane *contentPlane)
    assert( frame.size.width  > 0.0);
 
    rootView  = [[[UIStackView alloc] initWithFrame:CGRectMake( 0, 0, 256, 256)] autorelease];
-   [rootView setCStringName:"rowColumnView"];
-   [rootView setBackgroundColor:getNVGColor( 0xFFFF00FF)]; 
+   [rootView setDebugNameCString:"rowColumnView"];
+   [rootView setBackgroundColor:getNVGColor( 0xFFFF00FF)];
    [rootView setAutoresizingMask:MulleUIViewAutoresizingStickToCenter];
    [rootView setAxis:UILayoutConstraintAxisVertical];
    [rootView setDistribution:MulleStackViewDistributionFillRowColumn];
@@ -60,7 +60,7 @@ int  main()
    UIApplication   *application;
 
       /*
-       * window and app 
+       * window and app
        */
 
    /* move singleton outside of test allocator code */
@@ -96,6 +96,6 @@ int  main()
          ./kitchen/Debug/calculator
    */
 
-   mulle_testallocator_reset();   
+   mulle_testallocator_reset();
 }
 
